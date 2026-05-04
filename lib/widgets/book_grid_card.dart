@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/book.dart';
+import '../services/database.dart';
 import '../models/display_preferences.dart';
 import 'status_chip.dart';
+import 'dart:io';
 
 class BookGridCard extends StatelessWidget {
   final Book book;
@@ -119,6 +120,13 @@ class BookGridCard extends StatelessWidget {
   }
 
   Widget _coverWidget(BuildContext context) {
+    if (book.coverPath != null) {
+      return Image.file(
+        File(book.coverPath!),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _placeholder(context),
+      );
+    }
     if (book.coverUrl != null) {
       return Image.network(
         book.coverUrl!,
@@ -131,7 +139,7 @@ class BookGridCard extends StatelessWidget {
 
   Widget _placeholder(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Center(
         child: Icon(
           Icons.menu_book,

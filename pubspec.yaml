@@ -26,6 +26,15 @@ dependencies:
   # Iconos
   cupertino_icons: ^1.0.8
 
+  # Selector de imágenes
+  image_picker: ^1.1.2
+
+  # Ruta de almacenamiento de la app
+  path_provider: ^2.1.4
+
+  # Copiar/mover archivos
+  path: ^1.9.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../controllers/books_controller.dart';
+import '../../services/database.dart';
 
-class ShelvesScreen extends StatelessWidget {
+class ShelvesScreen extends ConsumerWidget {
   const ShelvesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -20,7 +23,6 @@ class ShelvesScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // --- Estanterías por defecto ---
           Text(
             'Por estado',
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -28,40 +30,37 @@ class ShelvesScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _DefaultShelfTile(
+          _StatusShelfTile(
             icon: Icons.menu_book,
             label: 'Todos los libros',
             color: colorScheme.primary,
-            count: 0,
+            status: null,
           ),
-          _DefaultShelfTile(
+          _StatusShelfTile(
             icon: Icons.auto_stories,
             label: 'Leyendo',
             color: Colors.blue,
-            count: 0,
+            status: ReadingStatus.reading,
           ),
-          _DefaultShelfTile(
+          _StatusShelfTile(
             icon: Icons.check_circle_outline,
             label: 'Leídos',
             color: Colors.green,
-            count: 0,
+            status: ReadingStatus.read,
           ),
-          _DefaultShelfTile(
+          _StatusShelfTile(
             icon: Icons.bookmark_outline,
             label: 'Por leer',
             color: Colors.orange,
-            count: 0,
+            status: ReadingStatus.wantToRead,
           ),
-          _DefaultShelfTile(
+          _StatusShelfTile(
             icon: Icons.close,
             label: 'Abandonados',
             color: Colors.red,
-            count: 0,
+            status: ReadingStatus.abandoned,
           ),
-
           const SizedBox(height: 24),
-
-          // --- Estanterías personalizadas ---
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -74,8 +73,6 @@ class ShelvesScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-
-          // Placeholder vacío
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 48),
@@ -113,26 +110,32 @@ class ShelvesScreen extends StatelessWidget {
   }
 }
 
-class _DefaultShelfTile extends StatelessWidget {
+class _StatusShelfTile extends ConsumerWidget {
   final IconData icon;
   final String label;
   final Color color;
-  final int count;
+  final ReadingStatus? status; // null = todos
 
-  const _DefaultShelfTile({
+  const _StatusShelfTile({
     required this.icon,
     required this.label,
     required this.color,
-    required this.count,
+    required this.status,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final countAsync = status == null
+        ? ref.watch(allBooksProvider).whenData((b) => b.length)
+        : ref.watch(bookCountByStatusProvider(status!));
+
+    final count = countAsync.value ?? 0;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.15),
+          backgroundColor: color.withValues(alpha: 0.15),
           child: Icon(icon, color: color),
         ),
         title: Text(label),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/book.dart';
+import '../services/database.dart';
 
 class StatusChip extends StatelessWidget {
   final ReadingStatus status;
@@ -20,8 +20,8 @@ class StatusChip extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      backgroundColor: _color(status).withOpacity(0.12),
-      side: BorderSide(color: _color(status).withOpacity(0.3)),
+      backgroundColor: _color(status).withValues(alpha: 0.12),
+      side: BorderSide(color: _color(status).withValues(alpha: 0.3)),
     );
   }
 

@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/book.dart';
+import '../services/database.dart';
 import '../models/display_preferences.dart';
 import 'status_chip.dart';
-
-import 'package:flutter/material.dart';
-import '../models/book.dart';
-import '../models/display_preferences.dart';
-import 'status_chip.dart';
+import 'dart:io';
 
 class BookListTile extends StatelessWidget {
   final Book book;
@@ -37,20 +33,11 @@ class BookListTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Portada — ocupa todo el alto del tile
-              ClipRRect(
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(12),
-                ),
-                child: SizedBox(
-                  width: _tileHeight * 0.65,
-                  child: book.coverUrl != null
-                      ? Image.network(
-                    book.coverUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _placeholder(context),
-                  )
-                      : _placeholder(context),
-                ),
+              _BookCover(
+                coverUrl: book.coverUrl,
+                coverPath: book.coverPath,
+                height: _tileHeight,
+                width: _tileHeight * 0.65,
               ),
 
               // Info
@@ -147,7 +134,7 @@ class BookListTile extends StatelessWidget {
 
   Widget _placeholder(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Icon(
         Icons.menu_book,
         color: Theme.of(context).colorScheme.outline,
@@ -187,31 +174,51 @@ class _ProgressBar extends StatelessWidget {
 
 class _BookCover extends StatelessWidget {
   final String? coverUrl;
+  final String? coverPath;
   final double height;
   final double width;
 
-  const _BookCover({this.coverUrl, required this.height, required this.width});
+  const _BookCover({
+    this.coverUrl,
+    this.coverPath,
+    required this.height,
+    required this.width,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: coverUrl != null
-          ? Image.network(
-        coverUrl!,
-        height: height,
+      borderRadius: const BorderRadius.horizontal(
+        left: Radius.circular(12),
+      ),
+      child: SizedBox(
         width: width,
+        height: height,
+        child: _buildImage(context),
+      ),
+    );
+  }
+
+  Widget _buildImage(BuildContext context) {
+    if (coverPath != null) {
+      return Image.file(
+        File(coverPath!),
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => _placeholder(context),
-      )
-          : _placeholder(context),
-    );
+      );
+    }
+    if (coverUrl != null) {
+      return Image.network(
+        coverUrl!,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _placeholder(context),
+      );
+    }
+    return _placeholder(context);
   }
 
   Widget _placeholder(BuildContext context) {
     return Container(
-      height: height,
-      width: width,
       color: Theme.of(context).colorScheme.surfaceVariant,
       child: Icon(
         Icons.menu_book,
