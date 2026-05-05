@@ -32,7 +32,7 @@ class BookListTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Portada — ocupa todo el alto del tile
+              // Portada
               _BookCover(
                 coverUrl: book.coverUrl,
                 coverPath: book.coverPath,
@@ -43,11 +43,12 @@ class BookListTile extends StatelessWidget {
               // Info
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Título + chip — siempre visible
+                      // Título + chip — siempre fijos arriba
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -68,52 +69,66 @@ class BookListTile extends StatelessWidget {
                         ],
                       ),
 
-                      // Spacer flexible para empujar contenido inferior
-                      const Spacer(),
+                      // Campos ordenables
+                      ...prefs.fieldOrder.map((field) {
+                        switch (field) {
+                          case 'author':
+                            return Opacity(
+                              opacity: prefs.showAuthor ? 1 : 0,
+                              child: Text(
+                                book.author,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.outline,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          case 'publisher':
+                            return Opacity(
+                              opacity: prefs.showPublisher ? 1 : 0,
+                              child: Text(
+                                book.publisher ?? ' ',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.outline,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          case 'rating':
+                            return Opacity(
+                              opacity: prefs.showRating ? 1 : 0,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.star,
+                                      size: 14, color: Colors.amber[700]),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    book.rating?.toStringAsFixed(1) ?? '-',
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            );
+                          case 'tags':
+                            return Opacity(
+                              opacity: prefs.showTags ? 1 : 0,
+                              child: Text(
+                                '# etiquetas',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.outline,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            );
+                          default:
+                            return const SizedBox.shrink();
+                        }
+                      }),
 
-                      // Autor — reserva espacio aunque esté oculto
-                      Opacity(
-                        opacity: prefs.showAuthor ? 1 : 0,
-                        child: Text(
-                          book.author,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.outline,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-
-                      // Editorial — reserva espacio aunque esté oculta
-                      Opacity(
-                        opacity: prefs.showPublisher ? 1 : 0,
-                        child: Text(
-                          book.publisher ?? ' ',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.outline,
-                            fontStyle: FontStyle.italic,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-
-                      // Rating — reserva espacio aunque esté oculto
-                      Opacity(
-                        opacity: prefs.showRating ? 1 : 0,
-                        child: Row(
-                          children: [
-                            Icon(Icons.star, size: 14, color: Colors.amber[700]),
-                            const SizedBox(width: 2),
-                            Text(
-                              book.rating?.toStringAsFixed(1) ?? '-',
-                              style: theme.textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Progreso — reserva espacio aunque esté oculto
+                      // Progreso — fijo abajo
                       Opacity(
                         opacity: prefs.showProgress ? 1 : 0,
                         child: _ProgressBar(
@@ -128,16 +143,6 @@ class BookListTile extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _placeholder(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Icon(
-        Icons.menu_book,
-        color: Theme.of(context).colorScheme.outline,
       ),
     );
   }
@@ -204,14 +209,14 @@ class _BookCover extends StatelessWidget {
       return Image.file(
         File(coverPath!),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(context),
+        errorBuilder: (_, _, _) => _placeholder(context),
       );
     }
     if (coverUrl != null) {
       return Image.network(
         coverUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(context),
+        errorBuilder: (_, _, _) => _placeholder(context),
       );
     }
     return _placeholder(context);
@@ -219,7 +224,7 @@ class _BookCover extends StatelessWidget {
 
   Widget _placeholder(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Icon(
         Icons.menu_book,
         color: Theme.of(context).colorScheme.outline,

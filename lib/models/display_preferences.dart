@@ -1,5 +1,17 @@
 enum LibraryViewMode { list, grid }
 
+const _defaultFieldOrder = [
+  'tags',
+  'author',
+  'publisher',
+  'rating',
+];
+
+const _fixedFields = [
+  'progress',
+  'status',
+];
+
 class DisplayPreferences {
   final LibraryViewMode viewMode;
   final bool showProgress;
@@ -8,6 +20,7 @@ class DisplayPreferences {
   final bool showAuthor;
   final bool showStatusChip;
   final bool showPublisher;
+  final List<String> fieldOrder;
 
   const DisplayPreferences({
     this.viewMode = LibraryViewMode.list,
@@ -17,6 +30,7 @@ class DisplayPreferences {
     this.showAuthor = true,
     this.showStatusChip = true,
     this.showPublisher = false,
+    this.fieldOrder = const [..._defaultFieldOrder],
   });
 
   DisplayPreferences copyWith({
@@ -27,6 +41,7 @@ class DisplayPreferences {
     bool? showAuthor,
     bool? showStatusChip,
     bool? showPublisher,
+    List<String>? fieldOrder,
   }) {
     return DisplayPreferences(
       viewMode: viewMode ?? this.viewMode,
@@ -36,6 +51,7 @@ class DisplayPreferences {
       showAuthor: showAuthor ?? this.showAuthor,
       showStatusChip: showStatusChip ?? this.showStatusChip,
       showPublisher: showPublisher ?? this.showPublisher,
+      fieldOrder: fieldOrder ?? this.fieldOrder,
     );
   }
 }

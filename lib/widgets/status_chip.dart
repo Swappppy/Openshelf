@@ -9,13 +9,14 @@ class StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.zero,
+      labelPadding: const EdgeInsets.symmetric(horizontal: 6,vertical: 0),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
       label: Text(
         _label(status),
         style: TextStyle(
-          fontSize: 11,
+          fontSize: 10,
           color: _color(status),
           fontWeight: FontWeight.w600,
         ),

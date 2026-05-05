@@ -124,14 +124,14 @@ class BookGridCard extends StatelessWidget {
       return Image.file(
         File(book.coverPath!),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(context),
+        errorBuilder: (_, _, _) => _placeholder(context),
       );
     }
     if (book.coverUrl != null) {
       return Image.network(
         book.coverUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(context),
+        errorBuilder: (_, _, _) => _placeholder(context),
       );
     }
     return _placeholder(context);

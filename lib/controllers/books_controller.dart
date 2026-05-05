@@ -20,3 +20,8 @@ final bookCountByStatusProvider =
 Provider.family<AsyncValue<int>, ReadingStatus>((ref, status) {
   return ref.watch(booksByStatusProvider(status)).whenData((books) => books.length);
 });
+
+final bookByIdProvider = StreamProvider.family<Book?, int>((ref, id) {
+  final db = ref.watch(databaseProvider);
+  return db.watchBookById(id);
+});

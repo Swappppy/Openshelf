@@ -15,21 +15,24 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
 
   void toggleShowProgress() =>
       state = state.copyWith(showProgress: !state.showProgress);
-
   void toggleShowTags() =>
       state = state.copyWith(showTags: !state.showTags);
-
   void toggleShowRating() =>
       state = state.copyWith(showRating: !state.showRating);
-
   void toggleShowAuthor() =>
       state = state.copyWith(showAuthor: !state.showAuthor);
-
   void toggleShowStatusChip() =>
       state = state.copyWith(showStatusChip: !state.showStatusChip);
-
   void toggleShowPublisher() =>
       state = state.copyWith(showPublisher: !state.showPublisher);
+
+  void reorderFields(int oldIndex, int newIndex) {
+    final order = List<String>.from(state.fieldOrder);
+    if (newIndex > oldIndex) newIndex--;
+    final item = order.removeAt(oldIndex);
+    order.insert(newIndex, item);
+    state = state.copyWith(fieldOrder: order);
+  }
 }
 
 final displayPreferencesProvider =

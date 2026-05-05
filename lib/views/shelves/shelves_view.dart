@@ -13,6 +13,7 @@ class ShelvesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Estanterías'),
+        toolbarHeight: 40,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

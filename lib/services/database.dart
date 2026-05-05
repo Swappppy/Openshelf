@@ -89,6 +89,9 @@ class AppDatabase extends _$AppDatabase {
         .watch();
   }
 
+  Stream<Book?> watchBookById(int id) =>
+      (select(books)..where((b) => b.id.equals(id))).watchSingleOrNull();
+
   Future<int> insertBook(BooksCompanion book) => into(books).insert(book);
 
   Future<bool> updateBook(Book book) => update(books).replace(book);

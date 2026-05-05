@@ -64,6 +64,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _coverPath = b.coverPath;
       _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
     }
+    _currentPageCtrl.addListener(_updateStatusFromPages);
+    _totalPagesCtrl.addListener(_updateStatusFromPages);
   }
 
   @override
@@ -79,6 +81,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _collectionNameCtrl.dispose();
     _collectionNumberCtrl.dispose();
     _labelCtrl.dispose();
+    _currentPageCtrl.removeListener(_updateStatusFromPages);
+    _totalPagesCtrl.removeListener(_updateStatusFromPages);
     super.dispose();
   }
 
@@ -117,29 +121,67 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     setState(() => _isSaving = true);
 
     final db = ref.read(databaseProvider);
-    final companion = BooksCompanion.insert(
-      title: _titleCtrl.text.trim(),
-      author: _authorCtrl.text.trim(),
-      isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
-      publisher: Value(_publisherCtrl.text.trim().isEmpty
-          ? null
-          : _publisherCtrl.text.trim()),
-      totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
-      currentPage: Value(int.tryParse(_currentPageCtrl.text) ?? 0),
-      status: _status,
-      bookFormat: Value(_format),
-      rating: Value(_rating),
-      notes: Value(
-          _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
-      coverPath: Value(_coverPath),
-      collectionName: Value(_collectionNameCtrl.text.trim().isEmpty
-          ? null
-          : _collectionNameCtrl.text.trim()),
-      collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
-    );
 
-    await db.insertBook(companion);
+    if (widget.existingBook != null) {
+      // Editar libro existente
+      final updated = widget.existingBook!.copyWith(
+        title: _titleCtrl.text.trim(),
+        author: _authorCtrl.text.trim(),
+        isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
+        publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
+        totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
+        currentPage: Value(int.tryParse(_currentPageCtrl.text) ?? 0),
+        status: _status,
+        bookFormat: Value(_format),
+        rating: Value(_rating),
+        notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
+        coverPath: Value(_coverPath),
+        collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
+        collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
+      );
+      await db.updateBook(updated);
+    } else {
+      // Crear libro nuevo
+      final companion = BooksCompanion.insert(
+        title: _titleCtrl.text.trim(),
+        author: _authorCtrl.text.trim(),
+        isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
+        publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
+        totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
+        currentPage: Value(int.tryParse(_currentPageCtrl.text) ?? 0),
+        status: _status,
+        bookFormat: Value<BookFormat?>(_format),
+        rating: Value(_rating),
+        notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
+        coverPath: Value(_coverPath),
+        collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
+        collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
+      );
+      await db.insertBook(companion);
+    }
+
     if (mounted) Navigator.pop(context);
+  }
+
+  void _updateStatusFromPages() {
+    final current = int.tryParse(_currentPageCtrl.text);
+    final total = int.tryParse(_totalPagesCtrl.text);
+    if (current == null || total == null || total == 0) return;
+
+    ReadingStatus newStatus;
+    if (current == 0) {
+      newStatus = ReadingStatus.wantToRead;
+    } else if (current >= total) {
+      newStatus = ReadingStatus.read;
+      // Sincroniza página actual al total exacto
+      if (current > total) _currentPageCtrl.text = total.toString();
+    } else {
+      newStatus = ReadingStatus.reading;
+    }
+
+    if (newStatus != _status) {
+      setState(() => _status = newStatus);
+    }
   }
 
   @override
@@ -148,6 +190,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       appBar: AppBar(
         title: Text(
             widget.existingBook != null ? 'Editar libro' : 'Nuevo libro'),
+        toolbarHeight: 40,
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _save,
