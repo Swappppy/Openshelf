@@ -3,13 +3,15 @@ import '../services/database.dart';
 import '../models/display_preferences.dart';
 import 'status_chip.dart';
 import 'dart:io';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../controllers/books_controller.dart';
 
-class BookListTile extends StatelessWidget {
+class BookListTile extends ConsumerWidget {
   final Book book;
   final DisplayPreferences prefs;
   final VoidCallback? onTap;
 
-  static const double _tileHeight = 130;
+  static const double _tileHeight = 170;
 
   const BookListTile({
     super.key,
@@ -19,129 +21,141 @@ class BookListTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          height: _tileHeight,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Portada
-              _BookCover(
+    return InkWell(
+      onTap: onTap,
+      child: SizedBox(
+        height: _tileHeight,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Espacio izquierdo
+            const SizedBox(width: 16),
+
+            // Portada
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: _BookCover(
                 coverUrl: book.coverUrl,
                 coverPath: book.coverPath,
-                height: _tileHeight,
-                width: _tileHeight * 0.65,
+                height: _tileHeight - 12,
+                width: (_tileHeight - 12) * 0.65,
               ),
+            ),
 
-              // Info
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Título + chip — siempre fijos arriba
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
+            // Info
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 5, 12, 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Título + chip
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            book.title,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (prefs.showStatusChip) ...[
+                          const SizedBox(width: 8),
+                          StatusChip(status: book.status),
+                        ],
+                      ],
+                    ),
+
+                    const Spacer(),
+
+                    // Campos ordenables
+                    ...prefs.fieldOrder.map((field) {
+                      switch (field) {
+                        case 'author':
+                          return Opacity(
+                            opacity: prefs.showAuthor ? 1 : 0,
                             child: Text(
-                              book.title,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
+                              book.author,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.outline,
                               ),
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          if (prefs.showStatusChip) ...[
-                            const SizedBox(width: 8),
-                            StatusChip(status: book.status),
-                          ],
-                        ],
-                      ),
+                          );
+                        case 'publisher':
+                          return Opacity(
+                            opacity: prefs.showPublisher ? 1 : 0,
+                            child: Text(
+                              book.publisher ?? ' ',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.outline,
+                                fontStyle: FontStyle.italic,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        case 'rating':
+                          return Opacity(
+                            opacity: prefs.showRating ? 1 : 0,
+                            child: Row(
+                              children: [
+                                Icon(Icons.star,
+                                    size: 14, color: Colors.amber[700]),
+                                const SizedBox(width: 2),
+                                Text(
+                                  book.rating?.toStringAsFixed(1) ?? '-',
+                                  style: theme.textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          );
+                        case 'tags':
+                          if (!prefs.showTags) return const SizedBox.shrink();
+                          final tagsAsync = ref.watch(bookTagsProvider(book.id));
+                          return tagsAsync.maybeWhen(
+                            data: (tagList) => tagList.isEmpty
+                                ? const SizedBox.shrink()
+                                : Wrap(
+                              spacing: 4,
+                              children: tagList.map((tag) => Chip(
+                                label: Text(tag.name,
+                                    style: const TextStyle(fontSize: 10)),
+                                backgroundColor: tag.color != null
+                                    ? Color(int.parse('0xFF${tag.color!}'))
+                                    : null,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                padding: EdgeInsets.zero,
+                              )).toList(),
+                            ),
+                            orElse: () => const SizedBox.shrink(),
+                          );
+                        default:
+                          return const SizedBox.shrink();
+                      }
+                    }),
 
-                      // Campos ordenables
-                      ...prefs.fieldOrder.map((field) {
-                        switch (field) {
-                          case 'author':
-                            return Opacity(
-                              opacity: prefs.showAuthor ? 1 : 0,
-                              child: Text(
-                                book.author,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.outline,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          case 'publisher':
-                            return Opacity(
-                              opacity: prefs.showPublisher ? 1 : 0,
-                              child: Text(
-                                book.publisher ?? ' ',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.outline,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          case 'rating':
-                            return Opacity(
-                              opacity: prefs.showRating ? 1 : 0,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.star,
-                                      size: 14, color: Colors.amber[700]),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    book.rating?.toStringAsFixed(1) ?? '-',
-                                    style: theme.textTheme.bodySmall,
-                                  ),
-                                ],
-                              ),
-                            );
-                          case 'tags':
-                            return Opacity(
-                              opacity: prefs.showTags ? 1 : 0,
-                              child: Text(
-                                '# etiquetas',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.outline,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            );
-                          default:
-                            return const SizedBox.shrink();
-                        }
-                      }),
-
-                      // Progreso — fijo abajo
-                      Opacity(
-                        opacity: prefs.showProgress ? 1 : 0,
-                        child: _ProgressBar(
-                          current: book.currentPage ?? 0,
-                          total: book.totalPages ?? 1,
-                        ),
+                    // Progreso — fijo abajo
+                    Opacity(
+                      opacity: prefs.showProgress ? 1 : 0,
+                      child: _ProgressBar(
+                        current: book.currentPage ?? 0,
+                        total: book.totalPages ?? 1,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -193,9 +207,7 @@ class _BookCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: const BorderRadius.horizontal(
-        left: Radius.circular(12),
-      ),
+      borderRadius: BorderRadius.circular(6),
       child: SizedBox(
         width: width,
         height: height,

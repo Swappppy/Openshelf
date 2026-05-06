@@ -118,7 +118,7 @@ class _LibraryScreen extends ConsumerWidget {
 
           return prefs.viewMode == LibraryViewMode.list
               ? ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.zero,
                   itemCount: bookList.length,
                   itemBuilder: (context, index) => BookListTile(
                     book: bookList[index],

@@ -3,8 +3,10 @@ import '../services/database.dart';
 import '../models/display_preferences.dart';
 import 'status_chip.dart';
 import 'dart:io';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../controllers/books_controller.dart';
 
-class BookGridCard extends StatelessWidget {
+class BookGridCard extends ConsumerWidget {
   final Book book;
   final DisplayPreferences prefs;
   final VoidCallback? onTap;
@@ -17,7 +19,7 @@ class BookGridCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Card(
@@ -108,6 +110,27 @@ class BookGridCard extends StatelessWidget {
                           style: theme.textTheme.labelSmall,
                         ),
                       ],
+                    ),
+                  ],
+                  if (prefs.showTags) ...[
+                    const SizedBox(height: 4),
+                    ref.watch(bookTagsProvider(book.id)).maybeWhen(
+                      data: (tagList) => tagList.isEmpty
+                          ? const SizedBox.shrink()
+                          : Wrap(
+                        spacing: 4,
+                        runSpacing: 2,
+                        children: tagList.map((tag) => Chip(
+                          label: Text(tag.name,
+                              style: const TextStyle(fontSize: 10)),
+                          backgroundColor: tag.color != null
+                              ? Color(int.parse('0xFF${tag.color!}'))
+                              : null,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          padding: EdgeInsets.zero,
+                        )).toList(),
+                      ),
+                      orElse: () => const SizedBox.shrink(),
                     ),
                   ],
                 ],

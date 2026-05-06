@@ -10,6 +10,7 @@ class AppTheme {
         seedColor: _seedColor,
         brightness: Brightness.light,
       ),
+
     );
   }
 

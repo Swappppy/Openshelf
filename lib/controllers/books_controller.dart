@@ -25,3 +25,11 @@ final bookByIdProvider = StreamProvider.family<Book?, int>((ref, id) {
   final db = ref.watch(databaseProvider);
   return db.watchBookById(id);
 });
+
+final bookTagsProvider = StreamProvider.family<List<Tag>, int>((ref, bookId) {
+  return ref.watch(databaseProvider).watchTagsForBook(bookId);
+});
+
+final allTagsProvider = FutureProvider<List<Tag>>((ref) {
+  return ref.watch(databaseProvider).getTagsByType('tag');
+});

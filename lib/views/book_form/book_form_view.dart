@@ -15,6 +15,13 @@ class BookFormView extends ConsumerStatefulWidget {
   ConsumerState<BookFormView> createState() => _BookFormViewState();
 }
 
+// Tag pendiente de persistir — solo tiene nombre, aún sin id
+class _PendingTag {
+  final String name;
+  final String? color;
+  _PendingTag({required this.name, this.color});
+}
+
 class _BookFormViewState extends ConsumerState<BookFormView>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -30,14 +37,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   late final TextEditingController _notesCtrl;
   late final TextEditingController _collectionNameCtrl;
   late final TextEditingController _collectionNumberCtrl;
-  late final TextEditingController _labelCtrl;
 
   ReadingStatus _status = ReadingStatus.wantToRead;
   BookFormat? _format;
   double? _rating;
   bool _isSaving = false;
   String? _coverPath;
-  final List<String> _labels = [];
+  List<Tag> _selectedTags = [];        // tags ya existentes en BD
+  List<_PendingTag> _pendingTags = []; // tags nuevos, aún no persistidos
 
   @override
   void initState() {
@@ -56,13 +63,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         TextEditingController(text: b?.collectionName ?? '');
     _collectionNumberCtrl =
         TextEditingController(text: b?.collectionNumber?.toString() ?? '');
-    _labelCtrl = TextEditingController();
     if (b != null) {
       _status = b.status;
       _format = b.bookFormat;
       _rating = b.rating;
       _coverPath = b.coverPath;
       _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
+      _loadExistingTags(b.id);
     }
     _currentPageCtrl.addListener(_updateStatusFromPages);
     _totalPagesCtrl.addListener(_updateStatusFromPages);
@@ -80,7 +87,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _notesCtrl.dispose();
     _collectionNameCtrl.dispose();
     _collectionNumberCtrl.dispose();
-    _labelCtrl.dispose();
     _currentPageCtrl.removeListener(_updateStatusFromPages);
     _totalPagesCtrl.removeListener(_updateStatusFromPages);
     super.dispose();
@@ -140,6 +146,19 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
       );
       await db.updateBook(updated);
+      final existingIds = _selectedTags.map((t) => t.id).toList();
+      for (final p in _pendingTags) {
+        final newId = await db.insertTag(
+          TagsCompanion(name: Value(p.name), type: const Value('tag')),
+        );
+        existingIds.add(newId);
+      }
+      await db.setBookTags(widget.existingBook!.id, existingIds);
+      // Registrar colección si tiene nombre
+      final collectionName = _collectionNameCtrl.text.trim();
+      if (collectionName.isNotEmpty) {
+        await db.getOrCreateCollection(collectionName);
+      }
     } else {
       // Crear libro nuevo
       final companion = BooksCompanion.insert(
@@ -157,10 +176,29 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
       );
-      await db.insertBook(companion);
+      final newId = await db.insertBook(companion);
+      final existingIds = _selectedTags.map((t) => t.id).toList();
+      for (final p in _pendingTags) {
+        final tagId = await db.insertTag(
+          TagsCompanion(name: Value(p.name), type: const Value('tag')),
+        );
+        existingIds.add(tagId);
+      }
+      await db.setBookTags(newId, existingIds);
+      // Registrar colección si tiene nombre
+      final collectionName = _collectionNameCtrl.text.trim();
+      if (collectionName.isNotEmpty) {
+        await db.getOrCreateCollection(collectionName);
+      }
     }
 
     if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> _loadExistingTags(int bookId) async {
+    final db = ref.read(databaseProvider);
+    final existing = await db.watchTagsForBook(bookId).first;
+    setState(() => _selectedTags = existing);
   }
 
   void _updateStatusFromPages() {
@@ -231,22 +269,33 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onFormatChanged: (f) => setState(() => _format = f),
               onRatingChanged: (r) => setState(() => _rating = r),
               onPickCover: _pickCover,
+              selectedTags: _selectedTags,
+              pendingTags: _pendingTags,
+              onAddTag: (tag) => setState(() {
+                if (!_selectedTags.any((t) => t.id == tag.id)) {
+                  _selectedTags.add(tag);
+                }
+              }),
+              onRemoveTag: (tag) => setState(() => _selectedTags.remove(tag)),
+              onCreateTag: (name) => setState(() => _pendingTags.add(_PendingTag(name: name))),
+              onRemovePending: (p) => setState(() => _pendingTags.remove(p)),
             ),
             _DetailsTab(
               notesCtrl: _notesCtrl,
               collectionNameCtrl: _collectionNameCtrl,
               collectionNumberCtrl: _collectionNumberCtrl,
-              labelCtrl: _labelCtrl,
-              labels: _labels,
-              onAddLabel: (label) {
-                if (label.trim().isNotEmpty &&
-                    !_labels.contains(label.trim())) {
-                  setState(() => _labels.add(label.trim()));
-                  _labelCtrl.clear();
+              selectedTags: _selectedTags,
+              onAddTag: (tag) => setState(() {
+                if (!_selectedTags.any((t) => t.id == tag.id)) {
+                  _selectedTags.add(tag);
                 }
+              }),
+              onRemoveTag: (tag) => setState(() => _selectedTags.remove(tag)),
+              onCreateTag: (name) {
+                setState(() => _pendingTags.add(_PendingTag(name: name)));
               },
-              onRemoveLabel: (label) =>
-                  setState(() => _labels.remove(label)),
+              pendingTags: _pendingTags,
+              onRemovePending: (p) => setState(() => _pendingTags.remove(p)),
             ),
           ],
         ),
@@ -258,7 +307,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 // -------------------------------------------------------
 // Pestaña Principal
 // -------------------------------------------------------
-class _MainTab extends StatelessWidget {
+class _MainTab extends ConsumerWidget {
   final TextEditingController titleCtrl;
   final TextEditingController authorCtrl;
   final TextEditingController isbnCtrl;
@@ -273,6 +322,12 @@ class _MainTab extends StatelessWidget {
   final ValueChanged<BookFormat?> onFormatChanged;
   final ValueChanged<double?> onRatingChanged;
   final VoidCallback onPickCover;
+  final List<Tag> selectedTags;
+  final List<_PendingTag> pendingTags;
+  final ValueChanged<Tag> onAddTag;
+  final ValueChanged<Tag> onRemoveTag;
+  final void Function(String) onCreateTag;
+  final void Function(_PendingTag) onRemovePending;
 
   const _MainTab({
     required this.titleCtrl,
@@ -289,10 +344,16 @@ class _MainTab extends StatelessWidget {
     required this.onFormatChanged,
     required this.onRatingChanged,
     required this.onPickCover,
+    required this.selectedTags,
+    required this.pendingTags,
+    required this.onAddTag,
+    required this.onRemoveTag,
+    required this.onCreateTag,
+    required this.onRemovePending,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ListView(
@@ -350,10 +411,10 @@ class _MainTab extends StatelessWidget {
         const SizedBox(height: 4),
         Center(
           child: Text(
-            '⚠ Guarda las imágenes en una carpeta fija para evitar perderlas',
+            'Guarda las imágenes en una carpeta fija para evitar perderlas',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colorScheme.error,
+              color: colorScheme.outline,
             ),
           ),
         ),
@@ -382,10 +443,64 @@ class _MainTab extends StatelessWidget {
             keyboardType: TextInputType.number),
         const SizedBox(height: 24),
 
-        // --- Estado ---
-        _SectionHeader(label: 'Estado de lectura'),
+        // --- Etiquetas ---
+        _SectionHeader(label: 'Categorías'),
+        const SizedBox(height: 4),
+        Text(
+          'Escribe y pulsa Enter para añadir o crear',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ),
         const SizedBox(height: 12),
-        _StatusSelector(selected: status, onChanged: onStatusChanged),
+        if (selectedTags.isNotEmpty || pendingTags.isNotEmpty) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              ...selectedTags.map((tag) => Chip(
+                label: Text(tag.name),
+                backgroundColor: tag.color != null
+                    ? Color(int.parse('0xFF${tag.color!}'))
+                    : null,
+                onDeleted: () => onRemoveTag(tag),
+              )),
+              ...pendingTags.map((p) => Chip(
+                label: Text(p.name),
+                onDeleted: () => onRemovePending(p),
+              )),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
+        Autocomplete<Tag>(
+          displayStringForOption: (t) => t.name,
+          optionsBuilder: (textEditingValue) async {
+            final input = textEditingValue.text.trim();
+            if (input.isEmpty) return [];
+            final results = await ref.read(databaseProvider).searchTags(input, 'tag');
+            return results.where(
+                  (t) => !selectedTags.any((s) => s.id == t.id),
+            ).toList();
+          },
+          onSelected: onAddTag,
+          fieldViewBuilder: (_, controller, focusNode, _) => TextField(
+            controller: controller,
+            focusNode: focusNode,
+            decoration: const InputDecoration(
+              labelText: 'Buscar o crear categoría',
+              prefixIcon: Icon(Icons.label_outline),
+              border: OutlineInputBorder(),
+            ),
+            onSubmitted: (value) {
+              final name = value.trim();
+              if (name.isEmpty) return;
+              onCreateTag(name);
+              controller.clear();
+            },
+          ),
+        ),
+
         const SizedBox(height: 24),
 
         // --- Progreso ---
@@ -414,6 +529,12 @@ class _MainTab extends StatelessWidget {
         ),
         const SizedBox(height: 24),
 
+        // --- Estado ---
+        _SectionHeader(label: 'Estado de lectura'),
+        const SizedBox(height: 12),
+        _StatusSelector(selected: status, onChanged: onStatusChanged),
+        const SizedBox(height: 24),
+
         // --- Formato ---
         _SectionHeader(label: 'Formato'),
         const SizedBox(height: 12),
@@ -434,41 +555,63 @@ class _MainTab extends StatelessWidget {
 // -------------------------------------------------------
 // Pestaña Detalles
 // -------------------------------------------------------
-class _DetailsTab extends StatelessWidget {
+class _DetailsTab extends ConsumerWidget {
   final TextEditingController notesCtrl;
   final TextEditingController collectionNameCtrl;
   final TextEditingController collectionNumberCtrl;
-  final TextEditingController labelCtrl;
-  final List<String> labels;
-  final ValueChanged<String> onAddLabel;
-  final ValueChanged<String> onRemoveLabel;
+  final List<Tag> selectedTags;
+  final ValueChanged<Tag> onAddTag;
+  final ValueChanged<Tag> onRemoveTag;
+  final void Function(String name) onCreateTag;
+  final List<_PendingTag> pendingTags;
+  final void Function(_PendingTag) onRemovePending;
 
   const _DetailsTab({
     required this.notesCtrl,
     required this.collectionNameCtrl,
     required this.collectionNumberCtrl,
-    required this.labelCtrl,
-    required this.labels,
-    required this.onAddLabel,
-    required this.onRemoveLabel,
+    required this.selectedTags,
+    required this.onAddTag,
+    required this.onRemoveTag,
+    required this.onCreateTag,
+    required this.pendingTags,
+    required this.onRemovePending,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // --- Colección ---
         _SectionHeader(label: 'Colección / Serie'),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               flex: 3,
-              child: _FormField(
-                controller: collectionNameCtrl,
-                label: 'Nombre de la colección',
-                icon: Icons.collections_bookmark_outlined,
+              child: Autocomplete<Tag>(
+                displayStringForOption: (t) => t.name,
+                optionsBuilder: (textEditingValue) async {
+                  final input = textEditingValue.text.trim();
+                  if (input.isEmpty) return [];
+                  return ref.read(databaseProvider).searchTags(input, 'collection');
+                },
+                onSelected: (tag) {
+                  collectionNameCtrl.text = tag.name;
+                },
+                fieldViewBuilder: (_, controller, focusNode, _) {
+                  controller.text = collectionNameCtrl.text;
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    onChanged: (v) => collectionNameCtrl.text = v,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre de la colección',
+                      prefixIcon: Icon(Icons.collections_bookmark_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -485,58 +628,69 @@ class _DetailsTab extends StatelessWidget {
         ),
         const SizedBox(height: 24),
 
-        // --- Etiquetas / Sellos ---
         _SectionHeader(label: 'Etiquetas'),
         const SizedBox(height: 4),
         Text(
-          'Sellos editoriales, géneros, colecciones temáticas…',
+          'Escribe y pulsa Enter para añadir o crear',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.outline,
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: labelCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Nueva etiqueta',
-                  prefixIcon: Icon(Icons.label_outline),
-                  border: OutlineInputBorder(),
-                ),
-                onSubmitted: onAddLabel,
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton.filled(
-              icon: const Icon(Icons.add),
-              onPressed: () => onAddLabel(labelCtrl.text),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        if (labels.isEmpty)
-          Text(
-            'Sin etiquetas todavía',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-          )
-        else
+
+        // Chips de tags seleccionados
+        if (selectedTags.isNotEmpty || pendingTags.isNotEmpty) ...[
           Wrap(
             spacing: 8,
             runSpacing: 4,
-            children: labels
-                .map((label) => Chip(
-              label: Text(label),
-              onDeleted: () => onRemoveLabel(label),
-            ))
-                .toList(),
+            children: [
+              ...selectedTags.map((tag) => Chip(
+                label: Text(tag.name),
+                backgroundColor: tag.color != null
+                    ? Color(int.parse('0xFF${tag.color!}'))
+                    : null,
+                onDeleted: () => onRemoveTag(tag),
+              )),
+              ...pendingTags.map((p) => Chip(
+                label: Text(p.name),
+                avatar: const Icon(Icons.fiber_new, size: 16),
+                onDeleted: () => onRemovePending(p),
+              )),
+            ],
           ),
+          const SizedBox(height: 12),
+        ],
+
+        // Autocompletado
+        Autocomplete<Tag>(
+          displayStringForOption: (t) => t.name,
+          optionsBuilder: (textEditingValue) async {
+            final input = textEditingValue.text.trim();
+            if (input.isEmpty) return [];
+            final results = await ref.read(databaseProvider).searchTags(input, 'tag');
+            return results.where(
+                  (t) => !selectedTags.any((s) => s.id == t.id),
+            ).toList();
+          },
+          onSelected: onAddTag,
+          fieldViewBuilder: (_, controller, focusNode, _) => TextField(
+            controller: controller,
+            focusNode: focusNode,
+            decoration: const InputDecoration(
+              labelText: 'Buscar o crear etiqueta',
+              prefixIcon: Icon(Icons.label_outline),
+              border: OutlineInputBorder(),
+            ),
+            onSubmitted: (value) {
+              final name = value.trim();
+              if (name.isEmpty) return;
+              onCreateTag(name);
+              controller.clear();
+            },
+          ),
+        ),
         const SizedBox(height: 24),
 
-        // --- Notas ---
         _SectionHeader(label: 'Notas personales'),
         const SizedBox(height: 12),
         _FormField(

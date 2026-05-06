@@ -400,6 +400,7 @@ class _MainTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final book = this.book;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -411,6 +412,45 @@ class _MainTab extends StatelessWidget {
         _ReadOnlyField(label: 'Editorial', value: book.publisher ?? '—'),
         const SizedBox(height: 20),
         _ReadOnlyField(label: 'ISBN', value: book.isbn ?? '—'),
+        const SizedBox(height: 20),
+
+        // Categorías
+        Text(
+          'CATEGORÍAS',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Consumer(builder: (context, ref, _) {
+          final tagsAsync = ref.watch(bookTagsProvider(book.id));
+          return tagsAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const Text('—'),
+            data: (tagList) => tagList.isEmpty
+                ? Text(
+              '—',
+              style: Theme.of(context).textTheme.bodyLarge,
+            )
+                : Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: tagList.map((tag) => Chip(
+                label: Text(
+                  tag.name,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                backgroundColor: tag.color != null
+                    ? Color(int.parse('0xFF${tag.color!}'))
+                    : null,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: EdgeInsets.zero,
+              )).toList(),
+            ),
+          );
+        }),
         const SizedBox(height: 20),
 
         // Páginas — toca para editar
@@ -536,7 +576,7 @@ class _DetailsTab extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // Etiquetas placeholder
+        // Etiquetas
         Text(
           'ETIQUETAS',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -546,10 +586,33 @@ class _DetailsTab extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          '—',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
+        Consumer(builder: (context, ref, _) {
+          final tagsAsync = ref.watch(bookTagsProvider(book.id));
+          return tagsAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const Text('—'),
+            data: (tagList) => tagList.isEmpty
+                ? Text(
+              '—',
+              style: Theme.of(context).textTheme.bodyLarge,
+            )
+                : Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: tagList.map((tag) => Chip(
+                label: Text(
+                  tag.name,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                backgroundColor: tag.color != null
+                    ? Color(int.parse('0xFF${tag.color!}'))
+                    : null,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: EdgeInsets.zero,
+              )).toList(),
+            ),
+          );
+        }),
         const SizedBox(height: 20),
 
         // Notas
