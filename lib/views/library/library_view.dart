@@ -237,28 +237,29 @@ class _LibraryScreen extends ConsumerWidget {
 
                   // Campos reordenables
                   Expanded(
-                    child: ReorderableListView(
-                      onReorder: controller.reorderFields,
-                      shrinkWrap: true,
+                    child: ListView(
                       children: [
-                        ...p.fieldOrder.map(
-                          (field) => ListTile(
-                            key: ValueKey(field),
-                            leading: ReorderableDragStartListener(
-                              index: p.fieldOrder.indexOf(field),
-                              child: const Icon(Icons.drag_handle),
+                        ReorderableListView(
+                          onReorder: controller.reorderFields,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: p.fieldOrder.map(
+                                (field) => ListTile(
+                              key: ValueKey(field),
+                              leading: ReorderableDragStartListener(
+                                index: p.fieldOrder.indexOf(field),
+                                child: const Icon(Icons.drag_handle),
+                              ),
+                              title: Text(fieldLabels[field] ?? field),
+                              trailing: Switch(
+                                value: fieldValues[field] ?? false,
+                                onChanged: fieldToggles[field],
+                              ),
                             ),
-                            title: Text(fieldLabels[field] ?? field),
-                            trailing: Switch(
-                              value: fieldValues[field] ?? false,
-                              onChanged: fieldToggles[field],
-                            ),
-                          ),
+                          ).toList(),
                         ),
-
-                        // Campos fijos — no arrastrables
+                        const Divider(height: 1),
                         ListTile(
-                          key: const ValueKey('progress_fixed'),
                           leading: const Icon(
                             Icons.drag_handle,
                             color: Colors.transparent,
@@ -270,7 +271,6 @@ class _LibraryScreen extends ConsumerWidget {
                           ),
                         ),
                         ListTile(
-                          key: const ValueKey('status_fixed'),
                           leading: const Icon(
                             Icons.drag_handle,
                             color: Colors.transparent,

@@ -5,6 +5,7 @@ import 'status_chip.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/books_controller.dart';
+import 'tag_chip.dart';
 
 class BookListTile extends ConsumerWidget {
   final Book book;
@@ -12,6 +13,8 @@ class BookListTile extends ConsumerWidget {
   final VoidCallback? onTap;
 
   static const double _tileHeight = 170;
+  static const double _coverHeight = 158; // _tileHeight - 12
+  static const double _coverWidth = 102;  // _coverHeight * 0.65
 
   const BookListTile({
     super.key,
@@ -26,8 +29,7 @@ class BookListTile extends ConsumerWidget {
 
     return InkWell(
       onTap: onTap,
-      child: SizedBox(
-        height: _tileHeight,
+      child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -36,21 +38,22 @@ class BookListTile extends ConsumerWidget {
 
             // Portada
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
               child: _BookCover(
                 coverUrl: book.coverUrl,
                 coverPath: book.coverPath,
-                height: _tileHeight - 12,
-                width: (_tileHeight - 12) * 0.65,
+                height: _coverHeight,
+                width: _coverWidth,
               ),
             ),
 
             // Info
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 5, 12, 5),
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Título + chip
                     Row(
@@ -73,14 +76,15 @@ class BookListTile extends ConsumerWidget {
                       ],
                     ),
 
-                    const Spacer(),
+                    const SizedBox(height: 4),
 
                     // Campos ordenables
                     ...prefs.fieldOrder.map((field) {
                       switch (field) {
                         case 'author':
-                          return Opacity(
-                            opacity: prefs.showAuthor ? 1 : 0,
+                          if (!prefs.showAuthor) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 2),
                             child: Text(
                               book.author,
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -91,8 +95,9 @@ class BookListTile extends ConsumerWidget {
                             ),
                           );
                         case 'publisher':
-                          return Opacity(
-                            opacity: prefs.showPublisher ? 1 : 0,
+                          if (!prefs.showPublisher) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 2),
                             child: Text(
                               book.publisher ?? ' ',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -104,12 +109,12 @@ class BookListTile extends ConsumerWidget {
                             ),
                           );
                         case 'rating':
-                          return Opacity(
-                            opacity: prefs.showRating ? 1 : 0,
+                          if (!prefs.showRating) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 2),
                             child: Row(
                               children: [
-                                Icon(Icons.star,
-                                    size: 14, color: Colors.amber[700]),
+                                Icon(Icons.star, size: 14, color: Colors.amber[700]),
                                 const SizedBox(width: 2),
                                 Text(
                                   book.rating?.toStringAsFixed(1) ?? '-',
@@ -124,17 +129,21 @@ class BookListTile extends ConsumerWidget {
                           return tagsAsync.maybeWhen(
                             data: (tagList) => tagList.isEmpty
                                 ? const SizedBox.shrink()
-                                : Wrap(
-                              spacing: 4,
-                              children: tagList.map((tag) => Chip(
-                                label: Text(tag.name,
-                                    style: const TextStyle(fontSize: 10)),
-                                backgroundColor: tag.color != null
-                                    ? Color(int.parse('0xFF${tag.color!}'))
-                                    : null,
-                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                padding: EdgeInsets.zero,
-                              )).toList(),
+                                : Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxHeight: 84),
+                                child: ClipRect(
+                                  child: Wrap(
+                                    spacing: 4,
+                                    runSpacing: 4,
+                                    children: tagList.map((tag) => TagChip(
+                                      label: tag.name,
+                                      colorHex: tag.color,
+                                    )).toList(),
+                                  ),
+                                ),
+                              ),
                             ),
                             orElse: () => const SizedBox.shrink(),
                           );
@@ -143,14 +152,14 @@ class BookListTile extends ConsumerWidget {
                       }
                     }),
 
+                    const Spacer(),
+
                     // Progreso — fijo abajo
-                    Opacity(
-                      opacity: prefs.showProgress ? 1 : 0,
-                      child: _ProgressBar(
+                    if (prefs.showProgress)
+                      _ProgressBar(
                         current: book.currentPage ?? 0,
                         total: book.totalPages ?? 1,
                       ),
-                    ),
                   ],
                 ),
               ),

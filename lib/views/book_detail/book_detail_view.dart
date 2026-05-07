@@ -8,6 +8,7 @@ import '../../controllers/books_controller.dart';
 import '../../widgets/status_chip.dart';
 import '../book_form/book_form_view.dart';
 import '../../widgets/page_picker.dart';
+import '../../widgets/tag_chip.dart';
 
 class BookDetailView extends ConsumerWidget {
   final Book book;
@@ -437,16 +438,9 @@ class _MainTab extends StatelessWidget {
                 : Wrap(
               spacing: 6,
               runSpacing: 4,
-              children: tagList.map((tag) => Chip(
-                label: Text(
-                  tag.name,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                backgroundColor: tag.color != null
-                    ? Color(int.parse('0xFF${tag.color!}'))
-                    : null,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                padding: EdgeInsets.zero,
+              children: tagList.map((tag) => TagChip(
+                label: tag.name,
+                colorHex: tag.color,
               )).toList(),
             ),
           );
@@ -576,9 +570,10 @@ class _DetailsTab extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // Etiquetas
+        // Sellos
+        const SizedBox(height: 20),
         Text(
-          'ETIQUETAS',
+          'SELLO EDITORIAL',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -587,33 +582,49 @@ class _DetailsTab extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Consumer(builder: (context, ref, _) {
-          final tagsAsync = ref.watch(bookTagsProvider(book.id));
-          return tagsAsync.when(
+          final imprintAsync = ref.watch(bookImprintProvider(book.id));
+          return imprintAsync.when(
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const Text('—'),
-            data: (tagList) => tagList.isEmpty
-                ? Text(
-              '—',
-              style: Theme.of(context).textTheme.bodyLarge,
-            )
-                : Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: tagList.map((tag) => Chip(
-                label: Text(
-                  tag.name,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                backgroundColor: tag.color != null
-                    ? Color(int.parse('0xFF${tag.color!}'))
-                    : null,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                padding: EdgeInsets.zero,
-              )).toList(),
-            ),
+            data: (imprint) {
+              if (imprint == null) { return Text('—',
+                  style: Theme.of(context).textTheme.bodyLarge); }
+              return Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: imprint.imagePath != null
+                        ? Image.file(
+                      File(imprint.imagePath!),
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    )
+                        : Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Icon(
+                        Icons.business_outlined,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    imprint.name,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
+              );
+            },
           );
         }),
-        const SizedBox(height: 20),
 
         // Notas
         GestureDetector(

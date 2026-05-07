@@ -30,6 +30,18 @@ final bookTagsProvider = StreamProvider.family<List<Tag>, int>((ref, bookId) {
   return ref.watch(databaseProvider).watchTagsForBook(bookId);
 });
 
-final allTagsProvider = FutureProvider<List<Tag>>((ref) {
-  return ref.watch(databaseProvider).getTagsByType('tag');
+final allTagsProvider = StreamProvider<List<Tag>>((ref) {
+  return ref.watch(databaseProvider).watchTagsByType('tag');
+});
+
+final allImprintsProvider = StreamProvider<List<Tag>>((ref) {
+  return ref.watch(databaseProvider).watchTagsByType('imprint');
+});
+
+final allCollectionsProvider = StreamProvider<List<Tag>>((ref) {
+  return ref.watch(databaseProvider).watchTagsByType('collection');
+});
+
+final bookImprintProvider = StreamProvider.family<Tag?, int>((ref, bookId) {
+  return ref.watch(databaseProvider).watchImprintForBook(bookId);
 });

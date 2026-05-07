@@ -5,6 +5,7 @@ import 'status_chip.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/books_controller.dart';
+import 'tag_chip.dart';
 
 class BookGridCard extends ConsumerWidget {
   final Book book;
@@ -117,18 +118,18 @@ class BookGridCard extends ConsumerWidget {
                     ref.watch(bookTagsProvider(book.id)).maybeWhen(
                       data: (tagList) => tagList.isEmpty
                           ? const SizedBox.shrink()
-                          : Wrap(
-                        spacing: 4,
-                        runSpacing: 2,
-                        children: tagList.map((tag) => Chip(
-                          label: Text(tag.name,
-                              style: const TextStyle(fontSize: 10)),
-                          backgroundColor: tag.color != null
-                              ? Color(int.parse('0xFF${tag.color!}'))
-                              : null,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          padding: EdgeInsets.zero,
-                        )).toList(),
+                          : ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 56),
+                        child: ClipRect(
+                          child: Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: tagList.map((tag) => TagChip(
+                              label: tag.name,
+                              colorHex: tag.color,
+                            )).toList(),
+                          ),
+                        ),
                       ),
                       orElse: () => const SizedBox.shrink(),
                     ),

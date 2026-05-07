@@ -1,11 +1,12 @@
 import 'dart:io';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/database.dart';
 import '../../services/cover_service.dart';
 import '../../controllers/database_provider.dart';
+import '../../widgets/tag_chip.dart';
 
 class BookFormView extends ConsumerStatefulWidget {
   final Book? existingBook;
@@ -18,7 +19,7 @@ class BookFormView extends ConsumerStatefulWidget {
 // Tag pendiente de persistir — solo tiene nombre, aún sin id
 class _PendingTag {
   final String name;
-  final String? color;
+  String? color;
   _PendingTag({required this.name, this.color});
 }
 
@@ -44,6 +45,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   bool _isSaving = false;
   String? _coverPath;
   List<Tag> _selectedTags = [];        // tags ya existentes en BD
+  Tag? _selectedImprint;
   List<_PendingTag> _pendingTags = []; // tags nuevos, aún no persistidos
 
   @override
@@ -70,6 +72,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _coverPath = b.coverPath;
       _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
       _loadExistingTags(b.id);
+      _loadExistingImprint(b.id);
     }
     _currentPageCtrl.addListener(_updateStatusFromPages);
     _totalPagesCtrl.addListener(_updateStatusFromPages);
@@ -146,14 +149,31 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
       );
       await db.updateBook(updated);
+      // Limpiar colección anterior si cambió o se borró
+      final oldCollection = widget.existingBook!.collectionName;
+      final newCollection = _collectionNameCtrl.text.trim().isEmpty
+          ? null
+          : _collectionNameCtrl.text.trim();
+      if (oldCollection != null && oldCollection != newCollection) {
+        await db.pruneCollectionIfOrphan(oldCollection);
+      }
       final existingIds = _selectedTags.map((t) => t.id).toList();
       for (final p in _pendingTags) {
         final newId = await db.insertTag(
-          TagsCompanion(name: Value(p.name), type: const Value('tag')),
+          TagsCompanion(
+            name: Value(p.name),
+            type: const Value('tag'),
+            color: Value(p.color),
+          ),
         );
         existingIds.add(newId);
       }
       await db.setBookTags(widget.existingBook!.id, existingIds);
+      await db.setBookImprint(
+        widget.existingBook!.id,
+        _selectedImprint?.id,
+      );
+      await db.pruneOrphanTags();
       // Registrar colección si tiene nombre
       final collectionName = _collectionNameCtrl.text.trim();
       if (collectionName.isNotEmpty) {
@@ -179,12 +199,17 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       final newId = await db.insertBook(companion);
       final existingIds = _selectedTags.map((t) => t.id).toList();
       for (final p in _pendingTags) {
-        final tagId = await db.insertTag(
-          TagsCompanion(name: Value(p.name), type: const Value('tag')),
+        final newId = await db.insertTag(
+          TagsCompanion(
+            name: Value(p.name),
+            type: const Value('tag'),
+            color: Value(p.color),
+          ),
         );
-        existingIds.add(tagId);
+        existingIds.add(newId);
       }
       await db.setBookTags(newId, existingIds);
+      await db.setBookImprint(newId, _selectedImprint?.id);
       // Registrar colección si tiene nombre
       final collectionName = _collectionNameCtrl.text.trim();
       if (collectionName.isNotEmpty) {
@@ -195,10 +220,108 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (mounted) Navigator.pop(context);
   }
 
+  Future<void> _showColorPicker(BuildContext context, {
+    Tag? existingTag,
+    _PendingTag? pendingTag,
+  }) async {
+    final colors = [
+      ('E53935', 'Rojo'),
+      ('D81B60', 'Rosa'),
+      ('8E24AA', 'Morado'),
+      ('3949AB', 'Índigo'),
+      ('1E88E5', 'Azul'),
+      ('00ACC1', 'Cian'),
+      ('00897B', 'Verde azulado'),
+      ('43A047', 'Verde'),
+      ('C0CA33', 'Lima'),
+      ('FB8C00', 'Naranja'),
+      ('6D4C41', 'Marrón'),
+      ('757575', 'Gris'),
+    ];
+
+    await showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Color de la etiqueta',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: colors.map((c) {
+                final (hex, name) = c;
+                final color = Color(int.parse('0xFF$hex'));
+                final currentHex = existingTag?.color ?? pendingTag?.color;
+                final isSelected = currentHex == hex;
+                return GestureDetector(
+                  onTap: () async {
+                    if (existingTag != null) {
+                      final updated = Tag(
+                        id: existingTag.id,
+                        name: existingTag.name,
+                        type: existingTag.type,
+                        color: hex,
+                        imagePath: existingTag.imagePath,
+                      );
+                      await ref.read(databaseProvider).updateTag(updated);
+                      setState(() {
+                        final idx = _selectedTags.indexWhere((t) => t.id == existingTag.id);
+                        if (idx != -1) _selectedTags[idx] = updated;
+                      });
+                    } else if (pendingTag != null) {
+                      setState(() => pendingTag.color = hex);
+                    }
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: isSelected
+                          ? Border.all(color: Colors.white, width: 3)
+                          : null,
+                      boxShadow: isSelected
+                          ? [BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 6)]
+                          : null,
+                    ),
+                    child: isSelected
+                        ? const Icon(Icons.check, color: Colors.white, size: 20)
+                        : null,
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _loadExistingTags(int bookId) async {
     final db = ref.read(databaseProvider);
     final existing = await db.watchTagsForBook(bookId).first;
     setState(() => _selectedTags = existing);
+  }
+
+  Future<void> _loadExistingImprint(int bookId) async {
+    final db = ref.read(databaseProvider);
+    final existing = await db.watchImprintForBook(bookId).first;
+    setState(() => _selectedImprint = existing);
   }
 
   void _updateStatusFromPages() {
@@ -279,23 +402,16 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onRemoveTag: (tag) => setState(() => _selectedTags.remove(tag)),
               onCreateTag: (name) => setState(() => _pendingTags.add(_PendingTag(name: name))),
               onRemovePending: (p) => setState(() => _pendingTags.remove(p)),
+              onTapTagColor: ({Tag? existingTag, _PendingTag? pendingTag}) =>
+                  _showColorPicker(context, existingTag: existingTag, pendingTag: pendingTag),
             ),
             _DetailsTab(
               notesCtrl: _notesCtrl,
               collectionNameCtrl: _collectionNameCtrl,
               collectionNumberCtrl: _collectionNumberCtrl,
-              selectedTags: _selectedTags,
-              onAddTag: (tag) => setState(() {
-                if (!_selectedTags.any((t) => t.id == tag.id)) {
-                  _selectedTags.add(tag);
-                }
-              }),
-              onRemoveTag: (tag) => setState(() => _selectedTags.remove(tag)),
-              onCreateTag: (name) {
-                setState(() => _pendingTags.add(_PendingTag(name: name)));
-              },
-              pendingTags: _pendingTags,
-              onRemovePending: (p) => setState(() => _pendingTags.remove(p)),
+              selectedImprint: _selectedImprint,
+              onSelectImprint: (tag) => setState(() => _selectedImprint = tag),
+              onClearImprint: () => setState(() => _selectedImprint = null),
             ),
           ],
         ),
@@ -328,6 +444,7 @@ class _MainTab extends ConsumerWidget {
   final ValueChanged<Tag> onRemoveTag;
   final void Function(String) onCreateTag;
   final void Function(_PendingTag) onRemovePending;
+  final void Function({Tag? existingTag, _PendingTag? pendingTag}) onTapTagColor;
 
   const _MainTab({
     required this.titleCtrl,
@@ -350,6 +467,7 @@ class _MainTab extends ConsumerWidget {
     required this.onRemoveTag,
     required this.onCreateTag,
     required this.onRemovePending,
+    required this.onTapTagColor,
   });
 
   @override
@@ -458,15 +576,16 @@ class _MainTab extends ConsumerWidget {
             spacing: 8,
             runSpacing: 4,
             children: [
-              ...selectedTags.map((tag) => Chip(
-                label: Text(tag.name),
-                backgroundColor: tag.color != null
-                    ? Color(int.parse('0xFF${tag.color!}'))
-                    : null,
+              ...selectedTags.map((tag) => TagChip(
+                label: tag.name,
+                colorHex: tag.color,
+                onTap: () => onTapTagColor(existingTag: tag),
                 onDeleted: () => onRemoveTag(tag),
               )),
-              ...pendingTags.map((p) => Chip(
-                label: Text(p.name),
+              ...pendingTags.map((p) => TagChip(
+                label: p.name,
+                colorHex: p.color,
+                onTap: () => onTapTagColor(pendingTag: p),
                 onDeleted: () => onRemovePending(p),
               )),
             ],
@@ -559,23 +678,17 @@ class _DetailsTab extends ConsumerWidget {
   final TextEditingController notesCtrl;
   final TextEditingController collectionNameCtrl;
   final TextEditingController collectionNumberCtrl;
-  final List<Tag> selectedTags;
-  final ValueChanged<Tag> onAddTag;
-  final ValueChanged<Tag> onRemoveTag;
-  final void Function(String name) onCreateTag;
-  final List<_PendingTag> pendingTags;
-  final void Function(_PendingTag) onRemovePending;
+  final Tag? selectedImprint;
+  final ValueChanged<Tag> onSelectImprint;
+  final VoidCallback onClearImprint;
 
   const _DetailsTab({
     required this.notesCtrl,
     required this.collectionNameCtrl,
     required this.collectionNumberCtrl,
-    required this.selectedTags,
-    required this.onAddTag,
-    required this.onRemoveTag,
-    required this.onCreateTag,
-    required this.pendingTags,
-    required this.onRemovePending,
+    required this.selectedImprint,
+    required this.onSelectImprint,
+    required this.onClearImprint,
   });
 
   @override
@@ -599,7 +712,7 @@ class _DetailsTab extends ConsumerWidget {
                 onSelected: (tag) {
                   collectionNameCtrl.text = tag.name;
                 },
-                fieldViewBuilder: (_, controller, focusNode, _) {
+                fieldViewBuilder: (_, controller, focusNode, __) {
                   controller.text = collectionNameCtrl.text;
                   return TextField(
                     controller: controller,
@@ -628,66 +741,12 @@ class _DetailsTab extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
 
-        _SectionHeader(label: 'Etiquetas'),
-        const SizedBox(height: 4),
-        Text(
-          'Escribe y pulsa Enter para añadir o crear',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.outline,
-          ),
-        ),
+        _SectionHeader(label: 'Sello editorial'),
         const SizedBox(height: 12),
-
-        // Chips de tags seleccionados
-        if (selectedTags.isNotEmpty || pendingTags.isNotEmpty) ...[
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              ...selectedTags.map((tag) => Chip(
-                label: Text(tag.name),
-                backgroundColor: tag.color != null
-                    ? Color(int.parse('0xFF${tag.color!}'))
-                    : null,
-                onDeleted: () => onRemoveTag(tag),
-              )),
-              ...pendingTags.map((p) => Chip(
-                label: Text(p.name),
-                avatar: const Icon(Icons.fiber_new, size: 16),
-                onDeleted: () => onRemovePending(p),
-              )),
-            ],
-          ),
-          const SizedBox(height: 12),
-        ],
-
-        // Autocompletado
-        Autocomplete<Tag>(
-          displayStringForOption: (t) => t.name,
-          optionsBuilder: (textEditingValue) async {
-            final input = textEditingValue.text.trim();
-            if (input.isEmpty) return [];
-            final results = await ref.read(databaseProvider).searchTags(input, 'tag');
-            return results.where(
-                  (t) => !selectedTags.any((s) => s.id == t.id),
-            ).toList();
-          },
-          onSelected: onAddTag,
-          fieldViewBuilder: (_, controller, focusNode, _) => TextField(
-            controller: controller,
-            focusNode: focusNode,
-            decoration: const InputDecoration(
-              labelText: 'Buscar o crear etiqueta',
-              prefixIcon: Icon(Icons.label_outline),
-              border: OutlineInputBorder(),
-            ),
-            onSubmitted: (value) {
-              final name = value.trim();
-              if (name.isEmpty) return;
-              onCreateTag(name);
-              controller.clear();
-            },
-          ),
+        _ImprintSelector(
+          selected: selectedImprint,
+          onSelect: onSelectImprint,
+          onClear: onClearImprint,
         ),
         const SizedBox(height: 24),
 
@@ -708,6 +767,99 @@ class _DetailsTab extends ConsumerWidget {
 // -------------------------------------------------------
 // Widgets auxiliares
 // -------------------------------------------------------
+
+class _ImprintSelector extends ConsumerWidget {
+  final Tag? selected;
+  final ValueChanged<Tag> onSelect;
+  final VoidCallback onClear;
+
+  const _ImprintSelector({
+    required this.selected,
+    required this.onSelect,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (selected != null) ...[
+          _ImprintRow(imprint: selected!, onClear: onClear),
+          const SizedBox(height: 12),
+        ],
+        Autocomplete<Tag>(
+          displayStringForOption: (t) => t.name,
+          optionsBuilder: (textEditingValue) async {
+            final input = textEditingValue.text.trim();
+            if (input.isEmpty) return [];
+            return ref.read(databaseProvider).searchTags(input, 'imprint');
+          },
+          onSelected: (tag) => onSelect(tag),
+          fieldViewBuilder: (_, controller, focusNode, __) => TextField(
+            controller: controller,
+            focusNode: focusNode,
+            decoration: const InputDecoration(
+              labelText: 'Buscar sello editorial',
+              prefixIcon: Icon(Icons.business_outlined),
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ImprintRow extends StatelessWidget {
+  final Tag imprint;
+  final VoidCallback onClear;
+
+  const _ImprintRow({required this.imprint, required this.onClear});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: imprint.imagePath != null
+              ? Image.file(
+            File(imprint.imagePath!),
+            width: 48,
+            height: 48,
+            fit: BoxFit.cover,
+          )
+              : Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Icon(
+              Icons.business_outlined,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            imprint.name,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: onClear,
+        ),
+      ],
+    );
+  }
+}
+
+
 
 class _SectionHeader extends StatelessWidget {
   final String label;

@@ -118,23 +118,37 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteBook(int id) async {
     await transaction(() async {
-      // Recoge los tagIds vinculados antes de borrar
+      final book = await (select(books)..where((b) => b.id.equals(id)))
+          .getSingleOrNull();
+
       final linked = await (select(bookTags)
         ..where((bt) => bt.bookId.equals(id))).get();
       final tagIds = linked.map((bt) => bt.tagId).toList();
 
-      // Borra las relaciones
       await (delete(bookTags)..where((bt) => bt.bookId.equals(id))).go();
-
-      // Borra el libro
       await (delete(books)..where((b) => b.id.equals(id))).go();
 
-      // Para cada tag, si ya no tiene libros asociados, bórralo
       for (final tagId in tagIds) {
         final remaining = await (select(bookTags)
           ..where((bt) => bt.tagId.equals(tagId))).get();
         if (remaining.isEmpty) {
-          await (delete(tags)..where((t) => t.id.equals(tagId))).go();
+          final t = await (select(tags)..where((t) => t.id.equals(tagId)))
+              .getSingleOrNull();
+          if (t != null && t.type == 'tag') {
+            await (delete(tags)..where((t) => t.id.equals(tagId))).go();
+          }
+        }
+      }
+
+      if (book != null && book.collectionName != null) {
+        final others = await (select(books)
+          ..where((b) => b.collectionName.equals(book.collectionName!)))
+            .get();
+        if (others.isEmpty) {
+          await (delete(tags)
+            ..where((t) =>
+            t.name.equals(book.collectionName!) &
+            t.type.equals('collection'))).go();
         }
       }
     });
@@ -168,8 +182,25 @@ class AppDatabase extends _$AppDatabase {
 
   Future<bool> updateTag(Tag tag) => update(tags).replace(tag);
 
-  Future<int> deleteTag(int id) =>
-      (delete(tags)..where((t) => t.id.equals(id))).go();
+  Future<void> deleteTag(int id) async {
+    await transaction(() async {
+      // Si es una colección, limpiar los libros que la usan
+      final tag = await (select(tags)..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+      if (tag != null && tag.type == 'collection') {
+        await (update(books)
+          ..where((b) => b.collectionName.equals(tag.name)))
+            .write(const BooksCompanion(
+          collectionName: Value(null),
+          collectionNumber: Value(null),
+        ));
+      }
+      // Borrar relaciones libro↔tag
+      await (delete(bookTags)..where((bt) => bt.tagId.equals(id))).go();
+      // Borrar el tag
+      await (delete(tags)..where((t) => t.id.equals(id))).go();
+    });
+  }
 
 // --- Relación libro<->tags ---
   Future<void> setBookTags(int bookId, List<int> tagIds) async {
@@ -187,6 +218,19 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  Future<void> pruneOrphanTags() async {
+    final allTags = await select(tags).get();
+    for (final tag in allTags) {
+      // Imprints y colecciones se gestionan manualmente, no se auto-borran
+      if (tag.type == 'imprint' || tag.type == 'collection') continue;
+      final refs = await (select(bookTags)
+        ..where((bt) => bt.tagId.equals(tag.id))).get();
+      if (refs.isEmpty) {
+        await (delete(tags)..where((t) => t.id.equals(tag.id))).go();
+      }
+    }
+  }
+
   Stream<List<Tag>> watchTagsForBook(int bookId) {
     final query = select(tags).join([
       innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
@@ -197,5 +241,58 @@ class AppDatabase extends _$AppDatabase {
     return query.watch().map(
           (rows) => rows.map((r) => r.readTable(tags)).toList(),
     );
+  }
+
+  Stream<Tag?> watchImprintForBook(int bookId) {
+    final query = select(tags).join([
+      innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
+    ])
+      ..where(bookTags.bookId.equals(bookId))
+      ..where(tags.type.equals('imprint'));
+
+    return query.watch().map(
+          (rows) => rows.isEmpty ? null : rows.first.readTable(tags),
+    );
+  }
+
+  Stream<List<Tag>> watchTagsByType(String type) =>
+      (select(tags)..where((t) => t.type.equals(type))).watch();
+
+  Future<void> setBookImprint(int bookId, int? imprintId) async {
+    await transaction(() async {
+      // Borrar sello anterior
+      final oldLinks = await (select(bookTags)
+        ..where((bt) => bt.bookId.equals(bookId))).get();
+      for (final link in oldLinks) {
+        final t = await (select(tags)..where((t) => t.id.equals(link.tagId)))
+            .getSingleOrNull();
+        if (t != null && t.type == 'imprint') {
+          await (delete(bookTags)
+            ..where((bt) =>
+            bt.bookId.equals(bookId) &
+            bt.tagId.equals(link.tagId))).go();
+        }
+      }
+      // Insertar nuevo sello si hay uno
+      if (imprintId != null) {
+        await into(bookTags).insert(
+          BookTagsCompanion(
+            bookId: Value(bookId),
+            tagId: Value(imprintId),
+          ),
+        );
+      }
+    });
+  }
+
+  Future<void> pruneCollectionIfOrphan(String collectionName) async {
+    final users = await (select(books)
+      ..where((b) => b.collectionName.equals(collectionName))).get();
+    if (users.isEmpty) {
+      await (delete(tags)
+        ..where((t) =>
+        t.name.equals(collectionName) &
+        t.type.equals('collection'))).go();
+    }
   }
 }
