@@ -30,4 +30,27 @@ class CoverService {
     final file = File(path);
     if (await file.exists()) await file.delete();
   }
+
+  static Future<Directory> _imprintsDir() async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final dir = Directory(p.join(appDir.path, 'imprints'));
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return dir;
+  }
+
+  static Future<String> saveImprintImage(String sourcePath) async {
+    final dir = await _imprintsDir();
+    final ext = p.extension(sourcePath);
+    final filename = '${DateTime.now().millisecondsSinceEpoch}$ext';
+    final dest = File(p.join(dir.path, filename));
+    await File(sourcePath).copy(dest.path);
+    return dest.path;
+  }
+
+  static Future<void> deleteImprintImage(String path) async {
+    final file = File(path);
+    if (await file.exists()) await file.delete();
+  }
 }

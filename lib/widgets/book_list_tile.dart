@@ -13,8 +13,8 @@ class BookListTile extends ConsumerWidget {
   final VoidCallback? onTap;
 
   static const double _tileHeight = 170;
-  static const double _coverHeight = 158; // _tileHeight - 12
-  static const double _coverWidth = 102;  // _coverHeight * 0.65
+  static const double _coverHeight = _tileHeight - 12;
+  static const double _coverWidth = _coverHeight * 0.68;
 
   const BookListTile({
     super.key,
@@ -29,16 +29,14 @@ class BookListTile extends ConsumerWidget {
 
     return InkWell(
       onTap: onTap,
-      child: IntrinsicHeight(
+      child: SizedBox(
+        height: _tileHeight,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Espacio izquierdo
             const SizedBox(width: 16),
-
-            // Portada
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+              padding: const EdgeInsets.symmetric(vertical: 6),
               child: _BookCover(
                 coverUrl: book.coverUrl,
                 coverPath: book.coverPath,
@@ -46,23 +44,20 @@ class BookListTile extends ConsumerWidget {
                 width: _coverWidth,
               ),
             ),
-
-            // Info
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Título + chip
+                    // Título + chip — ancla superior
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Text(
                             book.title,
-                            style: theme.textTheme.titleSmall?.copyWith(
+                            style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 2,
@@ -76,85 +71,78 @@ class BookListTile extends ConsumerWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 4),
-
-                    // Campos ordenables
-                    ...prefs.fieldOrder.map((field) {
-                      switch (field) {
-                        case 'author':
-                          if (!prefs.showAuthor) return const SizedBox.shrink();
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(
-                              book.author,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.outline,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        case 'publisher':
-                          if (!prefs.showPublisher) return const SizedBox.shrink();
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(
-                              book.publisher ?? ' ',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.outline,
-                                fontStyle: FontStyle.italic,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          );
-                        case 'rating':
-                          if (!prefs.showRating) return const SizedBox.shrink();
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Row(
-                              children: [
-                                Icon(Icons.star, size: 14, color: Colors.amber[700]),
-                                const SizedBox(width: 2),
-                                Text(
-                                  book.rating?.toStringAsFixed(1) ?? '-',
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                          );
-                        case 'tags':
-                          if (!prefs.showTags) return const SizedBox.shrink();
-                          final tagsAsync = ref.watch(bookTagsProvider(book.id));
-                          return tagsAsync.maybeWhen(
-                            data: (tagList) => tagList.isEmpty
-                                ? const SizedBox.shrink()
-                                : Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxHeight: 84),
-                                child: ClipRect(
-                                  child: Wrap(
-                                    spacing: 4,
-                                    runSpacing: 4,
-                                    children: tagList.map((tag) => TagChip(
-                                      label: tag.name,
-                                      colorHex: tag.color,
-                                    )).toList(),
+                    // Campos opcionales centrados verticalmente
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ...prefs.fieldOrder.map((field) {
+                            switch (field) {
+                              case 'author':
+                                if (!prefs.showAuthor) return const SizedBox.shrink();
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    book.author,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: theme.colorScheme.outline,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                              ),
-                            ),
-                            orElse: () => const SizedBox.shrink(),
-                          );
-                        default:
-                          return const SizedBox.shrink();
-                      }
-                    }),
+                                );
+                              case 'publisher':
+                                if (!prefs.showPublisher) return const SizedBox.shrink();
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    book.publisher ?? '',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.outline,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              case 'rating':
+                                if (!prefs.showRating) return const SizedBox.shrink();
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.star,
+                                          size: 14, color: Colors.amber[700]),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        book.rating?.toStringAsFixed(1) ?? '-',
+                                        style: theme.textTheme.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              case 'tags':
+                                if (!prefs.showTags) return const SizedBox.shrink();
+                                final tagsAsync = ref.watch(bookTagsProvider(book.id));
+                                return tagsAsync.maybeWhen(
+                                  data: (tagList) => tagList.isEmpty
+                                      ? const SizedBox.shrink()
+                                      : Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: _TagsRow(tags: tagList),
+                                  ),
+                                  orElse: () => const SizedBox.shrink(),
+                                );
+                              default:
+                                return const SizedBox.shrink();
+                            }
+                          }),
+                        ],
+                      ),
+                    ),
 
-                    const Spacer(),
-
-                    // Progreso — fijo abajo
+                    // Progreso — ancla inferior
                     if (prefs.showProgress)
                       _ProgressBar(
                         current: book.currentPage ?? 0,
@@ -166,6 +154,75 @@ class BookListTile extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TagsRow extends StatelessWidget {
+  final List<Tag> tags;
+  const _TagsRow({required this.tags});
+
+  @override
+  Widget build(BuildContext context) {
+    const double chipHeight = 24;
+    const double chipSpacing = 4;
+    const double chipPaddingH = 16;
+    const double counterMinWidth = 28;
+
+    final textStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
+      fontSize: 11,
+      fontWeight: FontWeight.w500,
+    );
+
+    // Medimos el ancho disponible usando MediaQuery menos
+    // portada (102) + padding izquierdo (16) + padding info (24)
+    final screenWidth = MediaQuery.of(context).size.width;
+    final availableWidth =
+        screenWidth - 102 - 16 - 24 - counterMinWidth;
+
+    final visibleTags = <Tag>[];
+    double usedWidth = 0;
+
+    for (final tag in tags) {
+      final span = TextSpan(text: tag.name, style: textStyle);
+      final painter = TextPainter(
+        text: span,
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      final chipWidth = painter.width + chipPaddingH;
+
+      if (usedWidth + chipWidth + chipSpacing <= availableWidth) {
+        visibleTags.add(tag);
+        usedWidth += chipWidth + chipSpacing;
+      } else {
+        break;
+      }
+    }
+
+    final hiddenCount = tags.length - visibleTags.length;
+
+    return SizedBox(
+      height: chipHeight,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ...visibleTags.map((tag) => Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: TagChip(
+              label: tag.name,
+              colorHex: tag.color,
+            ),
+          )),
+          if (hiddenCount > 0)
+            Text(
+              '+$hiddenCount',
+              style: textStyle.copyWith(
+                color: Theme.of(context).colorScheme.outline,
+              ),
+            ),
+        ],
       ),
     );
   }

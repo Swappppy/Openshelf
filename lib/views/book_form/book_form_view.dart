@@ -20,7 +20,7 @@ class BookFormView extends ConsumerStatefulWidget {
 class _PendingTag {
   final String name;
   String? color;
-  _PendingTag({required this.name, this.color});
+  _PendingTag({required this.name});
 }
 
 class _BookFormViewState extends ConsumerState<BookFormView>
@@ -46,7 +46,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   String? _coverPath;
   List<Tag> _selectedTags = [];        // tags ya existentes en BD
   Tag? _selectedImprint;
-  List<_PendingTag> _pendingTags = []; // tags nuevos, aún no persistidos
+  final List<_PendingTag> _pendingTags = []; // tags nuevos, aún no persistidos
 
   @override
   void initState() {
@@ -712,7 +712,7 @@ class _DetailsTab extends ConsumerWidget {
                 onSelected: (tag) {
                   collectionNameCtrl.text = tag.name;
                 },
-                fieldViewBuilder: (_, controller, focusNode, __) {
+                fieldViewBuilder: (_, controller, focusNode, _) {
                   controller.text = collectionNameCtrl.text;
                   return TextField(
                     controller: controller,
@@ -796,7 +796,7 @@ class _ImprintSelector extends ConsumerWidget {
             return ref.read(databaseProvider).searchTags(input, 'imprint');
           },
           onSelected: (tag) => onSelect(tag),
-          fieldViewBuilder: (_, controller, focusNode, __) => TextField(
+          fieldViewBuilder: (_, controller, focusNode, _) => TextField(
             controller: controller,
             focusNode: focusNode,
             decoration: const InputDecoration(
@@ -819,47 +819,70 @@ class _ImprintRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Stack(
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: imprint.imagePath != null
-              ? Image.file(
-            File(imprint.imagePath!),
-            width: 48,
-            height: 48,
-            fit: BoxFit.cover,
-          )
-              : Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(4),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: imprint.imagePath != null
+                  ? Image.file(
+                File(imprint.imagePath!),
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              )
+                  : Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.business_outlined,
+                  size: 32,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
             ),
-            child: Icon(
-              Icons.business_outlined,
-              color: Theme.of(context).colorScheme.outline,
+            const SizedBox(height: 6),
+            Text(
+              imprint.name,
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: GestureDetector(
+            onTap: onClear,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.close,
+                size: 14,
+                color: Theme.of(context).colorScheme.outline,
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            imprint.name,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: onClear,
         ),
       ],
     );
   }
 }
-
-
 
 class _SectionHeader extends StatelessWidget {
   final String label;

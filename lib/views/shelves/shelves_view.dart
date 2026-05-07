@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/database_provider.dart';
 import '../../services/database.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../../services/cover_service.dart';
+import 'package:drift/drift.dart' show Value;
 
 class ShelvesScreen extends ConsumerWidget {
   const ShelvesScreen({super.key});
@@ -431,39 +435,92 @@ class _ImprintsManager extends ConsumerWidget {
 
   void _showCreateImprintDialog(BuildContext context, WidgetRef ref) {
     final ctrl = TextEditingController();
+    String? imagePath;
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Nuevo sello editorial'),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Nombre del sello',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final name = ctrl.text.trim();
-              if (name.isEmpty) return;
-              await ref.read(databaseProvider).insertTag(
-                TagsCompanion(
-                  name: Value(name),
-                  type: const Value('imprint'),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateDialog) => AlertDialog(
+          title: const Text('Nuevo sello editorial'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Selector de imagen
+              GestureDetector(
+                onTap: () async {
+                  final picker = ImagePicker();
+                  final picked = await picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  if (picked == null) return;
+                  final saved =
+                  await CoverService.saveImprintImage(picked.path);
+                  setStateDialog(() => imagePath = saved);
+                },
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: imagePath != null
+                      ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      File(imagePath!),
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                      : Icon(
+                    Icons.add_photo_alternate_outlined,
+                    color: Theme.of(context).colorScheme.outline,
+                    size: 32,
+                  ),
                 ),
-              );
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: const Text('Crear'),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Pulsa para añadir imagen',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: ctrl,
+                autofocus: false,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre del sello',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final name = ctrl.text.trim();
+                if (name.isEmpty) return;
+                await ref.read(databaseProvider).insertTag(
+                  TagsCompanion(
+                    name: Value(name),
+                    type: const Value('imprint'),
+                    imagePath: Value(imagePath),
+                  ),
+                );
+                if (ctx.mounted) Navigator.pop(ctx);
+              },
+              child: const Text('Crear'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -475,30 +532,138 @@ class _ImprintTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListTile(
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: imprint.imagePath != null
-            ? Image.asset(
-          imprint.imagePath!,
-          width: 40,
-          height: 40,
-          fit: BoxFit.cover,
-        )
-            : Container(
-          width: 40,
-          height: 40,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: Icon(
-            Icons.business_outlined,
-            color: Theme.of(context).colorScheme.outline,
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: ListTile(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: imprint.imagePath != null
+              ? Image.file(
+            File(imprint.imagePath!),
+            width: 56,
+            height: 56,
+            fit: BoxFit.cover,
+          )
+              : Container(
+            width: 56,
+            height: 56,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Icon(
+              Icons.business_outlined,
+              size: 28,
+              color: Theme.of(context).colorScheme.outline,
+            ),
           ),
         ),
+        title: Text(imprint.name),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () => _showEditImprintDialog(context, ref),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => _confirmDelete(context, ref),
+            ),
+          ],
+        ),
       ),
-      title: Text(imprint.name),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_outline),
-        onPressed: () => _confirmDelete(context, ref),
+    );
+  }
+
+  void _showEditImprintDialog(BuildContext context, WidgetRef ref) {
+    final ctrl = TextEditingController(text: imprint.name);
+    String? imagePath = imprint.imagePath;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateDialog) => AlertDialog(
+          title: const Text('Editar sello'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  final picker = ImagePicker();
+                  final picked = await picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  if (picked == null) return;
+                  // Borrar imagen anterior si existe
+                  if (imagePath != null) {
+                    await CoverService.deleteImprintImage(imagePath!);
+                  }
+                  final saved =
+                  await CoverService.saveImprintImage(picked.path);
+                  setStateDialog(() => imagePath = saved);
+                },
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: imagePath != null
+                      ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      File(imagePath!),
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                      : Icon(
+                    Icons.add_photo_alternate_outlined,
+                    color: Theme.of(context).colorScheme.outline,
+                    size: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Pulsa para cambiar imagen',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: ctrl,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre del sello',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final name = ctrl.text.trim();
+                if (name.isEmpty) return;
+                final updated = Tag(
+                  id: imprint.id,
+                  name: name,
+                  type: imprint.type,
+                  color: imprint.color,
+                  imagePath: imagePath,
+                );
+                await ref.read(databaseProvider).updateTag(updated);
+                if (ctx.mounted) Navigator.pop(ctx);
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -519,6 +684,10 @@ class _ImprintTile extends ConsumerWidget {
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () async {
+              // Borrar imagen si existe
+              if (imprint.imagePath != null) {
+                await CoverService.deleteImprintImage(imprint.imagePath!);
+              }
               await ref.read(databaseProvider).deleteTag(imprint.id);
               if (ctx.mounted) Navigator.pop(ctx);
             },

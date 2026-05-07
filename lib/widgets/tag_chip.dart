@@ -35,17 +35,6 @@ class TagChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (colorHex != null) ...[
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: baseColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 4),
-            ],
             Text(
               label,
               style: TextStyle(

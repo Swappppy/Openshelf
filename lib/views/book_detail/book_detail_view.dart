@@ -571,7 +571,6 @@ class _DetailsTab extends StatelessWidget {
         const SizedBox(height: 20),
 
         // Sellos
-        const SizedBox(height: 20),
         Text(
           'SELLO EDITORIAL',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -581,50 +580,68 @@ class _DetailsTab extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
+        const SizedBox(height: 4),
         Consumer(builder: (context, ref, _) {
           final imprintAsync = ref.watch(bookImprintProvider(book.id));
           return imprintAsync.when(
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const Text('—'),
             data: (imprint) {
-              if (imprint == null) { return Text('—',
-                  style: Theme.of(context).textTheme.bodyLarge); }
+              if (imprint == null) {
+                return Text('—', style: Theme.of(context).textTheme.bodyLarge);
+              }
               return Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: imprint.imagePath != null
-                        ? Image.file(
-                      File(imprint.imagePath!),
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                    )
-                        : Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(4),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: imprint.imagePath != null
+                            ? Image.file(
+                          File(imprint.imagePath!),
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        )
+                            : Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.business_outlined,
+                            size: 32,
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        Icons.business_outlined,
-                        color: Theme.of(context).colorScheme.outline,
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        width: 80,
+                        child: Text(
+                          imprint.name,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    imprint.name,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    ],
                   ),
                 ],
               );
             },
           );
         }),
+
+        const SizedBox(height: 20),
 
         // Notas
         GestureDetector(
