@@ -217,7 +217,7 @@ class _ExpandablePanel extends StatelessWidget {
 }
 
 // -------------------------------------------------------
-// Gestor de Categorías (tags)
+// Gestor de Categorías (tags) — Wrap fluido
 // -------------------------------------------------------
 class _TagsManager extends ConsumerWidget {
   const _TagsManager();
@@ -235,15 +235,49 @@ class _TagsManager extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Text('Error: $e'),
       ),
-      data: (tagList) => Column(
-        children: [
-          ...tagList.map((tag) => _TagTile(tag: tag)),
-          ListTile(
-            leading: const Icon(Icons.add),
-            title: const Text('Nueva categoría'),
-            onTap: () => _showCreateTagDialog(context, ref),
-          ),
-        ],
+      data: (tagList) => Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (tagList.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  'No hay categorías todavía',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                ),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: tagList.map((tag) => _TagChipItem(tag: tag)).toList(),
+              ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () => _showCreateTagDialog(context, ref),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.add,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Nueva categoría',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -350,26 +384,47 @@ class _TagsManager extends ConsumerWidget {
   }
 }
 
-class _TagTile extends ConsumerWidget {
+class _TagChipItem extends ConsumerWidget {
   final Tag tag;
-  const _TagTile({required this.tag});
+  const _TagChipItem({required this.tag});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final color = tag.color != null
+    final baseColor = tag.color != null
         ? Color(int.parse('0xFF${tag.color!}'))
-        : Theme.of(context).colorScheme.outline;
+        : Theme.of(context).colorScheme.secondaryContainer;
+    final textColor = tag.color != null
+        ? baseColor
+        : Theme.of(context).colorScheme.onSecondaryContainer;
 
-    return ListTile(
-      leading: CircleAvatar(
-        radius: 12,
-        backgroundColor: color.withValues(alpha: 0.2),
-        child: Icon(Icons.circle, size: 14, color: color),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: baseColor.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.transparent, width: 1.5),
       ),
-      title: Text(tag.name),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_outline),
-        onPressed: () => _confirmDelete(context, ref),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            tag.name,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => _confirmDelete(context, ref),
+            child: Icon(
+              Icons.delete_outline,
+              size: 16,
+              color: textColor.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -402,7 +457,7 @@ class _TagTile extends ConsumerWidget {
 }
 
 // -------------------------------------------------------
-// Gestor de Sellos editoriales
+// Gestor de Sellos — grid con nombre centrado debajo
 // -------------------------------------------------------
 class _ImprintsManager extends ConsumerWidget {
   const _ImprintsManager();
@@ -420,15 +475,51 @@ class _ImprintsManager extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Text('Error: $e'),
       ),
-      data: (imprintList) => Column(
-        children: [
-          ...imprintList.map((imp) => _ImprintTile(imprint: imp)),
-          ListTile(
-            leading: const Icon(Icons.add),
-            title: const Text('Nuevo sello'),
-            onTap: () => _showCreateImprintDialog(context, ref),
-          ),
-        ],
+      data: (imprintList) => Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (imprintList.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  'No hay sellos todavía',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                ),
+              )
+            else
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: imprintList
+                    .map((imp) => _ImprintGridItem(imprint: imp))
+                    .toList(),
+              ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () => _showCreateImprintDialog(context, ref),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.add,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Nuevo sello',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -445,13 +536,11 @@ class _ImprintsManager extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Selector de imagen
               GestureDetector(
                 onTap: () async {
                   final picker = ImagePicker();
-                  final picked = await picker.pickImage(
-                    source: ImageSource.gallery,
-                  );
+                  final picked =
+                  await picker.pickImage(source: ImageSource.gallery);
                   if (picked == null) return;
                   final saved =
                   await CoverService.saveImprintImage(picked.path);
@@ -469,10 +558,7 @@ class _ImprintsManager extends ConsumerWidget {
                   child: imagePath != null
                       ? ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      File(imagePath!),
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.file(File(imagePath!), fit: BoxFit.cover),
                   )
                       : Icon(
                     Icons.add_photo_alternate_outlined,
@@ -526,54 +612,83 @@ class _ImprintsManager extends ConsumerWidget {
   }
 }
 
-class _ImprintTile extends ConsumerWidget {
+class _ImprintGridItem extends ConsumerWidget {
   final Tag imprint;
-  const _ImprintTile({required this.imprint});
+  const _ImprintGridItem({required this.imprint});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: ListTile(
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: imprint.imagePath != null
-              ? Image.file(
-            File(imprint.imagePath!),
-            width: 56,
-            height: 56,
-            fit: BoxFit.cover,
-          )
-              : Container(
-            width: 56,
-            height: 56,
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: Icon(
-              Icons.business_outlined,
-              size: 28,
-              color: Theme.of(context).colorScheme.outline,
+    return SizedBox(
+      width: 84,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: imprint.imagePath != null
+                    ? Image.file(
+                  File(imprint.imagePath!),
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                )
+                    : Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.business_outlined,
+                    size: 28,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
+          ),
+          const SizedBox(height: 4),
+          SizedBox(
+            width: 84,
+            child: Text(
+              imprint.name,
+              style: Theme.of(context).textTheme.labelSmall,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-        ),
-        title: Text(imprint.name),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: () => _showEditImprintDialog(context, ref),
+          const SizedBox(height: 4),
+          SizedBox(
+            width: 85,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _SmallIconButton(
+                  icon: Icons.edit_outlined,
+                  onTap: () => _showEditDialog(context, ref),
+                ),
+                _SmallIconButton(
+                  icon: Icons.delete_outline,
+                  onTap: () => _confirmDelete(context, ref),
+                ),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: () => _confirmDelete(context, ref),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  void _showEditImprintDialog(BuildContext context, WidgetRef ref) {
+  void _showEditDialog(BuildContext context, WidgetRef ref) {
     final ctrl = TextEditingController(text: imprint.name);
     String? imagePath = imprint.imagePath;
 
@@ -588,11 +703,9 @@ class _ImprintTile extends ConsumerWidget {
               GestureDetector(
                 onTap: () async {
                   final picker = ImagePicker();
-                  final picked = await picker.pickImage(
-                    source: ImageSource.gallery,
-                  );
+                  final picked =
+                  await picker.pickImage(source: ImageSource.gallery);
                   if (picked == null) return;
-                  // Borrar imagen anterior si existe
                   if (imagePath != null) {
                     await CoverService.deleteImprintImage(imagePath!);
                   }
@@ -612,10 +725,8 @@ class _ImprintTile extends ConsumerWidget {
                   child: imagePath != null
                       ? ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      File(imagePath!),
-                      fit: BoxFit.cover,
-                    ),
+                    child:
+                    Image.file(File(imagePath!), fit: BoxFit.cover),
                   )
                       : Icon(
                     Icons.add_photo_alternate_outlined,
@@ -684,7 +795,6 @@ class _ImprintTile extends ConsumerWidget {
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: () async {
-              // Borrar imagen si existe
               if (imprint.imagePath != null) {
                 await CoverService.deleteImprintImage(imprint.imagePath!);
               }
@@ -694,6 +804,33 @@ class _ImprintTile extends ConsumerWidget {
             child: const Text('Eliminar'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SmallIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _SmallIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+          color: Theme.of(context)
+              .colorScheme
+              .surfaceContainerHighest
+              .withValues(alpha: 0.85),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Icon(icon, size: 20,
+            color: Theme.of(context).colorScheme.onSurface),
       ),
     );
   }

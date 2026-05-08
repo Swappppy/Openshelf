@@ -295,4 +295,103 @@ class AppDatabase extends _$AppDatabase {
         t.type.equals('collection'))).go();
     }
   }
+
+  Stream<List<Book>> watchBooksFiltered({
+    String? query,
+    List<int>? tagIds,
+    String? author,
+    String? publisher,
+    String? isbn,
+    String? collectionName,
+    int? imprintId,
+  }) {
+    // Si hay filtro por tags necesitamos una query especial
+    if (tagIds != null && tagIds.isNotEmpty) {
+      return _watchBooksWithTags(
+        query: query,
+        tagIds: tagIds,
+        author: author,
+        publisher: publisher,
+        isbn: isbn,
+        collectionName: collectionName,
+        imprintId: imprintId,
+      );
+    }
+
+    final q = select(books)
+      ..where((b) {
+        Expression<bool> expr = const Constant(true);
+        if (query != null && query.isNotEmpty) {
+          expr = expr & b.title.contains(query);
+        }
+        if (author != null && author.isNotEmpty) {
+          expr = expr & b.author.contains(author);
+        }
+        if (publisher != null && publisher.isNotEmpty) {
+          expr = expr & b.publisher.contains(publisher);
+        }
+        if (isbn != null && isbn.isNotEmpty) {
+          expr = expr & b.isbn.contains(isbn);
+        }
+        if (collectionName != null && collectionName.isNotEmpty) {
+          expr = expr & b.collectionName.contains(collectionName);
+        }
+        return expr;
+      });
+    return q.watch();
+  }
+
+  Stream<List<Book>> _watchBooksWithTags({
+    String? query,
+    required List<int> tagIds,
+    String? author,
+    String? publisher,
+    String? isbn,
+    String? collectionName,
+    int? imprintId,
+  }) {
+    final distinctTags = tagIds.toSet().toList();
+
+    // Primero obtenemos todos los bookIds que tienen TODOS los tags requeridos
+    return (select(bookTags)
+      ..where((bt) => bt.tagId.isIn(distinctTags)))
+        .watch()
+        .asyncMap((links) async {
+      // Agrupar por bookId y contar tags únicos
+      final Map<int, Set<int>> bookToTags = {};
+      for (final link in links) {
+        bookToTags.putIfAbsent(link.bookId, () => {}).add(link.tagId);
+      }
+      // Solo los libros que tienen TODOS los tags
+      final validBookIds = bookToTags.entries
+          .where((e) => e.value.length >= distinctTags.length)
+          .map((e) => e.key)
+          .toList();
+
+      if (validBookIds.isEmpty) return <Book>[];
+
+      final q = select(books)
+        ..where((b) {
+          Expression<bool> expr = b.id.isIn(validBookIds);
+          if (query != null && query.isNotEmpty) {
+            expr = expr & b.title.contains(query);
+          }
+          if (author != null && author.isNotEmpty) {
+            expr = expr & b.author.contains(author);
+          }
+          if (publisher != null && publisher.isNotEmpty) {
+            expr = expr & b.publisher.contains(publisher);
+          }
+          if (isbn != null && isbn.isNotEmpty) {
+            expr = expr & b.isbn.contains(isbn);
+          }
+          if (collectionName != null && collectionName.isNotEmpty) {
+            expr = expr & b.collectionName.contains(collectionName);
+          }
+          return expr;
+        });
+      return q.get();
+    });
+  }
+
 }

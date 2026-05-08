@@ -1,13 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:openshelf/views/shelves/shelves_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/display_preferences_controller.dart';
 import '../../models/display_preferences.dart';
+import '../../services/database.dart';
 import '../../widgets/book_list_tile.dart';
 import '../../widgets/book_grid_card.dart';
 import '../../controllers/books_controller.dart';
 import '../book_form/add_book_modal.dart';
 import '../book_detail/book_detail_view.dart';
+import '../../widgets/tag_chip.dart';
 
 class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
@@ -56,21 +60,43 @@ class _LibraryViewState extends State<LibraryView> {
 
 // --- Pantallas placeholder ---
 
-class _LibraryScreen extends ConsumerWidget {
+class _LibraryScreen extends ConsumerStatefulWidget {
   const _LibraryScreen();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_LibraryScreen> createState() => _LibraryScreenState();
+}
+
+class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
+  bool _searchVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
     final prefs = ref.watch(displayPreferencesProvider);
     final controller = ref.read(displayPreferencesProvider.notifier);
-    final booksAsync = ref.watch(allBooksProvider);
+    final filters = ref.watch(searchFiltersProvider);
+    final booksAsync = ref.watch(filteredBooksProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mi Biblioteca'),
         toolbarHeight: 40,
         actions: [
-          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
+          IconButton(
+            icon: Icon(
+              _searchVisible ? Icons.search_off : Icons.search,
+              color: _searchVisible
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
+            ),
+            onPressed: () {
+              setState(() => _searchVisible = !_searchVisible);
+              if (!_searchVisible) {
+                ref.read(searchFiltersProvider.notifier).state =
+                const SearchFilters();
+              }
+            },
+          ),
           IconButton(
             icon: Icon(
               prefs.viewMode == LibraryViewMode.list
@@ -85,39 +111,61 @@ class _LibraryScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: booksAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
-        data: (bookList) {
-          if (bookList.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.menu_book,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Tu biblioteca está vacía',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pulsa + para añadir tu primer libro',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
 
-          return prefs.viewMode == LibraryViewMode.list
-              ? ListView.builder(
+      body: Column(
+        children: [
+          if (_searchVisible)
+            _SearchPanel(
+              filters: filters,
+              onChanged: (f) =>
+              ref.read(searchFiltersProvider.notifier).state = f,
+            ),
+          Expanded(
+            child: booksAsync.when(
+              loading: () =>
+              const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('Error: $e')),
+              data: (bookList) {
+                if (bookList.isEmpty) {
+                  return Center(
+                    child:  SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            filters.isEmpty
+                                ? Icons.menu_book
+                                : Icons.search_off,
+                            size: 80,
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            filters.isEmpty
+                                ? 'Tu biblioteca está vacía'
+                                : 'Sin resultados',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            filters.isEmpty
+                                ? 'Pulsa + para añadir tu primer libro'
+                                : 'Prueba con otros filtros',
+                            style:
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline,
+                            ),
+                          ),
+                        ],
+                      )
+                    ),
+                  );
+                }
+
+                return prefs.viewMode == LibraryViewMode.list
+                    ? ListView.builder(
                   padding: EdgeInsets.zero,
                   itemCount: bookList.length,
                   itemBuilder: (context, index) => BookListTile(
@@ -126,14 +174,16 @@ class _LibraryScreen extends ConsumerWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => BookDetailView(book: bookList[index]),
+                        builder: (_) =>
+                            BookDetailView(book: bookList[index]),
                       ),
                     ),
                   ),
                 )
-              : GridView.builder(
+                    : GridView.builder(
                   padding: const EdgeInsets.all(12),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 0.65,
                     crossAxisSpacing: 12,
@@ -146,12 +196,16 @@ class _LibraryScreen extends ConsumerWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => BookDetailView(book: bookList[index]),
+                        builder: (_) =>
+                            BookDetailView(book: bookList[index]),
                       ),
                     ),
                   ),
                 );
-        },
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showModalBottomSheet(
@@ -208,7 +262,6 @@ class _LibraryScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Handle
                   Center(
                     child: Container(
                       width: 40,
@@ -234,8 +287,6 @@ class _LibraryScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // Campos reordenables
                   Expanded(
                     child: ListView(
                       children: [
@@ -243,7 +294,8 @@ class _LibraryScreen extends ConsumerWidget {
                           onReorder: controller.reorderFields,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          children: p.fieldOrder.map(
+                          children: p.fieldOrder
+                              .map(
                                 (field) => ListTile(
                               key: ValueKey(field),
                               leading: ReorderableDragStartListener(
@@ -256,14 +308,13 @@ class _LibraryScreen extends ConsumerWidget {
                                 onChanged: fieldToggles[field],
                               ),
                             ),
-                          ).toList(),
+                          )
+                              .toList(),
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          leading: const Icon(
-                            Icons.drag_handle,
-                            color: Colors.transparent,
-                          ),
+                          leading: const Icon(Icons.drag_handle,
+                              color: Colors.transparent),
                           title: const Text('Progreso de lectura'),
                           trailing: Switch(
                             value: p.showProgress,
@@ -271,14 +322,13 @@ class _LibraryScreen extends ConsumerWidget {
                           ),
                         ),
                         ListTile(
-                          leading: const Icon(
-                            Icons.drag_handle,
-                            color: Colors.transparent,
-                          ),
+                          leading: const Icon(Icons.drag_handle,
+                              color: Colors.transparent),
                           title: const Text('Chip de estado'),
                           trailing: Switch(
                             value: p.showStatusChip,
-                            onChanged: (_) => controller.toggleShowStatusChip(),
+                            onChanged: (_) =>
+                                controller.toggleShowStatusChip(),
                           ),
                         ),
                       ],
@@ -289,6 +339,358 @@ class _LibraryScreen extends ConsumerWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _SearchPanel extends ConsumerStatefulWidget {
+  final SearchFilters filters;
+  final ValueChanged<SearchFilters> onChanged;
+
+  const _SearchPanel({required this.filters, required this.onChanged});
+
+  @override
+  ConsumerState<_SearchPanel> createState() => _SearchPanelState();
+}
+
+class _SearchPanelState extends ConsumerState<_SearchPanel> {
+  late final TextEditingController _queryCtrl;
+  late final TextEditingController _authorCtrl;
+  late final TextEditingController _publisherCtrl;
+  late final TextEditingController _isbnCtrl;
+  late final TextEditingController _collectionCtrl;
+  bool _expanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _queryCtrl = TextEditingController(text: widget.filters.query);
+    _authorCtrl = TextEditingController(text: widget.filters.author);
+    _publisherCtrl = TextEditingController(text: widget.filters.publisher);
+    _isbnCtrl = TextEditingController(text: widget.filters.isbn);
+    _collectionCtrl = TextEditingController(text: widget.filters.collection);
+  }
+
+  @override
+  void dispose() {
+    _queryCtrl.dispose();
+    _authorCtrl.dispose();
+    _publisherCtrl.dispose();
+    _isbnCtrl.dispose();
+    _collectionCtrl.dispose();
+    super.dispose();
+  }
+
+  void _update() {
+    widget.onChanged(widget.filters.copyWith(
+      query: _queryCtrl.text,
+      author: _authorCtrl.text,
+      publisher: _publisherCtrl.text,
+      isbn: _isbnCtrl.text,
+      collection: _collectionCtrl.text,
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final activeTags = widget.filters.tags;
+
+    return Container(
+      color: colorScheme.surfaceContainerLow,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(left: 4, right: 4, bottom: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  child:
+                  // Botón expandir filtros avanzados
+                  IconButton(
+                    icon: const Icon(Icons.tune),
+                    onPressed: () => setState(() => _expanded = !_expanded),
+                  ),
+                ),
+                Expanded(
+                  child:
+                    // Campo principal
+                    TextField(
+                      controller: _queryCtrl,
+                      autofocus: true,
+                      onChanged: (_) => _update(),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar por título…',
+                        suffixIcon: _queryCtrl.text.isNotEmpty
+                            ? IconButton(
+                          icon: const Icon(Icons.close, size: 35),
+                          onPressed: () {
+                            _queryCtrl.clear();
+                            _update();
+                          },
+                        )
+                            : null,
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 12,
+                        ),
+                      ),
+                    ),
+                ),
+              ],
+            ),
+            // Tags activos
+            if (activeTags.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: activeTags
+                    .map((tag) => TagChip(
+                  label: tag.name,
+                  colorHex: tag.color,
+                  onDeleted: () {
+                    final newTags = List<Tag>.from(activeTags)
+                      ..remove(tag);
+                    widget.onChanged(
+                        widget.filters.copyWith(tags: newTags));
+                  },
+                ))
+                    .toList(),
+              ),
+              const SizedBox(height: 8),
+            ],
+
+            if (_expanded) ...[
+              // Categorías
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: _FilterField(
+                      controller: _authorCtrl,
+                      label: 'Autor',
+                      icon: Icons.person_outline,
+                      onChanged: (_) => _update(),
+                    )
+                  ),
+                  SizedBox(width: 4),
+                  Expanded(
+                    child: _FilterField(
+                      controller: _isbnCtrl,
+                      label: 'ISBN',
+                      icon: Icons.barcode_reader,
+                      onChanged: (_) => _update(),
+                    ),
+                  )
+                ]
+              ),
+              SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                      child: _FilterField(
+                        controller: _publisherCtrl,
+                        label: 'Editorial',
+                        icon: Icons.business_outlined,
+                        onChanged: (_) => _update(),
+                      )
+                  ),
+                  SizedBox(width: 4),
+                  Expanded(
+                    child: _FilterField(
+                      controller: _collectionCtrl,
+                      label: 'Colección',
+                      icon: Icons.collections_bookmark_outlined,
+                      onChanged: (_) => _update(),
+                    ),
+                  )
+                ]
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Sello editorial',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: colorScheme.outline,
+                ),
+              ),
+              const SizedBox(height: 4),
+              ref.watch(allImprintsProvider).maybeWhen(
+                data: (allImprints) => allImprints.isEmpty
+                    ? const SizedBox.shrink()
+                    : Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: allImprints.map((imp) {
+                    final isActive = widget.filters.imprint?.id == imp.id;
+                    return GestureDetector(
+                      onTap: () {
+                        widget.onChanged(isActive
+                            ? widget.filters.copyWith(clearImprint: true)
+                            : widget.filters.copyWith(imprint: imp));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? colorScheme.primaryContainer
+                              : colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: isActive
+                                ? colorScheme.primary
+                                : Colors.transparent,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (imp.imagePath != null)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: Image.file(
+                                  File(imp.imagePath!),
+                                  width: 16,
+                                  height: 16,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            else
+                              Icon(Icons.business_outlined,
+                                  size: 14, color: colorScheme.outline),
+                            const SizedBox(width: 6),
+                            Text(
+                              imp.name,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: isActive
+                                    ? colorScheme.onPrimaryContainer
+                                    : colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                orElse: () => const SizedBox.shrink(),
+              ),
+
+              // Selector de tags
+              Text(
+                'Categorías',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: colorScheme.outline,
+                ),
+              ),
+              const SizedBox(height: 4),
+              ref.watch(allTagsProvider).maybeWhen(
+                data: (allTags) => allTags.isEmpty
+                    ? const SizedBox.shrink()
+                    : Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: allTags.map((tag) {
+                    final isActive =
+                    activeTags.any((t) => t.id == tag.id);
+                    final baseColor = tag.color != null
+                        ? Color(int.parse('0xFF${tag.color!}'))
+                        : colorScheme.secondaryContainer;
+                    return GestureDetector(
+                      onTap: () {
+                        final newTags = List<Tag>.from(activeTags);
+                        if (isActive) {
+                          newTags.removeWhere((t) => t.id == tag.id);
+                        } else {
+                          newTags.add(tag);
+                        }
+                        widget.onChanged(
+                            widget.filters.copyWith(tags: newTags));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? baseColor.withValues(alpha: 0.25)
+                              : baseColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: isActive
+                                ? baseColor
+                                : Colors.transparent,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Text(
+                          tag.name,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: tag.color != null
+                                ? baseColor
+                                : colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                orElse: () => const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 4),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final ValueChanged<String> onChanged;
+
+  const _FilterField({
+    required this.controller,
+    required this.label,
+    required this.icon,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        hintText: label,
+        prefixIcon: Icon(icon, size: 18),
+        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 8,
+          horizontal: 12,
+        ),
       ),
     );
   }

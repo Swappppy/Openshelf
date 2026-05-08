@@ -220,6 +220,130 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (mounted) Navigator.pop(context);
   }
 
+  Future<void> _showTagPicker(BuildContext context) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.6,
+        maxChildSize: 0.9,
+        builder: (_, scrollController) => Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                'Categorías',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: FutureBuilder<List<Tag>>(
+                  future: ref.read(databaseProvider).getTagsByType('tag'),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final allTags = snapshot.data!;
+                    if (allTags.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No hay categorías creadas todavía',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                      );
+                    }
+                    return StatefulBuilder(
+                      builder: (context, setStateSheet) => SingleChildScrollView(
+                        controller: scrollController,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: allTags.map((tag) {
+                            final isSelected = _selectedTags.any((t) => t.id == tag.id)
+                                || _pendingTags.any((p) => p.name == tag.name);
+                            final baseColor = tag.color != null
+                                ? Color(int.parse('0xFF${tag.color!}'))
+                                : Theme.of(context).colorScheme.secondaryContainer;
+
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    _selectedTags.removeWhere((t) => t.id == tag.id);
+                                  } else {
+                                    if (!_selectedTags.any((t) => t.id == tag.id)) {
+                                      _selectedTags.add(tag);
+                                    }
+                                  }
+                                });
+                                setStateSheet(() {});
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? baseColor.withValues(alpha: 0.25)
+                                      : baseColor.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: isSelected
+                                      ? Border.all(color: baseColor, width: 1.5)
+                                      : Border.all(color: Colors.transparent, width: 1.5),
+                                ),
+                                child: Text(
+                                  tag.name,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: tag.color != null
+                                        ? baseColor
+                                        : Theme.of(context).colorScheme.onSecondaryContainer,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Hecho'),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _showColorPicker(BuildContext context, {
     Tag? existingTag,
     _PendingTag? pendingTag,
@@ -404,7 +528,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onRemovePending: (p) => setState(() => _pendingTags.remove(p)),
               onTapTagColor: ({Tag? existingTag, _PendingTag? pendingTag}) =>
                   _showColorPicker(context, existingTag: existingTag, pendingTag: pendingTag),
-            ),
+              onTapGrid: () => _showTagPicker(context),
+              ),
             _DetailsTab(
               notesCtrl: _notesCtrl,
               collectionNameCtrl: _collectionNameCtrl,
@@ -445,6 +570,7 @@ class _MainTab extends ConsumerWidget {
   final void Function(String) onCreateTag;
   final void Function(_PendingTag) onRemovePending;
   final void Function({Tag? existingTag, _PendingTag? pendingTag}) onTapTagColor;
+  final VoidCallback onTapGrid;
 
   const _MainTab({
     required this.titleCtrl,
@@ -468,6 +594,7 @@ class _MainTab extends ConsumerWidget {
     required this.onCreateTag,
     required this.onRemovePending,
     required this.onTapTagColor,
+    required this.onTapGrid,
   });
 
   @override
@@ -592,32 +719,53 @@ class _MainTab extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
         ],
-        Autocomplete<Tag>(
-          displayStringForOption: (t) => t.name,
-          optionsBuilder: (textEditingValue) async {
-            final input = textEditingValue.text.trim();
-            if (input.isEmpty) return [];
-            final results = await ref.read(databaseProvider).searchTags(input, 'tag');
-            return results.where(
-                  (t) => !selectedTags.any((s) => s.id == t.id),
-            ).toList();
-          },
-          onSelected: onAddTag,
-          fieldViewBuilder: (_, controller, focusNode, _) => TextField(
-            controller: controller,
-            focusNode: focusNode,
-            decoration: const InputDecoration(
-              labelText: 'Buscar o crear categoría',
-              prefixIcon: Icon(Icons.label_outline),
-              border: OutlineInputBorder(),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Autocomplete<Tag>(
+                displayStringForOption: (t) => t.name,
+                optionsBuilder: (textEditingValue) async {
+                  final input = textEditingValue.text.trim();
+                  if (input.isEmpty) return [];
+                  final results = await ref.read(databaseProvider).searchTags(input, 'tag');
+                  return results.where(
+                        (t) => !selectedTags.any((s) => s.id == t.id),
+                  ).toList();
+                },
+                onSelected: onAddTag,
+                fieldViewBuilder: (_, controller, focusNode, _) => TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: const InputDecoration(
+                    labelText: 'Buscar o crear categoría',
+                    prefixIcon: Icon(Icons.label_outline),
+                    border: OutlineInputBorder(),
+                  ),
+                  onSubmitted: (value) {
+                    final name = value.trim();
+                    if (name.isEmpty) return;
+                    onCreateTag(name);
+                    controller.clear();
+                  },
+                ),
+              ),
             ),
-            onSubmitted: (value) {
-              final name = value.trim();
-              if (name.isEmpty) return;
-              onCreateTag(name);
-              controller.clear();
-            },
-          ),
+            const SizedBox(width: 8),
+            SizedBox(
+              height: 56,
+              child: OutlinedButton(
+                onPressed: onTapGrid,
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                child: const Icon(Icons.grid_view),
+              ),
+            ),
+          ],
         ),
 
         const SizedBox(height: 24),
