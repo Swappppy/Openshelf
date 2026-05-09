@@ -7,11 +7,6 @@ const _defaultFieldOrder = [
   'rating',
 ];
 
-const _fixedFields = [
-  'progress',
-  'status',
-];
-
 class DisplayPreferences {
   final LibraryViewMode viewMode;
   final bool showProgress;

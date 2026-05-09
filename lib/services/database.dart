@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../models/shelf.dart';
+
 part 'database.g.dart';
 
 class Books extends Table {
@@ -42,6 +44,20 @@ class BookTags extends Table {
   Set<Column> get primaryKey => {bookId, tagId};
 }
 
+@UseRowClass(Shelf)
+class Shelves extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get filterQuery => text().nullable()();
+  TextColumn get filterAuthor => text().nullable()();
+  TextColumn get filterPublisher => text().nullable()();
+  TextColumn get filterIsbn => text().nullable()();
+  TextColumn get filterCollection => text().nullable()();
+  TextColumn get filterStatus => text().nullable()();
+  TextColumn get filterTagIds => text().nullable()(); // JSON: [1,2,3]
+  IntColumn get filterImprintId => integer().nullable()();
+}
+
 enum ReadingStatus {
   wantToRead,
   reading,
@@ -74,12 +90,12 @@ class BookFormatConverter extends TypeConverter<BookFormat?, String?> {
   String? toSql(BookFormat? value) => value?.name;
 }
 
-@DriftDatabase(tables: [Books, Tags, BookTags])
+@DriftDatabase(tables: [Books, Tags, BookTags, Shelves])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -93,6 +109,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         await m.createTable(tags);
         await m.createTable(bookTags);
+      }
+      if (from < 4) {
+        await m.createTable(shelves);
       }
     },
   );
@@ -306,7 +325,7 @@ class AppDatabase extends _$AppDatabase {
     int? imprintId,
   }) {
     // Si hay filtro por tags necesitamos una query especial
-    if (tagIds != null && tagIds.isNotEmpty) {
+    if ((tagIds != null && tagIds.isNotEmpty) || imprintId != null){
       return _watchBooksWithTags(
         query: query,
         tagIds: tagIds,
@@ -343,28 +362,30 @@ class AppDatabase extends _$AppDatabase {
 
   Stream<List<Book>> _watchBooksWithTags({
     String? query,
-    required List<int> tagIds,
+    List<int>? tagIds,
     String? author,
     String? publisher,
     String? isbn,
     String? collectionName,
     int? imprintId,
   }) {
-    final distinctTags = tagIds.toSet().toList();
+    final allRequiredTagIds = [
+      ...?tagIds,
+      imprintId,
+    ].whereType<int>().toList();
 
-    // Primero obtenemos todos los bookIds que tienen TODOS los tags requeridos
+    if (allRequiredTagIds.isEmpty) return watchAllBooks();
+
     return (select(bookTags)
-      ..where((bt) => bt.tagId.isIn(distinctTags)))
+      ..where((bt) => bt.tagId.isIn(allRequiredTagIds)))
         .watch()
         .asyncMap((links) async {
-      // Agrupar por bookId y contar tags únicos
       final Map<int, Set<int>> bookToTags = {};
       for (final link in links) {
         bookToTags.putIfAbsent(link.bookId, () => {}).add(link.tagId);
       }
-      // Solo los libros que tienen TODOS los tags
       final validBookIds = bookToTags.entries
-          .where((e) => e.value.length >= distinctTags.length)
+          .where((e) => e.value.length >= allRequiredTagIds.length)
           .map((e) => e.key)
           .toList();
 
@@ -393,5 +414,16 @@ class AppDatabase extends _$AppDatabase {
       return q.get();
     });
   }
+
+  // --- Shelves ---
+  Stream<List<Shelf>> watchAllShelves() => select(shelves).watch();
+
+  Future<int> insertShelf(ShelvesCompanion shelf) =>
+      into(shelves).insert(shelf);
+
+  Future<bool> updateShelf(Shelf shelf) => update(shelves).replace(shelf);
+
+  Future<void> deleteShelf(int id) =>
+      (delete(shelves)..where((s) => s.id.equals(id))).go();
 
 }

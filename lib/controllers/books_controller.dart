@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'dart:convert';
+import '../models/shelf.dart';
 import '../services/database.dart';
 import 'database_provider.dart';
 
@@ -7,6 +9,40 @@ import 'database_provider.dart';
 final allBooksProvider = StreamProvider<List<Book>>((ref) {
   final db = ref.watch(databaseProvider);
   return db.watchAllBooks();
+});
+
+// Provider específico para los libros de una estantería
+final shelfBooksProvider =
+StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
+  final db = ref.watch(databaseProvider);
+  final tagIds = shelf.filterTagIds != null
+      ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>()
+      : <int>[];
+
+  // Si hay filtro de estado, combinar con los demás filtros
+  if (shelf.filterStatus != null &&
+      tagIds.isEmpty &&
+      shelf.filterImprintId == null &&
+      shelf.filterQuery == null &&
+      shelf.filterAuthor == null &&
+      shelf.filterPublisher == null &&
+      shelf.filterIsbn == null &&
+      shelf.filterCollection == null) {
+    final status = ReadingStatus.values.firstWhere(
+          (s) => s.name == shelf.filterStatus,
+    );
+    return db.watchBooksByStatus(status);
+  }
+
+  return db.watchBooksFiltered(
+    query: shelf.filterQuery,
+    tagIds: tagIds.isEmpty ? null : tagIds,
+    author: shelf.filterAuthor,
+    publisher: shelf.filterPublisher,
+    isbn: shelf.filterIsbn,
+    collectionName: shelf.filterCollection,
+    imprintId: shelf.filterImprintId,
+  );
 });
 
 // Stream por estado
@@ -71,6 +107,7 @@ class SearchFilters {
   final String isbn;
   final String collection;
   final Tag? imprint;
+  final ReadingStatus? status;
 
   const SearchFilters({
     this.query = '',
@@ -80,6 +117,7 @@ class SearchFilters {
     this.isbn = '',
     this.collection = '',
     this.imprint,
+    this.status,
   });
 
   bool get isEmpty =>
@@ -89,7 +127,7 @@ class SearchFilters {
           publisher.isEmpty &&
           isbn.isEmpty &&
           collection.isEmpty &&
-          imprint == null;  // AÑADIR
+          imprint == null;
 
   SearchFilters copyWith({
     String? query,
@@ -98,8 +136,9 @@ class SearchFilters {
     String? publisher,
     String? isbn,
     String? collection,
-    Tag? imprint,        // AÑADIR
-    bool clearImprint = false,  // AÑADIR para poder poner null
+    Tag? imprint,
+    bool clearImprint = false,
+    ReadingStatus? status,
   }) =>
       SearchFilters(
         query: query ?? this.query,
@@ -108,9 +147,14 @@ class SearchFilters {
         publisher: publisher ?? this.publisher,
         isbn: isbn ?? this.isbn,
         collection: collection ?? this.collection,
-        imprint: clearImprint ? null : (imprint ?? this.imprint),  // AÑADIR
+        imprint: clearImprint ? null : (imprint ?? this.imprint),
+        status: status ?? this.status,
       );
 }
 
 final searchFiltersProvider =
 StateProvider<SearchFilters>((ref) => const SearchFilters());
+
+final allShelvesProvider = StreamProvider<List<Shelf>>((ref) {
+  return ref.watch(databaseProvider).watchAllShelves();
+});

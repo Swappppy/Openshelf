@@ -392,6 +392,145 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
     ));
   }
 
+  void _showTagPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => _TagPickerSheet(
+        onChanged: widget.onChanged,
+      ),
+    );
+  }
+
+  void _showImprintPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.5,
+        maxChildSize: 0.9,
+        builder: (_, scrollController) => Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40, height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text('Sellos editoriales',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ref.watch(allImprintsProvider).maybeWhen(
+                  data: (allImprints) => StatefulBuilder(
+                    builder: (context, setStateSheet) => SingleChildScrollView(
+                      controller: scrollController,
+                      child: Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: allImprints.map((imp) {
+                          final isActive =
+                              widget.filters.imprint?.id == imp.id;
+                          final colorScheme =
+                              Theme.of(context).colorScheme;
+                          return GestureDetector(
+                            onTap: () {
+                              widget.onChanged(isActive
+                                  ? widget.filters
+                                  .copyWith(clearImprint: true)
+                                  : widget.filters
+                                  .copyWith(imprint: imp));
+                              setStateSheet(() {});
+                            },
+                            child: SizedBox(
+                              width: 80,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(8),
+                                      border: isActive
+                                          ? Border.all(
+                                          color: colorScheme.primary,
+                                          width: 2)
+                                          : null,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius:
+                                      BorderRadius.circular(7),
+                                      child: imp.imagePath != null
+                                          ? Image.file(
+                                        File(imp.imagePath!),
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                      )
+                                          : Container(
+                                        width: 80,
+                                        height: 80,
+                                        color: colorScheme
+                                            .surfaceContainerHighest,
+                                        child: Icon(
+                                          Icons.business_outlined,
+                                          color: colorScheme.outline,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    imp.name,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                  orElse: () => const SizedBox.shrink(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Hecho'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -447,26 +586,33 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
                 ),
               ],
             ),
-            // Tags activos
-            if (activeTags.isNotEmpty) ...[
+            // Tags y sellos activos
+            if (activeTags.isNotEmpty || widget.filters.imprint != null) ...[
               const SizedBox(height: 4),
               Wrap(
                 spacing: 6,
                 runSpacing: 4,
-                children: activeTags
-                    .map((tag) => TagChip(
-                  label: tag.name,
-                  colorHex: tag.color,
-                  onDeleted: () {
-                    final newTags = List<Tag>.from(activeTags)
-                      ..remove(tag);
-                    widget.onChanged(
-                        widget.filters.copyWith(tags: newTags));
-                  },
-                ))
-                    .toList(),
+                children: [
+                  ...activeTags.map((tag) => TagChip(
+                    label: tag.name,
+                    colorHex: tag.color,
+                    onDeleted: () {
+                      final newTags = List<Tag>.from(activeTags)
+                        ..removeWhere((t) => t.id == tag.id);
+                      widget.onChanged(widget.filters.copyWith(tags: newTags));
+                    },
+                  )),
+                  if (widget.filters.imprint != null)
+                    TagChip(
+                      label: widget.filters.imprint!.name,
+                      colorHex: null,
+                      onDeleted: () => widget.onChanged(
+                        widget.filters.copyWith(clearImprint: true),
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
             ],
 
             if (_expanded) ...[
@@ -529,67 +675,23 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
               ref.watch(allImprintsProvider).maybeWhen(
                 data: (allImprints) => allImprints.isEmpty
                     ? const SizedBox.shrink()
-                    : Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: allImprints.map((imp) {
+                    : _SingleRowWithOverflow(
+                  items: allImprints,
+                  isActive: (imp) => widget.filters.imprint?.id == imp.id,
+                  labelFor: (imp) => imp.name,
+                  colorFor: (_) => null,
+                  imageFor: (imp) => imp.imagePath,
+                  onTap: (imp) {
                     final isActive = widget.filters.imprint?.id == imp.id;
-                    return GestureDetector(
-                      onTap: () {
-                        widget.onChanged(isActive
-                            ? widget.filters.copyWith(clearImprint: true)
-                            : widget.filters.copyWith(imprint: imp));
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? colorScheme.primaryContainer
-                              : colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: isActive
-                                ? colorScheme.primary
-                                : Colors.transparent,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (imp.imagePath != null)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(2),
-                                child: Image.file(
-                                  File(imp.imagePath!),
-                                  width: 16,
-                                  height: 16,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            else
-                              Icon(Icons.business_outlined,
-                                  size: 14, color: colorScheme.outline),
-                            const SizedBox(width: 6),
-                            Text(
-                              imp.name,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: isActive
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                    widget.onChanged(isActive
+                        ? widget.filters.copyWith(clearImprint: true)
+                        : widget.filters.copyWith(imprint: imp));
+                  },
+                  onTapMore: () => _showImprintPicker(context),
                 ),
                 orElse: () => const SizedBox.shrink(),
               ),
+              const SizedBox(height: 8),
 
               // Selector de tags
               Text(
@@ -602,54 +704,22 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
               ref.watch(allTagsProvider).maybeWhen(
                 data: (allTags) => allTags.isEmpty
                     ? const SizedBox.shrink()
-                    : Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: allTags.map((tag) {
-                    final isActive =
-                    activeTags.any((t) => t.id == tag.id);
-                    final baseColor = tag.color != null
-                        ? Color(int.parse('0xFF${tag.color!}'))
-                        : colorScheme.secondaryContainer;
-                    return GestureDetector(
-                      onTap: () {
-                        final newTags = List<Tag>.from(activeTags);
-                        if (isActive) {
-                          newTags.removeWhere((t) => t.id == tag.id);
-                        } else {
-                          newTags.add(tag);
-                        }
-                        widget.onChanged(
-                            widget.filters.copyWith(tags: newTags));
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? baseColor.withValues(alpha: 0.25)
-                              : baseColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: isActive
-                                ? baseColor
-                                : Colors.transparent,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Text(
-                          tag.name,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: tag.color != null
-                                ? baseColor
-                                : colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                    : _SingleRowWithOverflow(
+                  items: allTags,
+                  isActive: (tag) => activeTags.any((t) => t.id == tag.id),
+                  labelFor: (tag) => tag.name,
+                  colorFor: (tag) => tag.color,
+                  imageFor: (_) => null,
+                  onTap: (tag) {
+                    final newTags = List<Tag>.from(activeTags);
+                    if (activeTags.any((t) => t.id == tag.id)) {
+                      newTags.removeWhere((t) => t.id == tag.id);
+                    } else {
+                      newTags.add(tag);
+                    }
+                    widget.onChanged(widget.filters.copyWith(tags: newTags));
+                  },
+                  onTapMore: () => _showTagPicker(context),
                 ),
                 orElse: () => const SizedBox.shrink(),
               ),
@@ -705,5 +775,255 @@ class _StatsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Estadísticas')),
       body: const Center(child: Text('Tus estadísticas aparecerán aquí')),
     );
+  }
+}
+
+class _TagPickerSheet extends ConsumerWidget {
+  final ValueChanged<SearchFilters> onChanged;
+
+  const _TagPickerSheet({required this.onChanged});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filters = ref.watch(searchFiltersProvider);
+    final activeTags = filters.tags;
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.5,
+      maxChildSize: 0.9,
+      builder: (_, scrollController) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Text(
+              'Categorías',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ref.watch(allTagsProvider).maybeWhen(
+                data: (allTags) => SingleChildScrollView(
+                  controller: scrollController,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: allTags.map((tag) {
+                      final isActive = activeTags.any((t) => t.id == tag.id);
+                      final baseColor = tag.color != null
+                          ? Color(int.parse('0xFF${tag.color!}'))
+                          : Theme.of(context).colorScheme.secondaryContainer;
+                      return GestureDetector(
+                        onTap: () {
+                          final current = ref.read(searchFiltersProvider);
+                          final newTags = List<Tag>.from(current.tags);
+                          if (isActive) {
+                            newTags.removeWhere((t) => t.id == tag.id);
+                          } else {
+                            newTags.add(tag);
+                          }
+                          final updated = current.copyWith(tags: newTags);
+                          ref.read(searchFiltersProvider.notifier).state =
+                              updated;
+                          onChanged(updated);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? baseColor.withValues(alpha: 0.25)
+                                : baseColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color:
+                              isActive ? baseColor : Colors.transparent,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Text(
+                            tag.name,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: tag.color != null
+                                  ? baseColor
+                                  : Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                orElse: () => const SizedBox.shrink(),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hecho'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SingleRowWithOverflow<T> extends StatelessWidget {
+  final List<T> items;
+  final bool Function(T) isActive;
+  final String Function(T) labelFor;
+  final String? Function(T) colorFor;
+  final String? Function(T) imageFor;
+  final void Function(T) onTap;
+  final VoidCallback onTapMore;
+
+  const _SingleRowWithOverflow({
+    required this.items,
+    required this.isActive,
+    required this.labelFor,
+    required this.colorFor,
+    required this.imageFor,
+    required this.onTap,
+    required this.onTapMore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final maxWidth = constraints.maxWidth;
+      const chipSpacing = 6.0;
+      const chipPaddingH = 20.0;
+      const moreWidth = 36.0;
+      final textStyle = const TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
+
+      final visible = <T>[];
+      double used = 0;
+
+      for (final item in items) {
+        final painter = TextPainter(
+          text: TextSpan(text: labelFor(item), style: textStyle),
+          textDirection: TextDirection.ltr,
+        )..layout();
+
+        final imgWidth = imageFor(item) != null ? 22.0 : 0.0;
+        final chipW = painter.width + chipPaddingH + imgWidth;
+        final remaining = items.length - visible.length - 1;
+        final reserveMore = remaining > 0 ? moreWidth + chipSpacing : 0.0;
+
+        if (used + chipW + chipSpacing + reserveMore <= maxWidth) {
+          visible.add(item);
+          used += chipW + chipSpacing;
+        } else {
+          break;
+        }
+      }
+
+      final hiddenCount = items.length - visible.length;
+
+      return Row(
+        children: [
+          ...visible.map((item) {
+            final active = isActive(item);
+            final hexColor = colorFor(item);
+            final imgPath = imageFor(item);
+            final baseColor = hexColor != null
+                ? Color(int.parse('0xFF$hexColor'))
+                : colorScheme.secondaryContainer;
+
+            return Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: GestureDetector(
+                onTap: () => onTap(item),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: active
+                        ? baseColor.withValues(alpha: 0.25)
+                        : baseColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: active ? baseColor : Colors.transparent,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (imgPath != null) ...[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(2),
+                          child: Image.file(File(imgPath),
+                              width: 16, height: 16, fit: BoxFit.cover),
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        labelFor(item),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: hexColor != null
+                              ? baseColor
+                              : colorScheme.onSecondaryContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+          if (hiddenCount > 0)
+            GestureDetector(
+              onTap: onTapMore,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '+$hiddenCount',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    });
   }
 }

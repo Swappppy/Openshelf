@@ -1565,17 +1565,442 @@ class BookTagsCompanion extends UpdateCompanion<BookTag> {
   }
 }
 
+class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ShelvesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _filterQueryMeta = const VerificationMeta(
+    'filterQuery',
+  );
+  @override
+  late final GeneratedColumn<String> filterQuery = GeneratedColumn<String>(
+    'filter_query',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterAuthorMeta = const VerificationMeta(
+    'filterAuthor',
+  );
+  @override
+  late final GeneratedColumn<String> filterAuthor = GeneratedColumn<String>(
+    'filter_author',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterPublisherMeta = const VerificationMeta(
+    'filterPublisher',
+  );
+  @override
+  late final GeneratedColumn<String> filterPublisher = GeneratedColumn<String>(
+    'filter_publisher',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterIsbnMeta = const VerificationMeta(
+    'filterIsbn',
+  );
+  @override
+  late final GeneratedColumn<String> filterIsbn = GeneratedColumn<String>(
+    'filter_isbn',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterCollectionMeta = const VerificationMeta(
+    'filterCollection',
+  );
+  @override
+  late final GeneratedColumn<String> filterCollection = GeneratedColumn<String>(
+    'filter_collection',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterStatusMeta = const VerificationMeta(
+    'filterStatus',
+  );
+  @override
+  late final GeneratedColumn<String> filterStatus = GeneratedColumn<String>(
+    'filter_status',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterTagIdsMeta = const VerificationMeta(
+    'filterTagIds',
+  );
+  @override
+  late final GeneratedColumn<String> filterTagIds = GeneratedColumn<String>(
+    'filter_tag_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterImprintIdMeta = const VerificationMeta(
+    'filterImprintId',
+  );
+  @override
+  late final GeneratedColumn<int> filterImprintId = GeneratedColumn<int>(
+    'filter_imprint_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    filterQuery,
+    filterAuthor,
+    filterPublisher,
+    filterIsbn,
+    filterCollection,
+    filterStatus,
+    filterTagIds,
+    filterImprintId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'shelves';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Shelf> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('filter_query')) {
+      context.handle(
+        _filterQueryMeta,
+        filterQuery.isAcceptableOrUnknown(
+          data['filter_query']!,
+          _filterQueryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_author')) {
+      context.handle(
+        _filterAuthorMeta,
+        filterAuthor.isAcceptableOrUnknown(
+          data['filter_author']!,
+          _filterAuthorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_publisher')) {
+      context.handle(
+        _filterPublisherMeta,
+        filterPublisher.isAcceptableOrUnknown(
+          data['filter_publisher']!,
+          _filterPublisherMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_isbn')) {
+      context.handle(
+        _filterIsbnMeta,
+        filterIsbn.isAcceptableOrUnknown(data['filter_isbn']!, _filterIsbnMeta),
+      );
+    }
+    if (data.containsKey('filter_collection')) {
+      context.handle(
+        _filterCollectionMeta,
+        filterCollection.isAcceptableOrUnknown(
+          data['filter_collection']!,
+          _filterCollectionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_status')) {
+      context.handle(
+        _filterStatusMeta,
+        filterStatus.isAcceptableOrUnknown(
+          data['filter_status']!,
+          _filterStatusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_tag_ids')) {
+      context.handle(
+        _filterTagIdsMeta,
+        filterTagIds.isAcceptableOrUnknown(
+          data['filter_tag_ids']!,
+          _filterTagIdsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_imprint_id')) {
+      context.handle(
+        _filterImprintIdMeta,
+        filterImprintId.isAcceptableOrUnknown(
+          data['filter_imprint_id']!,
+          _filterImprintIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Shelf map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Shelf(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      filterQuery: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_query'],
+      ),
+      filterAuthor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_author'],
+      ),
+      filterPublisher: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_publisher'],
+      ),
+      filterIsbn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_isbn'],
+      ),
+      filterCollection: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_collection'],
+      ),
+      filterStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_status'],
+      ),
+      filterTagIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_tag_ids'],
+      ),
+      filterImprintId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}filter_imprint_id'],
+      ),
+    );
+  }
+
+  @override
+  $ShelvesTable createAlias(String alias) {
+    return $ShelvesTable(attachedDatabase, alias);
+  }
+}
+
+class ShelvesCompanion extends UpdateCompanion<Shelf> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> filterQuery;
+  final Value<String?> filterAuthor;
+  final Value<String?> filterPublisher;
+  final Value<String?> filterIsbn;
+  final Value<String?> filterCollection;
+  final Value<String?> filterStatus;
+  final Value<String?> filterTagIds;
+  final Value<int?> filterImprintId;
+  const ShelvesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.filterQuery = const Value.absent(),
+    this.filterAuthor = const Value.absent(),
+    this.filterPublisher = const Value.absent(),
+    this.filterIsbn = const Value.absent(),
+    this.filterCollection = const Value.absent(),
+    this.filterStatus = const Value.absent(),
+    this.filterTagIds = const Value.absent(),
+    this.filterImprintId = const Value.absent(),
+  });
+  ShelvesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.filterQuery = const Value.absent(),
+    this.filterAuthor = const Value.absent(),
+    this.filterPublisher = const Value.absent(),
+    this.filterIsbn = const Value.absent(),
+    this.filterCollection = const Value.absent(),
+    this.filterStatus = const Value.absent(),
+    this.filterTagIds = const Value.absent(),
+    this.filterImprintId = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<Shelf> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? filterQuery,
+    Expression<String>? filterAuthor,
+    Expression<String>? filterPublisher,
+    Expression<String>? filterIsbn,
+    Expression<String>? filterCollection,
+    Expression<String>? filterStatus,
+    Expression<String>? filterTagIds,
+    Expression<int>? filterImprintId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (filterQuery != null) 'filter_query': filterQuery,
+      if (filterAuthor != null) 'filter_author': filterAuthor,
+      if (filterPublisher != null) 'filter_publisher': filterPublisher,
+      if (filterIsbn != null) 'filter_isbn': filterIsbn,
+      if (filterCollection != null) 'filter_collection': filterCollection,
+      if (filterStatus != null) 'filter_status': filterStatus,
+      if (filterTagIds != null) 'filter_tag_ids': filterTagIds,
+      if (filterImprintId != null) 'filter_imprint_id': filterImprintId,
+    });
+  }
+
+  ShelvesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String?>? filterQuery,
+    Value<String?>? filterAuthor,
+    Value<String?>? filterPublisher,
+    Value<String?>? filterIsbn,
+    Value<String?>? filterCollection,
+    Value<String?>? filterStatus,
+    Value<String?>? filterTagIds,
+    Value<int?>? filterImprintId,
+  }) {
+    return ShelvesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      filterQuery: filterQuery ?? this.filterQuery,
+      filterAuthor: filterAuthor ?? this.filterAuthor,
+      filterPublisher: filterPublisher ?? this.filterPublisher,
+      filterIsbn: filterIsbn ?? this.filterIsbn,
+      filterCollection: filterCollection ?? this.filterCollection,
+      filterStatus: filterStatus ?? this.filterStatus,
+      filterTagIds: filterTagIds ?? this.filterTagIds,
+      filterImprintId: filterImprintId ?? this.filterImprintId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (filterQuery.present) {
+      map['filter_query'] = Variable<String>(filterQuery.value);
+    }
+    if (filterAuthor.present) {
+      map['filter_author'] = Variable<String>(filterAuthor.value);
+    }
+    if (filterPublisher.present) {
+      map['filter_publisher'] = Variable<String>(filterPublisher.value);
+    }
+    if (filterIsbn.present) {
+      map['filter_isbn'] = Variable<String>(filterIsbn.value);
+    }
+    if (filterCollection.present) {
+      map['filter_collection'] = Variable<String>(filterCollection.value);
+    }
+    if (filterStatus.present) {
+      map['filter_status'] = Variable<String>(filterStatus.value);
+    }
+    if (filterTagIds.present) {
+      map['filter_tag_ids'] = Variable<String>(filterTagIds.value);
+    }
+    if (filterImprintId.present) {
+      map['filter_imprint_id'] = Variable<int>(filterImprintId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ShelvesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('filterQuery: $filterQuery, ')
+          ..write('filterAuthor: $filterAuthor, ')
+          ..write('filterPublisher: $filterPublisher, ')
+          ..write('filterIsbn: $filterIsbn, ')
+          ..write('filterCollection: $filterCollection, ')
+          ..write('filterStatus: $filterStatus, ')
+          ..write('filterTagIds: $filterTagIds, ')
+          ..write('filterImprintId: $filterImprintId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $BooksTable books = $BooksTable(this);
   late final $TagsTable tags = $TagsTable(this);
   late final $BookTagsTable bookTags = $BookTagsTable(this);
+  late final $ShelvesTable shelves = $ShelvesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [books, tags, bookTags];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    books,
+    tags,
+    bookTags,
+    shelves,
+  ];
 }
 
 typedef $$BooksTableCreateCompanionBuilder =
@@ -2754,6 +3179,305 @@ typedef $$BookTagsTableProcessedTableManager =
       BookTag,
       PrefetchHooks Function({bool bookId, bool tagId})
     >;
+typedef $$ShelvesTableCreateCompanionBuilder =
+    ShelvesCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<String?> filterQuery,
+      Value<String?> filterAuthor,
+      Value<String?> filterPublisher,
+      Value<String?> filterIsbn,
+      Value<String?> filterCollection,
+      Value<String?> filterStatus,
+      Value<String?> filterTagIds,
+      Value<int?> filterImprintId,
+    });
+typedef $$ShelvesTableUpdateCompanionBuilder =
+    ShelvesCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String?> filterQuery,
+      Value<String?> filterAuthor,
+      Value<String?> filterPublisher,
+      Value<String?> filterIsbn,
+      Value<String?> filterCollection,
+      Value<String?> filterStatus,
+      Value<String?> filterTagIds,
+      Value<int?> filterImprintId,
+    });
+
+class $$ShelvesTableFilterComposer
+    extends Composer<_$AppDatabase, $ShelvesTable> {
+  $$ShelvesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterQuery => $composableBuilder(
+    column: $table.filterQuery,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterAuthor => $composableBuilder(
+    column: $table.filterAuthor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterPublisher => $composableBuilder(
+    column: $table.filterPublisher,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterIsbn => $composableBuilder(
+    column: $table.filterIsbn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterCollection => $composableBuilder(
+    column: $table.filterCollection,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterStatus => $composableBuilder(
+    column: $table.filterStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterTagIds => $composableBuilder(
+    column: $table.filterTagIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get filterImprintId => $composableBuilder(
+    column: $table.filterImprintId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ShelvesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ShelvesTable> {
+  $$ShelvesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterQuery => $composableBuilder(
+    column: $table.filterQuery,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterAuthor => $composableBuilder(
+    column: $table.filterAuthor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterPublisher => $composableBuilder(
+    column: $table.filterPublisher,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterIsbn => $composableBuilder(
+    column: $table.filterIsbn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterCollection => $composableBuilder(
+    column: $table.filterCollection,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterStatus => $composableBuilder(
+    column: $table.filterStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterTagIds => $composableBuilder(
+    column: $table.filterTagIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get filterImprintId => $composableBuilder(
+    column: $table.filterImprintId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ShelvesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ShelvesTable> {
+  $$ShelvesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get filterQuery => $composableBuilder(
+    column: $table.filterQuery,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterAuthor => $composableBuilder(
+    column: $table.filterAuthor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterPublisher => $composableBuilder(
+    column: $table.filterPublisher,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterIsbn => $composableBuilder(
+    column: $table.filterIsbn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterCollection => $composableBuilder(
+    column: $table.filterCollection,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterStatus => $composableBuilder(
+    column: $table.filterStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterTagIds => $composableBuilder(
+    column: $table.filterTagIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get filterImprintId => $composableBuilder(
+    column: $table.filterImprintId,
+    builder: (column) => column,
+  );
+}
+
+class $$ShelvesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ShelvesTable,
+          Shelf,
+          $$ShelvesTableFilterComposer,
+          $$ShelvesTableOrderingComposer,
+          $$ShelvesTableAnnotationComposer,
+          $$ShelvesTableCreateCompanionBuilder,
+          $$ShelvesTableUpdateCompanionBuilder,
+          (Shelf, BaseReferences<_$AppDatabase, $ShelvesTable, Shelf>),
+          Shelf,
+          PrefetchHooks Function()
+        > {
+  $$ShelvesTableTableManager(_$AppDatabase db, $ShelvesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ShelvesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ShelvesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ShelvesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> filterQuery = const Value.absent(),
+                Value<String?> filterAuthor = const Value.absent(),
+                Value<String?> filterPublisher = const Value.absent(),
+                Value<String?> filterIsbn = const Value.absent(),
+                Value<String?> filterCollection = const Value.absent(),
+                Value<String?> filterStatus = const Value.absent(),
+                Value<String?> filterTagIds = const Value.absent(),
+                Value<int?> filterImprintId = const Value.absent(),
+              }) => ShelvesCompanion(
+                id: id,
+                name: name,
+                filterQuery: filterQuery,
+                filterAuthor: filterAuthor,
+                filterPublisher: filterPublisher,
+                filterIsbn: filterIsbn,
+                filterCollection: filterCollection,
+                filterStatus: filterStatus,
+                filterTagIds: filterTagIds,
+                filterImprintId: filterImprintId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<String?> filterQuery = const Value.absent(),
+                Value<String?> filterAuthor = const Value.absent(),
+                Value<String?> filterPublisher = const Value.absent(),
+                Value<String?> filterIsbn = const Value.absent(),
+                Value<String?> filterCollection = const Value.absent(),
+                Value<String?> filterStatus = const Value.absent(),
+                Value<String?> filterTagIds = const Value.absent(),
+                Value<int?> filterImprintId = const Value.absent(),
+              }) => ShelvesCompanion.insert(
+                id: id,
+                name: name,
+                filterQuery: filterQuery,
+                filterAuthor: filterAuthor,
+                filterPublisher: filterPublisher,
+                filterIsbn: filterIsbn,
+                filterCollection: filterCollection,
+                filterStatus: filterStatus,
+                filterTagIds: filterTagIds,
+                filterImprintId: filterImprintId,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ShelvesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ShelvesTable,
+      Shelf,
+      $$ShelvesTableFilterComposer,
+      $$ShelvesTableOrderingComposer,
+      $$ShelvesTableAnnotationComposer,
+      $$ShelvesTableCreateCompanionBuilder,
+      $$ShelvesTableUpdateCompanionBuilder,
+      (Shelf, BaseReferences<_$AppDatabase, $ShelvesTable, Shelf>),
+      Shelf,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2763,4 +3487,6 @@ class $AppDatabaseManager {
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
   $$BookTagsTableTableManager get bookTags =>
       $$BookTagsTableTableManager(_db, _db.bookTags);
+  $$ShelvesTableTableManager get shelves =>
+      $$ShelvesTableTableManager(_db, _db.shelves);
 }
