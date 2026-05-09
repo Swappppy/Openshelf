@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const _seedColor = Color(0xFF6B4E3D); // Marrón cálido — libros
-
-  static ThemeData light() {
+  static ThemeData light(Color seedColor) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: _seedColor,
+        seedColor: seedColor,
         brightness: Brightness.light,
       ),
-
     );
   }
 
-  static ThemeData dark() {
+  static ThemeData dark(Color seedColor) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: _seedColor,
+        seedColor: seedColor,
         brightness: Brightness.dark,
       ),
     );

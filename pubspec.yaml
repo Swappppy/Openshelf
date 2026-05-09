@@ -35,6 +35,10 @@ dependencies:
   # Copiar/mover archivos
   path: ^1.9.0
 
+  shared_preferences: ^2.3.0
+
+  file_picker: ^11.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

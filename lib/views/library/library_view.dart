@@ -12,6 +12,7 @@ import '../../controllers/books_controller.dart';
 import '../book_form/add_book_modal.dart';
 import '../book_detail/book_detail_view.dart';
 import '../../widgets/tag_chip.dart';
+import '../settings/settings_view.dart';
 
 class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
@@ -107,7 +108,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.tune),
-            onPressed: () => _showDisplayOptions(context, ref),
+            onPressed: () => _showSettingsAndDisplay(context, ref),
           ),
         ],
       ),
@@ -221,7 +222,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
     );
   }
 
-  void _showDisplayOptions(BuildContext context, WidgetRef ref) {
+  void _showSettingsAndDisplay(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -268,16 +269,38 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.outlineVariant,
+                        color:
+                        Theme.of(context).colorScheme.outlineVariant,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
-                  Text(
-                    'Mostrar en la biblioteca',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  // Cabecera con botón de ajustes
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Mostrar en la biblioteca',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.settings_outlined, size: 18),
+                        label: const Text('Ajustes'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SettingsView(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -318,7 +341,8 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                           title: const Text('Progreso de lectura'),
                           trailing: Switch(
                             value: p.showProgress,
-                            onChanged: (_) => controller.toggleShowProgress(),
+                            onChanged: (_) =>
+                                controller.toggleShowProgress(),
                           ),
                         ),
                         ListTile(

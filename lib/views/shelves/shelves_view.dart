@@ -961,7 +961,15 @@ class _StatusShelfTile extends ConsumerWidget {
             const Icon(Icons.chevron_right),
           ],
         ),
-        onTap: () {},
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StatusBooksView(
+              status: status,
+              title: label,
+            ),
+          ),
+        ),
       ),
     );
   }

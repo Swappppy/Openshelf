@@ -1,28 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 import 'views/library/library_view.dart';
+import 'controllers/app_settings_controller.dart';
+import 'controllers/shared_prefs_provider.dart';
 
-void main() {
-  runApp(
-    const ProviderScope(
-      child: OpenshelfApp(),
-    ),
-  );
+void main() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    final prefs = await _getSharedPreferences();
+
+    runApp(
+      ProviderScope(
+        overrides: [
+          sharedPrefsProvider.overrideWithValue(prefs),
+        ],
+        child: const OpenshelfApp(),
+      ),
+    );
+  } catch (e) {
+    // Fail-safe: If SharedPreferences fails even after retries, 
+    // run the app anyway (it might show an error UI or use defaults)
+    debugPrint('Critical initialization error: $e');
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Text('Error al iniciar la aplicación: $e'),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class OpenshelfApp extends StatelessWidget {
+Future<SharedPreferences> _getSharedPreferences() async {
+  int retries = 0;
+  const maxRetries = 10;
+  
+  // Give the engine a moment to settle after a hot restart
+  // Increased to 300ms for devices with extremely fast hot restart
+  await Future.delayed(const Duration(milliseconds: 300));
+
+  while (retries < maxRetries) {
+    try {
+      return await SharedPreferences.getInstance();
+    } on PlatformException catch (e) {
+      if (e.code == 'channel-error') {
+        retries++;
+        // Incremental delay: 100ms, 200ms, 300ms...
+        await Future.delayed(Duration(milliseconds: 100 * retries));
+        continue;
+      }
+      rethrow;
+    } catch (e) {
+      final errorStr = e.toString();
+      if (errorStr.contains('channel-error') || 
+          errorStr.contains('Unable to establish connection')) {
+        retries++;
+        await Future.delayed(Duration(milliseconds: 100 * retries));
+        continue;
+      }
+      rethrow;
+    }
+  }
+  
+  // Final attempt if loop finishes
+  return await SharedPreferences.getInstance();
+}
+
+class OpenshelfApp extends ConsumerWidget {
   const OpenshelfApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Openshelf',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
-      home: const LibraryView(),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsAsync = ref.watch(appSettingsProvider);
+
+    return settingsAsync.when(
+      loading: () => const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      ),
+      error: (e, _) => MaterialApp(
+        home: Scaffold(body: Center(child: Text('Error: $e'))),
+      ),
+      data: (settings) => MaterialApp(
+        title: 'Openshelf',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(settings.seedColor),
+        darkTheme: AppTheme.dark(settings.seedColor),
+        themeMode: settings.themeMode,
+        home: const LibraryView(),
+      ),
     );
   }
 }
