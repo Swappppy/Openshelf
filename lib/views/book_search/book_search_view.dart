@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import '../../models/app_settings.dart';
 import '../book_form/book_form_view.dart';
 import '../../models/book_search_result.dart';
-import '../../services/open_library_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../services/book_search_service.dart';
 
-class BookSearchView extends StatefulWidget {
+class BookSearchView extends ConsumerStatefulWidget {
   const BookSearchView({super.key});
 
   @override
-  State<BookSearchView> createState() => _BookSearchViewState();
+  ConsumerState<BookSearchView> createState() => _BookSearchViewState();
 }
 
-class _BookSearchViewState extends State<BookSearchView> {
+class _BookSearchViewState extends ConsumerState<BookSearchView> {
   final _ctrl = TextEditingController();
   final _focusNode = FocusNode();
 
@@ -18,6 +20,7 @@ class _BookSearchViewState extends State<BookSearchView> {
   bool _loading = false;
   String? _error;
   bool _searched = false;
+  String? _fallbackNotice;
 
   @override
   void initState() {
@@ -47,17 +50,27 @@ class _BookSearchViewState extends State<BookSearchView> {
     });
 
     try {
-      final results = await OpenLibraryService.search(query);
+      final service = ref.read(bookSearchServiceProvider);
+      final response = await service.search(query);
       if (mounted) {
         setState(() {
-          _results = results;
+          _results = response.results;
+          _fallbackNotice = response.usedFallback != null
+              ? 'Sin resultados en el proveedor principal. '
+              'Mostrando resultados de ${response.usedFallback}.'
+              : null;
           _loading = false;
         });
       }
     } catch (e) {
       if (mounted) {
+        final isRateLimit = e.toString().contains('rate_limit');
         setState(() {
-          _error = 'No se pudo conectar con Open Library.\n'
+          _error = isRateLimit
+              ? 'Google Books ha limitado las peticiones.\n'
+              'Espera un momento e inténtalo de nuevo,\n'
+              'o cambia a Open Library en los ajustes.'
+              : 'No se pudo conectar con ningún servidor.\n'
               'Comprueba tu conexión e inténtalo de nuevo.';
           _loading = false;
         });
@@ -69,9 +82,9 @@ class _BookSearchViewState extends State<BookSearchView> {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, animation, __) =>
+        pageBuilder: (_, animation, _) =>
             BookFormView(prefill: result),
-        transitionsBuilder: (_, animation, __, child) => SlideTransition(
+        transitionsBuilder: (_, animation, _, child) => SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(0, 1),
             end: Offset.zero,
@@ -115,6 +128,7 @@ class _BookSearchViewState extends State<BookSearchView> {
                   _results = [];
                   _searched = false;
                   _error = null;
+                  _fallbackNotice = null;
                 });
                 _focusNode.requestFocus();
               },
@@ -163,6 +177,11 @@ class _BookSearchViewState extends State<BookSearchView> {
     }
 
     if (!_searched) {
+      final service = ref.watch(bookSearchServiceProvider);
+      final serverLabel = switch (service.server) {
+        BookSearchServer.openLibrary => 'Open Library',
+        BookSearchServer.googleBooks => 'Google Books',
+      };
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -174,6 +193,20 @@ class _BookSearchViewState extends State<BookSearchView> {
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.outline,
               ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.public, size: 13, color: colorScheme.outline),
+                const SizedBox(width: 4),
+                Text(
+                  serverLabel,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colorScheme.outline,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -198,10 +231,37 @@ class _BookSearchViewState extends State<BookSearchView> {
       );
     }
 
-    return ListView.builder(
-      itemCount: _results.length,
-      itemBuilder: (context, index) =>
-          _ResultTile(result: _results[index], onTap: _openForm),
+    return Column(
+      children: [
+        if (_fallbackNotice != null)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline,
+                    size: 14, color: colorScheme.onTertiaryContainer),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _fallbackNotice!,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onTertiaryContainer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: _results.length,
+            itemBuilder: (context, index) =>
+                _ResultTile(result: _results[index], onTap: _openForm),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -237,7 +297,7 @@ class _ResultTile extends StatelessWidget {
                     ? Image.network(
                   result.coverUrl!,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
+                  errorBuilder: (_, _, _) =>
                       _CoverPlaceholder(colorScheme: colorScheme),
                 )
                     : _CoverPlaceholder(colorScheme: colorScheme),
