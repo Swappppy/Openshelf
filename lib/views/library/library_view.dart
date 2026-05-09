@@ -237,6 +237,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
           final fieldLabels = {
             'author': 'Autor',
             'publisher': 'Editorial',
+            'year': 'Año de publicación',
             'rating': 'Valoración',
             'tags': 'Etiquetas',
           };
@@ -244,6 +245,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
           final fieldToggles = {
             'author': (bool v) => controller.toggleShowAuthor(),
             'publisher': (bool v) => controller.toggleShowPublisher(),
+            'year': (bool v) => controller.toggleShowYear(),
             'rating': (bool v) => controller.toggleShowRating(),
             'tags': (bool v) => controller.toggleShowTags(),
           };
@@ -251,6 +253,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
           final fieldValues = {
             'author': p.showAuthor,
             'publisher': p.showPublisher,
+            'year': p.showYear,
             'rating': p.showRating,
             'tags': p.showTags,
           };

@@ -106,6 +106,18 @@ class BookListTile extends ConsumerWidget {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 );
+                              case 'year':
+                                if (!prefs.showYear) return const SizedBox.shrink();
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    book.publishYear?.toString() ?? '',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.outline,
+                                    ),
+                                    maxLines: 1,
+                                  ),
+                                );
                               case 'rating':
                                 if (!prefs.showRating) return const SizedBox.shrink();
                                 return Padding(

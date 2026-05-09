@@ -83,6 +83,16 @@ class BookGridCard extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
+                  if (prefs.showYear && book.publishYear != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      book.publishYear.toString(),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ],
                   if (prefs.showProgress &&
                       book.totalPages != null &&
                       book.currentPage != null) ...[

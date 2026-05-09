@@ -4,6 +4,7 @@ const _defaultFieldOrder = [
   'tags',
   'author',
   'publisher',
+  'year',
   'rating',
 ];
 
@@ -16,6 +17,7 @@ class DisplayPreferences {
   final bool showStatusChip;
   final bool showPublisher;
   final List<String> fieldOrder;
+  final bool showYear;
 
   const DisplayPreferences({
     this.viewMode = LibraryViewMode.list,
@@ -26,6 +28,7 @@ class DisplayPreferences {
     this.showStatusChip = true,
     this.showPublisher = false,
     this.fieldOrder = const [..._defaultFieldOrder],
+    this.showYear = true,
   });
 
   DisplayPreferences copyWith({
@@ -37,6 +40,7 @@ class DisplayPreferences {
     bool? showStatusChip,
     bool? showPublisher,
     List<String>? fieldOrder,
+    bool? showYear,
   }) {
     return DisplayPreferences(
       viewMode: viewMode ?? this.viewMode,
@@ -47,6 +51,7 @@ class DisplayPreferences {
       showStatusChip: showStatusChip ?? this.showStatusChip,
       showPublisher: showPublisher ?? this.showPublisher,
       fieldOrder: fieldOrder ?? this.fieldOrder,
+      showYear: showYear ?? this.showYear,
     );
   }
 }

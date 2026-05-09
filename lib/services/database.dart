@@ -23,6 +23,7 @@ class Books extends Table {
   IntColumn get collectionNumber => integer().nullable()();
   TextColumn get coverPath => text().nullable()();
   TextColumn get notes => text().nullable()();
+  IntColumn get publishYear => integer().nullable()();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -95,7 +96,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -112,6 +113,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 4) {
         await m.createTable(shelves);
+      }
+      if (from < 5) {
+        await m.addColumn(books, books.publishYear as GeneratedColumn);
       }
     },
   );

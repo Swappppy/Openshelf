@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'book_form_view.dart';
+import '../book_search/book_search_view.dart';
 
 class AddBookModal extends StatelessWidget {
   const AddBookModal({super.key});
@@ -72,7 +73,15 @@ class AddBookModal extends StatelessWidget {
             icon: Icons.search,
             title: 'Buscar libro',
             subtitle: 'Por título, autor o ISBN',
-            onTap: () {}, // Fase C
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const BookSearchView(),
+                ),
+              );
+            },
           ),
           _AddOption(
             icon: Icons.qr_code_scanner,

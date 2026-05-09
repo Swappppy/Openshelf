@@ -25,6 +25,8 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
       state = state.copyWith(showStatusChip: !state.showStatusChip);
   void toggleShowPublisher() =>
       state = state.copyWith(showPublisher: !state.showPublisher);
+  void toggleShowYear() =>
+      state = state.copyWith(showYear: !state.showYear);
 
   void reorderFields(int oldIndex, int newIndex) {
     final order = List<String>.from(state.fieldOrder);

@@ -412,9 +412,13 @@ class _MainTab extends StatelessWidget {
         const SizedBox(height: 20),
         _ReadOnlyField(label: 'Editorial', value: book.publisher ?? '—'),
         const SizedBox(height: 20),
+        _ReadOnlyField(
+          label: 'Año de publicación',
+          value: book.publishYear?.toString() ?? '—',
+        ),
+        const SizedBox(height: 20),
         _ReadOnlyField(label: 'ISBN', value: book.isbn ?? '—'),
         const SizedBox(height: 20),
-
         // Categorías
         Text(
           'CATEGORÍAS',

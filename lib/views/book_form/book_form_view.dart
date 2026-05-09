@@ -8,10 +8,12 @@ import '../../services/cover_service.dart';
 import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
 import '../../widgets/tag_chip.dart';
+import '../../models/book_search_result.dart';
 
 class BookFormView extends ConsumerStatefulWidget {
   final Book? existingBook;
-  const BookFormView({super.key, this.existingBook});
+  final BookSearchResult? prefill;
+  const BookFormView({super.key, this.existingBook, this.prefill});
 
   @override
   ConsumerState<BookFormView> createState() => _BookFormViewState();
@@ -39,6 +41,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   late final TextEditingController _notesCtrl;
   late final TextEditingController _collectionNameCtrl;
   late final TextEditingController _collectionNumberCtrl;
+  late final TextEditingController _publishYearCtrl;
 
   ReadingStatus _status = ReadingStatus.wantToRead;
   BookFormat? _format;
@@ -54,18 +57,22 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     final b = widget.existingBook;
-    _titleCtrl = TextEditingController(text: b?.title ?? '');
-    _authorCtrl = TextEditingController(text: b?.author ?? '');
-    _isbnCtrl = TextEditingController(text: b?.isbn ?? '');
-    _publisherCtrl = TextEditingController(text: b?.publisher ?? '');
-    _totalPagesCtrl =
-        TextEditingController(text: b?.totalPages?.toString() ?? '');
+    final pre = widget.prefill;
+    _titleCtrl = TextEditingController(text: b?.title ?? pre?.title ?? '');
+    _authorCtrl = TextEditingController(text: b?.author ?? pre?.author ?? '');
+    _isbnCtrl = TextEditingController(text: b?.isbn ?? pre?.isbn ?? '');
+    _publisherCtrl = TextEditingController(
+        text: b?.publisher ?? pre?.publisher ?? '');
+    _totalPagesCtrl = TextEditingController(
+        text: b?.totalPages?.toString() ?? pre?.totalPages?.toString() ?? '');
     _currentPageCtrl = TextEditingController(text: '0');
     _notesCtrl = TextEditingController(text: b?.notes ?? '');
     _collectionNameCtrl =
         TextEditingController(text: b?.collectionName ?? '');
     _collectionNumberCtrl =
         TextEditingController(text: b?.collectionNumber?.toString() ?? '');
+    _publishYearCtrl = TextEditingController(
+        text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
     if (b != null) {
       _status = b.status;
       _format = b.bookFormat;
@@ -74,9 +81,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
       _loadExistingTags(b.id);
       _loadExistingImprint(b.id);
+    } else if (pre?.coverUrl != null) {
+      // Pre-carga la portada desde la URL de Open Library en background
+      _prefillCoverFromUrl(pre!.coverUrl!);
     }
     _currentPageCtrl.addListener(_updateStatusFromPages);
     _totalPagesCtrl.addListener(_updateStatusFromPages);
+
   }
 
   @override
@@ -91,6 +102,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _notesCtrl.dispose();
     _collectionNameCtrl.dispose();
     _collectionNumberCtrl.dispose();
+    _publishYearCtrl.dispose();
     _currentPageCtrl.removeListener(_updateStatusFromPages);
     _totalPagesCtrl.removeListener(_updateStatusFromPages);
     super.dispose();
@@ -112,6 +124,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         break;
       case ReadingStatus.abandoned:
         break;
+    }
+  }
+
+  Future<void> _prefillCoverFromUrl(String url) async {
+    final saved = await CoverService.saveCoverFromUrl(url);
+    if (saved != null && mounted) {
+      setState(() => _coverPath = saved);
     }
   }
 
@@ -204,6 +223,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         coverPath: Value(_coverPath),
         collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
+        publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       );
       await db.updateBook(updated);
       // Limpiar colección anterior si cambió o se borró
@@ -252,6 +272,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         coverPath: Value(_coverPath),
         collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
+        publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       );
       final newId = await db.insertBook(companion);
       final existingIds = _selectedTags.map((t) => t.id).toList();
@@ -565,6 +586,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               publisherCtrl: _publisherCtrl,
               totalPagesCtrl: _totalPagesCtrl,
               currentPageCtrl: _currentPageCtrl,
+              publishYearCtrl: _publishYearCtrl,
               status: _status,
               format: _format,
               rating: _rating,
@@ -614,6 +636,7 @@ class _MainTab extends ConsumerWidget {
   final TextEditingController publisherCtrl;
   final TextEditingController totalPagesCtrl;
   final TextEditingController currentPageCtrl;
+  final TextEditingController publishYearCtrl;
   final ReadingStatus status;
   final BookFormat? format;
   final double? rating;
@@ -640,6 +663,7 @@ class _MainTab extends ConsumerWidget {
     required this.publisherCtrl,
     required this.totalPagesCtrl,
     required this.currentPageCtrl,
+    required this.publishYearCtrl,
     required this.status,
     required this.format,
     required this.rating,
@@ -667,7 +691,6 @@ class _MainTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // --- Portada ---
         // --- Portada ---
         Center(
           child: Column(
@@ -748,6 +771,13 @@ class _MainTab extends ConsumerWidget {
             controller: publisherCtrl,
             label: 'Editorial',
             icon: Icons.business_outlined),
+        const SizedBox(height: 12),
+        _FormField(
+          controller: publishYearCtrl,
+          label: 'Año de publicación',
+          icon: Icons.calendar_today_outlined,
+          keyboardType: TextInputType.number,
+        ),
         const SizedBox(height: 12),
         _FormField(
             controller: isbnCtrl,
@@ -863,7 +893,6 @@ class _MainTab extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 24),
-
         // --- Estado ---
         _SectionHeader(label: 'Estado de lectura'),
         const SizedBox(height: 12),
