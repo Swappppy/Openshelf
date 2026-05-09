@@ -38,12 +38,6 @@ class ShelvesScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Estanterías'),
         toolbarHeight: 40,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
