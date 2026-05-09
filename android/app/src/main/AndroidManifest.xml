@@ -1,4 +1,14 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<!--suppress ALL -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.ftena.openshelf"
+    android:versionCode="1"
+    android:versionName="1.0.0"
+    tools:ignore="all">
+
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34" />
+
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
@@ -11,14 +21,22 @@
         </intent>
     </queries>
 
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:ignore="SelectedPhotoAccess" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"/>
 
     <application
-        android:label="openshelf"
+        android:label="Openshelf"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        tools:ignore="GoogleAppIndexingWarning,UnusedAttribute,MissingClass">
         <activity
             android:name="org.ftena.openshelf.MainActivity"
             android:exported="true"
@@ -41,6 +59,14 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:exported="false"
+            tools:ignore="MissingClass" />
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

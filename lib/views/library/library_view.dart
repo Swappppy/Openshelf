@@ -107,7 +107,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
             onPressed: controller.toggleViewMode,
           ),
           IconButton(
-            icon: const Icon(Icons.tune),
+            icon: const Icon(Icons.settings),
             onPressed: () => _showSettingsAndDisplay(context, ref),
           ),
         ],

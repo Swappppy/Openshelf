@@ -2,6 +2,19 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+
+subprojects {
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
 }
 

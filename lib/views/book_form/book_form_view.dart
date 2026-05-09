@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/database.dart';
 import '../../services/cover_service.dart';
+import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
 import '../../widgets/tag_chip.dart';
 
@@ -115,11 +116,67 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _pickCover() async {
+    if (!await PermissionService.requestGallery()) return;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-    final saved = await CoverService.saveCover(picked.path);
+    final cropped = await CoverService.cropCover(picked.path);
+    if (cropped == null) return;
+    final saved = await CoverService.saveCover(cropped);
     setState(() => _coverPath = saved);
+  }
+
+  Future<void> _takePhoto() async {
+    if (!await PermissionService.requestCamera()) return;
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.camera);
+    if (picked == null) return;
+    final cropped = await CoverService.cropCover(picked.path);
+    if (cropped == null) return;
+    final saved = await CoverService.saveCover(cropped);
+    setState(() => _coverPath = saved);
+  }
+
+  Future<void> _pickCoverFromUrl() async {
+    final ctrl = TextEditingController();
+    final url = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('URL de la portada'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          keyboardType: TextInputType.url,
+          decoration: const InputDecoration(
+            hintText: 'https://ejemplo.com/portada.jpg',
+            border: OutlineInputBorder(),
+          ),
+          onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            child: const Text('Descargar'),
+          ),
+        ],
+      ),
+    );
+    if (url == null || url.isEmpty) return;
+    setState(() => _isSaving = true);
+    final saved = await CoverService.saveCoverFromUrl(url);
+    setState(() {
+      _isSaving = false;
+      if (saved != null) _coverPath = saved;
+    });
+    if (saved == null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo descargar la imagen')),
+      );
+    }
   }
 
   Future<void> _save() async {
@@ -516,6 +573,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onFormatChanged: (f) => setState(() => _format = f),
               onRatingChanged: (r) => setState(() => _rating = r),
               onPickCover: _pickCover,
+              onTakePhoto: _takePhoto,
               selectedTags: _selectedTags,
               pendingTags: _pendingTags,
               onAddTag: (tag) => setState(() {
@@ -529,7 +587,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onTapTagColor: ({Tag? existingTag, _PendingTag? pendingTag}) =>
                   _showColorPicker(context, existingTag: existingTag, pendingTag: pendingTag),
               onTapGrid: () => _showTagPicker(context),
-              ),
+              onPickCoverFromUrl: _pickCoverFromUrl,
+            ),
             _DetailsTab(
               notesCtrl: _notesCtrl,
               collectionNameCtrl: _collectionNameCtrl,
@@ -563,6 +622,7 @@ class _MainTab extends ConsumerWidget {
   final ValueChanged<BookFormat?> onFormatChanged;
   final ValueChanged<double?> onRatingChanged;
   final VoidCallback onPickCover;
+  final VoidCallback onTakePhoto;
   final List<Tag> selectedTags;
   final List<_PendingTag> pendingTags;
   final ValueChanged<Tag> onAddTag;
@@ -571,6 +631,7 @@ class _MainTab extends ConsumerWidget {
   final void Function(_PendingTag) onRemovePending;
   final void Function({Tag? existingTag, _PendingTag? pendingTag}) onTapTagColor;
   final VoidCallback onTapGrid;
+  final VoidCallback onPickCoverFromUrl;
 
   const _MainTab({
     required this.titleCtrl,
@@ -587,6 +648,7 @@ class _MainTab extends ConsumerWidget {
     required this.onFormatChanged,
     required this.onRatingChanged,
     required this.onPickCover,
+    required this.onTakePhoto,
     required this.selectedTags,
     required this.pendingTags,
     required this.onAddTag,
@@ -595,6 +657,7 @@ class _MainTab extends ConsumerWidget {
     required this.onRemovePending,
     required this.onTapTagColor,
     required this.onTapGrid,
+    required this.onPickCoverFromUrl,
   });
 
   @override
@@ -605,62 +668,67 @@ class _MainTab extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       children: [
         // --- Portada ---
+        // --- Portada ---
         Center(
-          child: GestureDetector(
-            onTap: onPickCover,
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: coverPath != null
-                      ? Image.file(
-                    File(coverPath!),
-                    width: 100,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  )
-                      : Container(
-                    width: 100,
-                    height: 150,
-                    color: colorScheme.surfaceContainerHighest,
-                    child: Icon(
-                      Icons.menu_book,
-                      size: 48,
-                      color: colorScheme.outline,
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: onPickCover,
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: coverPath != null
+                          ? Image.file(
+                        File(coverPath!),
+                        width: 100,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      )
+                          : Container(
+                        width: 100,
+                        height: 150,
+                        color: colorScheme.surfaceContainerHighest,
+                        child: Icon(
+                          Icons.menu_book,
+                          size: 48,
+                          color: colorScheme.outline,
+                        ),
+                      ),
                     ),
-                  ),
+                    Positioned(
+                      bottom: 4,
+                      right: 4,
+                      child: CircleAvatar(
+                        radius: 14,
+                        backgroundColor: colorScheme.primary,
+                        child: Icon(
+                            Icons.photo_library_outlined,
+                            size: 14,
+                            color: colorScheme.onPrimary),
+                      ),
+                    ),
+                  ],
                 ),
-                Positioned(
-                  bottom: 4,
-                  right: 4,
-                  child: CircleAvatar(
-                    radius: 14,
-                    backgroundColor: colorScheme.primary,
-                    child: Icon(Icons.edit,
-                        size: 14, color: colorScheme.onPrimary),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton.icon(
+                    icon: const Icon(Icons.camera_alt_outlined, size: 16),
+                    label: const Text('Foto'),
+                    onPressed: onTakePhoto,
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Center(
-          child: Text(
-            'Pulsa la portada para cambiar la imagen',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colorScheme.outline,
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Center(
-          child: Text(
-            'Guarda las imágenes en una carpeta fija para evitar perderlas',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colorScheme.outline,
-            ),
+                  const SizedBox(width: 4),
+                  TextButton.icon(
+                    icon: const Icon(Icons.link, size: 16),
+                    label: const Text('URL'),
+                    onPressed: onPickCoverFromUrl,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 24),

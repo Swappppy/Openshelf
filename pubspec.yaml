@@ -37,7 +37,12 @@ dependencies:
 
   shared_preferences: ^2.3.0
 
+  # Elegir ruta para imágenes y db
   file_picker: ^11.0.2
+
+  # Recortar imágenes en portadas y sellos
+  image_cropper: ^12.2.1
+  permission_handler: ^11.4.0
 
 dev_dependencies:
   flutter_test:

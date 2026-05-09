@@ -7,6 +7,7 @@ import 'package:drift/drift.dart' show Value;
 import '../../models/shelf.dart';
 import '../../services/database.dart';
 import '../../services/cover_service.dart';
+import '../../services/permission_service.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/database_provider.dart';
 import 'shelf_books_view.dart';
@@ -530,12 +531,13 @@ class _ImprintsManager extends ConsumerWidget {
             children: [
               GestureDetector(
                 onTap: () async {
+                  if (!await PermissionService.requestGallery()) return;
                   final picker = ImagePicker();
-                  final picked =
-                  await picker.pickImage(source: ImageSource.gallery);
+                  final picked = await picker.pickImage(source: ImageSource.gallery);
                   if (picked == null) return;
-                  final saved =
-                  await CoverService.saveImprintImage(picked.path);
+                  final cropped = await CoverService.cropImprint(picked.path);
+                  if (cropped == null) return;
+                  final saved = await CoverService.saveImprintImage(cropped);
                   setStateDialog(() => imagePath = saved);
                 },
                 child: Container(
@@ -565,6 +567,63 @@ class _ImprintsManager extends ConsumerWidget {
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton.icon(
+                    icon: const Icon(Icons.camera_alt_outlined, size: 16),
+                    label: const Text('Foto'),
+                    onPressed: () async {
+                      if (!await PermissionService.requestCamera()) return;
+                      final picker = ImagePicker();
+                      final picked = await picker.pickImage(source: ImageSource.camera);
+                      if (picked == null) return;
+                      final cropped = await CoverService.cropImprint(picked.path);
+                      if (cropped == null) return;
+                      final saved = await CoverService.saveImprintImage(cropped);
+                      setStateDialog(() => imagePath = saved);
+                    },
+                  ),
+                  const SizedBox(width: 4),
+                  TextButton.icon(
+                    icon: const Icon(Icons.link, size: 16),
+                    label: const Text('URL'),
+                    onPressed: () async {
+                      final ctrl = TextEditingController();
+                      final url = await showDialog<String>(
+                        context: context,
+                        builder: (urlCtx) => AlertDialog(
+                          title: const Text('URL de la imagen'),
+                          content: TextField(
+                            controller: ctrl,
+                            autofocus: true,
+                            keyboardType: TextInputType.url,
+                            decoration: const InputDecoration(
+                              hintText: 'https://ejemplo.com/sello.jpg',
+                              border: OutlineInputBorder(),
+                            ),
+                            onSubmitted: (v) => Navigator.pop(urlCtx, v.trim()),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(urlCtx),
+                              child: const Text('Cancelar'),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.pop(urlCtx, ctrl.text.trim()),
+                              child: const Text('Descargar'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (url == null || url.isEmpty) return;
+                      final saved = await CoverService.saveImprintFromUrl(url);
+                      if (saved != null) setStateDialog(() => imagePath = saved);
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               TextField(
@@ -694,15 +753,16 @@ class _ImprintGridItem extends ConsumerWidget {
             children: [
               GestureDetector(
                 onTap: () async {
+                  if (!await PermissionService.requestGallery()) return;
                   final picker = ImagePicker();
-                  final picked =
-                  await picker.pickImage(source: ImageSource.gallery);
+                  final picked = await picker.pickImage(source: ImageSource.gallery);
                   if (picked == null) return;
+                  final cropped = await CoverService.cropImprint(picked.path);
+                  if (cropped == null) return;
                   if (imagePath != null) {
                     await CoverService.deleteImprintImage(imagePath!);
                   }
-                  final saved =
-                  await CoverService.saveImprintImage(picked.path);
+                  final saved = await CoverService.saveImprintImage(cropped);
                   setStateDialog(() => imagePath = saved);
                 },
                 child: Container(
@@ -733,6 +793,63 @@ class _ImprintGridItem extends ConsumerWidget {
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton.icon(
+                    icon: const Icon(Icons.camera_alt_outlined, size: 16),
+                    label: const Text('Foto'),
+                    onPressed: () async {
+                      if (!await PermissionService.requestCamera()) return;
+                      final picker = ImagePicker();
+                      final picked = await picker.pickImage(source: ImageSource.camera);
+                      if (picked == null) return;
+                      final cropped = await CoverService.cropImprint(picked.path);
+                      if (cropped == null) return;
+                      final saved = await CoverService.saveImprintImage(cropped);
+                      setStateDialog(() => imagePath = saved);
+                    },
+                  ),
+                  const SizedBox(width: 4),
+                  TextButton.icon(
+                    icon: const Icon(Icons.link, size: 16),
+                    label: const Text('URL'),
+                    onPressed: () async {
+                      final ctrl = TextEditingController();
+                      final url = await showDialog<String>(
+                        context: context,
+                        builder: (urlCtx) => AlertDialog(
+                          title: const Text('URL de la imagen'),
+                          content: TextField(
+                            controller: ctrl,
+                            autofocus: true,
+                            keyboardType: TextInputType.url,
+                            decoration: const InputDecoration(
+                              hintText: 'https://ejemplo.com/sello.jpg',
+                              border: OutlineInputBorder(),
+                            ),
+                            onSubmitted: (v) => Navigator.pop(urlCtx, v.trim()),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(urlCtx),
+                              child: const Text('Cancelar'),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.pop(urlCtx, ctrl.text.trim()),
+                              child: const Text('Descargar'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (url == null || url.isEmpty) return;
+                      final saved = await CoverService.saveImprintFromUrl(url);
+                      if (saved != null) setStateDialog(() => imagePath = saved);
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               TextField(
