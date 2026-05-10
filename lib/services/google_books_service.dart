@@ -31,7 +31,7 @@ class GoogleBooksService {
       throw Exception('rate_limit');
     }
     if (response.statusCode != 200) {
-      throw Exception('Google Books respondió con ${response.statusCode}');
+      throw Exception('Google Books responded with ${response.statusCode}');
     }
 
     final body = jsonDecode(response.body) as Map<String, dynamic>;

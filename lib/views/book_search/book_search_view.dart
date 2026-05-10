@@ -4,6 +4,7 @@ import '../book_form/book_form_view.dart';
 import '../../models/book_search_result.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/book_search_service.dart';
+import '../../l10n/l10n_extension.dart';
 
 class BookSearchView extends ConsumerStatefulWidget {
   const BookSearchView({super.key});
@@ -56,8 +57,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
         setState(() {
           _results = response.results;
           _fallbackNotice = response.usedFallback != null
-              ? 'Sin resultados en el proveedor principal. '
-              'Mostrando resultados de ${response.usedFallback}.'
+              ? context.l10n.bookSearchFallbackNotice(response.usedFallback!)
               : null;
           _loading = false;
         });
@@ -67,13 +67,10 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
         final msg = e.toString();
         setState(() {
           _error = msg.contains('no_api_key')
-              ? 'Google Books requiere una clave de API.\n'
-              'Configúrala en Ajustes → Búsqueda de libros.'
+              ? context.l10n.bookSearchErrorNoApiKey
               : msg.contains('rate_limit')
-              ? 'Google Books ha limitado las peticiones.\n'
-              'Espera un momento e inténtalo de nuevo.'
-              : 'No se pudo conectar con ningún servidor.\n'
-              'Comprueba tu conexión e inténtalo de nuevo.';
+              ? context.l10n.bookSearchErrorRateLimit
+              : context.l10n.bookSearchErrorNetwork;
           _loading = false;
         });
       }
@@ -113,7 +110,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
           textInputAction: TextInputAction.search,
           onSubmitted: (_) => _search(),
           decoration: InputDecoration(
-            hintText: 'Título, autor o ISBN…',
+            hintText: context.l10n.bookSearchHint,
             border: InputBorder.none,
             hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.4)),
           ),
@@ -170,7 +167,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
               const SizedBox(height: 24),
               FilledButton.tonal(
                 onPressed: _search,
-                child: const Text('Reintentar'),
+                child: Text(context.l10n.retry),
               ),
             ],
           ),
@@ -191,7 +188,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
             Icon(Icons.search, size: 64, color: colorScheme.outline),
             const SizedBox(height: 12),
             Text(
-              'Busca por título, autor o ISBN',
+              context.l10n.bookSearchPrompt,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.outline,
               ),
@@ -223,7 +220,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
             Icon(Icons.search_off, size: 64, color: colorScheme.outline),
             const SizedBox(height: 12),
             Text(
-              'Sin resultados para "${_ctrl.text}"',
+              context.l10n.bookSearchNoResults(_ctrl.text),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.outline,
               ),
@@ -340,7 +337,7 @@ class _ResultTile extends StatelessWidget {
                       if (result.publisher != null)
                         _MetaChip(label: result.publisher!),
                       if (result.totalPages != null)
-                        _MetaChip(label: '${result.totalPages} págs.'),
+                        _MetaChip(label: context.l10n.pageSuffix(result.totalPages!)),
                     ],
                   ),
                 ],

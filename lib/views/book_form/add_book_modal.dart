@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n_extension.dart';
 import 'book_form_view.dart';
 import '../book_search/book_search_view.dart';
 
@@ -27,14 +28,14 @@ class AddBookModal extends StatelessWidget {
           ),
 
           Text(
-            'Añadir libro',
+            context.l10n.addBook,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Elige cómo quieres añadir tu libro',
+            context.l10n.addBookModalSubtitle,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.outline,
             ),
@@ -44,8 +45,8 @@ class AddBookModal extends StatelessWidget {
           // Opciones
           _AddOption(
             icon: Icons.edit_outlined,
-            title: 'Añadir manualmente',
-            subtitle: 'Rellena los datos tú mismo',
+            title: context.l10n.addManually,
+            subtitle: context.l10n.addManuallySubtitle,
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -71,8 +72,8 @@ class AddBookModal extends StatelessWidget {
           ),
           _AddOption(
             icon: Icons.search,
-            title: 'Buscar libro',
-            subtitle: 'Por título, autor o ISBN',
+            title: context.l10n.searchBook,
+            subtitle: context.l10n.searchBookSubtitle,
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -85,14 +86,14 @@ class AddBookModal extends StatelessWidget {
           ),
           _AddOption(
             icon: Icons.qr_code_scanner,
-            title: 'Escanear código de barras',
-            subtitle: 'Apunta la cámara al ISBN',
-            onTap: () {}, // Fase D
+            title: context.l10n.scanBarcode,
+            subtitle: context.l10n.scanBarcodeSubtitle,
+            onTap: () {},
           ),
           _AddOption(
             icon: Icons.document_scanner_outlined,
-            title: 'Escanear en lote',
-            subtitle: 'Próximamente',
+            title: context.l10n.scanBatch,
+            subtitle: context.l10n.scanBatchSubtitle,
             enabled: false,
             onTap: () {},
           ),

@@ -27,7 +27,7 @@ class OpenLibraryService {
     final response = await http.get(uri).timeout(_timeout);
 
     if (response.statusCode != 200) {
-      throw Exception('Open Library respondió con ${response.statusCode}');
+      throw Exception('Open Library responded with ${response.statusCode}');
     }
 
     final body = jsonDecode(response.body) as Map<String, dynamic>;

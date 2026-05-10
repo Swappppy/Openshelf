@@ -8,6 +8,7 @@ import '../../widgets/book_list_tile.dart';
 import '../../widgets/book_grid_card.dart';
 import '../book_detail/book_detail_view.dart';
 import '../../services/database.dart';
+import '../../l10n/l10n_extension.dart';
 
 class ShelfBooksView extends ConsumerWidget {
   final Shelf shelf;
@@ -39,7 +40,7 @@ class ShelfBooksView extends ConsumerWidget {
       ),
       body: booksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.errorPrefix(e.toString()))),
         data: (bookList) {
           if (bookList.isEmpty) {
             return Center(
@@ -50,7 +51,7 @@ class ShelfBooksView extends ConsumerWidget {
                       size: 80,
                       color: Theme.of(context).colorScheme.outline),
                   const SizedBox(height: 16),
-                  Text('Sin libros en esta estantería',
+                  Text(context.l10n.shelfBooksEmpty,
                       style: Theme.of(context).textTheme.titleLarge),
                 ],
               ),
@@ -136,7 +137,7 @@ class StatusBooksView extends ConsumerWidget {
       ),
       body: booksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.errorPrefix(e.toString()))),
         data: (bookList) {
           if (bookList.isEmpty) {
             return Center(
@@ -150,7 +151,7 @@ class StatusBooksView extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No hay libros aquí',
+                    context.l10n.shelfStatusBooksEmpty,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ],

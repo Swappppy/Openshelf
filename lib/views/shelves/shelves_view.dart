@@ -10,6 +10,7 @@ import '../../services/cover_service.dart';
 import '../../services/permission_service.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/database_provider.dart';
+import '../../l10n/l10n_extension.dart';
 import 'shelf_books_view.dart';
 
 class ShelvesScreen extends ConsumerWidget {
@@ -37,14 +38,14 @@ class ShelvesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Estanterías'),
+        title: Text(context.l10n.shelvesTitle),
         toolbarHeight: 40,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            'Por estado',
+            context.l10n.shelvesSectionByStatus,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: colorScheme.outline,
             ),
@@ -52,31 +53,31 @@ class ShelvesScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           _StatusShelfTile(
             icon: Icons.menu_book,
-            label: 'Todos los libros',
+            label: context.l10n.shelfAllBooks,
             color: colorScheme.primary,
             status: null,
           ),
           _StatusShelfTile(
             icon: Icons.auto_stories,
-            label: 'Leyendo',
+            label: context.l10n.shelfReading,
             color: Colors.blue,
             status: ReadingStatus.reading,
           ),
           _StatusShelfTile(
             icon: Icons.check_circle_outline,
-            label: 'Leídos',
+            label: context.l10n.shelfRead,
             color: Colors.green,
             status: ReadingStatus.read,
           ),
           _StatusShelfTile(
             icon: Icons.bookmark_outline,
-            label: 'Por leer',
+            label: context.l10n.shelfWantToRead,
             color: Colors.orange,
             status: ReadingStatus.wantToRead,
           ),
           _StatusShelfTile(
             icon: Icons.close,
-            label: 'Abandonados',
+            label: context.l10n.shelfAbandoned,
             color: Colors.red,
             status: ReadingStatus.abandoned,
           ),
@@ -85,7 +86,7 @@ class ShelvesScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Mis estanterías',
+                context.l10n.shelvesSectionMine,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: colorScheme.outline,
                 ),
@@ -93,15 +94,15 @@ class ShelvesScreen extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.add),
                 onPressed: () => _showCreateShelfDialog(context, ref),
-                tooltip: 'Nueva estantería',
+                tooltip: context.l10n.shelfNewTooltip,
               ),
             ],
           ),
           const SizedBox(height: 8),
-          _ShelvesSection(),
+          const _ShelvesSection(),
           const SizedBox(height: 8),
           Text(
-            'Gestión',
+            context.l10n.shelvesSectionManagement,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: colorScheme.outline,
             ),
@@ -135,7 +136,7 @@ class _ManagementSectionState extends ConsumerState<_ManagementSection> {
       children: [
         _ExpandablePanel(
           icon: Icons.label_outline,
-          label: 'Categorías',
+          label: context.l10n.managementCategories,
           color: Theme.of(context).colorScheme.primary,
           expanded: _tagsExpanded,
           onTap: () => setState(() => _tagsExpanded = !_tagsExpanded),
@@ -144,7 +145,7 @@ class _ManagementSectionState extends ConsumerState<_ManagementSection> {
         const SizedBox(height: 8),
         _ExpandablePanel(
           icon: Icons.business_outlined,
-          label: 'Sellos editoriales',
+          label: context.l10n.managementImprints,
           color: Colors.deepPurple,
           expanded: _imprintsExpanded,
           onTap: () => setState(() => _imprintsExpanded = !_imprintsExpanded),
@@ -153,7 +154,7 @@ class _ManagementSectionState extends ConsumerState<_ManagementSection> {
         const SizedBox(height: 8),
         _ExpandablePanel(
           icon: Icons.collections_bookmark_outlined,
-          label: 'Colecciones',
+          label: context.l10n.managementCollections,
           color: Colors.teal,
           expanded: _collectionsExpanded,
           onTap: () => setState(
@@ -226,7 +227,7 @@ class _TagsManager extends ConsumerWidget {
       ),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(16),
-        child: Text('Error: $e'),
+        child: Text(context.l10n.errorPrefix(e.toString())),
       ),
       data: (tagList) => Padding(
         padding: const EdgeInsets.all(12),
@@ -237,7 +238,7 @@ class _TagsManager extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
-                  'No hay categorías todavía',
+                  context.l10n.tagNone,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -260,7 +261,7 @@ class _TagsManager extends ConsumerWidget {
                       color: Theme.of(context).colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
-                    'Nueva categoría',
+                    context.l10n.tagNew,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
@@ -280,47 +281,47 @@ class _TagsManager extends ConsumerWidget {
     String? selectedColor;
 
     final colors = [
-      ('E53935', Colors.red),
-      ('D81B60', Colors.pink),
-      ('8E24AA', Colors.purple),
-      ('3949AB', Colors.indigo),
-      ('1E88E5', Colors.blue),
-      ('00ACC1', Colors.cyan),
-      ('00897B', Colors.teal),
-      ('43A047', Colors.green),
-      ('C0CA33', Colors.lime),
-      ('FB8C00', Colors.orange),
-      ('6D4C41', const Color(0xFF6D4C41)),
-      ('757575', Colors.grey),
+      'E53935',
+      'D81B60',
+      '8E24AA',
+      '3949AB',
+      '1E88E5',
+      '00ACC1',
+      '00897B',
+      '43A047',
+      'C0CA33',
+      'FB8C00',
+      '6D4C41',
+      '757575',
     ];
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setStateDialog) => AlertDialog(
-          title: const Text('Nueva categoría'),
+          title: Text(context.l10n.tagNewDialogTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: ctrl,
                 autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.l10n.tagNameLabel,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Color'),
+                child: Text(context.l10n.tagColorLabel),
               ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: colors.map((c) {
-                  final (hex, color) = c;
+                children: colors.map((hex) {
+                  final color = Color(int.parse('0xFF$hex'));
                   final isSelected = selectedColor == hex;
                   return GestureDetector(
                     onTap: () => setStateDialog(() => selectedColor = hex),
@@ -353,7 +354,7 @@ class _TagsManager extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancelar'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               onPressed: () async {
@@ -368,7 +369,7 @@ class _TagsManager extends ConsumerWidget {
                 );
                 if (ctx.mounted) Navigator.pop(ctx);
               },
-              child: const Text('Crear'),
+              child: Text(context.l10n.create),
             ),
           ],
         ),
@@ -426,12 +427,12 @@ class _TagChipItem extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar categoría'),
-        content: Text('¿Eliminar "${tag.name}"?'),
+        title: Text(context.l10n.tagDeleteTitle),
+        content: Text(context.l10n.tagDeleteConfirm(tag.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -441,7 +442,7 @@ class _TagChipItem extends ConsumerWidget {
               await ref.read(databaseProvider).deleteTag(tag.id);
               if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: const Text('Eliminar'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -466,7 +467,7 @@ class _ImprintsManager extends ConsumerWidget {
       ),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(16),
-        child: Text('Error: $e'),
+        child: Text(context.l10n.errorPrefix(e.toString())),
       ),
       data: (imprintList) => Padding(
         padding: const EdgeInsets.all(12),
@@ -477,7 +478,7 @@ class _ImprintsManager extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
-                  'No hay sellos todavía',
+                  context.l10n.imprintNone,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -502,7 +503,7 @@ class _ImprintsManager extends ConsumerWidget {
                       color: Theme.of(context).colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
-                    'Nuevo sello',
+                    context.l10n.imprintNew,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
@@ -525,17 +526,19 @@ class _ImprintsManager extends ConsumerWidget {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setStateDialog) => AlertDialog(
-          title: const Text('Nuevo sello editorial'),
+          title: Text(context.l10n.imprintNewDialogTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               GestureDetector(
                 onTap: () async {
                   if (!await PermissionService.requestGallery()) return;
+                  if (!context.mounted) return;
+                  final title = context.l10n.cropImprintTitle;
                   final picker = ImagePicker();
                   final picked = await picker.pickImage(source: ImageSource.gallery);
                   if (picked == null) return;
-                  final cropped = await CoverService.cropImprint(picked.path);
+                  final cropped = await CoverService.cropImprint(picked.path, title: title);
                   if (cropped == null) return;
                   final saved = await CoverService.saveImprintImage(cropped);
                   setStateDialog(() => imagePath = saved);
@@ -563,7 +566,7 @@ class _ImprintsManager extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Pulsa para añadir imagen',
+                context.l10n.imprintAddImageHint,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -574,13 +577,15 @@ class _ImprintsManager extends ConsumerWidget {
                 children: [
                   TextButton.icon(
                     icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                    label: const Text('Foto'),
+                    label: Text(context.l10n.photo),
                     onPressed: () async {
                       if (!await PermissionService.requestCamera()) return;
+                      if (!context.mounted) return;
+                      final title = context.l10n.cropImprintTitle;
                       final picker = ImagePicker();
                       final picked = await picker.pickImage(source: ImageSource.camera);
                       if (picked == null) return;
-                      final cropped = await CoverService.cropImprint(picked.path);
+                      final cropped = await CoverService.cropImprint(picked.path, title: title);
                       if (cropped == null) return;
                       final saved = await CoverService.saveImprintImage(cropped);
                       setStateDialog(() => imagePath = saved);
@@ -589,37 +594,39 @@ class _ImprintsManager extends ConsumerWidget {
                   const SizedBox(width: 4),
                   TextButton.icon(
                     icon: const Icon(Icons.link, size: 16),
-                    label: const Text('URL'),
+                    label: Text(context.l10n.url),
                     onPressed: () async {
                       final ctrl = TextEditingController();
                       final url = await showDialog<String>(
                         context: context,
                         builder: (urlCtx) => AlertDialog(
-                          title: const Text('URL de la imagen'),
+                          title: Text(context.l10n.imprintUrlDialogTitle),
                           content: TextField(
                             controller: ctrl,
                             autofocus: true,
                             keyboardType: TextInputType.url,
-                            decoration: const InputDecoration(
-                              hintText: 'https://ejemplo.com/sello.jpg',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              hintText: context.l10n.imprintUrlHint,
+                              border: const OutlineInputBorder(),
                             ),
                             onSubmitted: (v) => Navigator.pop(urlCtx, v.trim()),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(urlCtx),
-                              child: const Text('Cancelar'),
+                              child: Text(context.l10n.cancel),
                             ),
                             FilledButton(
                               onPressed: () => Navigator.pop(urlCtx, ctrl.text.trim()),
-                              child: const Text('Descargar'),
+                              child: Text(context.l10n.download),
                             ),
                           ],
                         ),
                       );
                       if (url == null || url.isEmpty) return;
-                      final saved = await CoverService.saveImprintFromUrl(url);
+                      if (!context.mounted) return;
+                      final title = context.l10n.cropImprintTitle;
+                      final saved = await CoverService.saveImprintFromUrl(url, cropTitle: title);
                       if (saved != null) setStateDialog(() => imagePath = saved);
                     },
                   ),
@@ -629,9 +636,9 @@ class _ImprintsManager extends ConsumerWidget {
               TextField(
                 controller: ctrl,
                 autofocus: false,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre del sello',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.l10n.imprintNameLabel,
+                  border: const OutlineInputBorder(),
                 ),
               ),
             ],
@@ -639,7 +646,7 @@ class _ImprintsManager extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancelar'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               onPressed: () async {
@@ -654,7 +661,7 @@ class _ImprintsManager extends ConsumerWidget {
                 );
                 if (ctx.mounted) Navigator.pop(ctx);
               },
-              child: const Text('Crear'),
+              child: Text(context.l10n.create),
             ),
           ],
         ),
@@ -747,17 +754,19 @@ class _ImprintGridItem extends ConsumerWidget {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setStateDialog) => AlertDialog(
-          title: const Text('Editar sello'),
+          title: Text(context.l10n.imprintEditDialogTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               GestureDetector(
                 onTap: () async {
                   if (!await PermissionService.requestGallery()) return;
+                  if (!context.mounted) return;
+                  final title = context.l10n.cropImprintTitle;
                   final picker = ImagePicker();
                   final picked = await picker.pickImage(source: ImageSource.gallery);
                   if (picked == null) return;
-                  final cropped = await CoverService.cropImprint(picked.path);
+                  final cropped = await CoverService.cropImprint(picked.path, title: title);
                   if (cropped == null) return;
                   if (imagePath != null) {
                     await CoverService.deleteImprintImage(imagePath!);
@@ -789,7 +798,7 @@ class _ImprintGridItem extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Pulsa para cambiar imagen',
+                context.l10n.imprintChangeImageHint,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -800,13 +809,15 @@ class _ImprintGridItem extends ConsumerWidget {
                 children: [
                   TextButton.icon(
                     icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                    label: const Text('Foto'),
+                    label: Text(context.l10n.photo),
                     onPressed: () async {
                       if (!await PermissionService.requestCamera()) return;
+                      if (!context.mounted) return;
+                      final title = context.l10n.cropImprintTitle;
                       final picker = ImagePicker();
                       final picked = await picker.pickImage(source: ImageSource.camera);
                       if (picked == null) return;
-                      final cropped = await CoverService.cropImprint(picked.path);
+                      final cropped = await CoverService.cropImprint(picked.path, title: title);
                       if (cropped == null) return;
                       final saved = await CoverService.saveImprintImage(cropped);
                       setStateDialog(() => imagePath = saved);
@@ -815,37 +826,39 @@ class _ImprintGridItem extends ConsumerWidget {
                   const SizedBox(width: 4),
                   TextButton.icon(
                     icon: const Icon(Icons.link, size: 16),
-                    label: const Text('URL'),
+                    label: Text(context.l10n.url),
                     onPressed: () async {
                       final ctrl = TextEditingController();
                       final url = await showDialog<String>(
                         context: context,
                         builder: (urlCtx) => AlertDialog(
-                          title: const Text('URL de la imagen'),
+                          title: Text(context.l10n.imprintUrlDialogTitle),
                           content: TextField(
                             controller: ctrl,
                             autofocus: true,
                             keyboardType: TextInputType.url,
-                            decoration: const InputDecoration(
-                              hintText: 'https://ejemplo.com/sello.jpg',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              hintText: context.l10n.imprintUrlHint,
+                              border: const OutlineInputBorder(),
                             ),
                             onSubmitted: (v) => Navigator.pop(urlCtx, v.trim()),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(urlCtx),
-                              child: const Text('Cancelar'),
+                              child: Text(context.l10n.cancel),
                             ),
                             FilledButton(
                               onPressed: () => Navigator.pop(urlCtx, ctrl.text.trim()),
-                              child: const Text('Descargar'),
+                              child: Text(context.l10n.download),
                             ),
                           ],
                         ),
                       );
                       if (url == null || url.isEmpty) return;
-                      final saved = await CoverService.saveImprintFromUrl(url);
+                      if (!context.mounted) return;
+                      final title = context.l10n.cropImprintTitle;
+                      final saved = await CoverService.saveImprintFromUrl(url, cropTitle: title);
                       if (saved != null) setStateDialog(() => imagePath = saved);
                     },
                   ),
@@ -854,9 +867,9 @@ class _ImprintGridItem extends ConsumerWidget {
               const SizedBox(height: 16),
               TextField(
                 controller: ctrl,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre del sello',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.l10n.imprintNameLabel,
+                  border: const OutlineInputBorder(),
                 ),
               ),
             ],
@@ -864,7 +877,7 @@ class _ImprintGridItem extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancelar'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               onPressed: () async {
@@ -880,7 +893,7 @@ class _ImprintGridItem extends ConsumerWidget {
                 await ref.read(databaseProvider).updateTag(updated);
                 if (ctx.mounted) Navigator.pop(ctx);
               },
-              child: const Text('Guardar'),
+              child: Text(context.l10n.save),
             ),
           ],
         ),
@@ -892,12 +905,12 @@ class _ImprintGridItem extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar sello'),
-        content: Text('¿Eliminar "${imprint.name}"?'),
+        title: Text(context.l10n.imprintDeleteTitle),
+        content: Text(context.l10n.imprintDeleteConfirm(imprint.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -910,7 +923,7 @@ class _ImprintGridItem extends ConsumerWidget {
               await ref.read(databaseProvider).deleteTag(imprint.id);
               if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: const Text('Eliminar'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -962,7 +975,7 @@ class _CollectionsManager extends ConsumerWidget {
       ),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(16),
-        child: Text('Error: $e'),
+        child: Text(context.l10n.errorPrefix(e.toString())),
       ),
       data: (collectionList) => Column(
         children: [
@@ -971,7 +984,7 @@ class _CollectionsManager extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Las colecciones se crean al guardar un libro',
+                context.l10n.collectionNone,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -1010,12 +1023,12 @@ class _CollectionTile extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar colección'),
-        content: Text('¿Eliminar "${collection.name}"?'),
+        title: Text(context.l10n.collectionDeleteTitle),
+        content: Text(context.l10n.collectionDeleteConfirm(collection.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -1025,7 +1038,7 @@ class _CollectionTile extends ConsumerWidget {
               await ref.read(databaseProvider).deleteTag(collection.id);
               if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: const Text('Eliminar'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -1105,7 +1118,7 @@ class _ShelvesSection extends ConsumerWidget {
 
     return shelvesAsync.when(
       loading: () => const SizedBox.shrink(),
-      error: (e, _) => Text('Error: $e'),
+      error: (e, _) => Text(context.l10n.errorPrefix(e.toString())),
       data: (shelfList) {
         if (shelfList.isEmpty) {
           return Center(
@@ -1117,7 +1130,7 @@ class _ShelvesSection extends ConsumerWidget {
                       size: 48, color: colorScheme.outline),
                   const SizedBox(height: 12),
                   Text(
-                    'No tienes estanterías personalizadas',
+                    context.l10n.shelfEmpty,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: colorScheme.outline,
                     ),
@@ -1189,7 +1202,7 @@ class _ShelfTile extends ConsumerWidget {
   Widget? _buildSubtitle(BuildContext context, Shelf shelf) {
     final parts = <String>[];
     if (shelf.filterStatus != null) {
-      parts.add(_statusLabel(shelf.filterStatus!));
+      parts.add(_statusLabel(context, shelf.filterStatus!));
     }
     if (shelf.filterAuthor != null) parts.add(shelf.filterAuthor!);
     if (shelf.filterCollection != null) parts.add(shelf.filterCollection!);
@@ -1204,12 +1217,12 @@ class _ShelfTile extends ConsumerWidget {
     );
   }
 
-  String _statusLabel(String status) {
+  String _statusLabel(BuildContext context, String status) {
     switch (status) {
-      case 'reading': return 'Leyendo';
-      case 'read': return 'Leídos';
-      case 'wantToRead': return 'Por leer';
-      case 'abandoned': return 'Abandonados';
+      case 'reading': return context.l10n.shelfStatusLabelReading;
+      case 'read': return context.l10n.shelfStatusLabelRead;
+      case 'wantToRead': return context.l10n.shelfStatusLabelWantToRead;
+      case 'abandoned': return context.l10n.shelfStatusLabelAbandoned;
       default: return status;
     }
   }
@@ -1226,7 +1239,7 @@ class _ShelfTile extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Editar estantería'),
+              title: Text(context.l10n.shelfOptionEdit),
               onTap: () {
                 Navigator.pop(ctx);
                 showModalBottomSheet(
@@ -1260,7 +1273,7 @@ class _ShelfTile extends ConsumerWidget {
             ListTile(
               leading: Icon(Icons.delete_outline,
                   color: Theme.of(context).colorScheme.error),
-              title: Text('Eliminar',
+              title: Text(context.l10n.shelfOptionDelete,
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.error)),
               onTap: () async {
@@ -1405,8 +1418,8 @@ class _ShelfFormSheetState extends ConsumerState<_ShelfFormSheet> {
                 Expanded(
                   child: Text(
                     widget.existing == null
-                        ? 'Nueva estantería'
-                        : 'Editar estantería',
+                        ? context.l10n.shelfFormNew
+                        : context.l10n.shelfFormEdit,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -1419,7 +1432,7 @@ class _ShelfFormSheetState extends ConsumerState<_ShelfFormSheet> {
                     width: 16, height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const Text('Guardar'),
+                      : Text(context.l10n.save),
                 ),
               ],
             ),
@@ -1430,54 +1443,54 @@ class _ShelfFormSheetState extends ConsumerState<_ShelfFormSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     // Nombre
                     TextField(
                       controller: _nameCtrl,
                       autofocus: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Nombre de la estantería',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.shelfFormNameLabel,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 24),
 
                     // Estado
-                    _Label('Estado de lectura'),
+                    _Label(context.l10n.shelfFormSectionStatus),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         _StatusOption(
-                          label: 'Cualquiera',
+                          label: context.l10n.shelfFormStatusAny,
                           selected: _status == null,
                           color: colorScheme.outline,
                           onTap: () => setState(() => _status = null),
                         ),
                         _StatusOption(
-                          label: 'Leyendo',
+                          label: context.l10n.statusReading,
                           selected: _status == ReadingStatus.reading,
                           color: Colors.blue,
                           onTap: () => setState(
                                   () => _status = ReadingStatus.reading),
                         ),
                         _StatusOption(
-                          label: 'Leídos',
+                          label: context.l10n.statusRead,
                           selected: _status == ReadingStatus.read,
                           color: Colors.green,
                           onTap: () =>
                               setState(() => _status = ReadingStatus.read),
                         ),
                         _StatusOption(
-                          label: 'Por leer',
+                          label: context.l10n.statusWantToRead,
                           selected: _status == ReadingStatus.wantToRead,
                           color: Colors.orange,
                           onTap: () => setState(
                                   () => _status = ReadingStatus.wantToRead),
                         ),
                         _StatusOption(
-                          label: 'Abandonados',
+                          label: context.l10n.statusAbandoned,
                           selected: _status == ReadingStatus.abandoned,
                           color: Colors.red,
                           onTap: () => setState(
@@ -1488,13 +1501,13 @@ class _ShelfFormSheetState extends ConsumerState<_ShelfFormSheet> {
                     const SizedBox(height: 24),
 
                     // Texto libre
-                    _Label('Título'),
+                    _Label(context.l10n.shelfFormSectionTitle),
                     const SizedBox(height: 8),
-                    _ShelfFilterField(ctrl: _queryCtrl, hint: 'Buscar en título'),
+                    _ShelfFilterField(ctrl: _queryCtrl, hint: context.l10n.shelfFormHintTitle),
                     const SizedBox(height: 16),
-                    _Label('Autor'),
+                    _Label(context.l10n.shelfFormSectionAuthor),
                     const SizedBox(height: 8),
-                    _ShelfFilterField(ctrl: _authorCtrl, hint: 'Nombre del autor'),
+                    _ShelfFilterField(ctrl: _authorCtrl, hint: context.l10n.shelfFormHintAuthor),
                     const SizedBox(height: 16),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1503,11 +1516,11 @@ class _ShelfFormSheetState extends ConsumerState<_ShelfFormSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _Label('Editorial'),
+                              _Label(context.l10n.shelfFormSectionPublisher),
                               const SizedBox(height: 8),
                               _ShelfFilterField(
                                   ctrl: _publisherCtrl,
-                                  hint: 'Nombre de la editorial'),
+                                  hint: context.l10n.shelfFormHintPublisher),
                             ],
                           ),
                         ),
@@ -1516,9 +1529,9 @@ class _ShelfFormSheetState extends ConsumerState<_ShelfFormSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _Label('ISBN'),
+                              _Label(context.l10n.shelfFormSectionIsbn),
                               const SizedBox(height: 8),
-                              _ShelfFilterField(ctrl: _isbnCtrl, hint: 'ISBN'),
+                              _ShelfFilterField(ctrl: _isbnCtrl, hint: context.l10n.shelfFormHintIsbn),
                             ],
                           ),
                         ),
@@ -1526,14 +1539,14 @@ class _ShelfFormSheetState extends ConsumerState<_ShelfFormSheet> {
                     ),
 
                     const SizedBox(height: 16),
-                    _Label('Colección'),
+                    _Label(context.l10n.shelfFormSectionCollection),
                     const SizedBox(height: 8),
                     _ShelfFilterField(
-                        ctrl: _collectionCtrl, hint: 'Nombre de la colección'),
+                        ctrl: _collectionCtrl, hint: context.l10n.shelfFormHintCollection),
                     const SizedBox(height: 24),
 
                     // Categorías
-                    _Label('Categorías'),
+                    _Label(context.l10n.shelfFormSectionCategories),
                     const SizedBox(height: 8),
                     if (_selectedTags.isNotEmpty) ...[
                       Wrap(
@@ -1627,11 +1640,11 @@ class _ShelfFormSheetState extends ConsumerState<_ShelfFormSheet> {
                     const SizedBox(height: 24),
 
                     // Sello
-                    _Label('Sello editorial'),
+                    _Label(context.l10n.shelfFormSectionImprint),
                     const SizedBox(height: 8),
                     ref.watch(allImprintsProvider).maybeWhen(
                       data: (allImprints) => allImprints.isEmpty
-                          ? Text('No hay sellos creados',
+                          ? Text(context.l10n.imprintNoImprints,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall

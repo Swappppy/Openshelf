@@ -9,6 +9,7 @@ import '../../widgets/status_chip.dart';
 import '../book_form/book_form_view.dart';
 import '../../widgets/page_picker.dart';
 import '../../widgets/tag_chip.dart';
+import '../../l10n/l10n_extension.dart';
 
 class BookDetailView extends ConsumerWidget {
   final Book book;
@@ -23,12 +24,12 @@ class BookDetailView extends ConsumerWidget {
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (e, _) => Scaffold(
-        body: Center(child: Text('Error: $e')),
+        body: Center(child: Text(context.l10n.errorPrefix(e.toString()))),
       ),
       data: (current) {
         if (current == null) {
-          return const Scaffold(
-            body: Center(child: Text('Libro no encontrado')),
+          return Scaffold(
+            body: Center(child: Text(context.l10n.bookDetailNotFound)),
           );
         }
         return _BookDetailScaffold(book: current);
@@ -103,7 +104,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Página actual',
+              context.l10n.bookDetailPagePickerTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -120,7 +121,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                 await _updatePage(selectedPage);
                 if (ctx.mounted) Navigator.pop(ctx);
               },
-              child: const Text('Guardar'),
+              child: Text(context.l10n.save),
             ),
             const SizedBox(height: 8),
           ],
@@ -151,7 +152,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Notas personales',
+              context.l10n.bookDetailNotesTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -161,9 +162,9 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
               controller: controller,
               maxLines: 6,
               autofocus: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Escribe tus notas aquí…',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: context.l10n.bookDetailNotesHint,
               ),
             ),
             const SizedBox(height: 16),
@@ -172,7 +173,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                 await _updateNotes(controller.text);
                 if (ctx.mounted) Navigator.pop(ctx);
               },
-              child: const Text('Guardar'),
+              child: Text(context.l10n.save),
             ),
           ],
         ),
@@ -222,9 +223,9 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           _BookHeader(book: book),
           TabBar(
             controller: _tabController,
-            tabs: const [
-              Tab(icon: Icon(Icons.menu_book_outlined), text: 'Principal'),
-              Tab(icon: Icon(Icons.label_outline), text: 'Detalles'),
+            tabs: [
+              Tab(icon: const Icon(Icons.menu_book_outlined), text: context.l10n.tabMain),
+              Tab(icon: const Icon(Icons.label_outline), text: context.l10n.tabDetails),
             ],
           ),
           Expanded(
@@ -251,13 +252,12 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Eliminar libro'),
-        content: Text(
-            '¿Eliminar "${widget.book.title}"? Esta acción no se puede deshacer.'),
+        title: Text(context.l10n.bookDetailDeleteTitle),
+        content: Text(context.l10n.bookDetailDeleteConfirm(widget.book.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -270,7 +270,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
               if (ctx.mounted) Navigator.pop(ctx);
               if (context.mounted) Navigator.pop(context);
             },
-            child: const Text('Eliminar'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -379,20 +379,20 @@ class _MainTab extends StatelessWidget {
   final VoidCallback onTapPages;
   const _MainTab({required this.book, required this.onTapPages});
 
-  String _formatLabel(BookFormat? format) {
+  String _formatLabel(BuildContext context, BookFormat? format) {
     switch (format) {
       case BookFormat.paperback:
-        return 'Tapa blanda';
+        return context.l10n.formatPaperback;
       case BookFormat.hardcover:
-        return 'Tapa dura';
+        return context.l10n.formatHardcover;
       case BookFormat.leatherbound:
-        return 'Piel';
+        return context.l10n.formatLeatherbound;
       case BookFormat.rustic:
-        return 'Rústica';
+        return context.l10n.formatRustic;
       case BookFormat.digital:
-        return 'Digital';
+        return context.l10n.formatDigital;
       case BookFormat.other:
-        return 'Otro';
+        return context.l10n.formatOther;
       case null:
         return '—';
     }
@@ -406,22 +406,22 @@ class _MainTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _ReadOnlyField(label: 'Título', value: book.title),
+        _ReadOnlyField(label: context.l10n.fieldTitle, value: book.title),
         const SizedBox(height: 20),
-        _ReadOnlyField(label: 'Autor', value: book.author),
+        _ReadOnlyField(label: context.l10n.fieldAuthor, value: book.author),
         const SizedBox(height: 20),
-        _ReadOnlyField(label: 'Editorial', value: book.publisher ?? '—'),
+        _ReadOnlyField(label: context.l10n.fieldPublisher, value: book.publisher ?? '—'),
         const SizedBox(height: 20),
         _ReadOnlyField(
-          label: 'Año de publicación',
+          label: context.l10n.fieldYear,
           value: book.publishYear?.toString() ?? '—',
         ),
         const SizedBox(height: 20),
-        _ReadOnlyField(label: 'ISBN', value: book.isbn ?? '—'),
+        _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
         const SizedBox(height: 20),
         // Categorías
         Text(
-          'CATEGORÍAS',
+          context.l10n.bookDetailFieldCategories,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -461,7 +461,7 @@ class _MainTab extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'PÁGINAS',
+                    context.l10n.bookDetailFieldPages,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -497,7 +497,7 @@ class _MainTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${book.currentPage ?? 0} / ${book.totalPages}',
+                          context.l10n.pageProgressShort(book.currentPage ?? 0, book.totalPages!),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -520,12 +520,12 @@ class _MainTab extends StatelessWidget {
         ),
 
         const SizedBox(height: 20),
-        _ReadOnlyField(label: 'Formato', value: _formatLabel(book.bookFormat)),
+        _ReadOnlyField(label: context.l10n.bookDetailFieldFormat, value: _formatLabel(context, book.bookFormat)),
         const SizedBox(height: 20),
 
         // Valoración
         Text(
-          'VALORACIÓN',
+          context.l10n.bookDetailFieldRating,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -564,19 +564,19 @@ class _DetailsTab extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         _ReadOnlyField(
-          label: 'Colección / Serie',
+          label: context.l10n.fieldCollection,
           value: book.collectionName ?? '—',
         ),
         const SizedBox(height: 20),
         _ReadOnlyField(
-          label: 'Número en la colección',
+          label: context.l10n.fieldCollectionNumber,
           value: book.collectionNumber?.toString() ?? '—',
         ),
         const SizedBox(height: 20),
 
         // Sellos
         Text(
-          'SELLO EDITORIAL',
+          context.l10n.bookDetailFieldImprintSection,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -656,7 +656,7 @@ class _DetailsTab extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'NOTAS PERSONALES',
+                    context.l10n.bookDetailFieldPersonalNotes,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -687,7 +687,7 @@ class _DetailsTab extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  book.notes ?? 'Toca para añadir notas…',
+                  book.notes ?? context.l10n.bookDetailNotesEmpty,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: book.notes == null
                         ? Theme.of(context).colorScheme.outline
@@ -702,20 +702,20 @@ class _DetailsTab extends StatelessWidget {
 
         // Fechas
         _ReadOnlyField(
-          label: 'Añadido',
+          label: context.l10n.bookDetailFieldAdded,
           value:
           '${book.createdAt.day}/${book.createdAt.month}/${book.createdAt.year}',
         ),
         const SizedBox(height: 20),
         _ReadOnlyField(
-          label: 'Inicio lectura',
+          label: context.l10n.bookDetailFieldStarted,
           value: book.startedAt != null
               ? '${book.startedAt!.day}/${book.startedAt!.month}/${book.startedAt!.year}'
               : '—',
         ),
         const SizedBox(height: 20),
         _ReadOnlyField(
-          label: 'Fin lectura',
+          label: context.l10n.bookDetailFieldFinished,
           value: book.finishedAt != null
               ? '${book.finishedAt!.day}/${book.finishedAt!.month}/${book.finishedAt!.year}'
               : '—',

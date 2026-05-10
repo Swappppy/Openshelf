@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:openshelf/views/shelves/shelves_view.dart';
+import '../shelves/shelves_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/display_preferences_controller.dart';
 import '../../models/display_preferences.dart';
@@ -13,6 +13,7 @@ import '../book_form/add_book_modal.dart';
 import '../book_detail/book_detail_view.dart';
 import '../../widgets/tag_chip.dart';
 import '../settings/settings_view.dart';
+import '../../l10n/l10n_extension.dart';
 
 class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
@@ -37,21 +38,21 @@ class _LibraryViewState extends State<LibraryView> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.menu_book_outlined),
-            selectedIcon: Icon(Icons.menu_book),
-            label: 'Biblioteca',
+            icon: const Icon(Icons.menu_book_outlined),
+            selectedIcon: const Icon(Icons.menu_book),
+            label: context.l10n.navLibrary,
           ),
           NavigationDestination(
-            icon: Icon(Icons.bookmarks_outlined),
-            selectedIcon: Icon(Icons.bookmarks),
-            label: 'Estanterías',
+            icon: const Icon(Icons.bookmarks_outlined),
+            selectedIcon: const Icon(Icons.bookmarks),
+            label: context.l10n.navShelves,
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Estadísticas',
+            icon: const Icon(Icons.bar_chart_outlined),
+            selectedIcon: const Icon(Icons.bar_chart),
+            label: context.l10n.navStats,
           ),
         ],
       ),
@@ -80,7 +81,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Biblioteca'),
+        title: Text(context.l10n.libraryTitle),
         toolbarHeight: 40,
         actions: [
           IconButton(
@@ -125,7 +126,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
             child: booksAsync.when(
               loading: () =>
               const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
+              error: (e, _) => Center(child: Text(context.l10n.errorPrefix(e.toString()))),
               data: (bookList) {
                 if (bookList.isEmpty) {
                   return Center(
@@ -143,15 +144,15 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                           const SizedBox(height: 16),
                           Text(
                             filters.isEmpty
-                                ? 'Tu biblioteca está vacía'
-                                : 'Sin resultados',
+                                ? context.l10n.libraryEmpty
+                                : context.l10n.libraryNoResults,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             filters.isEmpty
-                                ? 'Pulsa + para añadir tu primer libro'
-                                : 'Prueba con otros filtros',
+                                ? context.l10n.libraryEmptyHint
+                                : context.l10n.libraryNoResultsHint,
                             style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context)
@@ -217,12 +218,13 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
           builder: (_) => const AddBookModal(),
         ),
         icon: const Icon(Icons.add),
-        label: const Text('Añadir libro'),
+        label: Text(context.l10n.addBook),
       ),
     );
   }
 
   void _showSettingsAndDisplay(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -235,11 +237,11 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
           final controller = ref.read(displayPreferencesProvider.notifier);
 
           final fieldLabels = {
-            'author': 'Autor',
-            'publisher': 'Editorial',
-            'year': 'Año de publicación',
-            'rating': 'Valoración',
-            'tags': 'Etiquetas',
+            'author': l10n.fieldAuthor,
+            'publisher': l10n.fieldPublisher,
+            'year': l10n.fieldYear,
+            'rating': l10n.fieldRating,
+            'tags': l10n.fieldTags,
           };
 
           final fieldToggles = {
@@ -283,7 +285,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Mostrar en la biblioteca',
+                          context.l10n.displaySettings,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
@@ -292,7 +294,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                       ),
                       TextButton.icon(
                         icon: const Icon(Icons.settings_outlined, size: 18),
-                        label: const Text('Ajustes'),
+                        label: Text(context.l10n.settingsButton),
                         onPressed: () {
                           Navigator.pop(context);
                           Navigator.push(
@@ -307,7 +309,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Arrastra para reordenar',
+                    context.l10n.displaySettingsDragHint,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.outline,
                     ),
@@ -341,7 +343,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                         ListTile(
                           leading: const Icon(Icons.drag_handle,
                               color: Colors.transparent),
-                          title: const Text('Progreso de lectura'),
+                          title: Text(context.l10n.fieldReadingProgress),
                           trailing: Switch(
                             value: p.showProgress,
                             onChanged: (_) =>
@@ -351,7 +353,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                         ListTile(
                           leading: const Icon(Icons.drag_handle,
                               color: Colors.transparent),
-                          title: const Text('Chip de estado'),
+                          title: Text(context.l10n.fieldStatusChip),
                           trailing: Switch(
                             value: p.showStatusChip,
                             onChanged: (_) =>
@@ -458,7 +460,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
                   ),
                 ),
               ),
-              Text('Sellos editoriales',
+              Text(context.l10n.managementImprints,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
@@ -547,7 +549,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Hecho'),
+                    child: Text(context.l10n.done),
                   ),
                 ),
               ),
@@ -590,7 +592,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
                       autofocus: true,
                       onChanged: (_) => _update(),
                       decoration: InputDecoration(
-                        hintText: 'Buscar por título…',
+                        hintText: context.l10n.searchHint,
                         suffixIcon: _queryCtrl.text.isNotEmpty
                             ? IconButton(
                           icon: const Icon(Icons.close, size: 35),
@@ -651,23 +653,23 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
                   Expanded(
                     child: _FilterField(
                       controller: _authorCtrl,
-                      label: 'Autor',
+                      label: context.l10n.filterAuthor,
                       icon: Icons.person_outline,
                       onChanged: (_) => _update(),
                     )
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: _FilterField(
                       controller: _isbnCtrl,
-                      label: 'ISBN',
+                      label: context.l10n.filterIsbn,
                       icon: Icons.barcode_reader,
                       onChanged: (_) => _update(),
                     ),
                   )
                 ]
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -675,16 +677,16 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
                   Expanded(
                       child: _FilterField(
                         controller: _publisherCtrl,
-                        label: 'Editorial',
+                        label: context.l10n.filterPublisher,
                         icon: Icons.business_outlined,
                         onChanged: (_) => _update(),
                       )
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: _FilterField(
                       controller: _collectionCtrl,
-                      label: 'Colección',
+                      label: context.l10n.filterCollection,
                       icon: Icons.collections_bookmark_outlined,
                       onChanged: (_) => _update(),
                     ),
@@ -693,7 +695,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Sello editorial',
+                context.l10n.filterImprintLabel,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: colorScheme.outline,
                 ),
@@ -722,7 +724,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> {
 
               // Selector de tags
               Text(
-                'Categorías',
+                context.l10n.filterTagsLabel,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: colorScheme.outline,
                 ),
@@ -799,8 +801,8 @@ class _StatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Estadísticas')),
-      body: const Center(child: Text('Tus estadísticas aparecerán aquí')),
+      appBar: AppBar(title: Text(context.l10n.statsTitle)),
+      body: Center(child: Text(context.l10n.statsPlaceholder)),
     );
   }
 }
@@ -836,7 +838,7 @@ class _TagPickerSheet extends ConsumerWidget {
               ),
             ),
             Text(
-              'Categorías',
+              context.l10n.filterTagsLabel,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -910,7 +912,7 @@ class _TagPickerSheet extends ConsumerWidget {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Hecho'),
+                  child: Text(context.l10n.done),
                 ),
               ),
             ),

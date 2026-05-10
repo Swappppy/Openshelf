@@ -10,10 +10,12 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
   static const _keyDbPath = 'dbPath';
   static const _keySearchServer = 'searchServer';
   static const _keyGoogleBooksApiKey = 'googleBooksApiKey';
+  static const _keyLocale = 'locale';
 
   @override
   Future<AppSettings> build() async {
     final prefs = ref.watch(sharedPrefsProvider);
+    final localeCode = prefs.getString(_keyLocale);
     return AppSettings(
       seedColor: Color(
         prefs.getInt(_keySeedColor) ?? const Color(0xFF6B4E3D).toARGB32(),
@@ -21,6 +23,7 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
       themeMode: ThemeMode.values[prefs.getInt(_keyThemeMode) ?? 0],
       coversPath: prefs.getString(_keyCoversPath),
       dbPath: prefs.getString(_keyDbPath),
+      locale: localeCode != null ? Locale(localeCode) : null,
       searchServer: BookSearchServer.values[
       prefs.getInt(_keySearchServer) ?? 0],
       googleBooksApiKey: prefs.getString(_keyGoogleBooksApiKey),
@@ -36,6 +39,11 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
     }
     if (s.dbPath != null) {
       await prefs.setString(_keyDbPath, s.dbPath!);
+    }
+    if (s.locale != null) {
+      await prefs.setString(_keyLocale, s.locale!.languageCode);
+    } else {
+      await prefs.remove(_keyLocale);
     }
     await prefs.setInt(_keySearchServer, s.searchServer.index);
     if (s.googleBooksApiKey != null) {
@@ -69,6 +77,14 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
   Future<void> setSearchServer(BookSearchServer server) async {
     final current = state.value ?? const AppSettings();
     await _save(current.copyWith(searchServer: server));
+  }
+
+  Future<void> setLocale(Locale? locale) async {
+    final current = state.value ?? const AppSettings();
+    await _save(current.copyWith(
+      locale: locale,
+      clearLocale: locale == null,
+    ));
   }
 
   Future<void> setGoogleBooksApiKey(String? key) async {

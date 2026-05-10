@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/books_controller.dart';
 import 'tag_chip.dart';
+import '../l10n/l10n_extension.dart';
 
 class BookListTile extends ConsumerWidget {
   final Book book;
@@ -259,7 +260,7 @@ class _ProgressBar extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          '$current / $total págs · ${(percent * 100).toStringAsFixed(0)}%',
+          context.l10n.pageProgress(current, total, (percent * 100).toStringAsFixed(0)),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: Theme.of(context).colorScheme.outline,
           ),

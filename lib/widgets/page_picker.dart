@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_extension.dart';
 
 class PagePicker extends StatefulWidget {
   final int initialValue;
@@ -180,7 +181,7 @@ class _PagePickerState extends State<PagePicker> {
 
         // Valor actual
         Text(
-          '${_toValue()} / ${widget.maxValue} páginas',
+          '${context.l10n.pageProgressShort(_toValue(), widget.maxValue)} ${context.l10n.pagesLabel}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: colorScheme.outline,
           ),

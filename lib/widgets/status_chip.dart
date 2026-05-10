@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/database.dart';
+import '../l10n/l10n_extension.dart';
 
 class StatusChip extends StatelessWidget {
   final ReadingStatus status;
@@ -18,7 +19,7 @@ class StatusChip extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          _label(status),
+          _label(context, status),
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -30,16 +31,16 @@ class StatusChip extends StatelessWidget {
     );
   }
 
-  String _label(ReadingStatus status) {
+  String _label(BuildContext context, ReadingStatus status) {
     switch (status) {
       case ReadingStatus.wantToRead:
-        return 'Por leer';
+        return context.l10n.statusWantToRead;
       case ReadingStatus.reading:
-        return 'Leyendo';
+        return context.l10n.statusReading;
       case ReadingStatus.read:
-        return 'Leído';
+        return context.l10n.statusRead;
       case ReadingStatus.abandoned:
-        return 'Abandonado';
+        return context.l10n.statusAbandoned;
     }
   }
 

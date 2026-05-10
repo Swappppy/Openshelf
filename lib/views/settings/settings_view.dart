@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../models/app_settings.dart';
+import '../../l10n/l10n_extension.dart';
 
 class SettingsView extends ConsumerWidget {
   const SettingsView({super.key});
@@ -19,7 +20,9 @@ class SettingsView extends ConsumerWidget {
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (e, _) => Scaffold(
-        body: Center(child: Text('Error: $e')),
+        body: Center(child: Builder(
+          builder: (context) => Text(context.l10n.errorPrefix(e.toString())),
+        )),
       ),
       data: (settings) => _SettingsBody(settings: settings),
     );
@@ -37,7 +40,7 @@ class _SettingsBody extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajustes'),
+        title: Text(context.l10n.settingsTitle),
         toolbarHeight: 40,
       ),
       body: ListView(
@@ -45,7 +48,48 @@ class _SettingsBody extends ConsumerWidget {
         children: [
 
           // --- Apariencia ---
-          _SectionHeader('Apariencia'),
+          _SectionHeader(context.l10n.settingsSectionAppearance),
+          const SizedBox(height: 12),
+
+          // Idioma
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.l10n.settingsLanguage,
+                      style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: settings.locale?.languageCode,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text(context.l10n.settingsLanguageSystem),
+                      ),
+                      const DropdownMenuItem(
+                        value: 'es',
+                        child: Text('Español'),
+                      ),
+                      const DropdownMenuItem(
+                        value: 'en',
+                        child: Text('English'),
+                      ),
+                    ],
+                    onChanged: (code) {
+                      controller.setLocale(code != null ? Locale(code) : null);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 12),
 
           // Modo de tema
@@ -56,25 +100,25 @@ class _SettingsBody extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Modo de tema',
+                  Text(context.l10n.settingsThemeMode,
                       style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 12),
                   SegmentedButton<ThemeMode>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: ThemeMode.light,
-                        icon: Icon(Icons.light_mode_outlined),
-                        label: Text('Claro'),
+                        icon: const Icon(Icons.light_mode_outlined),
+                        label: Text(context.l10n.settingsThemeLight),
                       ),
                       ButtonSegment(
                         value: ThemeMode.system,
-                        icon: Icon(Icons.brightness_auto_outlined),
-                        label: Text('Sistema'),
+                        icon: const Icon(Icons.brightness_auto_outlined),
+                        label: Text(context.l10n.settingsThemeSystem),
                       ),
                       ButtonSegment(
                         value: ThemeMode.dark,
-                        icon: Icon(Icons.dark_mode_outlined),
-                        label: Text('Oscuro'),
+                        icon: const Icon(Icons.dark_mode_outlined),
+                        label: Text(context.l10n.settingsThemeDark),
                       ),
                     ],
                     selected: {settings.themeMode},
@@ -95,11 +139,11 @@ class _SettingsBody extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Color de acento',
+                  Text(context.l10n.settingsAccentColor,
                       style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 4),
                   Text(
-                    'Toca un color para aplicarlo',
+                    context.l10n.settingsAccentColorHint,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: colorScheme.outline,
                     ),
@@ -116,7 +160,7 @@ class _SettingsBody extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // --- Almacenamiento ---
-          _SectionHeader('Almacenamiento'),
+          _SectionHeader(context.l10n.settingsSectionStorage),
           const SizedBox(height: 12),
 
           Card(
@@ -125,7 +169,7 @@ class _SettingsBody extends ConsumerWidget {
               children: [
                 _PathTile(
                   icon: Icons.image_outlined,
-                  label: 'Carpeta de portadas',
+                  label: context.l10n.settingsCoversFolder,
                   path: settings.coversPath,
                   onTap: () async {
                     final result =
@@ -138,7 +182,7 @@ class _SettingsBody extends ConsumerWidget {
                 const Divider(height: 1, indent: 56),
                 _PathTile(
                   icon: Icons.storage_outlined,
-                  label: 'Base de datos',
+                  label: context.l10n.settingsDatabase,
                   path: settings.dbPath,
                   onTap: () async {
                     final result =
@@ -155,7 +199,7 @@ class _SettingsBody extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // --- Búsqueda ---
-          _SectionHeader('Búsqueda de libros'),
+          _SectionHeader(context.l10n.settingsSectionSearch),
           const SizedBox(height: 12),
 
           Card(
@@ -165,11 +209,11 @@ class _SettingsBody extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Servidor',
+                  Text(context.l10n.settingsSearchServer,
                       style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 4),
                   Text(
-                    'Se usará para buscar libros por ISBN o título',
+                    context.l10n.settingsSearchServerHint,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: colorScheme.outline,
                     ),
@@ -183,7 +227,7 @@ class _SettingsBody extends ConsumerWidget {
                     child: Column(
                       children: BookSearchServer.values.map((server) => RadioListTile(
                         value: server,
-                        title: Text(_serverLabel(server)),
+                        title: Text(_serverLabel(context, server)),
                         subtitle: Text(_serverUrl(server),
                             style: Theme.of(context)
                                 .textTheme
@@ -210,7 +254,7 @@ class _SettingsBody extends ConsumerWidget {
     );
   }
 
-  String _serverLabel(BookSearchServer server) {
+  String _serverLabel(BuildContext context, BookSearchServer server) {
     switch (server) {
       case BookSearchServer.openLibrary:
         return 'Open Library';
@@ -250,22 +294,19 @@ class _SettingsBody extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Mover base de datos'),
-        content: const Text(
-          'Mover la base de datos requiere reiniciar la app. '
-              'Los datos se copiarán al nuevo directorio. ¿Continuar?',
-        ),
+        title: Text(context.l10n.settingsDbMoveTitle),
+        content: Text(context.l10n.settingsDbMoveContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () async {
               Navigator.pop(ctx);
               await _migrateDb(ref, newPath);
             },
-            child: const Text('Mover y reiniciar'),
+            child: Text(context.l10n.settingsDbMoveConfirm),
           ),
         ],
       ),
@@ -326,7 +367,7 @@ class _PathTile extends StatelessWidget {
       leading: Icon(icon),
       title: Text(label),
       subtitle: Text(
-        path ?? 'Directorio por defecto',
+        path ?? context.l10n.settingsDefaultDir,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -438,7 +479,7 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
     setState(() => _dirty = false);
     FocusScope.of(context).unfocus();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Clave guardada')),
+      SnackBar(content: Text(context.l10n.settingsApiKeySaved)),
     );
   }
 
@@ -449,11 +490,11 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => DraggableScrollableSheet(
+      builder: (context) => DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.55,
         maxChildSize: 0.85,
-        builder: (_, scroll) => ListView(
+        builder: (context, scroll) => ListView(
           controller: scroll,
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
           children: [
@@ -469,7 +510,7 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
               ),
             ),
             Text(
-              'Cómo obtener una clave de Google Books',
+              context.l10n.settingsApiKeyInstructionsTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -477,33 +518,27 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
             const SizedBox(height: 16),
             _Step(
               number: '1',
-              text:
-              'Abre console.cloud.google.com e inicia sesión con tu cuenta de Google.',
+              text: context.l10n.settingsApiKeyStep1,
             ),
             _Step(
               number: '2',
-              text:
-              'Crea un proyecto nuevo (el nombre es indiferente).',
+              text: context.l10n.settingsApiKeyStep2,
             ),
             _Step(
               number: '3',
-              text:
-              'Ve a APIs y servicios → Biblioteca, busca "Books API" y actívala.',
+              text: context.l10n.settingsApiKeyStep3,
             ),
             _Step(
               number: '4',
-              text:
-              'Ve a APIs y servicios → Credenciales → Crear credenciales → Clave de API.',
+              text: context.l10n.settingsApiKeyStep4,
             ),
             _Step(
               number: '5',
-              text:
-              'Opcional pero recomendado: restringe la clave a la Books API únicamente.',
+              text: context.l10n.settingsApiKeyStep5,
             ),
             _Step(
               number: '6',
-              text:
-              'Copia la clave resultante (empieza por "AIza...") y pégala en el campo de arriba.',
+              text: context.l10n.settingsApiKeyStep6,
             ),
             const SizedBox(height: 12),
             Container(
@@ -515,8 +550,7 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'La clave es gratuita y permite hasta 1.000 búsquedas diarias. '
-                    'No se comparte con nadie: se guarda solo en este dispositivo.',
+                context.l10n.settingsApiKeyNote,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -540,12 +574,12 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
           children: [
             Row(
               children: [
-                Text('Google Books API key',
+                Text(context.l10n.settingsApiKeyTitle,
                     style: Theme.of(context).textTheme.titleSmall),
                 const Spacer(),
                 TextButton.icon(
                   icon: const Icon(Icons.help_outline, size: 16),
-                  label: const Text('Cómo obtenerla'),
+                  label: Text(context.l10n.settingsApiKeyHowTo),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     visualDensity: VisualDensity.compact,
@@ -557,8 +591,8 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
             const SizedBox(height: 4),
             Text(
               hasKey
-                  ? 'Clave configurada. Google Books está disponible.'
-                  : 'Sin clave, Google Books usará Open Library como alternativa.',
+                  ? context.l10n.settingsApiKeyConfigured
+                  : context.l10n.settingsApiKeyMissing,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: hasKey
                     ? colorScheme.primary
@@ -570,7 +604,7 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
               controller: _ctrl,
               obscureText: _obscure,
               decoration: InputDecoration(
-                hintText: 'AIza...',
+                hintText: context.l10n.settingsApiKeyHint,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.vpn_key_outlined),
                 suffixIcon: Row(
@@ -580,7 +614,7 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
                       icon: Icon(
                           _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
                       onPressed: () => setState(() => _obscure = !_obscure),
-                      tooltip: _obscure ? 'Mostrar' : 'Ocultar',
+                      tooltip: _obscure ? context.l10n.settingsApiKeyShow : context.l10n.settingsApiKeyHide,
                     ),
                     if (_ctrl.text.isNotEmpty)
                       IconButton(
@@ -590,7 +624,7 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
                           widget.onSave(null);
                           setState(() => _dirty = false);
                         },
-                        tooltip: 'Borrar clave',
+                        tooltip: context.l10n.settingsApiKeyClear,
                       ),
                   ],
                 ),
@@ -602,7 +636,7 @@ class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _save,
-                  child: const Text('Guardar clave'),
+                  child: Text(context.l10n.settingsApiKeySave),
                 ),
               ),
             ],

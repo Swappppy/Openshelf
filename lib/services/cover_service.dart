@@ -46,20 +46,20 @@ class CoverService {
   // -------------------------------------------------------
   // Recorte
   // -------------------------------------------------------
-  static Future<String?> cropCover(String sourcePath) async {
+  static Future<String?> cropCover(String sourcePath, {required String title}) async {
     final cropped = await ImageCropper().cropImage(
       sourcePath: sourcePath,
       aspectRatio: const CropAspectRatio(ratioX: 2, ratioY: 3),
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'Recortar portada',
+          toolbarTitle: title,
           toolbarColor: const Color(0xFF6B4E3D),
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: true,
         ),
         IOSUiSettings(
-          title: 'Recortar portada',
+          title: title,
           aspectRatioLockEnabled: true,
         ),
       ],
@@ -67,20 +67,20 @@ class CoverService {
     return cropped?.path;
   }
 
-  static Future<String?> cropImprint(String sourcePath) async {
+  static Future<String?> cropImprint(String sourcePath, {required String title}) async {
     final cropped = await ImageCropper().cropImage(
       sourcePath: sourcePath,
       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'Recortar sello',
+          toolbarTitle: title,
           toolbarColor: const Color(0xFF6B4E3D),
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: true,
         ),
         IOSUiSettings(
-          title: 'Recortar sello',
+          title: title,
           aspectRatioLockEnabled: true,
         ),
       ],
@@ -156,7 +156,7 @@ class CoverService {
 
         // Open Library devuelve una gif de 1x1 (~43 bytes) si no existe la portada
         if (response.bodyBytes.length < 500) {
-          debugPrint('Preview demasiado pequeño (${response.bodyBytes.length}b): $url');
+          debugPrint('Preview too small (${response.bodyBytes.length}b): $url');
           return null;
         }
 
@@ -184,7 +184,7 @@ class CoverService {
   // -------------------------------------------------------
   // Guardar desde URL (con recorte opcional) — deduplicado
   // -------------------------------------------------------
-  static Future<String?> saveCoverFromUrl(String url, {bool shouldCrop = true}) async {
+  static Future<String?> saveCoverFromUrl(String url, {bool shouldCrop = true, String? cropTitle}) async {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) return null;
@@ -216,7 +216,7 @@ class CoverService {
         return saved;
       }
 
-      final croppedPath = await cropCover(tempFile.path);
+      final croppedPath = await cropCover(tempFile.path, title: cropTitle ?? 'Crop');
       await tempFile.delete();
       if (croppedPath == null) return null;
       return await saveCover(croppedPath);
@@ -225,7 +225,7 @@ class CoverService {
     }
   }
 
-  static Future<String?> saveImprintFromUrl(String url, {bool shouldCrop = true}) async {
+  static Future<String?> saveImprintFromUrl(String url, {bool shouldCrop = true, String? cropTitle}) async {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) return null;
@@ -252,7 +252,7 @@ class CoverService {
         return saved;
       }
 
-      final croppedPath = await cropImprint(tempFile.path);
+      final croppedPath = await cropImprint(tempFile.path, title: cropTitle ?? 'Crop');
       await tempFile.delete();
       if (croppedPath == null) return null;
       return await saveImprintImage(croppedPath);

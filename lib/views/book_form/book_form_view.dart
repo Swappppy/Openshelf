@@ -9,6 +9,7 @@ import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
 import '../../widgets/tag_chip.dart';
 import '../../models/book_search_result.dart';
+import '../../l10n/l10n_extension.dart';
 import 'cover_picker_sheet.dart';
 
 class BookFormView extends ConsumerStatefulWidget {
@@ -137,10 +138,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
   Future<void> _pickCover() async {
     if (!await PermissionService.requestGallery()) return;
+    if (!mounted) return;
+    final title = context.l10n.cropCoverTitle;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-    final cropped = await CoverService.cropCover(picked.path);
+    final cropped = await CoverService.cropCover(picked.path, title: title);
     if (cropped == null) return;
     final saved = await CoverService.saveCover(cropped);
     setState(() => _coverPath = saved);
@@ -148,10 +151,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
   Future<void> _takePhoto() async {
     if (!await PermissionService.requestCamera()) return;
+    if (!mounted) return;
+    final title = context.l10n.cropCoverTitle;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.camera);
     if (picked == null) return;
-    final cropped = await CoverService.cropCover(picked.path);
+    final cropped = await CoverService.cropCover(picked.path, title: title);
     if (cropped == null) return;
     final saved = await CoverService.saveCover(cropped);
     setState(() => _coverPath = saved);
@@ -162,39 +167,41 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final url = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('URL de la portada'),
+        title: Text(context.l10n.coverUrlDialogTitle),
         content: TextField(
           controller: ctrl,
           autofocus: true,
           keyboardType: TextInputType.url,
-          decoration: const InputDecoration(
-            hintText: 'https://ejemplo.com/portada.jpg',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: context.l10n.coverUrlHint,
+            border: const OutlineInputBorder(),
           ),
           onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-            child: const Text('Descargar'),
+            child: Text(context.l10n.download),
           ),
         ],
       ),
     );
     if (url == null || url.isEmpty) return;
+    if (!mounted) return;
+    final title = context.l10n.cropCoverTitle;
     setState(() => _isSaving = true);
-    final saved = await CoverService.saveCoverFromUrl(url);
+    final saved = await CoverService.saveCoverFromUrl(url, cropTitle: title);
     setState(() {
       _isSaving = false;
       if (saved != null) _coverPath = saved;
     });
     if (saved == null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo descargar la imagen')),
+        SnackBar(content: Text(context.l10n.coverDownloadError)),
       );
     }
   }
@@ -346,7 +353,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                 ),
               ),
               Text(
-                'Categorías',
+                context.l10n.sectionCategories,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -363,7 +370,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                     if (allTags.isEmpty) {
                       return Center(
                         child: Text(
-                          'No hay categorías creadas todavía',
+                          context.l10n.tagNoCategories,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.outline,
                           ),
@@ -397,7 +404,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                                 setStateSheet(() {});
                               },
                               child: Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? baseColor.withValues(alpha: 0.25)
@@ -431,7 +438,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Hecho'),
+                  child: Text(context.l10n.done),
                 ),
               ),
               const SizedBox(height: 16),
@@ -447,18 +454,18 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _PendingTag? pendingTag,
   }) async {
     final colors = [
-      ('E53935', 'Rojo'),
-      ('D81B60', 'Rosa'),
-      ('8E24AA', 'Morado'),
-      ('3949AB', 'Índigo'),
-      ('1E88E5', 'Azul'),
-      ('00ACC1', 'Cian'),
-      ('00897B', 'Verde azulado'),
-      ('43A047', 'Verde'),
-      ('C0CA33', 'Lima'),
-      ('FB8C00', 'Naranja'),
-      ('6D4C41', 'Marrón'),
-      ('757575', 'Gris'),
+      'E53935',
+      'D81B60',
+      '8E24AA',
+      '3949AB',
+      '1E88E5',
+      '00ACC1',
+      '00897B',
+      '43A047',
+      'C0CA33',
+      'FB8C00',
+      '6D4C41',
+      '757575',
     ];
 
     await showModalBottomSheet(
@@ -473,7 +480,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Color de la etiqueta',
+              context.l10n.tagColorLabel,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -482,8 +489,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
             Wrap(
               spacing: 12,
               runSpacing: 12,
-              children: colors.map((c) {
-                final (hex, name) = c;
+              children: colors.map((hex) {
                 final color = Color(int.parse('0xFF$hex'));
                 final currentHex = existingTag?.color ?? pendingTag?.color;
                 final isSelected = currentHex == hex;
@@ -572,7 +578,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            widget.existingBook != null ? 'Editar libro' : 'Nuevo libro'),
+            widget.existingBook != null ? context.l10n.bookFormEditTitle : context.l10n.bookFormNewTitle),
         toolbarHeight: 40,
         actions: [
           TextButton(
@@ -583,14 +589,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               height: 16,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-                : const Text('Guardar'),
+                : Text(context.l10n.save),
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.menu_book_outlined), text: 'Principal'),
-            Tab(icon: Icon(Icons.label_outline), text: 'Detalles'),
+          tabs: [
+            Tab(icon: const Icon(Icons.menu_book_outlined), text: context.l10n.tabMain),
+            Tab(icon: const Icon(Icons.label_outline), text: context.l10n.tabDetails),
           ],
         ),
       ),
@@ -763,19 +769,19 @@ class _MainTab extends ConsumerWidget {
                 children: [
                   TextButton.icon(
                     icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                    label: const Text('Foto'),
+                    label: Text(context.l10n.photo),
                     onPressed: onTakePhoto,
                   ),
                   const SizedBox(width: 4),
                   TextButton.icon(
                     icon: const Icon(Icons.link, size: 16),
-                    label: const Text('URL'),
+                    label: Text(context.l10n.url),
                     onPressed: onPickCoverFromUrl,
                   ),
                   const SizedBox(width: 4),
                   TextButton.icon(
                     icon: const Icon(Icons.image_search, size: 16),
-                    label: const Text('Buscar'),
+                    label: Text(context.l10n.coverSearch),
                     onPressed: onSearchCovers,
                   ),
                 ],
@@ -786,40 +792,40 @@ class _MainTab extends ConsumerWidget {
         const SizedBox(height: 24),
 
         // --- Información básica ---
-        _SectionHeader(label: 'Información básica'),
+        _SectionHeader(label: context.l10n.sectionBasicInfo),
         const SizedBox(height: 12),
         _FormField(
-            controller: titleCtrl, label: 'Título', required: true,
+            controller: titleCtrl, label: context.l10n.fieldTitle, required: true,
             icon: Icons.title),
         const SizedBox(height: 12),
         _FormField(
-            controller: authorCtrl, label: 'Autor', required: true,
+            controller: authorCtrl, label: context.l10n.fieldAuthor, required: true,
             icon: Icons.person_outline),
         const SizedBox(height: 12),
         _FormField(
             controller: publisherCtrl,
-            label: 'Editorial',
+            label: context.l10n.fieldPublisher,
             icon: Icons.business_outlined),
         const SizedBox(height: 12),
         _FormField(
           controller: publishYearCtrl,
-          label: 'Año de publicación',
+          label: context.l10n.fieldYear,
           icon: Icons.calendar_today_outlined,
           keyboardType: TextInputType.number,
         ),
         const SizedBox(height: 12),
         _FormField(
             controller: isbnCtrl,
-            label: 'ISBN',
+            label: context.l10n.fieldIsbn,
             icon: Icons.barcode_reader,
             keyboardType: TextInputType.number),
         const SizedBox(height: 24),
 
         // --- Etiquetas ---
-        _SectionHeader(label: 'Categorías'),
+        _SectionHeader(label: context.l10n.sectionCategories),
         const SizedBox(height: 4),
         Text(
-          'Escribe y pulsa Enter para añadir o crear',
+          context.l10n.tagCreateHint,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.outline,
           ),
@@ -864,10 +870,10 @@ class _MainTab extends ConsumerWidget {
                 fieldViewBuilder: (_, controller, focusNode, _) => TextField(
                   controller: controller,
                   focusNode: focusNode,
-                  decoration: const InputDecoration(
-                    labelText: 'Buscar o crear categoría',
-                    prefixIcon: Icon(Icons.label_outline),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.tagSearchOrCreate,
+                    prefixIcon: const Icon(Icons.label_outline),
+                    border: const OutlineInputBorder(),
                   ),
                   onSubmitted: (value) {
                     final name = value.trim();
@@ -898,14 +904,14 @@ class _MainTab extends ConsumerWidget {
         const SizedBox(height: 24),
 
         // --- Progreso ---
-        _SectionHeader(label: 'Progreso'),
+        _SectionHeader(label: context.l10n.fieldReadingProgress),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               child: _FormField(
                 controller: totalPagesCtrl,
-                label: 'Total páginas',
+                label: context.l10n.fieldTotalPages,
                 icon: Icons.menu_book_outlined,
                 keyboardType: TextInputType.number,
               ),
@@ -914,7 +920,7 @@ class _MainTab extends ConsumerWidget {
             Expanded(
               child: _FormField(
                 controller: currentPageCtrl,
-                label: 'Página actual',
+                label: context.l10n.fieldCurrentPage,
                 icon: Icons.bookmark_outline,
                 keyboardType: TextInputType.number,
               ),
@@ -923,20 +929,20 @@ class _MainTab extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         // --- Estado ---
-        _SectionHeader(label: 'Estado de lectura'),
+        _SectionHeader(label: context.l10n.sectionReadingStatus),
         const SizedBox(height: 12),
         _StatusSelector(selected: status, onChanged: onStatusChanged),
         const SizedBox(height: 24),
 
         // --- Formato ---
-        _SectionHeader(label: 'Formato'),
+        _SectionHeader(label: context.l10n.sectionFormat),
         const SizedBox(height: 12),
         _FormatSelector(selected: format, onChanged: onFormatChanged),
         const SizedBox(height: 12),
         const SizedBox(height: 24),
 
         // --- Valoración ---
-        _SectionHeader(label: 'Valoración'),
+        _SectionHeader(label: context.l10n.sectionRating),
         const SizedBox(height: 12),
         _RatingSelector(rating: rating, onChanged: onRatingChanged),
         const SizedBox(height: 32),
@@ -970,7 +976,7 @@ class _DetailsTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _SectionHeader(label: 'Colección / Serie'),
+        _SectionHeader(label: context.l10n.fieldCollection),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -992,10 +998,10 @@ class _DetailsTab extends ConsumerWidget {
                     controller: controller,
                     focusNode: focusNode,
                     onChanged: (v) => collectionNameCtrl.text = v,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre de la colección',
-                      prefixIcon: Icon(Icons.collections_bookmark_outlined),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.fieldCollection,
+                      prefixIcon: const Icon(Icons.collections_bookmark_outlined),
+                      border: const OutlineInputBorder(),
                     ),
                   );
                 },
@@ -1006,7 +1012,7 @@ class _DetailsTab extends ConsumerWidget {
               flex: 1,
               child: _FormField(
                 controller: collectionNumberCtrl,
-                label: 'Nº',
+                label: context.l10n.fieldCollectionNumber,
                 icon: Icons.tag,
                 keyboardType: TextInputType.number,
               ),
@@ -1015,7 +1021,7 @@ class _DetailsTab extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
 
-        _SectionHeader(label: 'Sello editorial'),
+        _SectionHeader(label: context.l10n.sectionImprint),
         const SizedBox(height: 12),
         _ImprintSelector(
           selected: selectedImprint,
@@ -1024,11 +1030,11 @@ class _DetailsTab extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
 
-        _SectionHeader(label: 'Notas personales'),
+        _SectionHeader(label: context.l10n.bookDetailNotesTitle),
         const SizedBox(height: 12),
         _FormField(
           controller: notesCtrl,
-          label: 'Notas',
+          label: context.l10n.fieldNotes,
           icon: Icons.notes_outlined,
           maxLines: 6,
         ),
@@ -1073,10 +1079,10 @@ class _ImprintSelector extends ConsumerWidget {
           fieldViewBuilder: (_, controller, focusNode, _) => TextField(
             controller: controller,
             focusNode: focusNode,
-            decoration: const InputDecoration(
-              labelText: 'Buscar sello editorial',
-              prefixIcon: Icon(Icons.business_outlined),
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.l10n.imprintSearch,
+              prefixIcon: const Icon(Icons.business_outlined),
+              border: const OutlineInputBorder(),
             ),
           ),
         ),
@@ -1205,7 +1211,7 @@ class _FormField extends StatelessWidget {
       ),
       validator: required
           ? (v) =>
-      (v == null || v.trim().isEmpty) ? 'Campo obligatorio' : null
+      (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null
           : null,
     );
   }
@@ -1218,11 +1224,10 @@ class _StatusSelector extends StatelessWidget {
   const _StatusSelector({required this.selected, required this.onChanged});
 
   static const _options = [
-    (ReadingStatus.wantToRead, 'Por leer', Icons.bookmark_outline,
-    Colors.orange),
-    (ReadingStatus.reading, 'Leyendo', Icons.auto_stories, Colors.blue),
-    (ReadingStatus.read, 'Leído', Icons.check_circle_outline, Colors.green),
-    (ReadingStatus.abandoned, 'Abandonado', Icons.close, Colors.red),
+    (ReadingStatus.wantToRead, Icons.bookmark_outline, Colors.orange),
+    (ReadingStatus.reading, Icons.auto_stories, Colors.blue),
+    (ReadingStatus.read, Icons.check_circle_outline, Colors.green),
+    (ReadingStatus.abandoned, Icons.close, Colors.red),
   ];
 
   @override
@@ -1231,8 +1236,14 @@ class _StatusSelector extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: _options.map((opt) {
-        final (status, label, icon, color) = opt;
+        final (status, icon, color) = opt;
         final isSelected = selected == status;
+        final label = switch (status) {
+          ReadingStatus.wantToRead => context.l10n.statusWantToRead,
+          ReadingStatus.reading => context.l10n.statusReading,
+          ReadingStatus.read => context.l10n.statusRead,
+          ReadingStatus.abandoned => context.l10n.statusAbandoned,
+        };
         return ChoiceChip(
           avatar: Icon(icon, size: 16, color: isSelected ? color : null),
           label: Text(label),
@@ -1252,12 +1263,12 @@ class _FormatSelector extends StatelessWidget {
   const _FormatSelector({this.selected, required this.onChanged});
 
   static const _options = [
-    (BookFormat.paperback, 'Tapa blanda'),
-    (BookFormat.hardcover, 'Tapa dura'),
-    (BookFormat.leatherbound, 'Piel'),
-    (BookFormat.rustic, 'Rústica'),
-    (BookFormat.digital, 'Digital'),
-    (BookFormat.other, 'Otro'),
+    BookFormat.paperback,
+    BookFormat.hardcover,
+    BookFormat.leatherbound,
+    BookFormat.rustic,
+    BookFormat.digital,
+    BookFormat.other,
   ];
 
   @override
@@ -1265,12 +1276,21 @@ class _FormatSelector extends StatelessWidget {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: _options.map((opt) {
-        final (format, label) = opt;
+      children: _options.map((format) {
+        final label = switch (format) {
+          BookFormat.paperback => context.l10n.formatPaperback,
+          BookFormat.hardcover => context.l10n.formatHardcover,
+          BookFormat.leatherbound => context.l10n.formatLeatherbound,
+          BookFormat.rustic => context.l10n.formatRustic,
+          BookFormat.digital => context.l10n.formatDigital,
+          BookFormat.other => context.l10n.formatOther,
+        };
         final isSelected = selected == format;
+        final color = Theme.of(context).colorScheme.primary;
         return ChoiceChip(
           label: Text(label),
           selected: isSelected,
+          selectedColor: color.withValues(alpha: 0.15),
           onSelected: (_) => onChanged(isSelected ? null : format),
         );
       }).toList(),

@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import 'l10n/app_localizations.dart';
+import 'l10n/l10n_extension.dart';
 import 'theme/app_theme.dart';
 import 'views/library/library_view.dart';
 import 'controllers/app_settings_controller.dart';
 import 'controllers/shared_prefs_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   try {
@@ -29,9 +32,21 @@ void main() async {
       MaterialApp(
         home: Scaffold(
           body: Center(
-            child: Text('Error al iniciar la aplicación: $e'),
+            child: Builder(
+              builder: (context) => Text(context.l10n.criticalStartError(e.toString())),
+            ),
           ),
         ),
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('es'),
+          Locale('en'),
+        ],
       ),
     );
   }
@@ -86,14 +101,37 @@ class OpenshelfApp extends ConsumerWidget {
         ),
       ),
       error: (e, _) => MaterialApp(
-        home: Scaffold(body: Center(child: Text('Error: $e'))),
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('es'),
+          Locale('en'),
+        ],
+        home: Scaffold(body: Center(child: Builder(
+          builder: (context) => Text(context.l10n.errorPrefix(e.toString())),
+        ))),
       ),
       data: (settings) => MaterialApp(
-        title: 'Openshelf',
+        onGenerateTitle: (context) => context.l10n.appTitle,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(settings.seedColor),
         darkTheme: AppTheme.dark(settings.seedColor),
         themeMode: settings.themeMode,
+        locale: settings.locale,
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('es'),
+          Locale('en'),
+        ],
         home: const LibraryView(),
       ),
     );

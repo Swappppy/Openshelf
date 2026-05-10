@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../services/book_search_service.dart';
 import '../../services/cover_service.dart';
+import '../../l10n/l10n_extension.dart';
 
 class CoverPickerSheet extends ConsumerStatefulWidget {
   final String? isbn;
@@ -62,7 +63,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
       if (candidates.isEmpty) {
         setState(() {
           _searching = false;
-          _error = 'No se encontraron portadas para este libro.';
+          _error = context.l10n.coverPickerNoResults;
         });
         return;
       }
@@ -80,7 +81,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
       if (mounted) {
         setState(() {
           _searching = false;
-          _error = 'No se pudo conectar. Comprueba tu conexión.';
+          _error = context.l10n.coverPickerNetworkError;
         });
       }
     }
@@ -115,6 +116,8 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
 
     setState(() => _saving = index);
 
+    final title = context.l10n.cropCoverTitle;
+
     // Smart crop: si ya tiene el ratio correcto, guardar directo
     if (await CoverService.isRatioCorrect(previewPath, 2 / 3)) {
       debugPrint('Grid Selection: Ratio correcto, omitiendo recorte.');
@@ -127,7 +130,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
     }
 
     // Si no, procedemos al recorte manual
-    final croppedPath = await CoverService.cropCover(previewPath);
+    final croppedPath = await CoverService.cropCover(previewPath, title: title);
     if (croppedPath == null) {
       if (mounted) setState(() => _saving = null);
       return;
@@ -173,7 +176,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Portadas',
+                            context.l10n.coverPickerTitle,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -181,7 +184,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
                           ),
                           if (widget.isbn != null)
                             Text(
-                              'ISBN ${widget.isbn}',
+                              context.l10n.coverPickerIsbnLabel(widget.isbn!),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -275,7 +278,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$loaded / $total',
+                  context.l10n.coverPickerProgress(loaded, total),
                   style: Theme.of(context)
                       .textTheme
                       .labelSmall
