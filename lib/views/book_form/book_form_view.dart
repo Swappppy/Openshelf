@@ -9,6 +9,7 @@ import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
 import '../../widgets/tag_chip.dart';
 import '../../models/book_search_result.dart';
+import 'cover_picker_sheet.dart';
 
 class BookFormView extends ConsumerStatefulWidget {
   final Book? existingBook;
@@ -128,7 +129,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _prefillCoverFromUrl(String url) async {
-    final saved = await CoverService.saveCoverFromUrl(url);
+    final saved = await CoverService.saveCoverFromUrl(url, shouldCrop: false);
     if (saved != null && mounted) {
       setState(() => _coverPath = saved);
     }
@@ -196,6 +197,25 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         const SnackBar(content: Text('No se pudo descargar la imagen')),
       );
     }
+  }
+
+  Future<void> _searchCovers() async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => CoverPickerSheet(
+        isbn: _isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim(),
+        title: _titleCtrl.text.trim().isEmpty ? null : _titleCtrl.text.trim(),
+        author: _authorCtrl.text.trim().isEmpty ? null : _authorCtrl.text.trim(),
+        publisher: _publisherCtrl.text.trim().isEmpty
+            ? null
+            : _publisherCtrl.text.trim(),
+        onCoverSelected: (path) => setState(() => _coverPath = path),
+      ),
+    );
   }
 
   Future<void> _save() async {
@@ -610,6 +630,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                   _showColorPicker(context, existingTag: existingTag, pendingTag: pendingTag),
               onTapGrid: () => _showTagPicker(context),
               onPickCoverFromUrl: _pickCoverFromUrl,
+              onSearchCovers: _searchCovers,
             ),
             _DetailsTab(
               notesCtrl: _notesCtrl,
@@ -655,6 +676,7 @@ class _MainTab extends ConsumerWidget {
   final void Function({Tag? existingTag, _PendingTag? pendingTag}) onTapTagColor;
   final VoidCallback onTapGrid;
   final VoidCallback onPickCoverFromUrl;
+  final VoidCallback onSearchCovers;
 
   const _MainTab({
     required this.titleCtrl,
@@ -682,6 +704,7 @@ class _MainTab extends ConsumerWidget {
     required this.onTapTagColor,
     required this.onTapGrid,
     required this.onPickCoverFromUrl,
+    required this.onSearchCovers,
   });
 
   @override
@@ -748,6 +771,12 @@ class _MainTab extends ConsumerWidget {
                     icon: const Icon(Icons.link, size: 16),
                     label: const Text('URL'),
                     onPressed: onPickCoverFromUrl,
+                  ),
+                  const SizedBox(width: 4),
+                  TextButton.icon(
+                    icon: const Icon(Icons.image_search, size: 16),
+                    label: const Text('Buscar'),
+                    onPressed: onSearchCovers,
                   ),
                 ],
               ),

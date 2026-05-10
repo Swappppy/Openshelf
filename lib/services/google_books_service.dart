@@ -9,14 +9,19 @@ class GoogleBooksService {
   static Future<List<BookSearchResult>> search(
       String query, {
         int limit = 20,
+        String? apiKey,
       }) async {
     if (query.trim().isEmpty) return [];
+    if (apiKey == null || apiKey.isEmpty) {
+      throw Exception('no_api_key');
+    }
 
     final uri = Uri.parse(_baseUrl).replace(
       queryParameters: {
         'q': query.trim(),
         'maxResults': '$limit',
         'printType': 'books',
+        'key': apiKey,
       },
     );
 

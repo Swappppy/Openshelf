@@ -197,6 +197,13 @@ class _SettingsBody extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+
+          // --- Google Books API key ---
+          _GoogleBooksApiKeyCard(
+            currentKey: settings.googleBooksApiKey,
+            onSave: (key) => controller.setGoogleBooksApiKey(key),
+          ),
           const SizedBox(height: 32),
         ],
       ),
@@ -387,6 +394,264 @@ class _ColorPicker extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+class _GoogleBooksApiKeyCard extends StatefulWidget {
+  final String? currentKey;
+  final ValueChanged<String?> onSave;
+
+  const _GoogleBooksApiKeyCard({
+    required this.currentKey,
+    required this.onSave,
+  });
+
+  @override
+  State<_GoogleBooksApiKeyCard> createState() => _GoogleBooksApiKeyCardState();
+}
+
+class _GoogleBooksApiKeyCardState extends State<_GoogleBooksApiKeyCard> {
+  late final TextEditingController _ctrl;
+  bool _obscure = true;
+  bool _dirty = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.currentKey ?? '');
+    _ctrl.addListener(() {
+      final changed = _ctrl.text.trim() != (widget.currentKey ?? '');
+      if (changed != _dirty) setState(() => _dirty = changed);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final value = _ctrl.text.trim().isEmpty ? null : _ctrl.text.trim();
+    widget.onSave(value);
+    setState(() => _dirty = false);
+    FocusScope.of(context).unfocus();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Clave guardada')),
+    );
+  }
+
+  void _showInstructions() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.55,
+        maxChildSize: 0.85,
+        builder: (_, scroll) => ListView(
+          controller: scroll,
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Text(
+              'Cómo obtener una clave de Google Books',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _Step(
+              number: '1',
+              text:
+              'Abre console.cloud.google.com e inicia sesión con tu cuenta de Google.',
+            ),
+            _Step(
+              number: '2',
+              text:
+              'Crea un proyecto nuevo (el nombre es indiferente).',
+            ),
+            _Step(
+              number: '3',
+              text:
+              'Ve a APIs y servicios → Biblioteca, busca "Books API" y actívala.',
+            ),
+            _Step(
+              number: '4',
+              text:
+              'Ve a APIs y servicios → Credenciales → Crear credenciales → Clave de API.',
+            ),
+            _Step(
+              number: '5',
+              text:
+              'Opcional pero recomendado: restringe la clave a la Books API únicamente.',
+            ),
+            _Step(
+              number: '6',
+              text:
+              'Copia la clave resultante (empieza por "AIza...") y pégala en el campo de arriba.',
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'La clave es gratuita y permite hasta 1.000 búsquedas diarias. '
+                    'No se comparte con nadie: se guarda solo en este dispositivo.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasKey = widget.currentKey != null && widget.currentKey!.isNotEmpty;
+
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text('Google Books API key',
+                    style: Theme.of(context).textTheme.titleSmall),
+                const Spacer(),
+                TextButton.icon(
+                  icon: const Icon(Icons.help_outline, size: 16),
+                  label: const Text('Cómo obtenerla'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  onPressed: _showInstructions,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              hasKey
+                  ? 'Clave configurada. Google Books está disponible.'
+                  : 'Sin clave, Google Books usará Open Library como alternativa.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: hasKey
+                    ? colorScheme.primary
+                    : colorScheme.outline,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _ctrl,
+              obscureText: _obscure,
+              decoration: InputDecoration(
+                hintText: 'AIza...',
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.vpn_key_outlined),
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                          _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                      onPressed: () => setState(() => _obscure = !_obscure),
+                      tooltip: _obscure ? 'Mostrar' : 'Ocultar',
+                    ),
+                    if (_ctrl.text.isNotEmpty)
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          _ctrl.clear();
+                          widget.onSave(null);
+                          setState(() => _dirty = false);
+                        },
+                        tooltip: 'Borrar clave',
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            if (_dirty) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _save,
+                  child: const Text('Guardar clave'),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Step extends StatelessWidget {
+  final String number;
+  final String text;
+  const _Step({required this.number, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            margin: const EdgeInsets.only(right: 12, top: 1),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                number,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

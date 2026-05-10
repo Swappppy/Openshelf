@@ -64,12 +64,14 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
       }
     } catch (e) {
       if (mounted) {
-        final isRateLimit = e.toString().contains('rate_limit');
+        final msg = e.toString();
         setState(() {
-          _error = isRateLimit
+          _error = msg.contains('no_api_key')
+              ? 'Google Books requiere una clave de API.\n'
+              'Configúrala en Ajustes → Búsqueda de libros.'
+              : msg.contains('rate_limit')
               ? 'Google Books ha limitado las peticiones.\n'
-              'Espera un momento e inténtalo de nuevo,\n'
-              'o cambia a Open Library en los ajustes.'
+              'Espera un momento e inténtalo de nuevo.'
               : 'No se pudo conectar con ningún servidor.\n'
               'Comprueba tu conexión e inténtalo de nuevo.';
           _loading = false;

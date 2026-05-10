@@ -9,6 +9,7 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
   static const _keyCoversPath = 'coversPath';
   static const _keyDbPath = 'dbPath';
   static const _keySearchServer = 'searchServer';
+  static const _keyGoogleBooksApiKey = 'googleBooksApiKey';
 
   @override
   Future<AppSettings> build() async {
@@ -22,6 +23,7 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
       dbPath: prefs.getString(_keyDbPath),
       searchServer: BookSearchServer.values[
       prefs.getInt(_keySearchServer) ?? 0],
+      googleBooksApiKey: prefs.getString(_keyGoogleBooksApiKey),
     );
   }
 
@@ -36,6 +38,11 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
       await prefs.setString(_keyDbPath, s.dbPath!);
     }
     await prefs.setInt(_keySearchServer, s.searchServer.index);
+    if (s.googleBooksApiKey != null) {
+      await prefs.setString(_keyGoogleBooksApiKey, s.googleBooksApiKey!);
+    } else {
+      await prefs.remove(_keyGoogleBooksApiKey);
+    }
     state = AsyncData(s);
   }
 
@@ -62,6 +69,15 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
   Future<void> setSearchServer(BookSearchServer server) async {
     final current = state.value ?? const AppSettings();
     await _save(current.copyWith(searchServer: server));
+  }
+
+  Future<void> setGoogleBooksApiKey(String? key) async {
+    final current = state.value ?? const AppSettings();
+    final trimmed = key?.trim().isEmpty == true ? null : key?.trim();
+    await _save(current.copyWith(
+      googleBooksApiKey: trimmed,
+      clearApiKey: trimmed == null,
+    ));
   }
 }
 

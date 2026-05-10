@@ -8,6 +8,7 @@ class AppSettings {
   final String? coversPath;
   final String? dbPath;
   final BookSearchServer searchServer;
+  final String? googleBooksApiKey;
 
   const AppSettings({
     this.seedColor = const Color(0xFF6B4E3D),
@@ -15,6 +16,7 @@ class AppSettings {
     this.coversPath,
     this.dbPath,
     this.searchServer = BookSearchServer.openLibrary,
+    this.googleBooksApiKey,
   });
 
   AppSettings copyWith({
@@ -23,6 +25,8 @@ class AppSettings {
     String? coversPath,
     String? dbPath,
     BookSearchServer? searchServer,
+    String? googleBooksApiKey,
+    bool clearApiKey = false,
   }) =>
       AppSettings(
         seedColor: seedColor ?? this.seedColor,
@@ -30,5 +34,7 @@ class AppSettings {
         coversPath: coversPath ?? this.coversPath,
         dbPath: dbPath ?? this.dbPath,
         searchServer: searchServer ?? this.searchServer,
+        googleBooksApiKey:
+        clearApiKey ? null : (googleBooksApiKey ?? this.googleBooksApiKey),
       );
 }
