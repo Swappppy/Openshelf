@@ -380,6 +380,24 @@ abstract class AppLocalizations {
   /// **'Apunta la cámara al ISBN'**
   String get scanBarcodeSubtitle;
 
+  /// Opción de escanear ISBN mediante texto
+  ///
+  /// In es, this message translates to:
+  /// **'Escanear número ISBN'**
+  String get scanIsbnText;
+
+  /// Subtítulo de la opción de escanear ISBN mediante texto
+  ///
+  /// In es, this message translates to:
+  /// **'Apunta al número impreso'**
+  String get scanIsbnTextSubtitle;
+
+  /// Mensaje de falta de permiso de cámara
+  ///
+  /// In es, this message translates to:
+  /// **'Se requiere permiso de cámara para escanear códigos'**
+  String get scanBarcodePermission;
+
   /// Opción de escanear en lote
   ///
   /// In es, this message translates to:

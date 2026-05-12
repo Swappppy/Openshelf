@@ -154,6 +154,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get scanBarcodeSubtitle => 'Apunta la cámara al ISBN';
 
   @override
+  String get scanIsbnText => 'Escanear número ISBN';
+
+  @override
+  String get scanIsbnTextSubtitle => 'Apunta al número impreso';
+
+  @override
+  String get scanBarcodePermission =>
+      'Se requiere permiso de cámara para escanear códigos';
+
+  @override
   String get scanBatch => 'Escanear en lote';
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/l10n_extension.dart';
 import 'book_form_view.dart';
 import '../book_search/book_search_view.dart';
+import '../barcode_scanner/barcode_scanner_view.dart';
 
 class AddBookModal extends StatelessWidget {
   const AddBookModal({super.key});
@@ -88,7 +89,34 @@ class AddBookModal extends StatelessWidget {
             icon: Icons.qr_code_scanner,
             title: context.l10n.scanBarcode,
             subtitle: context.l10n.scanBarcodeSubtitle,
-            onTap: () {},
+            onTap: () async {
+              // Captura el navigator del contexto raíz ANTES de cerrar el modal
+              final rootNav = Navigator.of(context, rootNavigator: true);
+
+              // Cierra el modal
+              Navigator.of(context).pop();
+
+              // Espera a que el modal termine de cerrar, luego abre el scanner
+              await Future.microtask(() {});
+
+              final String? code = await rootNav.push<String>(
+                MaterialPageRoute(
+                  builder: (_) => const BarcodeScannerView(),
+                ),
+              );
+
+              debugPrint('AddBookModal: Scanner returned code: $code');
+
+              if (code != null) {
+                rootNav.push(
+                  MaterialPageRoute(
+                    builder: (_) => BookSearchView(initialQuery: code),
+                  ),
+                );
+              } else {
+                debugPrint('AddBookModal: Scanner cancelled by user');
+              }
+            },
           ),
           _AddOption(
             icon: Icons.document_scanner_outlined,

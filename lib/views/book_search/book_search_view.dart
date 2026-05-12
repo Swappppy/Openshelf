@@ -7,14 +7,15 @@ import '../../services/book_search_service.dart';
 import '../../l10n/l10n_extension.dart';
 
 class BookSearchView extends ConsumerStatefulWidget {
-  const BookSearchView({super.key});
+  final String? initialQuery;
+  const BookSearchView({super.key, this.initialQuery});
 
   @override
   ConsumerState<BookSearchView> createState() => _BookSearchViewState();
 }
 
 class _BookSearchViewState extends ConsumerState<BookSearchView> {
-  final _ctrl = TextEditingController();
+  late final TextEditingController _ctrl;
   final _focusNode = FocusNode();
 
   List<BookSearchResult> _results = [];
@@ -26,9 +27,14 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
   @override
   void initState() {
     super.initState();
-    // Abre el teclado al entrar
+    _ctrl = TextEditingController(text: widget.initialQuery ?? '');
+    // Abre el teclado al entrar si no hay query inicial
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
+      if (widget.initialQuery == null) {
+        _focusNode.requestFocus();
+      } else {
+        _search();
+      }
     });
   }
 
@@ -43,6 +49,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     final query = _ctrl.text.trim();
     if (query.isEmpty) return;
 
+    debugPrint('BookSearchView: Searching for "$query"');
     _focusNode.unfocus();
     setState(() {
       _loading = true;

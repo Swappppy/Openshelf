@@ -148,6 +148,15 @@
   "scanBarcodeSubtitle": "Point the camera at the ISBN",
   "@scanBarcodeSubtitle": { "description": "Scan barcode option subtitle" },
 
+  "scanIsbnText": "Scan ISBN Number",
+  "@scanIsbnText": { "description": "Option to scan ISBN as text" },
+
+  "scanIsbnTextSubtitle": "Point at the printed number",
+  "@scanIsbnTextSubtitle": { "description": "Subtitle for scanning ISBN as text" },
+
+  "scanBarcodePermission": "Camera permission required to scan barcodes",
+  "@scanBarcodePermission": { "description": "Camera permission missing message" },
+
   "scanBatch": "Batch scan",
   "@scanBatch": { "description": "Batch scan option" },
 

@@ -23,6 +23,9 @@ dependencies:
 
   # Escáner ISBN
   mobile_scanner: ^7.2.0
+  google_mlkit_text_recognition: ^0.14.0
+  camera: ^0.11.1
+
 
   # API Open Library
   http: ^1.2.2

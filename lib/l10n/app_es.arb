@@ -148,6 +148,15 @@
   "scanBarcodeSubtitle": "Apunta la cámara al ISBN",
   "@scanBarcodeSubtitle": { "description": "Subtítulo de la opción de escanear código de barras" },
 
+  "scanIsbnText": "Escanear número ISBN",
+  "@scanIsbnText": { "description": "Opción de escanear ISBN mediante texto" },
+
+  "scanIsbnTextSubtitle": "Apunta al número impreso",
+  "@scanIsbnTextSubtitle": { "description": "Subtítulo de la opción de escanear ISBN mediante texto" },
+
+  "scanBarcodePermission": "Se requiere permiso de cámara para escanear códigos",
+  "@scanBarcodePermission": { "description": "Mensaje de falta de permiso de cámara" },
+
   "scanBatch": "Escanear en lote",
   "@scanBatch": { "description": "Opción de escanear en lote" },
 
