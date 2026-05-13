@@ -1382,11 +1382,17 @@ abstract class AppLocalizations {
   /// **'Sin resultados para \"{query}\"'**
   String bookSearchNoResults(String query);
 
-  /// Aviso de fallback en búsqueda
+  /// Aviso de proveedores que contribuyeron a la búsqueda
   ///
   /// In es, this message translates to:
-  /// **'Sin resultados en el proveedor principal. Mostrando resultados de {provider}.'**
-  String bookSearchFallbackNotice(String provider);
+  /// **'Resultados de: {providers}.'**
+  String bookSearchProvidersNotice(String providers);
+
+  /// Etiqueta para el resultado recomendado
+  ///
+  /// In es, this message translates to:
+  /// **'RECOMENDADO POR OPENSHELF'**
+  String get bookSearchRecommended;
 
   /// Error: falta API key de Google Books
   ///

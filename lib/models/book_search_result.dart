@@ -7,6 +7,7 @@ class BookSearchResult {
   final int? totalPages;
   final String? coverUrl;
   final String? openLibraryKey;
+  final String? source;
 
   const BookSearchResult({
     required this.title,
@@ -17,6 +18,7 @@ class BookSearchResult {
     this.totalPages,
     this.coverUrl,
     this.openLibraryKey,
+    this.source,
   });
 
   factory BookSearchResult.fromOpenLibraryDoc(Map<String, dynamic> doc) {
@@ -40,6 +42,7 @@ class BookSearchResult {
           ? 'https://covers.openlibrary.org/b/id/$coverId-M.jpg'
           : null,
       openLibraryKey: doc['key'] as String?,
+      source: 'Open Library',
     );
   }
 }

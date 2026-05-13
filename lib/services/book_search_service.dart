@@ -7,6 +7,7 @@ import '../models/app_settings.dart';
 import '../controllers/app_settings_controller.dart';
 import 'open_library_service.dart';
 import 'google_books_service.dart';
+import 'inventaire_service.dart';
 
 // -------------------------------------------------------
 // Búsqueda de Libros (Resultados completos)
@@ -14,82 +15,186 @@ import 'google_books_service.dart';
 
 class SearchResponse {
   final List<BookSearchResult> results;
-  /// Null si se usó el proveedor principal. Nombre del fallback si se usó éste.
-  final String? usedFallback;
+  /// Lista de proveedores que contribuyeron resultados, en orden de aparición.
+  final List<String> providers;
 
-  const SearchResponse({required this.results, this.usedFallback});
+  const SearchResponse({required this.results, required this.providers});
 }
 
 class BookSearchService {
-  final BookSearchServer server;
+  final List<BookSearchServer> servers;
   final String? googleBooksApiKey;
 
-  const BookSearchService(this.server, {this.googleBooksApiKey});
+  const BookSearchService(this.servers, {this.googleBooksApiKey});
 
   Future<SearchResponse> search(String query, {int limit = 20}) async {
-    try {
-      final results = await _searchWith(server, query, limit: limit);
-      // Si el principal devuelve resultados, los usamos
-      if (results.isNotEmpty) {
-        return SearchResponse(results: results);
-      }
-      // Sin resultados: intentar fallback silencioso
-      final fallback = _fallbackFor(server);
-      final fallbackResults = await _searchWith(fallback, query, limit: limit);
-      if (fallbackResults.isNotEmpty) {
-        return SearchResponse(
-          results: fallbackResults,
-          usedFallback: _label(fallback),
-        );
-      }
-      // Ninguno encontró nada
-      return const SearchResponse(results: []);
-    } on Exception {
-      // El principal falló: intentar fallback
-      final fallback = _fallbackFor(server);
+    final allProviderResults = <BookSearchServer, List<BookSearchResult>>{};
+    final contributors = <String>[];
+
+    // 1. Fetch all results from all active servers
+    await Future.wait(servers.map((server) async {
       try {
-        final fallbackResults = await _searchWith(fallback, query, limit: limit);
-        return SearchResponse(
-          results: fallbackResults,
-          usedFallback: _label(fallback),
-        );
-      } on Exception {
-        // Ambos fallaron: relanzar el error original
-        rethrow;
+        final results = await _searchWith(server, query, limit: limit);
+        if (results.isNotEmpty) {
+          allProviderResults[server] = results;
+          contributors.add(_label(server));
+        }
+      } catch (e) {
+        debugPrint('Search error with ${_label(server)}: $e');
+      }
+    }));
+
+    if (allProviderResults.isEmpty) {
+      return const SearchResponse(results: [], providers: []);
+    }
+
+    // 2. Create the "Recommended by Openshelf" result
+    final recommended = _createRecommended(allProviderResults);
+
+    // 3. Flatten and deduplicate remaining results
+    final finalResults = <BookSearchResult>[];
+    if (recommended != null) {
+      finalResults.add(recommended);
+    }
+
+    final seenKeys = <String>{};
+    if (recommended != null) {
+      seenKeys.add(_getDedupeKey(recommended));
+    }
+
+    // Add remaining results in user-preferred order
+    for (final server in servers) {
+      final results = allProviderResults[server];
+      if (results == null) continue;
+
+      for (final r in results) {
+        final key = _getDedupeKey(r);
+        if (!seenKeys.contains(key)) {
+          finalResults.add(r);
+          seenKeys.add(key);
+        }
       }
     }
+
+    return SearchResponse(
+      results: finalResults,
+      providers: contributors,
+    );
+  }
+
+  BookSearchResult? _createRecommended(Map<BookSearchServer, List<BookSearchResult>> allResults) {
+    // Strategy: Take the first result of each provider and merge them if they seem to be the same book
+    // For now, let's just pick the "best" one if we only have one provider, 
+    // or merge the top ones if they share an ISBN or very similar title.
+    
+    final candidates = allResults.values.where((list) => list.isNotEmpty).map((list) => list.first).toList();
+    if (candidates.isEmpty) return null;
+
+    // Group candidates that look like the same book (by ISBN primarily)
+    final grouped = <String, List<BookSearchResult>>{};
+    for (final c in candidates) {
+      final key = c.isbn ?? c.title.toLowerCase().trim();
+      grouped.putIfAbsent(key, () => []).add(c);
+    }
+
+    // Pick the largest group (most consensus)
+    final bestGroup = grouped.values.reduce((a, b) => a.length >= b.length ? a : b);
+    
+    // Merge the best group
+    return _mergeResults(bestGroup);
+  }
+
+  BookSearchResult _mergeResults(List<BookSearchResult> group) {
+    if (group.length == 1) {
+      final r = group.first;
+      return BookSearchResult(
+        title: r.title,
+        author: r.author,
+        isbn: r.isbn,
+        publisher: r.publisher,
+        publishYear: r.publishYear,
+        totalPages: r.totalPages,
+        coverUrl: r.coverUrl,
+        openLibraryKey: r.openLibraryKey,
+        source: 'Openshelf Recommended',
+      );
+    }
+
+    // Aggregation logic
+    String title = '';
+    String author = '';
+    String? isbn;
+    String? publisher;
+    int? year;
+    int? pages;
+    String? cover;
+    String? olKey;
+
+    for (final r in group) {
+      // Preference: Longest title usually most descriptive
+      if (r.title.length > title.length) title = r.title;
+      // Preference: Non-empty author
+      if (author.isEmpty || (r.author.isNotEmpty && author == 'Unknown Author')) author = r.author;
+      
+      isbn ??= r.isbn;
+      publisher ??= r.publisher;
+      year ??= r.publishYear;
+      pages ??= r.totalPages;
+      cover ??= r.coverUrl;
+      olKey ??= r.openLibraryKey;
+    }
+
+    return BookSearchResult(
+      title: title,
+      author: author,
+      isbn: isbn,
+      publisher: publisher,
+      publishYear: year,
+      totalPages: pages,
+      coverUrl: cover,
+      openLibraryKey: olKey,
+      source: 'Openshelf Recommended',
+    );
+  }
+
+  String _getDedupeKey(BookSearchResult r) {
+    return r.isbn ?? r.openLibraryKey ?? '${r.title.toLowerCase()}_${r.author.toLowerCase()}';
   }
 
   Future<List<BookSearchResult>> _searchWith(
-      BookSearchServer s,
-      String query, {
-        required int limit,
-      }) {
+    BookSearchServer s,
+    String query, {
+    required int limit,
+  }) {
     return switch (s) {
       BookSearchServer.openLibrary =>
-          OpenLibraryService.search(query, limit: limit),
+        OpenLibraryService.search(query, limit: limit),
       BookSearchServer.googleBooks =>
-          GoogleBooksService.search(query, limit: limit, apiKey: googleBooksApiKey),
+        GoogleBooksService.search(query, limit: limit, apiKey: googleBooksApiKey),
+      BookSearchServer.inventaire =>
+        InventaireService.search(query, limit: limit),
     };
   }
 
-  static BookSearchServer _fallbackFor(BookSearchServer s) =>
-      s == BookSearchServer.openLibrary
-          ? BookSearchServer.googleBooks
-          : BookSearchServer.openLibrary;
-
-  static String _label(BookSearchServer s) =>
-      s == BookSearchServer.openLibrary ? 'Open Library' : 'Google Books';
+  static String _label(BookSearchServer s) => switch (s) {
+    BookSearchServer.openLibrary => 'Open Library',
+    BookSearchServer.googleBooks => 'Google Books',
+    BookSearchServer.inventaire => 'Inventaire.io',
+  };
 }
 
 final bookSearchServiceProvider = Provider<BookSearchService>((ref) {
   final settings = ref.watch(appSettingsProvider);
   return settings.maybeWhen(
     data: (s) => BookSearchService(
-      s.searchServer,
+      s.searchServers,
       googleBooksApiKey: s.googleBooksApiKey,
     ),
-    orElse: () => const BookSearchService(BookSearchServer.openLibrary),
+    orElse: () => const BookSearchService([
+      BookSearchServer.openLibrary,
+      BookSearchServer.googleBooks,
+      BookSearchServer.inventaire,
+    ]),
   );
 });
 
@@ -99,7 +204,7 @@ final bookSearchServiceProvider = Provider<BookSearchService>((ref) {
 
 class CoverCandidate {
   final String url;
-  final String source; // 'Open Library' | 'Google Books'
+  final String source;
 
   const CoverCandidate({required this.url, required this.source});
 }
@@ -124,6 +229,7 @@ class CoverSearchService {
       if (apiKey != null && apiKey.isNotEmpty) {
         tasks.add(_fromGoogleBooks(query: isbn, apiKey: apiKey));
       }
+      tasks.add(InventaireService.searchCovers(isbn));
     }
 
     // 2. Búsqueda por Texto (Título + Autor)
@@ -137,6 +243,7 @@ class CoverSearchService {
       if (apiKey != null && apiKey.isNotEmpty) {
         tasks.add(_fromGoogleBooks(query: textQuery, apiKey: apiKey));
       }
+      tasks.add(InventaireService.searchCovers(textQuery));
     }
 
     final allResults = await Future.wait(tasks);
@@ -158,9 +265,18 @@ class CoverSearchService {
     return candidates;
   }
 
-  // -------------------------------------------------------
-  // Open Library
-  // -------------------------------------------------------
+  /// Intercala listas para mezclar fuentes en lugar de agruparlas.
+  static List<CoverCandidate> _interleave(List<List<CoverCandidate>> lists) {
+    final result = <CoverCandidate>[];
+    final maxLen = lists.fold(0, (m, l) => l.length > m ? l.length : m);
+    for (var i = 0; i < maxLen; i++) {
+      for (final list in lists) {
+        if (i < list.length) result.add(list[i]);
+      }
+    }
+    return result;
+  }
+
   static Future<List<CoverCandidate>> _fromOpenLibrary({
     required String query,
   }) async {
@@ -217,9 +333,6 @@ class CoverSearchService {
     return candidates;
   }
 
-  // -------------------------------------------------------
-  // Google Books
-  // -------------------------------------------------------
   static Future<List<CoverCandidate>> _fromGoogleBooks({
     required String query,
     required String apiKey,
@@ -266,17 +379,5 @@ class CoverSearchService {
     } catch (_) {
       return [];
     }
-  }
-
-  /// Intercala listas para mezclar fuentes en lugar de agruparlas.
-  static List<CoverCandidate> _interleave(List<List<CoverCandidate>> lists) {
-    final result = <CoverCandidate>[];
-    final maxLen = lists.fold(0, (m, l) => l.length > m ? l.length : m);
-    for (var i = 0; i < maxLen; i++) {
-      for (final list in lists) {
-        if (i < list.length) result.add(list[i]);
-      }
-    }
-    return result;
   }
 }

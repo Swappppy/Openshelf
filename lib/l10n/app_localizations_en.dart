@@ -683,9 +683,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String bookSearchFallbackNotice(String provider) {
-    return 'No results from the main provider. Showing results from $provider.';
+  String bookSearchProvidersNotice(String providers) {
+    return 'Results from: $providers.';
   }
+
+  @override
+  String get bookSearchRecommended => 'RECOMMENDED BY OPENSHELF';
 
   @override
   String get bookSearchErrorNoApiKey =>

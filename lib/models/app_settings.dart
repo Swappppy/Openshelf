@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-enum BookSearchServer { openLibrary, googleBooks }
+enum BookSearchServer { 
+  openLibrary, 
+  googleBooks,
+  inventaire,
+}
 
 class AppSettings {
   final Color seedColor;
@@ -8,7 +12,7 @@ class AppSettings {
   final String? coversPath;
   final String? dbPath;
   final Locale? locale;
-  final BookSearchServer searchServer;
+  final List<BookSearchServer> searchServers;
   final String? googleBooksApiKey;
 
   const AppSettings({
@@ -17,7 +21,11 @@ class AppSettings {
     this.coversPath,
     this.dbPath,
     this.locale,
-    this.searchServer = BookSearchServer.openLibrary,
+    this.searchServers = const [
+      BookSearchServer.openLibrary,
+      BookSearchServer.googleBooks,
+      BookSearchServer.inventaire,
+    ],
     this.googleBooksApiKey,
   });
 
@@ -28,7 +36,7 @@ class AppSettings {
     String? dbPath,
     Locale? locale,
     bool clearLocale = false,
-    BookSearchServer? searchServer,
+    List<BookSearchServer>? searchServers,
     String? googleBooksApiKey,
     bool clearApiKey = false,
   }) =>
@@ -38,7 +46,7 @@ class AppSettings {
         coversPath: coversPath ?? this.coversPath,
         dbPath: dbPath ?? this.dbPath,
         locale: clearLocale ? null : (locale ?? this.locale),
-        searchServer: searchServer ?? this.searchServer,
+        searchServers: searchServers ?? this.searchServers,
         googleBooksApiKey:
         clearApiKey ? null : (googleBooksApiKey ?? this.googleBooksApiKey),
       );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/app_settings_controller.dart';
 import '../../models/app_settings.dart';
 import '../book_form/book_form_view.dart';
 import '../../models/book_search_result.dart';
@@ -63,9 +64,11 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
       if (mounted) {
         setState(() {
           _results = response.results;
-          _fallbackNotice = response.usedFallback != null
-              ? context.l10n.bookSearchFallbackNotice(response.usedFallback!)
-              : null;
+          if (response.providers.isNotEmpty) {
+            _fallbackNotice = context.l10n.bookSearchProvidersNotice(response.providers.join(', '));
+          } else {
+            _fallbackNotice = null;
+          }
           _loading = false;
         });
       }
@@ -149,6 +152,12 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     );
   }
 
+  String _label(BookSearchServer s) => switch (s) {
+    BookSearchServer.openLibrary => 'Open Library',
+    BookSearchServer.googleBooks => 'Google Books',
+    BookSearchServer.inventaire => 'Inventaire.io',
+  };
+
   Widget _buildBody(ColorScheme colorScheme) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
@@ -183,11 +192,13 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     }
 
     if (!_searched) {
-      final service = ref.watch(bookSearchServiceProvider);
-      final serverLabel = switch (service.server) {
-        BookSearchServer.openLibrary => 'Open Library',
-        BookSearchServer.googleBooks => 'Google Books',
-      };
+      final settings = ref.watch(appSettingsProvider).value;
+      final activeServers = settings?.searchServers ?? [
+        BookSearchServer.openLibrary,
+        BookSearchServer.googleBooks,
+        BookSearchServer.inventaire,
+      ];
+
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -201,18 +212,22 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
               ),
             ),
             const SizedBox(height: 6),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.public, size: 13, color: colorScheme.outline),
-                const SizedBox(width: 4),
-                Text(
-                  serverLabel,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colorScheme.outline,
+            Wrap(
+              spacing: 8,
+              alignment: WrapAlignment.center,
+              children: activeServers.map((s) => Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.public, size: 13, color: colorScheme.outline),
+                  const SizedBox(width: 4),
+                  Text(
+                    _label(s),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colorScheme.outline,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              )).toList(),
             ),
           ],
         ),
@@ -285,10 +300,12 @@ class _ResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final isRecommended = result.source == 'Openshelf Recommended';
 
     return InkWell(
       onTap: () => onTap(result),
-      child: Padding(
+      child: Container(
+        color: isRecommended ? colorScheme.primaryContainer.withValues(alpha: 0.15) : null,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,6 +333,25 @@ class _ResultTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (isRecommended)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          context.l10n.bookSearchRecommended,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.onPrimary,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   Text(
                     result.title,
                     style: theme.textTheme.bodyMedium?.copyWith(

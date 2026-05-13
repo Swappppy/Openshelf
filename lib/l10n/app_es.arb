@@ -680,11 +680,14 @@
     "placeholders": { "query": { "type": "String" } }
   },
 
-  "bookSearchFallbackNotice": "Sin resultados en el proveedor principal. Mostrando resultados de {provider}.",
-  "@bookSearchFallbackNotice": {
-    "description": "Aviso de fallback en búsqueda",
-    "placeholders": { "provider": { "type": "String" } }
+  "bookSearchProvidersNotice": "Resultados de: {providers}.",
+  "@bookSearchProvidersNotice": {
+    "description": "Aviso de proveedores que contribuyeron a la búsqueda",
+    "placeholders": { "providers": { "type": "String" } }
   },
+
+  "bookSearchRecommended": "RECOMENDADO POR OPENSHELF",
+  "@bookSearchRecommended": { "description": "Etiqueta para el resultado recomendado" },
 
   "bookSearchErrorNoApiKey": "Google Books requiere una clave de API.\nConfigúrala en Ajustes → Búsqueda de libros.",
   "@bookSearchErrorNoApiKey": { "description": "Error: falta API key de Google Books" },

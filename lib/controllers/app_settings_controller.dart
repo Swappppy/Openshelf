@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_settings.dart';
@@ -8,7 +9,7 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
   static const _keyThemeMode = 'themeMode';
   static const _keyCoversPath = 'coversPath';
   static const _keyDbPath = 'dbPath';
-  static const _keySearchServer = 'searchServer';
+  static const _keySearchServers = 'searchServers'; // Changed key
   static const _keyGoogleBooksApiKey = 'googleBooksApiKey';
   static const _keyLocale = 'locale';
 
@@ -16,6 +17,16 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
   Future<AppSettings> build() async {
     final prefs = ref.watch(sharedPrefsProvider);
     final localeCode = prefs.getString(_keyLocale);
+    final serversJson = prefs.getString(_keySearchServers);
+    
+    List<BookSearchServer>? servers;
+    if (serversJson != null) {
+      try {
+        final list = jsonDecode(serversJson) as List;
+        servers = list.map((e) => BookSearchServer.values[e as int]).toList();
+      } catch (_) {}
+    }
+
     return AppSettings(
       seedColor: Color(
         prefs.getInt(_keySeedColor) ?? const Color(0xFF6B4E3D).toARGB32(),
@@ -24,8 +35,11 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
       coversPath: prefs.getString(_keyCoversPath),
       dbPath: prefs.getString(_keyDbPath),
       locale: localeCode != null ? Locale(localeCode) : null,
-      searchServer: BookSearchServer.values[
-      prefs.getInt(_keySearchServer) ?? 0],
+      searchServers: servers ?? const [
+        BookSearchServer.openLibrary,
+        BookSearchServer.googleBooks,
+        BookSearchServer.inventaire,
+      ],
       googleBooksApiKey: prefs.getString(_keyGoogleBooksApiKey),
     );
   }
@@ -45,7 +59,10 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
     } else {
       await prefs.remove(_keyLocale);
     }
-    await prefs.setInt(_keySearchServer, s.searchServer.index);
+    
+    final serversJson = jsonEncode(s.searchServers.map((e) => e.index).toList());
+    await prefs.setString(_keySearchServers, serversJson);
+
     if (s.googleBooksApiKey != null) {
       await prefs.setString(_keyGoogleBooksApiKey, s.googleBooksApiKey!);
     } else {
@@ -74,9 +91,9 @@ class AppSettingsController extends AsyncNotifier<AppSettings> {
     await _save(current.copyWith(dbPath: path));
   }
 
-  Future<void> setSearchServer(BookSearchServer server) async {
+  Future<void> setSearchServers(List<BookSearchServer> servers) async {
     final current = state.value ?? const AppSettings();
-    await _save(current.copyWith(searchServer: server));
+    await _save(current.copyWith(searchServers: servers));
   }
 
   Future<void> setLocale(Locale? locale) async {

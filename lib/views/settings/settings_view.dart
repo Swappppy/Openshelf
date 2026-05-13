@@ -219,23 +219,27 @@ class _SettingsBody extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  RadioGroup<BookSearchServer>(
-                    groupValue: settings.searchServer,
-                    onChanged: (v) {
-                      if (v != null) controller.setSearchServer(v);
+                  ReorderableListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onReorder: (oldIndex, newIndex) {
+                      final list = List<BookSearchServer>.from(settings.searchServers);
+                      if (newIndex > oldIndex) newIndex -= 1;
+                      final item = list.removeAt(oldIndex);
+                      list.insert(newIndex, item);
+                      controller.setSearchServers(list);
                     },
-                    child: Column(
-                      children: BookSearchServer.values.map((server) => RadioListTile(
-                        value: server,
-                        title: Text(_serverLabel(context, server)),
-                        subtitle: Text(_serverUrl(server),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: colorScheme.outline)),
-                        contentPadding: EdgeInsets.zero,
-                      )).toList(),
-                    ),
+                    children: settings.searchServers.map((server) => ListTile(
+                      key: ValueKey(server),
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.drag_handle),
+                      title: Text(_serverLabel(context, server)),
+                      subtitle: Text(_serverUrl(server),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: colorScheme.outline)),
+                    )).toList(),
                   ),
                 ],
               ),
@@ -260,6 +264,8 @@ class _SettingsBody extends ConsumerWidget {
         return 'Open Library';
       case BookSearchServer.googleBooks:
         return 'Google Books';
+      case BookSearchServer.inventaire:
+        return 'Inventaire.io';
     }
   }
 
@@ -269,6 +275,8 @@ class _SettingsBody extends ConsumerWidget {
         return 'openlibrary.org';
       case BookSearchServer.googleBooks:
         return 'books.googleapis.com';
+      case BookSearchServer.inventaire:
+        return 'inventaire.io';
     }
   }
 

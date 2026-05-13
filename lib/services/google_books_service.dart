@@ -89,6 +89,7 @@ class GoogleBooksService {
       totalPages: info['pageCount'] as int?,
       coverUrl: coverUrl,
       openLibraryKey: null,
+      source: 'Google Books',
     );
   }
 }
