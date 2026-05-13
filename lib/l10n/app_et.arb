@@ -20,5 +20,9 @@
                 "type": "String"
             }
         }
+    },
+    "navLibrary": "Raamatukogu",
+    "@navLibrary": {
+        "description": "Pestaña de navegación: biblioteca"
     }
 }
