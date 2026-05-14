@@ -1,35 +1,39 @@
 import 'package:flutter/material.dart';
 
+/// A colorful chip for displaying book categories (tags).
 class TagChip extends StatelessWidget {
   final String label;
   final String? colorHex;
-  final VoidCallback? onTap;
   final VoidCallback? onDeleted;
+  final VoidCallback? onTap;
 
   const TagChip({
     super.key,
     required this.label,
     this.colorHex,
-    this.onTap,
     this.onDeleted,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = colorHex != null
-        ? Color(int.parse('0xFF$colorHex'))
-        : Theme.of(context).colorScheme.secondaryContainer;
-    final textColor = colorHex != null
-        ? _contrastColor(baseColor)
-        : Theme.of(context).colorScheme.onSecondaryContainer;
+    final theme = Theme.of(context);
+    
+    // Parse the hex color or use the theme's secondary container as fallback.
+    final color = colorHex != null 
+        ? Color(int.parse('0xFF$colorHex')) 
+        : theme.colorScheme.secondaryContainer;
+        
+    final textColor = colorHex != null 
+        ? color 
+        : theme.colorScheme.onSecondaryContainer;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 24,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: baseColor.withValues(alpha: 0.18),
+          color: color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
@@ -37,11 +41,9 @@ class TagChip extends StatelessWidget {
           children: [
             Text(
               label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: colorHex != null ? baseColor : textColor,
-                height: 1,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: textColor,
+                fontWeight: FontWeight.bold,
               ),
             ),
             if (onDeleted != null) ...[
@@ -50,10 +52,8 @@ class TagChip extends StatelessWidget {
                 onTap: onDeleted,
                 child: Icon(
                   Icons.close,
-                  size: 12,
-                  color: colorHex != null
-                      ? baseColor.withValues(alpha: 0.7)
-                      : textColor.withValues(alpha: 0.7),
+                  size: 14,
+                  color: textColor.withValues(alpha: 0.7),
                 ),
               ),
             ],
@@ -61,10 +61,5 @@ class TagChip extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color _contrastColor(Color bg) {
-    final luminance = bg.computeLuminance();
-    return luminance > 0.4 ? Colors.black87 : Colors.white;
   }
 }

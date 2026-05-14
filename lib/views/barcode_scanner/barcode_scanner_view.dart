@@ -8,6 +8,8 @@ import '../../l10n/l10n_extension.dart';
 import 'dart:async';
 import 'dart:io';
 
+/// A unified scanner view that combines standard barcode scanning with OCR text recognition.
+/// This allows capturing both traditional barcodes and printed ISBN text.
 class BarcodeScannerView extends StatefulWidget {
   const BarcodeScannerView({super.key});
 
@@ -16,10 +18,10 @@ class BarcodeScannerView extends StatefulWidget {
 }
 
 class _BarcodeScannerViewState extends State<BarcodeScannerView> {
-  // MobileScanner - solo para barcodes
+  // MobileScanner - used for high-performance barcode detection.
   late MobileScannerController _scannerController;
 
-  // Camera - solo para OCR
+  // Standard Camera package - used for periodic OCR snapshots.
   CameraController? _cameraController;
 
   final TextRecognizer _textRecognizer = TextRecognizer();
@@ -45,6 +47,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
           returnImage: false,
         );
         await _initCameraForOcr();
+        // Periodically run OCR on camera snapshots.
         _ocrTimer = Timer.periodic(
           const Duration(milliseconds: 1500),
               (_) => _runOcr(),
@@ -57,6 +60,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
     }
   }
 
+  /// Initializes the secondary camera controller for OCR snapshots.
   Future<void> _initCameraForOcr() async {
     try {
       final cameras = await availableCameras();
@@ -85,7 +89,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
     super.dispose();
   }
 
-  // Solo barcodes
+  /// Callback when the MobileScanner detects a valid barcode.
   Future<void> _processBarcode(BarcodeCapture capture) async {
     if (_isPopped) return;
     for (final barcode in capture.barcodes) {
@@ -97,7 +101,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
     }
   }
 
-  // OCR via camera package
+  /// Captures a frame and runs ML Kit Text Recognition to find printed ISBNs.
   Future<void> _runOcr() async {
     if (_isPopped || _isProcessingOcr) return;
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -105,15 +109,12 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
     _isProcessingOcr = true;
     try {
       final xFile = await _cameraController!.takePicture();
-      debugPrint('OCR: captured image at ${xFile.path}');
-
       final inputImage = InputImage.fromFilePath(xFile.path);
       final result = await _textRecognizer.processImage(inputImage);
 
-      // Limpiar archivo temporal
+      // Clean up temporary image immediately.
       await File(xFile.path).delete();
 
-      debugPrint('OCR text: "${result.text}"');
       final isbn = _extractIsbn(result.text);
       if (isbn != null) _onFound(isbn);
     } catch (e) {
@@ -123,17 +124,21 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
     }
   }
 
+  /// Heuristically extracts a valid ISBN from recognized text lines.
   String? _extractIsbn(String text) {
     final lines = text.split('\n');
     for (final line in lines) {
+      // Remove common separators
       final clean = line.replaceAll(RegExp(r'[-\s]'), '');
 
+      // Check for ISBN-13
       final isbn13Match = RegExp(r'(97[89]\d{10})').firstMatch(clean);
       if (isbn13Match != null) {
         final candidate = isbn13Match.group(1)!;
         if (_validateIsbn13(candidate)) return candidate;
       }
 
+      // Check for ISBN-10
       final isbn10Match = RegExp(r'(\d{9}[\dX])').firstMatch(clean);
       if (isbn10Match != null) {
         final candidate = isbn10Match.group(1)!;
@@ -143,6 +148,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
     return null;
   }
 
+  /// ISBN-13 Checksum validation.
   bool _validateIsbn13(String isbn) {
     if (isbn.length != 13) return false;
     int sum = 0;
@@ -155,6 +161,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
     return check == int.tryParse(isbn[12]);
   }
 
+  /// ISBN-10 Checksum validation.
   bool _validateIsbn10(String isbn) {
     if (isbn.length != 10) return false;
     int sum = 0;
@@ -172,7 +179,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
 
   void _onFound(String code) {
     if (_isPopped) return;
-    debugPrint('Scanner SUCCESS: $code');
+    debugPrint('Scanner found valid code: $code');
     _isPopped = true;
     _ocrTimer?.cancel();
     HapticFeedback.mediumImpact();
@@ -246,6 +253,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
             fit: BoxFit.cover,
             onDetect: _processBarcode,
           ),
+          // Visual scanning guide frame
           Center(
             child: Container(
               width: 280,

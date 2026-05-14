@@ -91,6 +91,11 @@
   "filterImprintLabel": "Imprint",
   "@filterImprintLabel": { "description": "Imprint filter label" },
 
+  "imprintBookCount": "{count} books",
+  "@imprintBookCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
   "filterTagsLabel": "Categories",
   "@filterTagsLabel": { "description": "Categories filter label" },
 
@@ -265,6 +270,9 @@
   "statusAbandoned": "Abandoned",
   "@statusAbandoned": { "description": "Status: abandoned" },
 
+  "statusPaused": "Paused",
+  "@statusPaused": { "description": "Status: paused" },
+
   "formatPaperback": "Paperback",
   "@formatPaperback": { "description": "Format: paperback" },
 
@@ -389,6 +397,9 @@
   "shelfAbandoned": "Abandoned",
   "@shelfAbandoned": { "description": "Abandoned shelf" },
 
+  "shelfPaused": "Paused",
+  "@shelfPaused": { "description": "Paused shelf" },
+
   "shelfNewTooltip": "New shelf",
   "@shelfNewTooltip": { "description": "New shelf tooltip" },
 
@@ -469,6 +480,9 @@
 
   "shelfStatusLabelAbandoned": "Abandoned",
   "@shelfStatusLabelAbandoned": { "description": "Abandoned status label" },
+
+  "shelfStatusLabelPaused": "Paused",
+  "@shelfStatusLabelPaused": { "description": "Paused status label" },
 
   "managementCategories": "Categories",
   "@managementCategories": { "description": "Management: categories" },
@@ -688,6 +702,15 @@
 
   "bookSearchRecommended": "RECOMMENDED BY OPENSHELF",
   "@bookSearchRecommended": { "description": "Label for recommended result" },
+
+  "bookDuplicateTitle": "Duplicate Book",
+  "@bookDuplicateTitle": { "description": "Duplicate book warning title" },
+
+  "bookDuplicateContent": "You already have a book with ISBN {isbn} in your library.",
+  "@bookDuplicateContent": {
+    "description": "Duplicate book warning content",
+    "placeholders": { "isbn": { "type": "String" } }
+  },
 
   "bookSearchErrorNoApiKey": "Google Books requires an API key.\nConfigure it in Settings → Book Search.",
   "@bookSearchErrorNoApiKey": { "description": "Error: no API key" },

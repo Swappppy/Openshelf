@@ -26,7 +26,7 @@ void main() async {
     );
   } catch (e) {
     // Fail-safe: If SharedPreferences fails even after retries, 
-    // run the app anyway (it might show an error UI or use defaults)
+    // run the app with defaults or show a critical error UI.
     debugPrint('Critical initialization error: $e');
     runApp(
       MaterialApp(
@@ -52,12 +52,13 @@ void main() async {
   }
 }
 
+/// Robustly retrieves SharedPreferences with a retry mechanism.
+/// This addresses common race conditions or 'channel-error' issues during fast hot restarts.
 Future<SharedPreferences> _getSharedPreferences() async {
   int retries = 0;
   const maxRetries = 10;
   
-  // Give the engine a moment to settle after a hot restart
-  // Increased to 300ms for devices with extremely fast hot restart
+  // Give the Flutter engine a moment to settle after a hot restart.
   await Future.delayed(const Duration(milliseconds: 300));
 
   while (retries < maxRetries) {
@@ -66,7 +67,7 @@ Future<SharedPreferences> _getSharedPreferences() async {
     } on PlatformException catch (e) {
       if (e.code == 'channel-error') {
         retries++;
-        // Incremental delay: 100ms, 200ms, 300ms...
+        // Incremental delay to give the platform channel time to recover.
         await Future.delayed(Duration(milliseconds: 100 * retries));
         continue;
       }
@@ -83,7 +84,7 @@ Future<SharedPreferences> _getSharedPreferences() async {
     }
   }
   
-  // Final attempt if loop finishes
+  // Final desperate attempt.
   return await SharedPreferences.getInstance();
 }
 
@@ -92,48 +93,26 @@ class OpenshelfApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settingsAsync = ref.watch(appSettingsProvider);
+    final settings = ref.watch(appSettingsProvider);
 
-    return settingsAsync.when(
-      loading: () => const MaterialApp(
-        home: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
-      ),
-      error: (e, _) => MaterialApp(
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('es'),
-          Locale('en'),
-        ],
-        home: Scaffold(body: Center(child: Builder(
-          builder: (context) => Text(context.l10n.errorPrefix(e.toString())),
-        ))),
-      ),
-      data: (settings) => MaterialApp(
-        onGenerateTitle: (context) => context.l10n.appTitle,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(settings.seedColor),
-        darkTheme: AppTheme.dark(settings.seedColor),
-        themeMode: settings.themeMode,
-        locale: settings.locale,
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('es'),
-          Locale('en'),
-        ],
-        home: const LibraryView(),
-      ),
+    return MaterialApp(
+      onGenerateTitle: (context) => context.l10n.appTitle,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light(settings.seedColor),
+      darkTheme: AppTheme.dark(settings.seedColor),
+      themeMode: settings.themeMode,
+      locale: settings.locale,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es'),
+        Locale('en'),
+      ],
+      home: const LibraryView(),
     );
   }
 }

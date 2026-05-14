@@ -1,383 +1,287 @@
-import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/book_search_result.dart';
+import 'package:flutter/foundation.dart';
 import '../models/app_settings.dart';
-import '../controllers/app_settings_controller.dart';
-import 'open_library_service.dart';
+import '../models/book_search_result.dart';
 import 'google_books_service.dart';
+import 'open_library_service.dart';
 import 'inventaire_service.dart';
 
-// -------------------------------------------------------
-// Búsqueda de Libros (Resultados completos)
-// -------------------------------------------------------
-
-class SearchResponse {
-  final List<BookSearchResult> results;
-  /// Lista de proveedores que contribuyeron resultados, en orden de aparición.
-  final List<String> providers;
-
-  const SearchResponse({required this.results, required this.providers});
-}
-
-class BookSearchService {
-  final List<BookSearchServer> servers;
-  final String? googleBooksApiKey;
-
-  const BookSearchService(this.servers, {this.googleBooksApiKey});
-
-  Future<SearchResponse> search(String query, {int limit = 20}) async {
-    final allProviderResults = <BookSearchServer, List<BookSearchResult>>{};
-    final contributors = <String>[];
-
-    // 1. Fetch all results from all active servers
-    await Future.wait(servers.map((server) async {
-      try {
-        final results = await _searchWith(server, query, limit: limit);
-        if (results.isNotEmpty) {
-          allProviderResults[server] = results;
-          contributors.add(_label(server));
-        }
-      } catch (e) {
-        debugPrint('Search error with ${_label(server)}: $e');
-      }
-    }));
-
-    if (allProviderResults.isEmpty) {
-      return const SearchResponse(results: [], providers: []);
-    }
-
-    // 2. Create the "Recommended by Openshelf" result
-    final recommended = _createRecommended(allProviderResults);
-
-    // 3. Flatten and deduplicate remaining results
-    final finalResults = <BookSearchResult>[];
-    if (recommended != null) {
-      finalResults.add(recommended);
-    }
-
-    final seenKeys = <String>{};
-    if (recommended != null) {
-      seenKeys.add(_getDedupeKey(recommended));
-    }
-
-    // Add remaining results in user-preferred order
-    for (final server in servers) {
-      final results = allProviderResults[server];
-      if (results == null) continue;
-
-      for (final r in results) {
-        final key = _getDedupeKey(r);
-        if (!seenKeys.contains(key)) {
-          finalResults.add(r);
-          seenKeys.add(key);
-        }
-      }
-    }
-
-    return SearchResponse(
-      results: finalResults,
-      providers: contributors,
-    );
-  }
-
-  BookSearchResult? _createRecommended(Map<BookSearchServer, List<BookSearchResult>> allResults) {
-    // Strategy: Take the first result of each provider and merge them if they seem to be the same book
-    // For now, let's just pick the "best" one if we only have one provider, 
-    // or merge the top ones if they share an ISBN or very similar title.
-    
-    final candidates = allResults.values.where((list) => list.isNotEmpty).map((list) => list.first).toList();
-    if (candidates.isEmpty) return null;
-
-    // Group candidates that look like the same book (by ISBN primarily)
-    final grouped = <String, List<BookSearchResult>>{};
-    for (final c in candidates) {
-      final key = c.isbn ?? c.title.toLowerCase().trim();
-      grouped.putIfAbsent(key, () => []).add(c);
-    }
-
-    // Pick the largest group (most consensus)
-    final bestGroup = grouped.values.reduce((a, b) => a.length >= b.length ? a : b);
-    
-    // Merge the best group
-    return _mergeResults(bestGroup);
-  }
-
-  BookSearchResult _mergeResults(List<BookSearchResult> group) {
-    if (group.length == 1) {
-      final r = group.first;
-      return BookSearchResult(
-        title: r.title,
-        author: r.author,
-        isbn: r.isbn,
-        publisher: r.publisher,
-        publishYear: r.publishYear,
-        totalPages: r.totalPages,
-        coverUrl: r.coverUrl,
-        openLibraryKey: r.openLibraryKey,
-        source: 'Openshelf Recommended',
-      );
-    }
-
-    // Aggregation logic
-    String title = '';
-    String author = '';
-    String? isbn;
-    String? publisher;
-    int? year;
-    int? pages;
-    String? cover;
-    String? olKey;
-
-    for (final r in group) {
-      // Preference: Longest title usually most descriptive
-      if (r.title.length > title.length) title = r.title;
-      // Preference: Non-empty author
-      if (author.isEmpty || (r.author.isNotEmpty && author == 'Unknown Author')) author = r.author;
-      
-      isbn ??= r.isbn;
-      publisher ??= r.publisher;
-      year ??= r.publishYear;
-      pages ??= r.totalPages;
-      cover ??= r.coverUrl;
-      olKey ??= r.openLibraryKey;
-    }
-
-    return BookSearchResult(
-      title: title,
-      author: author,
-      isbn: isbn,
-      publisher: publisher,
-      publishYear: year,
-      totalPages: pages,
-      coverUrl: cover,
-      openLibraryKey: olKey,
-      source: 'Openshelf Recommended',
-    );
-  }
-
-  String _getDedupeKey(BookSearchResult r) {
-    return r.isbn ?? r.openLibraryKey ?? '${r.title.toLowerCase()}_${r.author.toLowerCase()}';
-  }
-
-  Future<List<BookSearchResult>> _searchWith(
-    BookSearchServer s,
-    String query, {
-    required int limit,
-  }) {
-    return switch (s) {
-      BookSearchServer.openLibrary =>
-        OpenLibraryService.search(query, limit: limit),
-      BookSearchServer.googleBooks =>
-        GoogleBooksService.search(query, limit: limit, apiKey: googleBooksApiKey),
-      BookSearchServer.inventaire =>
-        InventaireService.search(query, limit: limit),
-    };
-  }
-
-  static String _label(BookSearchServer s) => switch (s) {
-    BookSearchServer.openLibrary => 'Open Library',
-    BookSearchServer.googleBooks => 'Google Books',
-    BookSearchServer.inventaire => 'Inventaire.io',
-  };
-}
-
-final bookSearchServiceProvider = Provider<BookSearchService>((ref) {
-  final settings = ref.watch(appSettingsProvider);
-  return settings.maybeWhen(
-    data: (s) => BookSearchService(
-      s.searchServers,
-      googleBooksApiKey: s.googleBooksApiKey,
-    ),
-    orElse: () => const BookSearchService([
-      BookSearchServer.openLibrary,
-      BookSearchServer.googleBooks,
-      BookSearchServer.inventaire,
-    ]),
-  );
-});
-
-// -------------------------------------------------------
-// Búsqueda de Portadas (Candidatos de imagen)
-// -------------------------------------------------------
-
+/// Represents a potential cover image found online.
 class CoverCandidate {
   final String url;
   final String source;
-
-  const CoverCandidate({required this.url, required this.source});
+  CoverCandidate({required this.url, required this.source});
 }
 
+/// Specialized service for finding alternative cover images for a book.
 class CoverSearchService {
-  static const _timeout = Duration(seconds: 10);
-
-  /// Busca portadas para un libro. Busca por ISBN y por Texto (Título/Autor)
-  /// para maximizar resultados, y elimina duplicados.
+  /// Searches for potential cover images across multiple providers using book metadata.
   static Future<List<CoverCandidate>> search({
     String? isbn,
     String? title,
     String? author,
     String? publisher,
     String? apiKey,
+    List<BookSearchServer> servers = const [
+      BookSearchServer.googleBooks,
+      BookSearchServer.openLibrary,
+      BookSearchServer.inventaire,
+    ],
   }) async {
-    final tasks = <Future<List<CoverCandidate>>>[];
-
-    // 1. Búsqueda por ISBN (si existe)
-    if (isbn != null && isbn.isNotEmpty) {
-      tasks.add(_fromOpenLibrary(query: 'isbn:$isbn'));
-      if (apiKey != null && apiKey.isNotEmpty) {
-        tasks.add(_fromGoogleBooks(query: isbn, apiKey: apiKey));
-      }
-      tasks.add(InventaireService.searchCovers(isbn));
-    }
-
-    // 2. Búsqueda por Texto (Título + Autor)
-    final textQuery = [
-      if (title != null && title.isNotEmpty) title,
-      if (author != null && author.isNotEmpty) author,
-    ].join(' ').trim();
-
-    if (textQuery.isNotEmpty) {
-      tasks.add(_fromOpenLibrary(query: textQuery));
-      if (apiKey != null && apiKey.isNotEmpty) {
-        tasks.add(_fromGoogleBooks(query: textQuery, apiKey: apiKey));
-      }
-      tasks.add(InventaireService.searchCovers(textQuery));
-    }
-
-    final allResults = await Future.wait(tasks);
-
-    // De-duplicación por URL y preservación de orden (intercalado original)
-    final candidates = <CoverCandidate>[];
+    final List<CoverCandidate> candidates = [];
     final seenUrls = <String>{};
 
-    // Usamos el intercalado para mantener variedad de fuentes si es posible
-    final interleaved = _interleave(allResults);
-
-    for (final c in interleaved) {
-      if (!seenUrls.contains(c.url)) {
-        candidates.add(c);
-        seenUrls.add(c.url);
+    void addCandidate(String url, String source) {
+      if (!seenUrls.contains(url)) {
+        candidates.add(CoverCandidate(url: url, source: source));
+        seenUrls.add(url);
       }
     }
-
-    return candidates;
-  }
-
-  /// Intercala listas para mezclar fuentes en lugar de agruparlas.
-  static List<CoverCandidate> _interleave(List<List<CoverCandidate>> lists) {
-    final result = <CoverCandidate>[];
-    final maxLen = lists.fold(0, (m, l) => l.length > m ? l.length : m);
-    for (var i = 0; i < maxLen; i++) {
-      for (final list in lists) {
-        if (i < list.length) result.add(list[i]);
-      }
-    }
-    return result;
-  }
-
-  static Future<List<CoverCandidate>> _fromOpenLibrary({
-    required String query,
-  }) async {
-    final candidates = <CoverCandidate>[];
-
-    try {
-      final uri = Uri.parse('https://openlibrary.org/search.json').replace(
-        queryParameters: {
-          'q': query,
-          'limit': '15',
-          'fields': 'cover_i,isbn,cover_edition_key',
-        },
-      );
-
-      final response = await http.get(uri).timeout(_timeout);
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        final docs = (body['docs'] as List<dynamic>? ?? [])
-            .cast<Map<String, dynamic>>();
-
-        for (final doc in docs) {
-          // cover_i directo
-          final coverId = doc['cover_i'];
-          if (coverId != null) {
-            candidates.add(CoverCandidate(
-              url: 'https://covers.openlibrary.org/b/id/$coverId-L.jpg',
-              source: 'Open Library',
-            ));
+    
+    // 1. ISBN Search (High confidence)
+    if (isbn != null) {
+      final isbnTasks = servers.map((server) async {
+        try {
+          switch (server) {
+            case BookSearchServer.googleBooks:
+              final res = await GoogleBooksService.getByIsbn(isbn, apiKey: apiKey);
+              if (res?.coverUrl != null) {
+                debugPrint('CoverSearch: Found ISBN cover from Google: ${res!.coverUrl}');
+                addCandidate(res.coverUrl!, 'Google Books');
+              }
+              break;
+            case BookSearchServer.openLibrary:
+              final res = await OpenLibraryService.getByIsbn(isbn);
+              if (res?.coverUrl != null) {
+                debugPrint('CoverSearch: Found ISBN cover from OL: ${res!.coverUrl}');
+                addCandidate(res.coverUrl!, 'Open Library');
+              }
+              break;
+            case BookSearchServer.inventaire:
+              final res = await InventaireService.getByIsbn(isbn);
+              if (res?.coverUrl != null) {
+                debugPrint('CoverSearch: Found ISBN cover from Inventaire: ${res!.coverUrl}');
+                addCandidate(res.coverUrl!, 'Inventaire');
+              }
+              break;
           }
-          // ISBNs del doc
-          final isbns = doc['isbn'];
-          if (isbns is List) {
-            for (final altIsbn in isbns.cast<String>().take(4)) {
-              candidates.add(CoverCandidate(
-                url: 'https://covers.openlibrary.org/b/isbn/$altIsbn-L.jpg?default=false',
-                source: 'Open Library',
-              ));
+        } catch (e) {
+          debugPrint('CoverSearch: ISBN Error from ${server.name}: $e');
+        }
+      });
+      await Future.wait(isbnTasks);
+    }
+    
+    // 2. Title Search (Fallback or supplementary)
+    // We always perform title search if we have few results, or if the user wants more.
+    if (title != null && candidates.length < 10) {
+      final query = '$title ${author ?? ''}'.trim();
+      final titleTasks = servers.map((server) async {
+        try {
+          List<BookSearchResult> results = [];
+          switch (server) {
+            case BookSearchServer.googleBooks:
+              results = await GoogleBooksService.search(query, apiKey: apiKey);
+              break;
+            case BookSearchServer.openLibrary:
+              results = await OpenLibraryService.search(query);
+              break;
+            case BookSearchServer.inventaire:
+              results = await InventaireService.search(query);
+              break;
+          }
+          debugPrint('CoverSearch: ${server.name} found ${results.length} results by title');
+          for (final res in results) {
+            if (res.coverUrl != null) {
+              debugPrint('CoverSearch: Adding cover from ${server.name}: ${res.coverUrl}');
+              addCandidate(res.coverUrl!, server.name);
             }
           }
-          // OLID
-          final editionKey = doc['cover_edition_key'] as String?;
-          if (editionKey != null) {
-            candidates.add(CoverCandidate(
-              url: 'https://covers.openlibrary.org/b/olid/$editionKey-L.jpg?default=false',
-              source: 'Open Library',
-            ));
-          }
+        } catch (e) {
+          debugPrint('CoverSearch: Title Error from ${server.name}: $e');
         }
-      }
-    } catch (e) {
-      debugPrint('OL cover search error: $e');
+      });
+      await Future.wait(titleTasks);
     }
-
+    
     return candidates;
   }
+}
 
-  static Future<List<CoverCandidate>> _fromGoogleBooks({
-    required String query,
-    required String apiKey,
+/// Orchestrates multi-provider book searches and merges results intelligently.
+class BookSearchService {
+  /// Queries specified providers in parallel for a general search.
+  static Future<List<BookSearchResult>> searchAll(
+    String query, {
+    required List<BookSearchServer> servers,
+    String? googleApiKey,
   }) async {
-    try {
-      final uri =
-      Uri.parse('https://www.googleapis.com/books/v1/volumes').replace(
-        queryParameters: {
-          'q': query,
-          'maxResults': '10',
-          'printType': 'books',
-          'key': apiKey,
-        },
-      );
+    final cleanIsbn = query.replaceAll(RegExp(r'[^0-9X]'), '');
+    final isIsbn = (cleanIsbn.length == 10 || cleanIsbn.length == 13) && RegExp(r'^[0-9]+X?$').hasMatch(cleanIsbn);
 
-      final response = await http.get(uri).timeout(_timeout);
-      if (response.statusCode != 200) return [];
-
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
-      final items = (body['items'] as List<dynamic>? ?? [])
-          .cast<Map<String, dynamic>>();
-
-      final candidates = <CoverCandidate>[];
-      for (final item in items) {
-        final info =
-            item['volumeInfo'] as Map<String, dynamic>? ?? {};
-        final links =
-        info['imageLinks'] as Map<String, dynamic>?;
-        if (links == null) continue;
-
-        for (final key in ['extraLarge', 'large', 'medium', 'thumbnail']) {
-          final raw = links[key] as String?;
-          if (raw != null) {
-            final url = raw
-                .replaceFirst('http://', 'https://')
-                .replaceAll('&zoom=1', '&zoom=0');
-            candidates.add(
-                CoverCandidate(url: url, source: 'Google Books'));
-            break;
+    final tasks = servers.map((server) async {
+      List<BookSearchResult> results = [];
+      try {
+        if (isIsbn) {
+          // If it's an ISBN, try specific lookup first as it's higher confidence
+          BookSearchResult? isbnRes;
+          switch (server) {
+            case BookSearchServer.googleBooks:
+              isbnRes = await GoogleBooksService.getByIsbn(cleanIsbn, apiKey: googleApiKey);
+              break;
+            case BookSearchServer.openLibrary:
+              isbnRes = await OpenLibraryService.getByIsbn(cleanIsbn);
+              break;
+            case BookSearchServer.inventaire:
+              isbnRes = await InventaireService.getByIsbn(cleanIsbn);
+              break;
           }
+          if (isbnRes != null) {
+            results.add(isbnRes);
+            // If we found an exact ISBN match, we don't need to do a general search on this provider
+            // to avoid duplicates like "Work" vs "Edition" for the same book.
+            debugPrint('BookSearchService: Found exact ISBN match for ${server.name}');
+          } else {
+            // Only try general search if ISBN lookup failed
+            results.addAll(await _performGeneralSearch(server, query, googleApiKey));
+          }
+        } else {
+          // Normal search for non-ISBN queries
+          results.addAll(await _performGeneralSearch(server, query, googleApiKey));
+        }
+
+        debugPrint('BookSearchService: ${server.name} returned ${results.length} results');
+      } catch (e) {
+        debugPrint('BookSearchService: Error from ${server.name}: $e');
+      }
+      return results;
+    });
+
+    final allResults = await Future.wait(tasks);
+    final flattened = allResults.expand((e) => e).toList();
+    debugPrint('BookSearchService: Total flattened results: ${flattened.length}');
+
+    // Create a "Recommended" summary if we have high-confidence matches.
+    if (flattened.isNotEmpty) {
+      final merged = _mergeResults(flattened);
+      if (merged != null) {
+        debugPrint('BookSearchService: Prepending merged recommended result');
+        // If it's an ISBN search, the recommended result is often identical to the provider result
+        // Check for duplicates before prepending
+        if (!flattened.any((r) => r.isbn == merged.isbn && r.title == merged.title)) {
+          return [merged, ...flattened];
         }
       }
-      return candidates;
-    } catch (_) {
-      return [];
     }
+
+    return flattened;
+  }
+
+  static Future<List<BookSearchResult>> _performGeneralSearch(
+    BookSearchServer server,
+    String query,
+    String? googleApiKey,
+  ) async {
+    switch (server) {
+      case BookSearchServer.googleBooks:
+        return await GoogleBooksService.search(query, apiKey: googleApiKey);
+      case BookSearchServer.openLibrary:
+        return await OpenLibraryService.search(query);
+      case BookSearchServer.inventaire:
+        return await InventaireService.search(query);
+    }
+  }
+
+  /// Queries specified providers in parallel using an ISBN.
+  static Future<List<BookSearchResult>> searchByIsbn(
+    String isbn, {
+    required List<BookSearchServer> servers,
+    String? googleApiKey,
+  }) async {
+    final tasks = servers.map((server) async {
+      try {
+        switch (server) {
+          case BookSearchServer.googleBooks:
+            return await GoogleBooksService.getByIsbn(isbn, apiKey: googleApiKey);
+          case BookSearchServer.openLibrary:
+            return await OpenLibraryService.getByIsbn(isbn);
+          case BookSearchServer.inventaire:
+            return await InventaireService.getByIsbn(isbn);
+        }
+      } catch (e) {
+        debugPrint('BookSearchService: ISBN Error from ${server.name}: $e');
+        return null;
+      }
+    });
+
+    final allResults = await Future.wait(tasks);
+    final valid = allResults.whereType<BookSearchResult>().toList();
+
+    if (valid.isNotEmpty) {
+      final merged = _mergeResults(valid);
+      if (merged != null) {
+        // Only return the best merged result for specific ISBN lookups.
+        return [merged];
+      }
+    }
+
+    return valid;
+  }
+
+  /// Heuristically merges multiple search results into one "Best of" result.
+  /// It prioritizes the longest title, most resolved authors, and highest resolution cover.
+  static BookSearchResult? _mergeResults(List<BookSearchResult> results) {
+    if (results.isEmpty) return null;
+    if (results.length == 1) return results.first;
+
+    String bestTitle = results.first.title;
+    List<String> bestAuthors = results.first.authors;
+    String? bestIsbn = results.first.isbn;
+    String? bestCover = results.first.coverUrl;
+    String? bestPublisher = results.first.publisher;
+    int? bestYear = results.first.publishYear;
+    int? bestPages = results.first.pageCount;
+    String? bestDesc = results.first.description;
+    Set<String> allCategories = {};
+
+    for (final res in results) {
+      // Pick the title that seems most complete.
+      if (res.title.length > bestTitle.length) bestTitle = res.title;
+      
+      // Merge unique authors.
+      if (res.authors.isNotEmpty && res.authors.first != 'Unknown Author') {
+        if (bestAuthors.contains('Unknown Author')) {
+          bestAuthors = res.authors;
+        }
+      }
+
+      // Prioritize ISBNs that are 13 characters long.
+      if (res.isbn != null) {
+        if (bestIsbn == null || res.isbn!.length > bestIsbn.length) {
+          bestIsbn = res.isbn;
+        }
+      }
+
+      // Keep the first valid cover found.
+      if (bestCover == null && res.coverUrl != null) bestCover = res.coverUrl;
+      if (bestPublisher == null && res.publisher != null) bestPublisher = res.publisher;
+      if (bestYear == null && res.publishYear != null) bestYear = res.publishYear;
+      if (bestPages == null && res.pageCount != null) bestPages = res.pageCount;
+      if (bestDesc == null && res.description != null) bestDesc = res.description;
+      
+      allCategories.addAll(res.categories);
+    }
+
+    return BookSearchResult(
+      title: bestTitle,
+      authors: bestAuthors,
+      isbn: bestIsbn,
+      publisher: bestPublisher,
+      coverUrl: bestCover,
+      pageCount: bestPages,
+      publishYear: bestYear,
+      description: bestDesc,
+      categories: allCategories.toList(),
+      source: 'Recommended by Openshelf',
+    );
   }
 }

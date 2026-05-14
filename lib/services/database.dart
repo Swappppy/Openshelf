@@ -5,6 +5,7 @@ import '../models/shelf.dart';
 
 part 'database.g.dart';
 
+/// Books table definition
 class Books extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
@@ -29,14 +30,17 @@ class Books extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+/// Tags table definition (used for Categories, Imprints, and Collections)
 class Tags extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
+  /// Type can be 'tag' (category), 'imprint', or 'collection'
   TextColumn get type => text().withDefault(const Constant('tag'))();
   TextColumn get color => text().nullable()();
   TextColumn get imagePath => text().nullable()();
 }
 
+/// Many-to-Many relationship between Books and Tags
 class BookTags extends Table {
   IntColumn get bookId => integer().references(Books, #id)();
   IntColumn get tagId => integer().references(Tags, #id)();
@@ -45,6 +49,7 @@ class BookTags extends Table {
   Set<Column> get primaryKey => {bookId, tagId};
 }
 
+/// Dynamic Shelves table definition (Saved smart-filters)
 @UseRowClass(Shelf)
 class Shelves extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -55,7 +60,8 @@ class Shelves extends Table {
   TextColumn get filterIsbn => text().nullable()();
   TextColumn get filterCollection => text().nullable()();
   TextColumn get filterStatus => text().nullable()();
-  TextColumn get filterTagIds => text().nullable()(); // JSON: [1,2,3]
+  /// JSON-encoded list of tag IDs for the shelf filter
+  TextColumn get filterTagIds => text().nullable()();
   IntColumn get filterImprintId => integer().nullable()();
 }
 
@@ -64,17 +70,19 @@ enum ReadingStatus {
   reading,
   read,
   abandoned,
+  paused,
 }
 
 enum BookFormat {
-  paperback,    // Tapa blanda
-  hardcover,    // Tapa dura
-  leatherbound, // Piel
-  rustic,       // Rústica
-  digital,      // Digital
-  other,        // Otro
+  paperback,
+  hardcover,
+  leatherbound,
+  rustic,
+  digital,
+  other,
 }
 
+/// Converts between BookFormat enum and String for DB storage
 class BookFormatConverter extends TypeConverter<BookFormat?, String?> {
   const BookFormatConverter();
 
@@ -124,6 +132,8 @@ class AppDatabase extends _$AppDatabase {
     return driftDatabase(name: 'openshelf_db');
   }
 
+  // --- Book Operations ---
+
   Stream<List<Book>> watchAllBooks() => select(books).watch();
 
   Stream<List<Book>> watchBooksByStatus(ReadingStatus status) {
@@ -139,6 +149,7 @@ class AppDatabase extends _$AppDatabase {
 
   Future<bool> updateBook(Book book) => update(books).replace(book);
 
+  /// Deletes a book and performs cleanup of orphan tags/collections
   Future<void> deleteBook(int id) async {
     await transaction(() async {
       final book = await (select(books)..where((b) => b.id.equals(id)))
@@ -151,6 +162,7 @@ class AppDatabase extends _$AppDatabase {
       await (delete(bookTags)..where((bt) => bt.bookId.equals(id))).go();
       await (delete(books)..where((b) => b.id.equals(id))).go();
 
+      // Clean up orphan categories (tags)
       for (final tagId in tagIds) {
         final remaining = await (select(bookTags)
           ..where((bt) => bt.tagId.equals(tagId))).get();
@@ -163,6 +175,7 @@ class AppDatabase extends _$AppDatabase {
         }
       }
 
+      // Clean up orphan collection reference if no more books use it
       if (book != null && book.collectionName != null) {
         final others = await (select(books)
           ..where((b) => b.collectionName.equals(book.collectionName!)))
@@ -180,7 +193,11 @@ class AppDatabase extends _$AppDatabase {
   Future<Book?> getBook(int id) =>
       (select(books)..where((b) => b.id.equals(id))).getSingleOrNull();
 
-  // --- Colección  ---
+  Future<Book?> getBookByIsbn(String isbn) =>
+      (select(books)..where((b) => b.isbn.equals(isbn))).getSingleOrNull();
+
+  // --- Collection Operations ---
+
   Future<int> getOrCreateCollection(String name) async {
     final existing = await (select(tags)
       ..where((t) => t.name.equals(name) & t.type.equals('collection')))
@@ -192,7 +209,8 @@ class AppDatabase extends _$AppDatabase {
     ));
   }
 
-  // --- Tags ---
+  // --- Tag/Category Operations ---
+
   Future<int> insertTag(TagsCompanion tag) => into(tags).insert(tag);
 
   Future<List<Tag>> getTagsByType(String type) =>
@@ -207,9 +225,9 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteTag(int id) async {
     await transaction(() async {
-      // Si es una colección, limpiar los libros que la usan
       final tag = await (select(tags)..where((t) => t.id.equals(id)))
           .getSingleOrNull();
+      // If deleting a collection, we must clear the references in Books table
       if (tag != null && tag.type == 'collection') {
         await (update(books)
           ..where((b) => b.collectionName.equals(tag.name)))
@@ -218,14 +236,15 @@ class AppDatabase extends _$AppDatabase {
           collectionNumber: Value(null),
         ));
       }
-      // Borrar relaciones libro↔tag
+      // Remove M:M links
       await (delete(bookTags)..where((bt) => bt.tagId.equals(id))).go();
-      // Borrar el tag
+      // Delete the tag itself
       await (delete(tags)..where((t) => t.id.equals(id))).go();
     });
   }
 
-// --- Relación libro<->tags ---
+  // --- Book-Tag Relationship Operations ---
+
   Future<void> setBookTags(int bookId, List<int> tagIds) async {
     await transaction(() async {
       await (delete(bookTags)
@@ -244,7 +263,7 @@ class AppDatabase extends _$AppDatabase {
   Future<void> pruneOrphanTags() async {
     final allTags = await select(tags).get();
     for (final tag in allTags) {
-      // Imprints y colecciones se gestionan manualmente, no se auto-borran
+      // Imprints and collections are managed manually, don't auto-prune
       if (tag.type == 'imprint' || tag.type == 'collection') continue;
       final refs = await (select(bookTags)
         ..where((bt) => bt.tagId.equals(tag.id))).get();
@@ -281,9 +300,23 @@ class AppDatabase extends _$AppDatabase {
   Stream<List<Tag>> watchTagsByType(String type) =>
       (select(tags)..where((t) => t.type.equals(type))).watch();
 
+  Future<int> getBookCountByImprint(int imprintId) async {
+    final rows = await (select(bookTags)
+      ..where((bt) => bt.tagId.equals(imprintId)))
+        .get();
+    return rows.length;
+  }
+
+  Stream<int> watchBookCountByImprint(int imprintId) {
+    return (select(bookTags)
+      ..where((bt) => bt.tagId.equals(imprintId)))
+        .watch()
+        .map((rows) => rows.length);
+  }
+
   Future<void> setBookImprint(int bookId, int? imprintId) async {
     await transaction(() async {
-      // Borrar sello anterior
+      // Delete old imprint links for this book
       final oldLinks = await (select(bookTags)
         ..where((bt) => bt.bookId.equals(bookId))).get();
       for (final link in oldLinks) {
@@ -296,7 +329,7 @@ class AppDatabase extends _$AppDatabase {
             bt.tagId.equals(link.tagId))).go();
         }
       }
-      // Insertar nuevo sello si hay uno
+      // Insert new imprint link if provided
       if (imprintId != null) {
         await into(bookTags).insert(
           BookTagsCompanion(
@@ -319,6 +352,8 @@ class AppDatabase extends _$AppDatabase {
     }
   }
 
+  // --- Filtering & Search ---
+
   Stream<List<Book>> watchBooksFiltered({
     String? query,
     List<int>? tagIds,
@@ -326,10 +361,10 @@ class AppDatabase extends _$AppDatabase {
     String? publisher,
     String? isbn,
     String? collectionName,
-    int? imprintId,
+    List<int>? imprintIds,
   }) {
-    // Si hay filtro por tags necesitamos una query especial
-    if ((tagIds != null && tagIds.isNotEmpty) || imprintId != null){
+    // If filtering by tags or imprints, use the complex join query
+    if ((tagIds != null && tagIds.isNotEmpty) || (imprintIds != null && imprintIds.isNotEmpty)){
       return _watchBooksWithTags(
         query: query,
         tagIds: tagIds,
@@ -337,10 +372,11 @@ class AppDatabase extends _$AppDatabase {
         publisher: publisher,
         isbn: isbn,
         collectionName: collectionName,
-        imprintId: imprintId,
+        imprintIds: imprintIds,
       );
     }
 
+    // Standard column filtering
     final q = select(books)
       ..where((b) {
         Expression<bool> expr = const Constant(true);
@@ -364,6 +400,7 @@ class AppDatabase extends _$AppDatabase {
     return q.watch();
   }
 
+  /// Complex filtering using the M:M relationship with Tags
   Stream<List<Book>> _watchBooksWithTags({
     String? query,
     List<int>? tagIds,
@@ -371,12 +408,12 @@ class AppDatabase extends _$AppDatabase {
     String? publisher,
     String? isbn,
     String? collectionName,
-    int? imprintId,
+    List<int>? imprintIds,
   }) {
     final allRequiredTagIds = [
       ...?tagIds,
-      imprintId,
-    ].whereType<int>().toList();
+      ...?imprintIds,
+    ].whereType<int>().toSet().toList();
 
     if (allRequiredTagIds.isEmpty) return watchAllBooks();
 
@@ -388,6 +425,8 @@ class AppDatabase extends _$AppDatabase {
       for (final link in links) {
         bookToTags.putIfAbsent(link.bookId, () => {}).add(link.tagId);
       }
+      
+      // We only want books that match ALL required tags (Intersection logic)
       final validBookIds = bookToTags.entries
           .where((e) => e.value.length >= allRequiredTagIds.length)
           .map((e) => e.key)
@@ -419,7 +458,8 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
-  // --- Shelves ---
+  // --- Shelf Operations ---
+
   Stream<List<Shelf>> watchAllShelves() => select(shelves).watch();
 
   Future<int> insertShelf(ShelvesCompanion shelf) =>

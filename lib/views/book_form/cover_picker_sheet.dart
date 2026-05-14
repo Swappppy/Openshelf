@@ -6,6 +6,7 @@ import '../../services/book_search_service.dart';
 import '../../services/cover_service.dart';
 import '../../l10n/l10n_extension.dart';
 
+/// Modal sheet that allows users to pick an alternative cover image from online sources.
 class CoverPickerSheet extends ConsumerStatefulWidget {
   final String? isbn;
   final String? title;
@@ -27,11 +28,12 @@ class CoverPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
-  // Cada entrada: CoverCandidate + path local del preview (null = cargando)
+  /// List of potential cover images and their local temporary preview paths.
   final List<(CoverCandidate, String?)> _items = [];
   bool _searching = true;
   String? _error;
-  // Índice del que se está guardando definitivamente
+  
+  /// Index of the item currently being finalized and saved.
   int? _saving;
 
   @override
@@ -40,9 +42,10 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
     _search();
   }
 
+  /// Triggers the online search for cover candidates.
   Future<void> _search() async {
-    final settings = ref.read(appSettingsProvider).value;
-    final apiKey = settings?.googleBooksApiKey;
+    final settings = ref.read(appSettingsProvider);
+    final apiKey = settings.googleBooksApiKey;
 
     try {
       final candidates = await CoverSearchService.search(
@@ -51,12 +54,8 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
         author: widget.author,
         publisher: widget.publisher,
         apiKey: apiKey,
+        servers: settings.searchServers,
       );
-
-      debugPrint('Candidatos encontrados: ${candidates.length}');
-      for (final c in candidates) {
-        debugPrint('  ${c.source}: ${c.url}');
-      }
 
       if (!mounted) return;
 
@@ -75,7 +74,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
         }
       });
 
-      // Descarga previews en paralelo por lotes de 4
+      // Download previews in parallel batches to avoid overloading.
       _downloadPreviews();
     } catch (_) {
       if (mounted) {
@@ -87,19 +86,18 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
     }
   }
 
+  /// Manages background download of preview images.
   Future<void> _downloadPreviews() async {
     const batchSize = 4;
     for (var i = 0; i < _items.length; i += batchSize) {
-      final end =
-      (i + batchSize).clamp(0, _items.length);
+      final end = (i + batchSize).clamp(0, _items.length);
       final batch = _items.sublist(i, end);
 
       await Future.wait(
         batch.asMap().entries.map((entry) async {
           final idx = i + entry.key;
           final (candidate, _) = entry.value;
-          final path =
-          await CoverService.downloadForPreview(candidate.url);
+          final path = await CoverService.downloadForPreview(candidate.url);
           if (mounted && path != null) {
             setState(() {
               _items[idx] = (candidate, path);
@@ -110,6 +108,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
     }
   }
 
+  /// Finalizes selection, handles cropping if necessary, and saves the image permanently.
   Future<void> _selectCover(int index) async {
     final (candidate, previewPath) = _items[index];
     if (previewPath == null) return;
@@ -118,23 +117,13 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
 
     final title = context.l10n.cropCoverTitle;
 
-    // Smart crop: si ya tiene el ratio correcto, guardar directo
-    if (await CoverService.isRatioCorrect(previewPath, 2 / 3)) {
-      debugPrint('Grid Selection: Ratio correcto, omitiendo recorte.');
-      final savedPath = await CoverService.saveCover(previewPath);
-      if (mounted) {
-        widget.onCoverSelected(savedPath);
-        Navigator.pop(context);
-      }
-      return;
-    }
-
-    // Si no, procedemos al recorte manual
+    // Manual crop is standard for consistent library appearance.
     final croppedPath = await CoverService.cropCover(previewPath, title: title);
     if (croppedPath == null) {
       if (mounted) setState(() => _saving = null);
       return;
     }
+    
     final savedPath = await CoverService.saveCover(croppedPath);
 
     if (mounted) {
@@ -153,7 +142,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
       maxChildSize: 0.95,
       builder: (_, scrollController) => Column(
         children: [
-          // Handle + cabecera
+          // Header section with drag handle and search status.
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Column(
@@ -217,7 +206,6 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
           const SizedBox(height: 12),
           const Divider(height: 1),
 
-          // Cuerpo
           Expanded(child: _buildBody(scrollController, colorScheme)),
         ],
       ),
@@ -265,7 +253,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
       ),
       itemCount: _items.length + (loaded < total ? 1 : 0),
       itemBuilder: (context, index) {
-        // Celda de progreso al final mientras carga
+        // Progress cell at the end while loading.
         if (index == _items.length) {
           return Center(
             child: Column(
@@ -299,11 +287,14 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Imagen o placeholder
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: previewPath != null
-                    ? Image.file(File(previewPath), fit: BoxFit.cover)
+                    ? Image.file(
+                  File(previewPath),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(color: colorScheme.surfaceContainerHighest),
+                )
                     : Container(
                   color: colorScheme.surfaceContainerHighest,
                   child: Center(
@@ -319,7 +310,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
                 ),
               ),
 
-              // Badge de fuente
+              // Source Badge
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -343,7 +334,6 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
                 ),
               ),
 
-              // Overlay de guardado
               if (isSaving)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),

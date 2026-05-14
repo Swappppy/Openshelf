@@ -1,95 +1,89 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/book_search_result.dart';
 
+/// Integration for the Google Books API.
 class GoogleBooksService {
   static const _baseUrl = 'https://www.googleapis.com/books/v1/volumes';
-  static const _timeout = Duration(seconds: 10);
 
-  static Future<List<BookSearchResult>> search(
-      String query, {
-        int limit = 20,
-        String? apiKey,
-      }) async {
-    if (query.trim().isEmpty) return [];
-    if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('no_api_key');
+  /// Searches for books using a general query (title, author, etc.)
+  static Future<List<BookSearchResult>> search(String query, {String? apiKey}) async {
+    try {
+      var url = '$_baseUrl?q=${Uri.encodeComponent(query)}&maxResults=10';
+      if (apiKey != null && apiKey.isNotEmpty) {
+        url += '&key=$apiKey';
+      }
+      
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final items = data['items'] as List?;
+        if (items == null) return [];
+
+        return items.map((item) => _parseItem(item)).toList();
+      }
+    } catch (e) {
+      debugPrint('Google Books Search Error: $e');
     }
-
-    final uri = Uri.parse(_baseUrl).replace(
-      queryParameters: {
-        'q': query.trim(),
-        'maxResults': '$limit',
-        'printType': 'books',
-        'key': apiKey,
-      },
-    );
-
-    final response = await http.get(uri).timeout(_timeout);
-
-    if (response.statusCode == 429) {
-      throw Exception('rate_limit');
-    }
-    if (response.statusCode != 200) {
-      throw Exception('Google Books responded with ${response.statusCode}');
-    }
-
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    final items = body['items'] as List<dynamic>? ?? [];
-
-    return items
-        .cast<Map<String, dynamic>>()
-        .map(_fromItem)
-        .where((r) => r.title.isNotEmpty)
-        .toList();
+    return [];
   }
 
-  static BookSearchResult _fromItem(Map<String, dynamic> item) {
-    final info = item['volumeInfo'] as Map<String, dynamic>? ?? {};
-
-    final authors = info['authors'];
-    final identifiers = info['industryIdentifiers'] as List<dynamic>? ?? [];
-    final imageLinks = info['imageLinks'] as Map<String, dynamic>?;
-
-    // Preferimos ISBN-13, si no ISBN-10
-    String? isbn;
-    for (final id in identifiers.cast<Map<String, dynamic>>()) {
-      if (id['type'] == 'ISBN_13') {
-        isbn = id['identifier'] as String?;
-        break;
+  /// Looks up a book by its ISBN-13 or ISBN-10.
+  static Future<BookSearchResult?> getByIsbn(String isbn, {String? apiKey}) async {
+    try {
+      var url = '$_baseUrl?q=isbn:${Uri.encodeComponent(isbn)}';
+      if (apiKey != null && apiKey.isNotEmpty) {
+        url += '&key=$apiKey';
       }
+      
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final items = data['items'] as List?;
+        if (items != null && items.isNotEmpty) {
+          return _parseItem(items.first);
+        }
+      }
+    } catch (e) {
+      debugPrint('Google Books ISBN Error: $e');
     }
-    isbn ??= identifiers.cast<Map<String, dynamic>>()
-        .where((id) => id['type'] == 'ISBN_10')
-        .map((id) => id['identifier'] as String?)
-        .firstOrNull;
+    return null;
+  }
 
-    // Año de publicación — Google devuelve "2004" o "2004-01-01"
-    final dateStr = info['publishedDate'] as String?;
-    final publishYear = dateStr != null && dateStr.length >= 4
-        ? int.tryParse(dateStr.substring(0, 4))
-        : null;
+  static BookSearchResult _parseItem(dynamic item) {
+    final info = item['volumeInfo'];
+    final idents = info['industryIdentifiers'] as List?;
+    String? isbn;
+    if (idents != null) {
+      final i13 = idents.firstWhere((id) => id['type'] == 'ISBN_13', orElse: () => null);
+      isbn = i13 != null ? i13['identifier'] : idents.first['identifier'];
+    }
 
-    // Portada: thumbnail de Google, con https forzado
-    String? coverUrl = imageLinks?['thumbnail'] as String?;
-    if (coverUrl != null) {
-      coverUrl = coverUrl.replaceFirst('http://', 'https://');
-      // Subir calidad: zoom=1 da 128px, zoom=0 da la más grande disponible
-      coverUrl = coverUrl.replaceAll('&zoom=1', '&zoom=0');
+    // Attempt to get higher resolution covers if available.
+    final images = info['imageLinks'];
+    String? cover = images?['thumbnail'];
+    if (cover != null && cover.startsWith('http:')) {
+      cover = cover.replaceFirst('http:', 'https:');
     }
 
     return BookSearchResult(
-      title: info['title'] as String? ?? '',
-      author: (authors is List && authors.isNotEmpty)
-          ? authors.first as String
-          : '',
+      title: info['title'] ?? 'Unknown Title',
+      authors: (info['authors'] as List?)?.cast<String>() ?? ['Unknown Author'],
       isbn: isbn,
-      publisher: info['publisher'] as String?,
-      publishYear: publishYear,
-      totalPages: info['pageCount'] as int?,
-      coverUrl: coverUrl,
-      openLibraryKey: null,
+      publisher: info['publisher'],
+      coverUrl: cover,
+      pageCount: info['pageCount'],
+      publishYear: _parseYear(info['publishedDate']),
+      description: info['description'],
+      categories: (info['categories'] as List?)?.cast<String>() ?? [],
       source: 'Google Books',
     );
+  }
+
+  static int? _parseYear(String? date) {
+    if (date == null || date.isEmpty) return null;
+    final year = int.tryParse(date.substring(0, 4));
+    return year;
   }
 }

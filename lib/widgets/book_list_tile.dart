@@ -2,20 +2,17 @@ import 'package:flutter/material.dart';
 import '../services/database.dart';
 import '../models/display_preferences.dart';
 import 'status_chip.dart';
-import 'dart:io';
+import 'book_cover.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/books_controller.dart';
-import 'tag_chip.dart';
 import '../l10n/l10n_extension.dart';
 
+/// A comprehensive list tile for displaying book information in the Library list view.
+/// Supports reorderable fields, custom status highlighting, and progress bars.
 class BookListTile extends ConsumerWidget {
   final Book book;
   final DisplayPreferences prefs;
   final VoidCallback? onTap;
-
-  static const double _tileHeight = 170;
-  static const double _coverHeight = _tileHeight - 12;
-  static const double _coverWidth = _coverHeight * 0.68;
 
   const BookListTile({
     super.key,
@@ -27,142 +24,150 @@ class BookListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return InkWell(
       onTap: onTap,
-      child: SizedBox(
-        height: _tileHeight,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(width: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: _BookCover(
-                coverUrl: book.coverUrl,
-                coverPath: book.coverPath,
-                height: _coverHeight,
-                width: _coverWidth,
-              ),
+      child: Container(
+        height: 160, // Accommodates the larger cover image
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+              width: 0.5,
             ),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BookCover(
+              coverUrl: book.coverUrl,
+              coverPath: book.coverPath,
+              height: 136, 
+              width: 92, 
+              author: book.author,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            const SizedBox(width: 16),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Título + chip — ancla superior
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            book.title,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title + Status
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          book.title,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        if (prefs.showStatusChip) ...[
-                          const SizedBox(width: 8),
-                          StatusChip(status: book.status),
-                        ],
+                      ),
+                      if (prefs.showStatusChip) ...[
+                        const SizedBox(width: 8),
+                        StatusChip(status: book.status),
                       ],
-                    ),
+                    ],
+                  ),
 
-                    // Campos opcionales centrados verticalmente
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...prefs.fieldOrder.map((field) {
-                            switch (field) {
-                              case 'author':
-                                if (!prefs.showAuthor) return const SizedBox.shrink();
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 2),
+                  // Reorderable content based on user preferences
+                  ...prefs.fieldOrder.map((field) {
+                    switch (field) {
+                      case 'tags':
+                        if (!prefs.showTags) return const SizedBox.shrink();
+                        final tagsAsync = ref.watch(bookTagsProvider(book.id));
+                        return tagsAsync.maybeWhen(
+                          data: (tagList) => tagList.isEmpty
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: _TagsRow(tags: tagList),
+                                ),
+                          orElse: () => const SizedBox.shrink(),
+                        );
+                      case 'spacer':
+                        if (!prefs.showSpacer) return const SizedBox.shrink();
+                        return const Spacer();
+                      case 'info':
+                        // Meta info row: Author (Left) | Year · Editorial (Right)
+                        final rightParts = <String>[];
+                        if (prefs.showYear && book.publishYear != null) {
+                          rightParts.add(book.publishYear.toString());
+                        }
+                        if (prefs.showPublisher && book.publisher != null) {
+                          rightParts.add(book.publisher!);
+                        }
+
+                        if (rightParts.isEmpty && !prefs.showAuthor) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: [
+                              if (prefs.showAuthor)
+                                Expanded(
                                   child: Text(
                                     book.author,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: theme.colorScheme.outline,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.outline,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                );
-                              case 'publisher':
-                                if (!prefs.showPublisher) return const SizedBox.shrink();
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Text(
-                                    book.publisher ?? '',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.outline,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                ),
+                              if (rightParts.isNotEmpty)
+                                Text(
+                                  rightParts.join(' · '),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.outline,
                                   ),
-                                );
-                              case 'year':
-                                if (!prefs.showYear) return const SizedBox.shrink();
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Text(
-                                    book.publishYear?.toString() ?? '',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.outline,
-                                    ),
-                                    maxLines: 1,
-                                  ),
-                                );
-                              case 'rating':
-                                if (!prefs.showRating) return const SizedBox.shrink();
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.star,
-                                          size: 14, color: Colors.amber[700]),
-                                      const SizedBox(width: 2),
-                                      Text(
-                                        book.rating?.toStringAsFixed(1) ?? '-',
-                                        style: theme.textTheme.bodySmall,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              case 'tags':
-                                if (!prefs.showTags) return const SizedBox.shrink();
-                                final tagsAsync = ref.watch(bookTagsProvider(book.id));
-                                return tagsAsync.maybeWhen(
-                                  data: (tagList) => tagList.isEmpty
-                                      ? const SizedBox.shrink()
-                                      : Padding(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    child: _TagsRow(tags: tagList),
-                                  ),
-                                  orElse: () => const SizedBox.shrink(),
-                                );
-                              default:
-                                return const SizedBox.shrink();
-                            }
-                          }),
-                        ],
-                      ),
-                    ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        );
+                      case 'rating':
+                        if (!prefs.showRating || book.rating == null) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: List.generate(5, (i) {
+                              return Icon(
+                                i < (book.rating ?? 0) ? Icons.star : Icons.star_border,
+                                color: Colors.amber[700],
+                                size: 14,
+                              );
+                            }),
+                          ),
+                        );
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  }),
 
-                    // Progreso — ancla inferior
-                    if (prefs.showProgress)
-                      _ProgressBar(
-                        current: book.currentPage ?? 0,
-                        total: book.totalPages ?? 1,
-                      ),
-                  ],
-                ),
+                  const Spacer(),
+
+                  // Progress bar and percentage text
+                  if (prefs.showProgress &&
+                      book.totalPages != null &&
+                      book.totalPages! > 0)
+                    _ProgressBar(
+                      current: book.currentPage ?? 0,
+                      total: book.totalPages!,
+                      status: book.status,
+                    ),
+                ],
               ),
             ),
           ],
@@ -172,70 +177,85 @@ class BookListTile extends ConsumerWidget {
   }
 }
 
+/// A single-line row of tags with an overflow counter (+N)
 class _TagsRow extends StatelessWidget {
   final List<Tag> tags;
   const _TagsRow({required this.tags});
 
   @override
   Widget build(BuildContext context) {
-    const double chipHeight = 24;
-    const double chipSpacing = 4;
-    const double chipPaddingH = 16;
-    const double counterMinWidth = 28;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final colorScheme = Theme.of(context).colorScheme;
+        final textStyle = TextStyle(
+          fontSize: 10,
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+        );
 
-    final textStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
-      fontSize: 11,
-      fontWeight: FontWeight.w500,
-    );
+        final visibleTags = <Tag>[];
+        double totalWidth = 0;
+        const spacing = 6.0;
+        const padding = 12.0; 
+        const moreWidth = 25.0; // Width reserved for the "+N" indicator
 
-    // Medimos el ancho disponible usando MediaQuery menos
-    // portada (102) + padding izquierdo (16) + padding info (24)
-    final screenWidth = MediaQuery.of(context).size.width;
-    final availableWidth =
-        screenWidth - 102 - 16 - 24 - counterMinWidth;
+        for (int i = 0; i < tags.length; i++) {
+          final tag = tags[i];
+          final painter = TextPainter(
+            text: TextSpan(text: tag.name, style: textStyle),
+            textDirection: TextDirection.ltr,
+          )..layout();
 
-    final visibleTags = <Tag>[];
-    double usedWidth = 0;
+          final tagWidth = painter.width + padding;
+          final isLast = i == tags.length - 1;
+          final neededWidth = totalWidth + tagWidth + (isLast ? 0 : spacing + moreWidth);
 
-    for (final tag in tags) {
-      final span = TextSpan(text: tag.name, style: textStyle);
-      final painter = TextPainter(
-        text: span,
-        textDirection: TextDirection.ltr,
-      )..layout();
+          if (neededWidth <= constraints.maxWidth) {
+            visibleTags.add(tag);
+            totalWidth += tagWidth + spacing;
+          } else {
+            break;
+          }
+        }
 
-      final chipWidth = painter.width + chipPaddingH;
+        final hiddenCount = tags.length - visibleTags.length;
 
-      if (usedWidth + chipWidth + chipSpacing <= availableWidth) {
-        visibleTags.add(tag);
-        usedWidth += chipWidth + chipSpacing;
-      } else {
-        break;
-      }
-    }
-
-    final hiddenCount = tags.length - visibleTags.length;
-
-    return SizedBox(
-      height: chipHeight,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ...visibleTags.map((tag) => Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: TagChip(
-              label: tag.name,
-              colorHex: tag.color,
-            ),
-          )),
-          if (hiddenCount > 0)
-            Text(
-              '+$hiddenCount',
-              style: textStyle.copyWith(
-                color: Theme.of(context).colorScheme.outline,
+        return Row(
+          children: [
+            ...visibleTags.map((tag) => Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: _SimpleTagChip(label: tag.name),
+                )),
+            if (hiddenCount > 0)
+              Text(
+                '+$hiddenCount',
+                style: textStyle.copyWith(fontWeight: FontWeight.bold),
               ),
-            ),
-        ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SimpleTagChip extends StatelessWidget {
+  final String label;
+  const _SimpleTagChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+        ),
       ),
     );
   }
@@ -244,82 +264,59 @@ class _TagsRow extends StatelessWidget {
 class _ProgressBar extends StatelessWidget {
   final int current;
   final int total;
+  final ReadingStatus status;
 
-  const _ProgressBar({required this.current, required this.total});
+  const _ProgressBar({
+    required this.current,
+    required this.total,
+    required this.status,
+  });
 
   @override
   Widget build(BuildContext context) {
     final percent = (current / total).clamp(0.0, 1.0);
+    final color = _getStatusColor(status);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LinearProgressIndicator(
           value: percent,
           borderRadius: BorderRadius.circular(4),
-          minHeight: 3,
+          minHeight: 2,
+          backgroundColor: color.withValues(alpha: 0.1),
+          valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 6),
         Text(
-          context.l10n.pageProgress(current, total, (percent * 100).toStringAsFixed(0)),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.outline,
+          context.l10n.pageProgress(
+            current,
+            total,
+            (percent * 100).toStringAsFixed(0),
           ),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.6),
+                fontSize: 10,
+              ),
         ),
       ],
     );
   }
+
+  Color _getStatusColor(ReadingStatus status) {
+    switch (status) {
+      case ReadingStatus.wantToRead:
+        return Colors.orange;
+      case ReadingStatus.reading:
+        return Colors.blue;
+      case ReadingStatus.read:
+        return Colors.green;
+      case ReadingStatus.abandoned:
+        return Colors.red;
+      case ReadingStatus.paused:
+        return const Color(0xFFB39DDB);
+    }
+  }
 }
 
-class _BookCover extends StatelessWidget {
-  final String? coverUrl;
-  final String? coverPath;
-  final double height;
-  final double width;
 
-  const _BookCover({
-    this.coverUrl,
-    this.coverPath,
-    required this.height,
-    required this.width,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: _buildImage(context),
-      ),
-    );
-  }
-
-  Widget _buildImage(BuildContext context) {
-    if (coverPath != null) {
-      return Image.file(
-        File(coverPath!),
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => _placeholder(context),
-      );
-    }
-    if (coverUrl != null) {
-      return Image.network(
-        coverUrl!,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => _placeholder(context),
-      );
-    }
-    return _placeholder(context);
-  }
-
-  Widget _placeholder(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Icon(
-        Icons.menu_book,
-        color: Theme.of(context).colorScheme.outline,
-      ),
-    );
-  }
-}

@@ -1,42 +1,82 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/book_search_result.dart';
 
+/// Integration for the Open Library Search API.
 class OpenLibraryService {
-  static const _baseUrl = 'https://openlibrary.org';
-  static const _timeout = Duration(seconds: 10);
+  static const _host = 'openlibrary.org';
+  static const _searchPath = '/search.json';
+  static const _headers = {
+    'User-Agent': 'Openshelf/1.0.0 (https://github.com/ftena/openshelf)',
+    'Accept': 'application/json',
+  };
 
-  /// Busca libros por texto libre (título, autor, ISBN).
-  /// Devuelve hasta [limit] resultados.
-  static Future<List<BookSearchResult>> search(
-      String query, {
-        int limit = 20,
-      }) async {
-    if (query.trim().isEmpty) return [];
+  /// Searches for books using a general query. 
+  /// Open Library provides broad data and community-maintained covers.
+  static Future<List<BookSearchResult>> search(String query) async {
+    try {
+      final uri = Uri.https(_host, _searchPath, {
+        'q': query,
+        'limit': '10',
+      });
+      
+      debugPrint('Open Library: Searching $uri');
+      final response = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final docs = data['docs'] as List?;
+        if (docs == null) return [];
 
-    final uri = Uri.parse('$_baseUrl/search.json').replace(
-      queryParameters: {
-        'q': query.trim(),
-        'limit': '$limit',
-        'fields':
-        'key,title,author_name,isbn,publisher,first_publish_year,'
-            'number_of_pages_median,cover_i',
-      },
-    );
-
-    final response = await http.get(uri).timeout(_timeout);
-
-    if (response.statusCode != 200) {
-      throw Exception('Open Library responded with ${response.statusCode}');
+        return docs.map((doc) => _parseDoc(doc)).toList();
+      } else {
+        debugPrint('Open Library Search Error: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Open Library Search Error: $e');
     }
+    return [];
+  }
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    final docs = body['docs'] as List<dynamic>? ?? [];
+  /// Looks up a book by its ISBN.
+  static Future<BookSearchResult?> getByIsbn(String isbn) async {
+    try {
+      final uri = Uri.https(_host, _searchPath, {
+        'isbn': isbn,
+      });
+      
+      debugPrint('Open Library: ISBN Lookup $uri');
+      final response = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final docs = data['docs'] as List?;
+        if (docs != null && docs.isNotEmpty) {
+          return _parseDoc(docs.first);
+        }
+      } else {
+        debugPrint('Open Library ISBN Error: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Open Library ISBN Error: $e');
+    }
+    return null;
+  }
 
-    return docs
-        .cast<Map<String, dynamic>>()
-        .map(BookSearchResult.fromOpenLibraryDoc)
-        .where((r) => r.title.isNotEmpty)
-        .toList();
+  static BookSearchResult _parseDoc(dynamic doc) {
+    final coverId = doc['cover_i'];
+    final coverUrl = coverId != null ? 'https://covers.openlibrary.org/b/id/$coverId-L.jpg' : null;
+
+    return BookSearchResult(
+      title: doc['title'] ?? 'Unknown Title',
+      authors: (doc['author_name'] as List?)?.cast<String>() ?? ['Unknown Author'],
+      isbn: (doc['isbn'] as List?)?.first,
+      publisher: (doc['publisher'] as List?)?.first,
+      coverUrl: coverUrl,
+      publishYear: doc['first_publish_year'],
+      categories: (doc['subject'] as List?)?.take(5).cast<String>().toList() ?? [],
+      source: 'Open Library',
+    );
   }
 }

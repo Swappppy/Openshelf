@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
 
+/// Represents a "Smart Filter" or "Dynamic Shelf".
+/// These are saved database queries that update automatically when new books match the criteria.
 class Shelf extends DataClass implements Insertable<Shelf> {
   final int id;
   final String name;
@@ -9,6 +11,8 @@ class Shelf extends DataClass implements Insertable<Shelf> {
   final String? filterIsbn;
   final String? filterCollection;
   final String? filterStatus;
+  
+  /// JSON-encoded list of tag IDs to filter by.
   final String? filterTagIds;
   final int? filterImprintId;
 

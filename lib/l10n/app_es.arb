@@ -91,6 +91,11 @@
   "filterImprintLabel": "Sello editorial",
   "@filterImprintLabel": { "description": "Etiqueta de sección de sello editorial en filtros" },
 
+  "imprintBookCount": "{count} libros",
+  "@imprintBookCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
   "filterTagsLabel": "Categorías",
   "@filterTagsLabel": { "description": "Etiqueta de sección de categorías en filtros" },
 
@@ -265,6 +270,9 @@
   "statusAbandoned": "Abandonado",
   "@statusAbandoned": { "description": "Estado: abandonado" },
 
+  "statusPaused": "Pausado",
+  "@statusPaused": { "description": "Estado: pausado" },
+
   "formatPaperback": "Tapa blanda",
   "@formatPaperback": { "description": "Formato: tapa blanda" },
 
@@ -389,6 +397,9 @@
   "shelfAbandoned": "Abandonados",
   "@shelfAbandoned": { "description": "Estantería de libros abandonados" },
 
+  "shelfPaused": "Pausados",
+  "@shelfPaused": { "description": "Estantería de libros pausados" },
+
   "shelfNewTooltip": "Nueva estantería",
   "@shelfNewTooltip": { "description": "Tooltip del botón de nueva estantería" },
 
@@ -469,6 +480,9 @@
 
   "shelfStatusLabelAbandoned": "Abandonados",
   "@shelfStatusLabelAbandoned": { "description": "Etiqueta de estado: abandonados en subtítulo de estantería" },
+
+  "shelfStatusLabelPaused": "Pausados",
+  "@shelfStatusLabelPaused": { "description": "Etiqueta de estado: pausados en subtítulo de estantería" },
 
   "managementCategories": "Categorías",
   "@managementCategories": { "description": "Sección de gestión: categorías" },
@@ -688,6 +702,15 @@
 
   "bookSearchRecommended": "RECOMENDADO POR OPENSHELF",
   "@bookSearchRecommended": { "description": "Etiqueta para el resultado recomendado" },
+
+  "bookDuplicateTitle": "Libro duplicado",
+  "@bookDuplicateTitle": { "description": "Título del aviso de libro duplicado" },
+
+  "bookDuplicateContent": "Ya tienes un libro con el ISBN {isbn} en tu biblioteca.",
+  "@bookDuplicateContent": {
+    "description": "Contenido del aviso de libro duplicado",
+    "placeholders": { "isbn": { "type": "String" } }
+  },
 
   "bookSearchErrorNoApiKey": "Google Books requiere una clave de API.\nConfigúrala en Ajustes → Búsqueda de libros.",
   "@bookSearchErrorNoApiKey": { "description": "Error: falta API key de Google Books" },

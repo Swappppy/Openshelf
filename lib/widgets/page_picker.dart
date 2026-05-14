@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n_extension.dart';
 
+/// A wheel-based number picker for selecting page numbers.
+/// Uses multiple dials (thousands, hundreds, tens, units) for ergonomic high-number input.
 class PagePicker extends StatefulWidget {
   final int initialValue;
   final int maxValue;
@@ -18,13 +20,14 @@ class PagePicker extends StatefulWidget {
 }
 
 class _PagePickerState extends State<PagePicker> {
-  late List<int> _digits; // [millares, centenas, decenas, unidades]
+  late List<int> _digits; // Stores [thousands, hundreds, tens, units]
   late List<FixedExtentScrollController> _controllers;
   late int _columnCount;
 
   @override
   void initState() {
     super.initState();
+    // Decide if we need 3 or 4 columns based on the book's total pages.
     _columnCount = widget.maxValue >= 1000 ? 4 : 3;
     _digits = _toDigits(widget.initialValue);
     _controllers = List.generate(
@@ -41,6 +44,7 @@ class _PagePickerState extends State<PagePicker> {
     super.dispose();
   }
 
+  /// Breaks down an integer into its component digits based on column count.
   List<int> _toDigits(int value) {
     final clamped = value.clamp(0, widget.maxValue);
     if (_columnCount == 4) {
@@ -58,6 +62,7 @@ class _PagePickerState extends State<PagePicker> {
     ];
   }
 
+  /// Reconstructs the total integer value from the currently selected digits.
   int _toValue() {
     if (_columnCount == 4) {
       return _digits[0] * 1000 +
@@ -68,6 +73,7 @@ class _PagePickerState extends State<PagePicker> {
     return _digits[0] * 100 + _digits[1] * 10 + _digits[2];
   }
 
+  /// Calculates the maximum allowed digit for the first column to prevent exceeding maxValue.
   int _maxDigit(int column) {
     if (_columnCount == 4) {
       if (column == 0) return (widget.maxValue ~/ 1000).clamp(0, 9);
@@ -93,7 +99,7 @@ class _PagePickerState extends State<PagePicker> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Labels
+        // Magnitude Labels
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(_columnCount, (i) {
@@ -112,13 +118,13 @@ class _PagePickerState extends State<PagePicker> {
         ),
         const SizedBox(height: 4),
 
-        // Dials
+        // Picker Dials
         SizedBox(
           height: 200,
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Líneas de selección
+              // Visual selection highlight lines
               Positioned(
                 top: 68,
                 left: 16,
@@ -136,7 +142,7 @@ class _PagePickerState extends State<PagePicker> {
                 ),
               ),
 
-              // Columnas
+              // Columns for each digit
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(_columnCount, (col) {
@@ -179,7 +185,7 @@ class _PagePickerState extends State<PagePicker> {
           ),
         ),
 
-        // Valor actual
+        // Real-time calculated value display
         Text(
           '${context.l10n.pageProgressShort(_toValue(), widget.maxValue)} ${context.l10n.pagesLabel}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(

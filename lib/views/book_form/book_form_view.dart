@@ -7,11 +7,14 @@ import '../../services/database.dart';
 import '../../services/cover_service.dart';
 import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
+import '../../controllers/books_controller.dart';
 import '../../widgets/tag_chip.dart';
 import '../../models/book_search_result.dart';
 import '../../l10n/l10n_extension.dart';
 import 'cover_picker_sheet.dart';
 
+/// Form for adding a new book or editing an existing one.
+/// Supports prefilling from external search results and handling M:M relationships.
 class BookFormView extends ConsumerStatefulWidget {
   final Book? existingBook;
   final BookSearchResult? prefill;
@@ -21,7 +24,7 @@ class BookFormView extends ConsumerStatefulWidget {
   ConsumerState<BookFormView> createState() => _BookFormViewState();
 }
 
-// Tag pendiente de persistir — solo tiene nombre, aún sin id
+/// Helper model for tags created during the form session but not yet saved to DB.
 class _PendingTag {
   final String name;
   String? color;
@@ -33,7 +36,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   final _formKey = GlobalKey<FormState>();
   late final TabController _tabController;
 
-  // Controladores
+  // Controllers
   late final TextEditingController _titleCtrl;
   late final TextEditingController _authorCtrl;
   late final TextEditingController _isbnCtrl;
@@ -50,9 +53,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   double? _rating;
   bool _isSaving = false;
   String? _coverPath;
-  List<Tag> _selectedTags = [];        // tags ya existentes en BD
+  List<Tag> _selectedTags = [];        
   Tag? _selectedImprint;
-  final List<_PendingTag> _pendingTags = []; // tags nuevos, aún no persistidos
+  final List<_PendingTag> _pendingTags = []; 
 
   @override
   void initState() {
@@ -60,13 +63,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _tabController = TabController(length: 2, vsync: this);
     final b = widget.existingBook;
     final pre = widget.prefill;
+    
     _titleCtrl = TextEditingController(text: b?.title ?? pre?.title ?? '');
-    _authorCtrl = TextEditingController(text: b?.author ?? pre?.author ?? '');
+    _authorCtrl = TextEditingController(text: b?.author ?? pre?.authors.join(', ') ?? '');
     _isbnCtrl = TextEditingController(text: b?.isbn ?? pre?.isbn ?? '');
     _publisherCtrl = TextEditingController(
         text: b?.publisher ?? pre?.publisher ?? '');
     _totalPagesCtrl = TextEditingController(
-        text: b?.totalPages?.toString() ?? pre?.totalPages?.toString() ?? '');
+        text: b?.totalPages?.toString() ?? pre?.pageCount?.toString() ?? '');
     _currentPageCtrl = TextEditingController(text: '0');
     _notesCtrl = TextEditingController(text: b?.notes ?? '');
     _collectionNameCtrl =
@@ -75,6 +79,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         TextEditingController(text: b?.collectionNumber?.toString() ?? '');
     _publishYearCtrl = TextEditingController(
         text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
+        
     if (b != null) {
       _status = b.status;
       _format = b.bookFormat;
@@ -84,12 +89,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _loadExistingTags(b.id);
       _loadExistingImprint(b.id);
     } else if (pre?.coverUrl != null) {
-      // Pre-carga la portada desde la URL de Open Library en background
+      // Auto-prefill cover from provided URL in the background
       _prefillCoverFromUrl(pre!.coverUrl!);
     }
+    
     _currentPageCtrl.addListener(_updateStatusFromPages);
     _totalPagesCtrl.addListener(_updateStatusFromPages);
-
   }
 
   @override
@@ -110,7 +115,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     super.dispose();
   }
 
-  // Ajusta página actual según estado seleccionado
+  /// Adjusts page count based on selected status.
   void _onStatusChanged(ReadingStatus s) {
     setState(() => _status = s);
     final total = int.tryParse(_totalPagesCtrl.text);
@@ -125,12 +130,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         if (total != null) _currentPageCtrl.text = total.toString();
         break;
       case ReadingStatus.abandoned:
+      case ReadingStatus.paused:
         break;
     }
   }
 
   Future<void> _prefillCoverFromUrl(String url) async {
-    final saved = await CoverService.saveCoverFromUrl(url, shouldCrop: false);
+    final saved = await CoverService.saveCoverFromUrl(url);
     if (saved != null && mounted) {
       setState(() => _coverPath = saved);
     }
@@ -139,26 +145,22 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   Future<void> _pickCover() async {
     if (!await PermissionService.requestGallery()) return;
     if (!mounted) return;
-    final title = context.l10n.cropCoverTitle;
+    //final title = context.l10n.cropCoverTitle;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-    final cropped = await CoverService.cropCover(picked.path, title: title);
-    if (cropped == null) return;
-    final saved = await CoverService.saveCover(cropped);
+    // Standard crop is handled by CoverService
+    final saved = await CoverService.saveLocalCover(picked.path);
     setState(() => _coverPath = saved);
   }
 
   Future<void> _takePhoto() async {
     if (!await PermissionService.requestCamera()) return;
     if (!mounted) return;
-    final title = context.l10n.cropCoverTitle;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.camera);
     if (picked == null) return;
-    final cropped = await CoverService.cropCover(picked.path, title: title);
-    if (cropped == null) return;
-    final saved = await CoverService.saveCover(cropped);
+    final saved = await CoverService.saveLocalCover(picked.path);
     setState(() => _coverPath = saved);
   }
 
@@ -192,9 +194,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     );
     if (url == null || url.isEmpty) return;
     if (!mounted) return;
-    final title = context.l10n.cropCoverTitle;
+    
     setState(() => _isSaving = true);
-    final saved = await CoverService.saveCoverFromUrl(url, cropTitle: title);
+    final saved = await CoverService.saveCoverFromUrl(url);
     setState(() {
       _isSaving = false;
       if (saved != null) _coverPath = saved;
@@ -225,17 +227,45 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     );
   }
 
+  /// Handles saving the book and all its associations (tags, imprints, collections) to the DB.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) {
       _tabController.animateTo(0);
       return;
     }
-    setState(() => _isSaving = true);
 
     final db = ref.read(databaseProvider);
+    final isbn = _isbnCtrl.text.trim();
+
+    // Check for duplicates by ISBN (new books only)
+    if (widget.existingBook == null && isbn.isNotEmpty) {
+      final existing = await db.getBookByIsbn(isbn);
+      if (existing != null && mounted) {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(context.l10n.bookDuplicateTitle),
+            content: Text(context.l10n.bookDuplicateContent(isbn)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(context.l10n.cancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(context.l10n.addBook),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true) return;
+      }
+    }
+
+    setState(() => _isSaving = true);
 
     if (widget.existingBook != null) {
-      // Editar libro existente
+      // Update existing record
       final updated = widget.existingBook!.copyWith(
         title: _titleCtrl.text.trim(),
         author: _authorCtrl.text.trim(),
@@ -253,7 +283,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       );
       await db.updateBook(updated);
-      // Limpiar colección anterior si cambió o se borró
+      
+      // Cleanup collections if reference was removed or changed
       final oldCollection = widget.existingBook!.collectionName;
       final newCollection = _collectionNameCtrl.text.trim().isEmpty
           ? null
@@ -261,6 +292,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       if (oldCollection != null && oldCollection != newCollection) {
         await db.pruneCollectionIfOrphan(oldCollection);
       }
+      
       final existingIds = _selectedTags.map((t) => t.id).toList();
       for (final p in _pendingTags) {
         final newId = await db.insertTag(
@@ -273,18 +305,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         existingIds.add(newId);
       }
       await db.setBookTags(widget.existingBook!.id, existingIds);
-      await db.setBookImprint(
-        widget.existingBook!.id,
-        _selectedImprint?.id,
-      );
+      await db.setBookImprint(widget.existingBook!.id, _selectedImprint?.id);
       await db.pruneOrphanTags();
-      // Registrar colección si tiene nombre
-      final collectionName = _collectionNameCtrl.text.trim();
-      if (collectionName.isNotEmpty) {
-        await db.getOrCreateCollection(collectionName);
-      }
     } else {
-      // Crear libro nuevo
+      // Insert new record
       final companion = BooksCompanion.insert(
         title: _titleCtrl.text.trim(),
         author: _authorCtrl.text.trim(),
@@ -302,6 +326,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       );
       final newId = await db.insertBook(companion);
+      
       final existingIds = _selectedTags.map((t) => t.id).toList();
       for (final p in _pendingTags) {
         final newId = await db.insertTag(
@@ -315,11 +340,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       }
       await db.setBookTags(newId, existingIds);
       await db.setBookImprint(newId, _selectedImprint?.id);
-      // Registrar colección si tiene nombre
-      final collectionName = _collectionNameCtrl.text.trim();
-      if (collectionName.isNotEmpty) {
-        await db.getOrCreateCollection(collectionName);
-      }
+    }
+
+    // Auto-create collection tag if name provided
+    final collectionName = _collectionNameCtrl.text.trim();
+    if (collectionName.isNotEmpty) {
+      await db.getOrCreateCollection(collectionName);
     }
 
     if (mounted) Navigator.pop(context);
@@ -343,8 +369,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
             children: [
               Center(
                 child: Container(
-                  width: 40,
-                  height: 4,
+                  width: 40, height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.outlineVariant,
@@ -454,18 +479,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _PendingTag? pendingTag,
   }) async {
     final colors = [
-      'E53935',
-      'D81B60',
-      '8E24AA',
-      '3949AB',
-      '1E88E5',
-      '00ACC1',
-      '00897B',
-      '43A047',
-      'C0CA33',
-      'FB8C00',
-      '6D4C41',
-      '757575',
+      'E53935', 'D81B60', '8E24AA', '3949AB', '1E88E5', '00ACC1',
+      '00897B', '43A047', 'C0CA33', 'FB8C00', '6D4C41', '757575',
     ];
 
     await showModalBottomSheet(
@@ -552,6 +567,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     setState(() => _selectedImprint = existing);
   }
 
+  /// Automatically updates reading status based on page progress.
   void _updateStatusFromPages() {
     final current = int.tryParse(_currentPageCtrl.text);
     final total = int.tryParse(_totalPagesCtrl.text);
@@ -562,7 +578,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       newStatus = ReadingStatus.wantToRead;
     } else if (current >= total) {
       newStatus = ReadingStatus.read;
-      // Sincroniza página actual al total exacto
+      // Sync current page to total if exceeded
       if (current > total) _currentPageCtrl.text = total.toString();
     } else {
       newStatus = ReadingStatus.reading;
@@ -654,7 +670,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 }
 
 // -------------------------------------------------------
-// Pestaña Principal
+// Main Tab
 // -------------------------------------------------------
 class _MainTab extends ConsumerWidget {
   final TextEditingController titleCtrl;
@@ -720,7 +736,7 @@ class _MainTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // --- Portada ---
+        // --- Cover Image Selection ---
         Center(
           child: Column(
             children: [
@@ -736,17 +752,9 @@ class _MainTab extends ConsumerWidget {
                         width: 100,
                         height: 150,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const _CoverPlaceholder(width: 100, height: 150, iconSize: 48),
                       )
-                          : Container(
-                        width: 100,
-                        height: 150,
-                        color: colorScheme.surfaceContainerHighest,
-                        child: Icon(
-                          Icons.menu_book,
-                          size: 48,
-                          color: colorScheme.outline,
-                        ),
-                      ),
+                          : const _CoverPlaceholder(width: 100, height: 150, iconSize: 48),
                     ),
                     Positioned(
                       bottom: 4,
@@ -791,7 +799,7 @@ class _MainTab extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
 
-        // --- Información básica ---
+        // --- Basic Info Section ---
         _SectionHeader(label: context.l10n.sectionBasicInfo),
         const SizedBox(height: 12),
         _FormField(
@@ -821,7 +829,7 @@ class _MainTab extends ConsumerWidget {
             keyboardType: TextInputType.number),
         const SizedBox(height: 24),
 
-        // --- Etiquetas ---
+        // --- Categories (Tags) Section ---
         _SectionHeader(label: context.l10n.sectionCategories),
         const SizedBox(height: 4),
         Text(
@@ -903,7 +911,7 @@ class _MainTab extends ConsumerWidget {
 
         const SizedBox(height: 24),
 
-        // --- Progreso ---
+        // --- Reading Progress Section ---
         _SectionHeader(label: context.l10n.fieldReadingProgress),
         const SizedBox(height: 12),
         Row(
@@ -928,20 +936,20 @@ class _MainTab extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 24),
-        // --- Estado ---
+        
+        // --- Status Section ---
         _SectionHeader(label: context.l10n.sectionReadingStatus),
         const SizedBox(height: 12),
         _StatusSelector(selected: status, onChanged: onStatusChanged),
         const SizedBox(height: 24),
 
-        // --- Formato ---
+        // --- Format Section ---
         _SectionHeader(label: context.l10n.sectionFormat),
         const SizedBox(height: 12),
         _FormatSelector(selected: format, onChanged: onFormatChanged),
-        const SizedBox(height: 12),
         const SizedBox(height: 24),
 
-        // --- Valoración ---
+        // --- Rating Section ---
         _SectionHeader(label: context.l10n.sectionRating),
         const SizedBox(height: 12),
         _RatingSelector(rating: rating, onChanged: onRatingChanged),
@@ -952,7 +960,7 @@ class _MainTab extends ConsumerWidget {
 }
 
 // -------------------------------------------------------
-// Pestaña Detalles
+// Details Tab
 // -------------------------------------------------------
 class _DetailsTab extends ConsumerWidget {
   final TextEditingController notesCtrl;
@@ -1045,7 +1053,7 @@ class _DetailsTab extends ConsumerWidget {
 }
 
 // -------------------------------------------------------
-// Widgets auxiliares
+// Helper Widgets
 // -------------------------------------------------------
 
 class _ImprintSelector extends ConsumerWidget {
@@ -1091,57 +1099,78 @@ class _ImprintSelector extends ConsumerWidget {
   }
 }
 
-class _ImprintRow extends StatelessWidget {
+class _ImprintRow extends ConsumerWidget {
   final Tag imprint;
   final VoidCallback onClear;
 
   const _ImprintRow({required this.imprint, required this.onClear});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Stack(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: imprint.imagePath != null
-                  ? Image.file(
-                File(imprint.imagePath!),
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              )
-                  : Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.business_outlined,
-                  size: 32,
-                  color: Theme.of(context).colorScheme.outline,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              // Thumbnail or initials
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: imprint.imagePath != null
+                    ? Image.file(
+                  File(imprint.imagePath!),
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
+                )
+                    : _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      imprint.name,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Consumer(builder: (context, ref, _) {
+                      final countAsync =
+                      ref.watch(imprintBookCountProvider(imprint.id));
+                      return countAsync.maybeWhen(
+                        data: (count) => Text(
+                          context.l10n.imprintBookCount(count),
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: colorScheme.outline,
+                          ),
+                        ),
+                        orElse: () => const SizedBox.shrink(),
+                      );
+                    }),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              imprint.name,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+            ],
+          ),
         ),
         Positioned(
-          top: 0,
-          right: 0,
+          top: 6,
+          right: 6,
           child: GestureDetector(
             onTap: onClear,
             child: Container(
@@ -1228,6 +1257,7 @@ class _StatusSelector extends StatelessWidget {
     (ReadingStatus.reading, Icons.auto_stories, Colors.blue),
     (ReadingStatus.read, Icons.check_circle_outline, Colors.green),
     (ReadingStatus.abandoned, Icons.close, Colors.red),
+    (ReadingStatus.paused, Icons.pause_circle_outline, Color(0xFFB39DDB)),
   ];
 
   @override
@@ -1243,6 +1273,7 @@ class _StatusSelector extends StatelessWidget {
           ReadingStatus.reading => context.l10n.statusReading,
           ReadingStatus.read => context.l10n.statusRead,
           ReadingStatus.abandoned => context.l10n.statusAbandoned,
+          ReadingStatus.paused => context.l10n.statusPaused,
         };
         return ChoiceChip(
           avatar: Icon(icon, size: 16, color: isSelected ? color : null),
@@ -1327,6 +1358,85 @@ class _RatingSelector extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
       ],
+    );
+  }
+}
+
+class _CoverPlaceholder extends StatelessWidget {
+  final double width;
+  final double height;
+  final double iconSize;
+
+  const _CoverPlaceholder({
+    this.width = 90,
+    this.height = 130,
+    this.iconSize = 40,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Icon(
+        Icons.menu_book,
+        size: iconSize,
+        color: Theme.of(context).colorScheme.outline,
+      ),
+    );
+  }
+}
+
+class _ImprintPlaceholder extends StatelessWidget {
+  final double size;
+  final double iconSize;
+  final String? name;
+
+  const _ImprintPlaceholder({
+    this.size = 80,
+    this.iconSize = 32,
+    this.name,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    Widget content;
+    if (name != null && name!.isNotEmpty) {
+      final initials = name!
+          .split(RegExp(r'\s+'))
+          .where((w) => w.isNotEmpty)
+          .take(3)
+          .map((w) => w[0].toUpperCase())
+          .join();
+      content = Center(
+        child: Text(
+          initials,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface.withValues(alpha: 0.5),
+            fontSize: size * 0.35,
+          ),
+        ),
+      );
+    } else {
+      content = Icon(
+        Icons.business_outlined,
+        size: iconSize,
+        color: colorScheme.outline,
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: content,
     );
   }
 }

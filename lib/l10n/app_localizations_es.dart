@@ -97,6 +97,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get filterImprintLabel => 'Sello editorial';
 
   @override
+  String imprintBookCount(int count) {
+    return '$count libros';
+  }
+
+  @override
   String get filterTagsLabel => 'Categorías';
 
   @override
@@ -272,6 +277,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get statusAbandoned => 'Abandonado';
 
   @override
+  String get statusPaused => 'Pausado';
+
+  @override
   String get formatPaperback => 'Tapa blanda';
 
   @override
@@ -385,6 +393,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shelfAbandoned => 'Abandonados';
 
   @override
+  String get shelfPaused => 'Pausados';
+
+  @override
   String get shelfNewTooltip => 'Nueva estantería';
 
   @override
@@ -464,6 +475,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shelfStatusLabelAbandoned => 'Abandonados';
+
+  @override
+  String get shelfStatusLabelPaused => 'Pausados';
 
   @override
   String get managementCategories => 'Categorías';
@@ -690,6 +704,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bookSearchRecommended => 'RECOMENDADO POR OPENSHELF';
+
+  @override
+  String get bookDuplicateTitle => 'Libro duplicado';
+
+  @override
+  String bookDuplicateContent(String isbn) {
+    return 'Ya tienes un libro con el ISBN $isbn en tu biblioteca.';
+  }
 
   @override
   String get bookSearchErrorNoApiKey =>

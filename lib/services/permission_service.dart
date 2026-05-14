@@ -1,27 +1,21 @@
-import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 
+/// Centralized service for handling Android/iOS runtime permissions.
 class PermissionService {
-  /// Request Camera permission. Returns true if granted.
+  /// Requests access to the device photo gallery.
+  static Future<bool> requestGallery() async {
+    final status = await Permission.photos.request();
+    if (status.isGranted) return true;
+    
+    // Fallback for older Android versions where 'photos' might not be the right key.
+    if (await Permission.storage.request().isGranted) return true;
+    
+    return false;
+  }
+
+  /// Requests access to the device camera.
   static Future<bool> requestCamera() async {
     final status = await Permission.camera.request();
     return status.isGranted;
-  }
-
-  /// Request Gallery/Photos permission. Returns true if granted.
-  static Future<bool> requestGallery() async {
-    if (Platform.isAndroid) {
-      // Android 13+ uses READ_MEDIA_IMAGES
-      final status = await Permission.photos.request();
-      if (status.isGranted) return true;
-
-      // Fallback for older Android versions
-      final storageStatus = await Permission.storage.request();
-      return storageStatus.isGranted;
-    } else {
-      // iOS
-      final status = await Permission.photos.request();
-      return status.isGranted;
-    }
   }
 }

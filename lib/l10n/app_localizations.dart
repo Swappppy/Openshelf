@@ -266,6 +266,12 @@ abstract class AppLocalizations {
   /// **'Sello editorial'**
   String get filterImprintLabel;
 
+  /// No description provided for @imprintBookCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} libros'**
+  String imprintBookCount(int count);
+
   /// Etiqueta de sección de categorías en filtros
   ///
   /// In es, this message translates to:
@@ -614,6 +620,12 @@ abstract class AppLocalizations {
   /// **'Abandonado'**
   String get statusAbandoned;
 
+  /// Estado: pausado
+  ///
+  /// In es, this message translates to:
+  /// **'Pausado'**
+  String get statusPaused;
+
   /// Formato: tapa blanda
   ///
   /// In es, this message translates to:
@@ -824,6 +836,12 @@ abstract class AppLocalizations {
   /// **'Abandonados'**
   String get shelfAbandoned;
 
+  /// Estantería de libros pausados
+  ///
+  /// In es, this message translates to:
+  /// **'Pausados'**
+  String get shelfPaused;
+
   /// Tooltip del botón de nueva estantería
   ///
   /// In es, this message translates to:
@@ -985,6 +1003,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Abandonados'**
   String get shelfStatusLabelAbandoned;
+
+  /// Etiqueta de estado: pausados en subtítulo de estantería
+  ///
+  /// In es, this message translates to:
+  /// **'Pausados'**
+  String get shelfStatusLabelPaused;
 
   /// Sección de gestión: categorías
   ///
@@ -1393,6 +1417,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'RECOMENDADO POR OPENSHELF'**
   String get bookSearchRecommended;
+
+  /// Título del aviso de libro duplicado
+  ///
+  /// In es, this message translates to:
+  /// **'Libro duplicado'**
+  String get bookDuplicateTitle;
+
+  /// Contenido del aviso de libro duplicado
+  ///
+  /// In es, this message translates to:
+  /// **'Ya tienes un libro con el ISBN {isbn} en tu biblioteca.'**
+  String bookDuplicateContent(String isbn);
 
   /// Error: falta API key de Google Books
   ///
