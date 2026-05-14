@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:image_cropper/image_cropper.dart';
+import 'package:image/image.dart' as img;
 
 /// Service for managing book covers and imprint images locally.
 class CoverService {
@@ -19,6 +20,13 @@ class CoverService {
         await tempFile.writeAsBytes(response.bodyBytes);
 
         if (shouldCrop) {
+          final isGood = await isRatioCorrect(tempPath, 2 / 3);
+          if (isGood) {
+            final finalPath = await saveCover(tempPath);
+            await tempFile.delete();
+            return finalPath;
+          }
+
           final cropped = await cropCover(tempPath, title: cropTitle ?? 'Crop Cover');
           if (cropped != null) {
             final finalPath = await saveCover(cropped);
@@ -54,10 +62,23 @@ class CoverService {
   }
 
   /// Checks if the image at the given path matches the target aspect ratio.
-  static Future<bool> isRatioCorrect(String path, double targetRatio) async {
-    // Simplified: always return false to trigger crop for now, 
-    // or we could use image package to check dimensions.
-    return false;
+  static Future<bool> isRatioCorrect(String path, double targetRatio, {double tolerance = 0.1}) async {
+    try {
+      final bytes = await File(path).readAsBytes();
+      final image = img.decodeImage(bytes);
+      if (image == null) return false;
+      
+      final currentRatio = image.width / image.height;
+      final diff = (currentRatio - targetRatio).abs();
+      final threshold = targetRatio * tolerance;
+      
+      final isCorrect = diff <= threshold;
+      debugPrint('CoverService: SmartCrop check - current=$currentRatio, target=$targetRatio, diff=$diff, threshold=$threshold, result=$isCorrect');
+      return isCorrect;
+    } catch (e) {
+      debugPrint('Error checking image ratio: $e');
+      return false;
+    }
   }
 
   /// Saves a cover image to the permanent storage.

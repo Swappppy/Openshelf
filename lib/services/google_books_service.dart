@@ -8,11 +8,14 @@ class GoogleBooksService {
   static const _baseUrl = 'https://www.googleapis.com/books/v1/volumes';
 
   /// Searches for books using a general query (title, author, etc.)
-  static Future<List<BookSearchResult>> search(String query, {String? apiKey}) async {
+  static Future<List<BookSearchResult>> search(String query, {String? apiKey, String? preferredLanguage}) async {
     try {
       var url = '$_baseUrl?q=${Uri.encodeComponent(query)}&maxResults=10';
       if (apiKey != null && apiKey.isNotEmpty) {
         url += '&key=$apiKey';
+      }
+      if (preferredLanguage != null && preferredLanguage.isNotEmpty) {
+        url += '&langRestrict=$preferredLanguage';
       }
       
       final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
@@ -30,7 +33,7 @@ class GoogleBooksService {
   }
 
   /// Looks up a book by its ISBN-13 or ISBN-10.
-  static Future<BookSearchResult?> getByIsbn(String isbn, {String? apiKey}) async {
+  static Future<BookSearchResult?> getByIsbn(String isbn, {String? apiKey, String? preferredLanguage}) async {
     try {
       var url = '$_baseUrl?q=isbn:${Uri.encodeComponent(isbn)}';
       if (apiKey != null && apiKey.isNotEmpty) {

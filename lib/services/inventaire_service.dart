@@ -16,13 +16,13 @@ class InventaireService {
   };
 
   /// Searches for books using the Inventaire search API.
-  static Future<List<BookSearchResult>> search(String query, {int limit = 20}) async {
+  static Future<List<BookSearchResult>> search(String query, {int limit = 20, String? preferredLanguage}) async {
     if (query.trim().isEmpty) return [];
 
     // Check if query is an ISBN
     final isbn = query.replaceAll(RegExp(r'[-\s]'), '');
     if (RegExp(r'^\d{10}(\d{3})?$').hasMatch(isbn)) {
-      final result = await getByIsbn(isbn);
+      final result = await getByIsbn(isbn, preferredLanguage: preferredLanguage);
       return result != null ? [result] : [];
     }
 
@@ -47,7 +47,12 @@ class InventaireService {
       final results = body['results'] as List<dynamic>? ?? [];
 
       return results.map((item) {
-        final label = item['label'] as String? ?? 'Unknown Title';
+        final labels = item['labels'] as Map<String, dynamic>?;
+        String title = item['label'] as String? ?? 'Unknown Title';
+        
+        if (preferredLanguage != null && labels != null && labels.containsKey(preferredLanguage)) {
+          title = labels[preferredLanguage];
+        }
         
         // Try to get author from claims/entities first
         List<String> authors = [];
@@ -59,8 +64,14 @@ class InventaireService {
             for (final id in authorIds) {
               final authorEntity = entities[id];
               if (authorEntity != null) {
-                final aLabel = authorEntity['label'] as String?;
-                if (aLabel != null) authors.add(aLabel);
+                final aLabels = authorEntity['labels'] as Map<String, dynamic>? ?? {};
+                String? aName;
+                if (preferredLanguage != null && aLabels.containsKey(preferredLanguage)) {
+                  aName = aLabels[preferredLanguage];
+                } else {
+                  aName = authorEntity['label'] as String?;
+                }
+                if (aName != null) authors.add(aName);
               }
             }
           }
@@ -87,7 +98,7 @@ class InventaireService {
         }
         
         return BookSearchResult(
-          title: label,
+          title: title,
           authors: authors,
           isbn: null,
           publisher: null,
@@ -104,7 +115,7 @@ class InventaireService {
   }
 
   /// Looks up a book by its ISBN via the entities endpoint.
-  static Future<BookSearchResult?> getByIsbn(String isbn) async {
+  static Future<BookSearchResult?> getByIsbn(String isbn, {String? preferredLanguage}) async {
     try {
       final cleanIsbn = isbn.replaceAll(RegExp(r'[^0-9X]'), '');
       final uri = Uri.parse('$_baseUrl/entities').replace(
@@ -135,19 +146,24 @@ class InventaireService {
         ),
       );
 
-      return _fromEntity(entities, mainEntity, cleanIsbn);
+      return _fromEntity(entities, mainEntity, cleanIsbn, preferredLanguage: preferredLanguage);
     } catch (e) {
       debugPrint('Inventaire ISBN Error: $e');
       return null;
     }
   }
 
-  static BookSearchResult _fromEntity(Map<String, dynamic> allEntities, Map<String, dynamic> entity, String? isbn) {
+  static BookSearchResult _fromEntity(Map<String, dynamic> allEntities, Map<String, dynamic> entity, String? isbn, {String? preferredLanguage}) {
     final claims = entity['claims'] as Map<String, dynamic>? ?? {};
     
-    // 1. Get Title (neutral selection)
+    // 1. Get Title (Prioritize preferred language)
     final labels = entity['labels'] as Map<String, dynamic>? ?? {};
-    final title = labels.values.isNotEmpty ? labels.values.first : 'Unknown Title';
+    String title = 'Unknown Title';
+    if (preferredLanguage != null && labels.containsKey(preferredLanguage)) {
+      title = labels[preferredLanguage];
+    } else {
+      title = labels['es'] ?? labels['en'] ?? (labels.values.isNotEmpty ? labels.values.first : 'Unknown Title');
+    }
 
     // 2. Get Author(s)
     List<String> authors = [];
@@ -157,7 +173,12 @@ class InventaireService {
         final authorEntity = allEntities[id];
         if (authorEntity != null) {
           final aLabels = authorEntity['labels'] as Map<String, dynamic>? ?? {};
-          final name = aLabels.values.isNotEmpty ? aLabels.values.first : null;
+          String? name;
+          if (preferredLanguage != null && aLabels.containsKey(preferredLanguage)) {
+            name = aLabels[preferredLanguage];
+          } else {
+            name = aLabels['es'] ?? aLabels['en'] ?? (aLabels.values.isNotEmpty ? aLabels.values.first : null);
+          }
           if (name != null) authors.add(name);
         }
       }
@@ -177,7 +198,11 @@ class InventaireService {
       final pubEntity = allEntities[publisherIds.first];
       if (pubEntity != null) {
         final pLabels = pubEntity['labels'] as Map<String, dynamic>? ?? {};
-        publisher = pLabels.values.isNotEmpty ? pLabels.values.first : null;
+        if (preferredLanguage != null && pLabels.containsKey(preferredLanguage)) {
+          publisher = pLabels[preferredLanguage];
+        } else {
+          publisher = pLabels['es'] ?? pLabels['en'] ?? (pLabels.values.isNotEmpty ? pLabels.values.first : null);
+        }
       }
     }
 

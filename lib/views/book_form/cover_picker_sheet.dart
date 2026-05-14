@@ -117,18 +117,26 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
 
     final title = context.l10n.cropCoverTitle;
 
-    // Manual crop is standard for consistent library appearance.
-    final croppedPath = await CoverService.cropCover(previewPath, title: title);
-    if (croppedPath == null) {
-      if (mounted) setState(() => _saving = null);
-      return;
-    }
+    // Smart Crop: check if the aspect ratio is already close to 2:3
+    final isGood = await CoverService.isRatioCorrect(previewPath, 2 / 3);
     
-    final savedPath = await CoverService.saveCover(croppedPath);
+    String finalPath;
+    if (isGood) {
+      finalPath = await CoverService.saveCover(previewPath);
+    } else {
+      // Manual crop is standard for consistent library appearance.
+      final croppedPath = await CoverService.cropCover(previewPath, title: title);
+      if (croppedPath == null) {
+        if (mounted) setState(() => _saving = null);
+        return;
+      }
+      
+      finalPath = await CoverService.saveCover(croppedPath);
+    }
 
     if (mounted) {
-      widget.onCoverSelected(savedPath);
-      Navigator.pop(context);
+      widget.onCoverSelected(finalPath);
+      Navigator.of(context).pop();
     }
   }
 

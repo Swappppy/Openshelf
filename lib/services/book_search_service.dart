@@ -114,6 +114,7 @@ class BookSearchService {
     String query, {
     required List<BookSearchServer> servers,
     String? googleApiKey,
+    String? preferredLanguage,
   }) async {
     final cleanIsbn = query.replaceAll(RegExp(r'[^0-9X]'), '');
     final isIsbn = (cleanIsbn.length == 10 || cleanIsbn.length == 13) && RegExp(r'^[0-9]+X?$').hasMatch(cleanIsbn);
@@ -126,27 +127,25 @@ class BookSearchService {
           BookSearchResult? isbnRes;
           switch (server) {
             case BookSearchServer.googleBooks:
-              isbnRes = await GoogleBooksService.getByIsbn(cleanIsbn, apiKey: googleApiKey);
+              isbnRes = await GoogleBooksService.getByIsbn(cleanIsbn, apiKey: googleApiKey, preferredLanguage: preferredLanguage);
               break;
             case BookSearchServer.openLibrary:
               isbnRes = await OpenLibraryService.getByIsbn(cleanIsbn);
               break;
             case BookSearchServer.inventaire:
-              isbnRes = await InventaireService.getByIsbn(cleanIsbn);
+              isbnRes = await InventaireService.getByIsbn(cleanIsbn, preferredLanguage: preferredLanguage);
               break;
           }
           if (isbnRes != null) {
             results.add(isbnRes);
-            // If we found an exact ISBN match, we don't need to do a general search on this provider
-            // to avoid duplicates like "Work" vs "Edition" for the same book.
             debugPrint('BookSearchService: Found exact ISBN match for ${server.name}');
           } else {
             // Only try general search if ISBN lookup failed
-            results.addAll(await _performGeneralSearch(server, query, googleApiKey));
+            results.addAll(await _performGeneralSearch(server, query, googleApiKey, preferredLanguage));
           }
         } else {
           // Normal search for non-ISBN queries
-          results.addAll(await _performGeneralSearch(server, query, googleApiKey));
+          results.addAll(await _performGeneralSearch(server, query, googleApiKey, preferredLanguage));
         }
 
         debugPrint('BookSearchService: ${server.name} returned ${results.length} results');
@@ -162,14 +161,15 @@ class BookSearchService {
 
     // Create a "Recommended" summary if we have high-confidence matches.
     if (flattened.isNotEmpty) {
-      final merged = _mergeResults(flattened);
+      final merged = _mergeResults(flattened, preferredLanguage: preferredLanguage);
       if (merged != null) {
         debugPrint('BookSearchService: Prepending merged recommended result');
-        // If it's an ISBN search, the recommended result is often identical to the provider result
-        // Check for duplicates before prepending
-        if (!flattened.any((r) => r.isbn == merged.isbn && r.title == merged.title)) {
-          return [merged, ...flattened];
-        }
+        // Filter out individual provider results that are identical to the merged one
+        final others = flattened.where((r) => 
+          !(r.isbn == merged.isbn && r.title == merged.title && r.authors.length == merged.authors.length)
+        ).toList();
+
+        return [merged, ...others];
       }
     }
 
@@ -180,14 +180,15 @@ class BookSearchService {
     BookSearchServer server,
     String query,
     String? googleApiKey,
+    String? preferredLanguage,
   ) async {
     switch (server) {
       case BookSearchServer.googleBooks:
-        return await GoogleBooksService.search(query, apiKey: googleApiKey);
+        return await GoogleBooksService.search(query, apiKey: googleApiKey, preferredLanguage: preferredLanguage);
       case BookSearchServer.openLibrary:
         return await OpenLibraryService.search(query);
       case BookSearchServer.inventaire:
-        return await InventaireService.search(query);
+        return await InventaireService.search(query, preferredLanguage: preferredLanguage);
     }
   }
 
@@ -196,16 +197,17 @@ class BookSearchService {
     String isbn, {
     required List<BookSearchServer> servers,
     String? googleApiKey,
+    String? preferredLanguage,
   }) async {
     final tasks = servers.map((server) async {
       try {
         switch (server) {
           case BookSearchServer.googleBooks:
-            return await GoogleBooksService.getByIsbn(isbn, apiKey: googleApiKey);
+            return await GoogleBooksService.getByIsbn(isbn, apiKey: googleApiKey, preferredLanguage: preferredLanguage);
           case BookSearchServer.openLibrary:
             return await OpenLibraryService.getByIsbn(isbn);
           case BookSearchServer.inventaire:
-            return await InventaireService.getByIsbn(isbn);
+            return await InventaireService.getByIsbn(isbn, preferredLanguage: preferredLanguage);
         }
       } catch (e) {
         debugPrint('BookSearchService: ISBN Error from ${server.name}: $e');
@@ -217,10 +219,14 @@ class BookSearchService {
     final valid = allResults.whereType<BookSearchResult>().toList();
 
     if (valid.isNotEmpty) {
-      final merged = _mergeResults(valid);
+      final merged = _mergeResults(valid, preferredLanguage: preferredLanguage);
       if (merged != null) {
-        // Only return the best merged result for specific ISBN lookups.
-        return [merged];
+        // Filter out individual provider results that are identical to the merged one
+        final others = valid.where((r) => 
+          !(r.isbn == merged.isbn && r.title == merged.title && r.authors.length == merged.authors.length)
+        ).toList();
+        
+        return [merged, ...others];
       }
     }
 
@@ -229,9 +235,13 @@ class BookSearchService {
 
   /// Heuristically merges multiple search results into one "Best of" result.
   /// It prioritizes the longest title, most resolved authors, and highest resolution cover.
-  static BookSearchResult? _mergeResults(List<BookSearchResult> results) {
+  static BookSearchResult? _mergeResults(List<BookSearchResult> results, {String? preferredLanguage}) {
     if (results.isEmpty) return null;
     if (results.length == 1) return results.first;
+
+    // Try to find the best title matching the preferred language if available
+    // For now, we heuristically look for non-English if preferred is ES, etc.
+    // But individual services already prioritize language, so the first few results are likely best.
 
     String bestTitle = results.first.title;
     List<String> bestAuthors = results.first.authors;

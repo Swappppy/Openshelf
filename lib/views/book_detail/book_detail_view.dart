@@ -895,24 +895,23 @@ class _ReadOnlyField extends StatelessWidget {
 class _CoverPlaceholder extends StatelessWidget {
   final double width;
   final double height;
-  final double iconSize;
 
   const _CoverPlaceholder({
     this.width = 90,
     this.height = 130,
-    this.iconSize = 40,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: width,
       height: height,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      color: colorScheme.surfaceContainerHighest,
       child: Icon(
         Icons.menu_book,
-        size: iconSize,
-        color: Theme.of(context).colorScheme.outline,
+        size: 40,
+        color: colorScheme.outline,
       ),
     );
   }

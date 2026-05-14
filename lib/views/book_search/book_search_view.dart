@@ -61,12 +61,14 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
 
     try {
       final settings = ref.read(appSettingsProvider);
+      final preferredLanguage = settings.locale?.languageCode;
       
       // Direct call to the static orchestration service.
       final results = await BookSearchService.searchAll(
         query,
         servers: settings.searchServers,
         googleApiKey: settings.googleBooksApiKey,
+        preferredLanguage: preferredLanguage,
       );
       if (mounted) {
         setState(() {

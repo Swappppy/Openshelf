@@ -165,7 +165,7 @@
   "scanBatch": "Escanear en lote",
   "@scanBatch": { "description": "Opción de escanear en lote" },
 
-  "scanBatchSubtitle": "Próximamente",
+  "scanBatchSubtitle": "Escanea varios libros seguidos",
   "@scanBatchSubtitle": { "description": "Subtítulo de la opción de escanear en lote" },
 
   "bookFormNewTitle": "Nuevo libro",
@@ -702,6 +702,12 @@
 
   "bookSearchRecommended": "RECOMENDADO POR OPENSHELF",
   "@bookSearchRecommended": { "description": "Etiqueta para el resultado recomendado" },
+
+  "addedToLibrary": "Añadido a la biblioteca",
+  "@addedToLibrary": { "description": "Mensaje de éxito al añadir libro" },
+
+  "errorDuplicateIsbn": "Ya está en la biblioteca",
+  "@errorDuplicateIsbn": { "description": "Error cuando el ISBN ya existe" },
 
   "bookDuplicateTitle": "Libro duplicado",
   "@bookDuplicateTitle": { "description": "Título del aviso de libro duplicado" },

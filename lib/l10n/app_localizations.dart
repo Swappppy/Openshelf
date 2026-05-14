@@ -413,7 +413,7 @@ abstract class AppLocalizations {
   /// Subtítulo de la opción de escanear en lote
   ///
   /// In es, this message translates to:
-  /// **'Próximamente'**
+  /// **'Escanea varios libros seguidos'**
   String get scanBatchSubtitle;
 
   /// Título del formulario al crear libro
@@ -1417,6 +1417,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'RECOMENDADO POR OPENSHELF'**
   String get bookSearchRecommended;
+
+  /// Mensaje de éxito al añadir libro
+  ///
+  /// In es, this message translates to:
+  /// **'Añadido a la biblioteca'**
+  String get addedToLibrary;
+
+  /// Error cuando el ISBN ya existe
+  ///
+  /// In es, this message translates to:
+  /// **'Ya está en la biblioteca'**
+  String get errorDuplicateIsbn;
 
   /// Título del aviso de libro duplicado
   ///

@@ -172,7 +172,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanBatch => 'Batch scan';
 
   @override
-  String get scanBatchSubtitle => 'Coming soon';
+  String get scanBatchSubtitle => 'Scan multiple books in a row';
 
   @override
   String get bookFormNewTitle => 'New book';
@@ -703,6 +703,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookSearchRecommended => 'RECOMMENDED BY OPENSHELF';
+
+  @override
+  String get addedToLibrary => 'Added to library';
+
+  @override
+  String get errorDuplicateIsbn => 'Already in library';
 
   @override
   String get bookDuplicateTitle => 'Duplicate Book';
