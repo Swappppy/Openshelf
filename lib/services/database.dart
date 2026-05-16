@@ -129,11 +129,19 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(books, books.publishYear as GeneratedColumn);
       }
       if (from < 6) {
-        await m.addColumn(books, books.subtitle as GeneratedColumn);
-        await m.addColumn(books, books.language as GeneratedColumn);
+        // Guard against duplicate column if version 6 was partially applied
+        try {
+          await m.addColumn(books, books.subtitle as GeneratedColumn);
+        } catch (_) {}
+        try {
+          await m.addColumn(books, books.language as GeneratedColumn);
+        } catch (_) {}
       }
       if (from < 7) {
-        await m.addColumn(books, books.translator as GeneratedColumn);
+        // Guard against duplicate column if version 7 was partially applied
+        try {
+          await m.addColumn(books, books.translator as GeneratedColumn);
+        } catch (_) {}
       }
     },
   );

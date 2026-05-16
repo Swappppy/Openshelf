@@ -156,6 +156,12 @@ class CoverService {
     }
   }
 
+  /// Returns the directory where covers are stored.
+  static Future<Directory> getCoverDirectory() async {
+    final docDir = await getApplicationDocumentsDirectory();
+    return docDir; // Currently stored in root documents
+  }
+
   /// Provides a standard UI for cropping imprint/publisher logos.
   static Future<String?> cropImprint(String path, {
     required String title,

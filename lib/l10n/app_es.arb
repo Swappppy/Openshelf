@@ -646,11 +646,35 @@
   "settingsImportBookshelfHint": "Importar libros desde un archivo CSV",
   "@settingsImportBookshelfHint": { "description": "Pista de importación" },
 
-  "settingsExportCsv": "Exportar a CSV",
-  "@settingsExportCsv": { "description": "Opción de exportar" },
+  "settingsExportCsv": "Exportar biblioteca",
+  "@settingsExportCsv": { "description": "Título de exportación" },
 
-  "settingsFullBackup": "Copia de seguridad completa",
-  "@settingsFullBackup": { "description": "Opción de backup" },
+  "settingsExportCsvHint": "Exportar todos los libros a un archivo CSV",
+  "@settingsExportCsvHint": { "description": "Pista de exportación" },
+
+  "settingsFullBackup": "Restaurar biblioteca",
+  "@settingsFullBackup": { "description": "Título de restauración" },
+
+  "settingsFullBackupHint": "Restaurar libros desde una copia de seguridad CSV",
+  "@settingsFullBackupHint": { "description": "Pista de restauración" },
+
+  "exportTitle": "Exportar biblioteca",
+  "@exportTitle": { "description": "Título del diálogo de exportación" },
+
+  "exportCoversPrompt": "¿Quieres incluir las imágenes de las portadas en la copia de seguridad? (Se creará un archivo ZIP junto al CSV)",
+  "@exportCoversPrompt": { "description": "Pregunta sobre portadas en exportación" },
+
+  "importRestoreCoversTitle": "Restaurar portadas",
+  "@importRestoreCoversTitle": { "description": "Título de restauración de portadas" },
+
+  "importRestoreCoversPrompt": "¿Tienes también un archivo ZIP con las portadas para restaurar?",
+  "@importRestoreCoversPrompt": { "description": "Pregunta sobre portadas en importación" },
+
+  "yes": "Sí",
+  "@yes": { "description": "Botón Sí" },
+
+  "no": "No",
+  "@no": { "description": "Botón No" },
 
   "devDeleteAllBooks": "BORRAR TODOS LOS LIBROS (DEV)",
   "@devDeleteAllBooks": { "description": "Opción de desarrollador para limpiar base de datos" },

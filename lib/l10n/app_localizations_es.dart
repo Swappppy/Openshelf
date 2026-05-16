@@ -642,10 +642,38 @@ class AppLocalizationsEs extends AppLocalizations {
       'Importar libros desde un archivo CSV';
 
   @override
-  String get settingsExportCsv => 'Exportar a CSV';
+  String get settingsExportCsv => 'Exportar biblioteca';
 
   @override
-  String get settingsFullBackup => 'Copia de seguridad completa';
+  String get settingsExportCsvHint =>
+      'Exportar todos los libros a un archivo CSV';
+
+  @override
+  String get settingsFullBackup => 'Restaurar biblioteca';
+
+  @override
+  String get settingsFullBackupHint =>
+      'Restaurar libros desde una copia de seguridad CSV';
+
+  @override
+  String get exportTitle => 'Exportar biblioteca';
+
+  @override
+  String get exportCoversPrompt =>
+      '¿Quieres incluir las imágenes de las portadas en la copia de seguridad? (Se creará un archivo ZIP junto al CSV)';
+
+  @override
+  String get importRestoreCoversTitle => 'Restaurar portadas';
+
+  @override
+  String get importRestoreCoversPrompt =>
+      '¿Tienes también un archivo ZIP con las portadas para restaurar?';
+
+  @override
+  String get yes => 'Sí';
+
+  @override
+  String get no => 'No';
 
   @override
   String get devDeleteAllBooks => 'BORRAR TODOS LOS LIBROS (DEV)';

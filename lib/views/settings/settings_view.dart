@@ -9,6 +9,7 @@ import '../../controllers/database_provider.dart';
 import '../../models/app_settings.dart';
 import '../../services/bookshelf_import_service.dart';
 import '../../services/database.dart';
+import '../../services/data_migration_service.dart';
 import '../../l10n/l10n_extension.dart';
 
 /// Main settings view for global application configuration.
@@ -310,19 +311,17 @@ class _DataSection extends ConsumerWidget {
               ),
               const Divider(height: 1, indent: 56),
               ListTile(
-                enabled: false,
                 leading: const Icon(Icons.download_outlined),
                 title: Text(l10n.settingsExportCsv),
-                subtitle: const Text('TODO: Implement CSV export'),
-                onTap: () {},
+                subtitle: Text(l10n.settingsExportCsvHint),
+                onTap: () => _handleLibraryExport(context, db),
               ),
               const Divider(height: 1, indent: 56),
               ListTile(
-                enabled: false,
                 leading: const Icon(Icons.backup_outlined),
                 title: Text(l10n.settingsFullBackup),
-                subtitle: const Text('TODO: Implement full database backup'),
-                onTap: () {},
+                subtitle: Text(l10n.settingsFullBackupHint),
+                onTap: () => _handleLibraryImport(context, db),
               ),
               const Divider(height: 1, indent: 56),
               ListTile(
@@ -362,6 +361,87 @@ class _DataSection extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _handleLibraryExport(BuildContext context, AppDatabase db) async {
+    final includeCovers = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.l10n.exportTitle),
+        content: Text(context.l10n.exportCoversPrompt),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.no)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.l10n.yes)),
+        ],
+      ),
+    );
+
+    if (includeCovers == null) return;
+
+    final migration = DataMigrationService(db);
+    try {
+      await migration.shareBackup(includeCovers: includeCovers);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleLibraryImport(BuildContext context, AppDatabase db) async {
+    try {
+      // 1. Pick CSV
+      final csvResult = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+        dialogTitle: 'Select Openshelf Backup CSV',
+      );
+
+      if (csvResult == null) return;
+      final csvFile = File(csvResult.files.single.path!);
+
+      // 2. Ask for Covers ZIP
+      File? zipFile;
+      final restoreCovers = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(context.l10n.importRestoreCoversTitle),
+          content: Text(context.l10n.importRestoreCoversPrompt),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.no)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.l10n.yes)),
+          ],
+        ),
+      );
+
+      if (restoreCovers == true) {
+        final zipResult = await FilePicker.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['zip'],
+          dialogTitle: 'Select Openshelf Covers ZIP',
+        );
+        if (zipResult != null) {
+          zipFile = File(zipResult.files.single.path!);
+        }
+      }
+
+      final migration = DataMigrationService(db);
+      final count = await migration.importFromBackup(csvFile, zipFile: zipFile);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.importSuccess(count))),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    }
   }
 
   Future<void> _handleBookshelfImport(BuildContext context, AppDatabase db) async {

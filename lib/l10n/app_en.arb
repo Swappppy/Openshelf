@@ -646,11 +646,35 @@
   "settingsImportBookshelfHint": "Import books from a CSV export",
   "@settingsImportBookshelfHint": { "description": "Import hint" },
 
-  "settingsExportCsv": "Export to CSV",
-  "@settingsExportCsv": { "description": "Export option" },
+  "settingsExportCsv": "Export library",
+  "@settingsExportCsv": { "description": "Export title" },
 
-  "settingsFullBackup": "Full backup",
-  "@settingsFullBackup": { "description": "Backup option" },
+  "settingsExportCsvHint": "Export all books to a CSV file",
+  "@settingsExportCsvHint": { "description": "Export hint" },
+
+  "settingsFullBackup": "Restore library",
+  "@settingsFullBackup": { "description": "Restore title" },
+
+  "settingsFullBackupHint": "Restore books from a previous CSV backup",
+  "@settingsFullBackupHint": { "description": "Restore hint" },
+
+  "exportTitle": "Export Library",
+  "@exportTitle": { "description": "Export dialog title" },
+
+  "exportCoversPrompt": "Do you want to include cover images in the backup? (This will create a ZIP file alongside the CSV)",
+  "@exportCoversPrompt": { "description": "Export covers prompt" },
+
+  "importRestoreCoversTitle": "Restore Covers",
+  "@importRestoreCoversTitle": { "description": "Import covers title" },
+
+  "importRestoreCoversPrompt": "Do you also have a ZIP file with the cover images to restore?",
+  "@importRestoreCoversPrompt": { "description": "Import covers prompt" },
+
+  "yes": "Yes",
+  "@yes": { "description": "Yes button" },
+
+  "no": "No",
+  "@no": { "description": "No button" },
 
   "devDeleteAllBooks": "DELETE ALL BOOKS (DEV)",
   "@devDeleteAllBooks": { "description": "Developer option to clear database" },

@@ -357,32 +357,6 @@ class _BookHeader extends ConsumerWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      
-                      const SizedBox(height: 6),
-                      
-                      // Star Rating
-                      Row(
-                        children: [
-                          ...List.generate(5, (i) {
-                            final isFilled = i < (book.rating ?? 0);
-                            return Icon(
-                              isFilled ? Icons.star : Icons.star_border,
-                              color: isFilled ? Colors.amber[700] : colorScheme.outline.withValues(alpha: 0.3),
-                              size: 14,
-                            );
-                          }),
-                          if (book.rating != null) ...[
-                            const SizedBox(width: 6),
-                            Text(
-                              '(${book.rating})',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: colorScheme.outline,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
                     ],
                   ),
 

@@ -1316,17 +1316,65 @@ abstract class AppLocalizations {
   /// **'Importar libros desde un archivo CSV'**
   String get settingsImportBookshelfHint;
 
-  /// Opción de exportar
+  /// Título de exportación
   ///
   /// In es, this message translates to:
-  /// **'Exportar a CSV'**
+  /// **'Exportar biblioteca'**
   String get settingsExportCsv;
 
-  /// Opción de backup
+  /// Pista de exportación
   ///
   /// In es, this message translates to:
-  /// **'Copia de seguridad completa'**
+  /// **'Exportar todos los libros a un archivo CSV'**
+  String get settingsExportCsvHint;
+
+  /// Título de restauración
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar biblioteca'**
   String get settingsFullBackup;
+
+  /// Pista de restauración
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar libros desde una copia de seguridad CSV'**
+  String get settingsFullBackupHint;
+
+  /// Título del diálogo de exportación
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar biblioteca'**
+  String get exportTitle;
+
+  /// Pregunta sobre portadas en exportación
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres incluir las imágenes de las portadas en la copia de seguridad? (Se creará un archivo ZIP junto al CSV)'**
+  String get exportCoversPrompt;
+
+  /// Título de restauración de portadas
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar portadas'**
+  String get importRestoreCoversTitle;
+
+  /// Pregunta sobre portadas en importación
+  ///
+  /// In es, this message translates to:
+  /// **'¿Tienes también un archivo ZIP con las portadas para restaurar?'**
+  String get importRestoreCoversPrompt;
+
+  /// Botón Sí
+  ///
+  /// In es, this message translates to:
+  /// **'Sí'**
+  String get yes;
+
+  /// Botón No
+  ///
+  /// In es, this message translates to:
+  /// **'No'**
+  String get no;
 
   /// Opción de desarrollador para limpiar base de datos
   ///
