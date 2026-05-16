@@ -5,7 +5,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../../controllers/app_settings_controller.dart';
+import '../../controllers/database_provider.dart';
 import '../../models/app_settings.dart';
+import '../../services/bookshelf_import_service.dart';
+import '../../services/database.dart';
 import '../../l10n/l10n_extension.dart';
 
 /// Main settings view for global application configuration.
@@ -27,6 +30,8 @@ class SettingsView extends StatelessWidget {
           _StorageSection(),
           SizedBox(height: 24),
           _SearchSection(),
+          SizedBox(height: 24),
+          _DataSection(),
           SizedBox(height: 32),
         ],
       ),
@@ -277,6 +282,127 @@ class _SearchSection extends ConsumerWidget {
         ),
       ],
     );
+  }
+}
+
+class _DataSection extends ConsumerWidget {
+  const _DataSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final db = ref.watch(databaseProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(l10n.settingsSectionData),
+        const SizedBox(height: 12),
+        Card(
+          margin: EdgeInsets.zero,
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.upload_file_outlined),
+                title: Text(l10n.settingsImportBookshelf),
+                subtitle: Text(l10n.settingsImportBookshelfHint),
+                onTap: () => _handleBookshelfImport(context, db),
+              ),
+              const Divider(height: 1, indent: 56),
+              ListTile(
+                enabled: false,
+                leading: const Icon(Icons.download_outlined),
+                title: Text(l10n.settingsExportCsv),
+                subtitle: const Text('TODO: Implement CSV export'),
+                onTap: () {},
+              ),
+              const Divider(height: 1, indent: 56),
+              ListTile(
+                enabled: false,
+                leading: const Icon(Icons.backup_outlined),
+                title: Text(l10n.settingsFullBackup),
+                subtitle: const Text('TODO: Implement full database backup'),
+                onTap: () {},
+              ),
+              const Divider(height: 1, indent: 56),
+              ListTile(
+                leading: const Icon(Icons.bug_report_outlined, color: Colors.red),
+                title: Text(l10n.devDeleteAllBooks, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                subtitle: const Text('Developer tool: clear database'),
+                onTap: () => _showDevDeleteConfirm(context, db),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showDevDeleteConfirm(BuildContext context, AppDatabase db) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.l10n.devDeleteConfirmTitle),
+        content: Text(context.l10n.devDeleteConfirmContent),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(context.l10n.cancel)),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              await db.deleteAllBooks();
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Database cleared')),
+                );
+              }
+            },
+            child: Text(context.l10n.delete),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleBookshelfImport(BuildContext context, AppDatabase db) async {
+    try {
+      // In this project, FilePicker seems to have a direct pickFiles static method
+      // or at least doesn't use the .platform getter.
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result == null || result.files.single.path == null) return;
+
+      final file = File(result.files.single.path!);
+      final importService = BookshelfImportService(db);
+      
+      final importResult = await importService.importFromFile(file);
+
+      if (context.mounted) {
+        final message = importResult.skipped == 0
+            ? context.l10n.importSuccess(importResult.imported)
+            : context.l10n.importPartial(importResult.imported, importResult.skipped);
+            
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+
+        if (importResult.errors.isNotEmpty) {
+          debugPrint('Import Errors: ${importResult.errors.join('\n')}');
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    }
   }
 }
 

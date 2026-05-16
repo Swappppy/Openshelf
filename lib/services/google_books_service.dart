@@ -7,24 +7,53 @@ import '../models/book_search_result.dart';
 class GoogleBooksService {
   static const _baseUrl = 'https://www.googleapis.com/books/v1/volumes';
 
-  /// Searches for books using a general query (title, author, etc.)
-  static Future<List<BookSearchResult>> search(String query, {String? apiKey, String? preferredLanguage}) async {
+  /// Searches for books using a general query with field-specific restrictions.
+  static Future<List<BookSearchResult>> search(
+    String query, {
+    String? apiKey,
+    String? preferredLanguage,
+    String? title,
+    String? author,
+    String? publisher,
+  }) async {
     try {
-      var url = '$_baseUrl?q=${Uri.encodeComponent(query)}&maxResults=10';
+      // Build a more precise query using Google's field identifiers
+      final List<String> parts = [];
+      if (title != null && title.isNotEmpty) {
+        parts.add('intitle:"$title"');
+      } else {
+        parts.add(Uri.encodeComponent(query));
+      }
+      
+      if (author != null && author.isNotEmpty) parts.add('inauthor:"$author"');
+      if (publisher != null && publisher.isNotEmpty) parts.add('inpublisher:"$publisher"');
+
+      final q = parts.join('+');
+      var url = '$_baseUrl?q=$q&maxResults=40';
+      
       if (apiKey != null && apiKey.isNotEmpty) {
         url += '&key=$apiKey';
       }
       if (preferredLanguage != null && preferredLanguage.isNotEmpty) {
-        url += '&langRestrict=$preferredLanguage';
+        final lang = preferredLanguage.length > 2 ? preferredLanguage.substring(0, 2) : preferredLanguage;
+        url += '&langRestrict=$lang';
       }
       
+      debugPrint('Google Books: Searching $url');
       final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      debugPrint('Google Books: HTTP ${response.statusCode}');
+      
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final items = data['items'] as List?;
-        if (items == null) return [];
+        if (items == null) {
+          debugPrint('Google Books: No items found in response');
+          return [];
+        }
 
         return items.map((item) => _parseItem(item)).toList();
+      } else {
+        debugPrint('Google Books Error: ${response.body}');
       }
     } catch (e) {
       debugPrint('Google Books Search Error: $e');
@@ -40,13 +69,17 @@ class GoogleBooksService {
         url += '&key=$apiKey';
       }
       
+      debugPrint('Google Books: ISBN Lookup $url');
       final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      debugPrint('Google Books: HTTP ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final items = data['items'] as List?;
         if (items != null && items.isNotEmpty) {
           return _parseItem(items.first);
         }
+        debugPrint('Google Books: ISBN not found');
       }
     } catch (e) {
       debugPrint('Google Books ISBN Error: $e');
@@ -72,8 +105,10 @@ class GoogleBooksService {
 
     return BookSearchResult(
       title: info['title'] ?? 'Unknown Title',
+      subtitle: info['subtitle'],
       authors: (info['authors'] as List?)?.cast<String>() ?? ['Unknown Author'],
       isbn: isbn,
+      language: info['language'],
       publisher: info['publisher'],
       coverUrl: cover,
       pageCount: info['pageCount'],

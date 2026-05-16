@@ -30,6 +30,17 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _subtitleMeta = const VerificationMeta(
+    'subtitle',
+  );
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+    'subtitle',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _authorMeta = const VerificationMeta('author');
   @override
   late final GeneratedColumn<String> author = GeneratedColumn<String>(
@@ -43,6 +54,28 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
   @override
   late final GeneratedColumn<String> isbn = GeneratedColumn<String>(
     'isbn',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _languageMeta = const VerificationMeta(
+    'language',
+  );
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _translatorMeta = const VerificationMeta(
+    'translator',
+  );
+  @override
+  late final GeneratedColumn<String> translator = GeneratedColumn<String>(
+    'translator',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -210,8 +243,11 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
   List<GeneratedColumn> get $columns => [
     id,
     title,
+    subtitle,
     author,
     isbn,
+    language,
+    translator,
     publisher,
     coverUrl,
     totalPages,
@@ -251,6 +287,12 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
+    if (data.containsKey('subtitle')) {
+      context.handle(
+        _subtitleMeta,
+        subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta),
+      );
+    }
     if (data.containsKey('author')) {
       context.handle(
         _authorMeta,
@@ -263,6 +305,18 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
       context.handle(
         _isbnMeta,
         isbn.isAcceptableOrUnknown(data['isbn']!, _isbnMeta),
+      );
+    }
+    if (data.containsKey('language')) {
+      context.handle(
+        _languageMeta,
+        language.isAcceptableOrUnknown(data['language']!, _languageMeta),
+      );
+    }
+    if (data.containsKey('translator')) {
+      context.handle(
+        _translatorMeta,
+        translator.isAcceptableOrUnknown(data['translator']!, _translatorMeta),
       );
     }
     if (data.containsKey('publisher')) {
@@ -372,6 +426,10 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         DriftSqlType.string,
         data['${effectivePrefix}title'],
       )!,
+      subtitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subtitle'],
+      ),
       author: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}author'],
@@ -379,6 +437,14 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
       isbn: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}isbn'],
+      ),
+      language: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}language'],
+      ),
+      translator: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}translator'],
       ),
       publisher: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -461,8 +527,11 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
 class Book extends DataClass implements Insertable<Book> {
   final int id;
   final String title;
+  final String? subtitle;
   final String author;
   final String? isbn;
+  final String? language;
+  final String? translator;
   final String? publisher;
   final String? coverUrl;
   final int? totalPages;
@@ -481,8 +550,11 @@ class Book extends DataClass implements Insertable<Book> {
   const Book({
     required this.id,
     required this.title,
+    this.subtitle,
     required this.author,
     this.isbn,
+    this.language,
+    this.translator,
     this.publisher,
     this.coverUrl,
     this.totalPages,
@@ -504,9 +576,18 @@ class Book extends DataClass implements Insertable<Book> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['title'] = Variable<String>(title);
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
     map['author'] = Variable<String>(author);
     if (!nullToAbsent || isbn != null) {
       map['isbn'] = Variable<String>(isbn);
+    }
+    if (!nullToAbsent || language != null) {
+      map['language'] = Variable<String>(language);
+    }
+    if (!nullToAbsent || translator != null) {
+      map['translator'] = Variable<String>(translator);
     }
     if (!nullToAbsent || publisher != null) {
       map['publisher'] = Variable<String>(publisher);
@@ -562,8 +643,17 @@ class Book extends DataClass implements Insertable<Book> {
     return BooksCompanion(
       id: Value(id),
       title: Value(title),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
       author: Value(author),
       isbn: isbn == null && nullToAbsent ? const Value.absent() : Value(isbn),
+      language: language == null && nullToAbsent
+          ? const Value.absent()
+          : Value(language),
+      translator: translator == null && nullToAbsent
+          ? const Value.absent()
+          : Value(translator),
       publisher: publisher == null && nullToAbsent
           ? const Value.absent()
           : Value(publisher),
@@ -616,8 +706,11 @@ class Book extends DataClass implements Insertable<Book> {
     return Book(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
       author: serializer.fromJson<String>(json['author']),
       isbn: serializer.fromJson<String?>(json['isbn']),
+      language: serializer.fromJson<String?>(json['language']),
+      translator: serializer.fromJson<String?>(json['translator']),
       publisher: serializer.fromJson<String?>(json['publisher']),
       coverUrl: serializer.fromJson<String?>(json['coverUrl']),
       totalPages: serializer.fromJson<int?>(json['totalPages']),
@@ -643,8 +736,11 @@ class Book extends DataClass implements Insertable<Book> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
+      'subtitle': serializer.toJson<String?>(subtitle),
       'author': serializer.toJson<String>(author),
       'isbn': serializer.toJson<String?>(isbn),
+      'language': serializer.toJson<String?>(language),
+      'translator': serializer.toJson<String?>(translator),
       'publisher': serializer.toJson<String?>(publisher),
       'coverUrl': serializer.toJson<String?>(coverUrl),
       'totalPages': serializer.toJson<int?>(totalPages),
@@ -668,8 +764,11 @@ class Book extends DataClass implements Insertable<Book> {
   Book copyWith({
     int? id,
     String? title,
+    Value<String?> subtitle = const Value.absent(),
     String? author,
     Value<String?> isbn = const Value.absent(),
+    Value<String?> language = const Value.absent(),
+    Value<String?> translator = const Value.absent(),
     Value<String?> publisher = const Value.absent(),
     Value<String?> coverUrl = const Value.absent(),
     Value<int?> totalPages = const Value.absent(),
@@ -688,8 +787,11 @@ class Book extends DataClass implements Insertable<Book> {
   }) => Book(
     id: id ?? this.id,
     title: title ?? this.title,
+    subtitle: subtitle.present ? subtitle.value : this.subtitle,
     author: author ?? this.author,
     isbn: isbn.present ? isbn.value : this.isbn,
+    language: language.present ? language.value : this.language,
+    translator: translator.present ? translator.value : this.translator,
     publisher: publisher.present ? publisher.value : this.publisher,
     coverUrl: coverUrl.present ? coverUrl.value : this.coverUrl,
     totalPages: totalPages.present ? totalPages.value : this.totalPages,
@@ -714,8 +816,13 @@ class Book extends DataClass implements Insertable<Book> {
     return Book(
       id: data.id.present ? data.id.value : this.id,
       title: data.title.present ? data.title.value : this.title,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
       author: data.author.present ? data.author.value : this.author,
       isbn: data.isbn.present ? data.isbn.value : this.isbn,
+      language: data.language.present ? data.language.value : this.language,
+      translator: data.translator.present
+          ? data.translator.value
+          : this.translator,
       publisher: data.publisher.present ? data.publisher.value : this.publisher,
       coverUrl: data.coverUrl.present ? data.coverUrl.value : this.coverUrl,
       totalPages: data.totalPages.present
@@ -753,8 +860,11 @@ class Book extends DataClass implements Insertable<Book> {
     return (StringBuffer('Book(')
           ..write('id: $id, ')
           ..write('title: $title, ')
+          ..write('subtitle: $subtitle, ')
           ..write('author: $author, ')
           ..write('isbn: $isbn, ')
+          ..write('language: $language, ')
+          ..write('translator: $translator, ')
           ..write('publisher: $publisher, ')
           ..write('coverUrl: $coverUrl, ')
           ..write('totalPages: $totalPages, ')
@@ -775,11 +885,14 @@ class Book extends DataClass implements Insertable<Book> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     title,
+    subtitle,
     author,
     isbn,
+    language,
+    translator,
     publisher,
     coverUrl,
     totalPages,
@@ -795,15 +908,18 @@ class Book extends DataClass implements Insertable<Book> {
     startedAt,
     finishedAt,
     createdAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Book &&
           other.id == this.id &&
           other.title == this.title &&
+          other.subtitle == this.subtitle &&
           other.author == this.author &&
           other.isbn == this.isbn &&
+          other.language == this.language &&
+          other.translator == this.translator &&
           other.publisher == this.publisher &&
           other.coverUrl == this.coverUrl &&
           other.totalPages == this.totalPages &&
@@ -824,8 +940,11 @@ class Book extends DataClass implements Insertable<Book> {
 class BooksCompanion extends UpdateCompanion<Book> {
   final Value<int> id;
   final Value<String> title;
+  final Value<String?> subtitle;
   final Value<String> author;
   final Value<String?> isbn;
+  final Value<String?> language;
+  final Value<String?> translator;
   final Value<String?> publisher;
   final Value<String?> coverUrl;
   final Value<int?> totalPages;
@@ -844,8 +963,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
   const BooksCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
+    this.subtitle = const Value.absent(),
     this.author = const Value.absent(),
     this.isbn = const Value.absent(),
+    this.language = const Value.absent(),
+    this.translator = const Value.absent(),
     this.publisher = const Value.absent(),
     this.coverUrl = const Value.absent(),
     this.totalPages = const Value.absent(),
@@ -865,8 +987,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
   BooksCompanion.insert({
     this.id = const Value.absent(),
     required String title,
+    this.subtitle = const Value.absent(),
     required String author,
     this.isbn = const Value.absent(),
+    this.language = const Value.absent(),
+    this.translator = const Value.absent(),
     this.publisher = const Value.absent(),
     this.coverUrl = const Value.absent(),
     this.totalPages = const Value.absent(),
@@ -888,8 +1013,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
   static Insertable<Book> custom({
     Expression<int>? id,
     Expression<String>? title,
+    Expression<String>? subtitle,
     Expression<String>? author,
     Expression<String>? isbn,
+    Expression<String>? language,
+    Expression<String>? translator,
     Expression<String>? publisher,
     Expression<String>? coverUrl,
     Expression<int>? totalPages,
@@ -909,8 +1037,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
+      if (subtitle != null) 'subtitle': subtitle,
       if (author != null) 'author': author,
       if (isbn != null) 'isbn': isbn,
+      if (language != null) 'language': language,
+      if (translator != null) 'translator': translator,
       if (publisher != null) 'publisher': publisher,
       if (coverUrl != null) 'cover_url': coverUrl,
       if (totalPages != null) 'total_pages': totalPages,
@@ -932,8 +1063,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
   BooksCompanion copyWith({
     Value<int>? id,
     Value<String>? title,
+    Value<String?>? subtitle,
     Value<String>? author,
     Value<String?>? isbn,
+    Value<String?>? language,
+    Value<String?>? translator,
     Value<String?>? publisher,
     Value<String?>? coverUrl,
     Value<int?>? totalPages,
@@ -953,8 +1087,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
     return BooksCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
       author: author ?? this.author,
       isbn: isbn ?? this.isbn,
+      language: language ?? this.language,
+      translator: translator ?? this.translator,
       publisher: publisher ?? this.publisher,
       coverUrl: coverUrl ?? this.coverUrl,
       totalPages: totalPages ?? this.totalPages,
@@ -982,11 +1119,20 @@ class BooksCompanion extends UpdateCompanion<Book> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
     if (author.present) {
       map['author'] = Variable<String>(author.value);
     }
     if (isbn.present) {
       map['isbn'] = Variable<String>(isbn.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (translator.present) {
+      map['translator'] = Variable<String>(translator.value);
     }
     if (publisher.present) {
       map['publisher'] = Variable<String>(publisher.value);
@@ -1045,8 +1191,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
     return (StringBuffer('BooksCompanion(')
           ..write('id: $id, ')
           ..write('title: $title, ')
+          ..write('subtitle: $subtitle, ')
           ..write('author: $author, ')
           ..write('isbn: $isbn, ')
+          ..write('language: $language, ')
+          ..write('translator: $translator, ')
           ..write('publisher: $publisher, ')
           ..write('coverUrl: $coverUrl, ')
           ..write('totalPages: $totalPages, ')
@@ -1208,6 +1357,8 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
 class Tag extends DataClass implements Insertable<Tag> {
   final int id;
   final String name;
+
+  /// Type can be 'tag' (category), 'imprint', or 'collection'
   final String type;
   final String? color;
   final String? imagePath;
@@ -2061,8 +2212,11 @@ typedef $$BooksTableCreateCompanionBuilder =
     BooksCompanion Function({
       Value<int> id,
       required String title,
+      Value<String?> subtitle,
       required String author,
       Value<String?> isbn,
+      Value<String?> language,
+      Value<String?> translator,
       Value<String?> publisher,
       Value<String?> coverUrl,
       Value<int?> totalPages,
@@ -2083,8 +2237,11 @@ typedef $$BooksTableUpdateCompanionBuilder =
     BooksCompanion Function({
       Value<int> id,
       Value<String> title,
+      Value<String?> subtitle,
       Value<String> author,
       Value<String?> isbn,
+      Value<String?> language,
+      Value<String?> translator,
       Value<String?> publisher,
       Value<String?> coverUrl,
       Value<int?> totalPages,
@@ -2144,6 +2301,11 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get subtitle => $composableBuilder(
+    column: $table.subtitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get author => $composableBuilder(
     column: $table.author,
     builder: (column) => ColumnFilters(column),
@@ -2151,6 +2313,16 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
 
   ColumnFilters<String> get isbn => $composableBuilder(
     column: $table.isbn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get translator => $composableBuilder(
+    column: $table.translator,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2276,6 +2448,11 @@ class $$BooksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+    column: $table.subtitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get author => $composableBuilder(
     column: $table.author,
     builder: (column) => ColumnOrderings(column),
@@ -2283,6 +2460,16 @@ class $$BooksTableOrderingComposer
 
   ColumnOrderings<String> get isbn => $composableBuilder(
     column: $table.isbn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get translator => $composableBuilder(
+    column: $table.translator,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2377,11 +2564,22 @@ class $$BooksTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
   GeneratedColumn<String> get author =>
       $composableBuilder(column: $table.author, builder: (column) => column);
 
   GeneratedColumn<String> get isbn =>
       $composableBuilder(column: $table.isbn, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get translator => $composableBuilder(
+    column: $table.translator,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get publisher =>
       $composableBuilder(column: $table.publisher, builder: (column) => column);
@@ -2499,8 +2697,11 @@ class $$BooksTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> title = const Value.absent(),
+                Value<String?> subtitle = const Value.absent(),
                 Value<String> author = const Value.absent(),
                 Value<String?> isbn = const Value.absent(),
+                Value<String?> language = const Value.absent(),
+                Value<String?> translator = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> coverUrl = const Value.absent(),
                 Value<int?> totalPages = const Value.absent(),
@@ -2519,8 +2720,11 @@ class $$BooksTableTableManager
               }) => BooksCompanion(
                 id: id,
                 title: title,
+                subtitle: subtitle,
                 author: author,
                 isbn: isbn,
+                language: language,
+                translator: translator,
                 publisher: publisher,
                 coverUrl: coverUrl,
                 totalPages: totalPages,
@@ -2541,8 +2745,11 @@ class $$BooksTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String title,
+                Value<String?> subtitle = const Value.absent(),
                 required String author,
                 Value<String?> isbn = const Value.absent(),
+                Value<String?> language = const Value.absent(),
+                Value<String?> translator = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> coverUrl = const Value.absent(),
                 Value<int?> totalPages = const Value.absent(),
@@ -2561,8 +2768,11 @@ class $$BooksTableTableManager
               }) => BooksCompanion.insert(
                 id: id,
                 title: title,
+                subtitle: subtitle,
                 author: author,
                 isbn: isbn,
+                language: language,
+                translator: translator,
                 publisher: publisher,
                 coverUrl: coverUrl,
                 totalPages: totalPages,

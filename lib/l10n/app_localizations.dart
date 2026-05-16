@@ -446,11 +446,29 @@ abstract class AppLocalizations {
   /// **'Título'**
   String get fieldTitle;
 
+  /// Nombre del campo subtítulo
+  ///
+  /// In es, this message translates to:
+  /// **'Subtítulo'**
+  String get fieldSubtitle;
+
   /// Nombre del campo ISBN
   ///
   /// In es, this message translates to:
   /// **'ISBN'**
   String get fieldIsbn;
+
+  /// Nombre del campo idioma
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma'**
+  String get fieldLanguage;
+
+  /// Nombre del campo traductor
+  ///
+  /// In es, this message translates to:
+  /// **'Traducción'**
+  String get fieldTranslator;
 
   /// Nombre del campo de páginas totales
   ///
@@ -1280,6 +1298,66 @@ abstract class AppLocalizations {
   /// **'Se usará para buscar libros por ISBN o título'**
   String get settingsSearchServerHint;
 
+  /// Encabezado de sección de datos
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión de datos'**
+  String get settingsSectionData;
+
+  /// Opción de importar desde Bookshelf
+  ///
+  /// In es, this message translates to:
+  /// **'Importar desde Bookshelf'**
+  String get settingsImportBookshelf;
+
+  /// Pista de importación
+  ///
+  /// In es, this message translates to:
+  /// **'Importar libros desde un archivo CSV'**
+  String get settingsImportBookshelfHint;
+
+  /// Opción de exportar
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar a CSV'**
+  String get settingsExportCsv;
+
+  /// Opción de backup
+  ///
+  /// In es, this message translates to:
+  /// **'Copia de seguridad completa'**
+  String get settingsFullBackup;
+
+  /// Opción de desarrollador para limpiar base de datos
+  ///
+  /// In es, this message translates to:
+  /// **'BORRAR TODOS LOS LIBROS (DEV)'**
+  String get devDeleteAllBooks;
+
+  /// Título de confirmación de borrado dev
+  ///
+  /// In es, this message translates to:
+  /// **'¿Vaciar Biblioteca?'**
+  String get devDeleteConfirmTitle;
+
+  /// Contenido de confirmación de borrado dev
+  ///
+  /// In es, this message translates to:
+  /// **'Esto eliminará permanentemente TODOS los libros y categorías. Solo para pruebas. ¿Continuar?'**
+  String get devDeleteConfirmContent;
+
+  /// No description provided for @importSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Importación completada: {count} libros añadidos.'**
+  String importSuccess(int count);
+
+  /// No description provided for @importPartial.
+  ///
+  /// In es, this message translates to:
+  /// **'Importación parcial: {added} añadidos, {skipped} omitidos.'**
+  String importPartial(int added, int skipped);
+
   /// Título de la tarjeta de API key de Google Books
   ///
   /// In es, this message translates to:
@@ -1417,6 +1495,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'RECOMENDADO POR OPENSHELF'**
   String get bookSearchRecommended;
+
+  /// Panel de búsqueda: pestaña Estado
+  ///
+  /// In es, this message translates to:
+  /// **'Estado'**
+  String get searchTabStatus;
+
+  /// Panel de búsqueda: pestaña Sello
+  ///
+  /// In es, this message translates to:
+  /// **'Sello'**
+  String get searchTabImprint;
+
+  /// Panel de búsqueda: pestaña Categoría
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría'**
+  String get searchTabCategory;
+
+  /// No description provided for @searchFilterStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado: {value}'**
+  String searchFilterStatus(String value);
+
+  /// No description provided for @searchFilterImprint.
+  ///
+  /// In es, this message translates to:
+  /// **'Sello: {value}'**
+  String searchFilterImprint(String value);
+
+  /// No description provided for @searchFilterCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Cat.: {value}'**
+  String searchFilterCategory(String value);
+
+  /// No description provided for @searchActiveFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 filtro activo} other{{count} filtros activos}}'**
+  String searchActiveFilters(int count);
+
+  /// Botón para limpiar todos los filtros de búsqueda
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar todo'**
+  String get searchClearAll;
 
   /// Mensaje de éxito al añadir libro
   ///

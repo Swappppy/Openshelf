@@ -38,8 +38,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
   // Controllers
   late final TextEditingController _titleCtrl;
+  late final TextEditingController _subtitleCtrl;
   late final TextEditingController _authorCtrl;
   late final TextEditingController _isbnCtrl;
+  late final TextEditingController _languageCtrl;
+  late final TextEditingController _translatorCtrl;
   late final TextEditingController _publisherCtrl;
   late final TextEditingController _totalPagesCtrl;
   late final TextEditingController _currentPageCtrl;
@@ -53,9 +56,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   double? _rating;
   bool _isSaving = false;
   String? _coverPath;
+  DateTime? _startedAt;
+  DateTime? _finishedAt;
   List<Tag> _selectedTags = [];        
   Tag? _selectedImprint;
   final List<_PendingTag> _pendingTags = []; 
+  bool _isInitializing = true;
 
   @override
   void initState() {
@@ -65,8 +71,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final pre = widget.prefill;
     
     _titleCtrl = TextEditingController(text: b?.title ?? pre?.title ?? '');
+    _subtitleCtrl = TextEditingController(text: b?.subtitle ?? pre?.subtitle ?? '');
     _authorCtrl = TextEditingController(text: b?.author ?? pre?.authors.join(', ') ?? '');
     _isbnCtrl = TextEditingController(text: b?.isbn ?? pre?.isbn ?? '');
+    _languageCtrl = TextEditingController(text: b?.language ?? pre?.language ?? '');
+    _translatorCtrl = TextEditingController(text: b?.translator ?? pre?.translator ?? '');
     _publisherCtrl = TextEditingController(
         text: b?.publisher ?? pre?.publisher ?? '');
     _totalPagesCtrl = TextEditingController(
@@ -85,6 +94,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _format = b.bookFormat;
       _rating = b.rating;
       _coverPath = b.coverPath;
+      _startedAt = b.startedAt;
+      _finishedAt = b.finishedAt;
       _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
       _loadExistingTags(b.id);
       _loadExistingImprint(b.id);
@@ -95,14 +106,22 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     
     _currentPageCtrl.addListener(_updateStatusFromPages);
     _totalPagesCtrl.addListener(_updateStatusFromPages);
+    
+    // End initialization phase in the next frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _isInitializing = false;
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     _titleCtrl.dispose();
+    _subtitleCtrl.dispose();
     _authorCtrl.dispose();
     _isbnCtrl.dispose();
+    _languageCtrl.dispose();
+    _translatorCtrl.dispose();
     _publisherCtrl.dispose();
     _totalPagesCtrl.dispose();
     _currentPageCtrl.dispose();
@@ -136,7 +155,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _prefillCoverFromUrl(String url) async {
-    final saved = await CoverService.saveCoverFromUrl(url);
+    final title = context.l10n.cropCoverTitle;
+    final saved = await CoverService.saveCoverFromUrl(
+      url, 
+      cropTitle: title,
+      doneButtonTitle: context.l10n.done,
+      cancelButtonTitle: context.l10n.cancel,
+    );
     if (saved != null && mounted) {
       setState(() => _coverPath = saved);
     }
@@ -145,23 +170,45 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   Future<void> _pickCover() async {
     if (!await PermissionService.requestGallery()) return;
     if (!mounted) return;
-    //final title = context.l10n.cropCoverTitle;
+    
+    final l10n = context.l10n;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-    // Standard crop is handled by CoverService
-    final saved = await CoverService.saveLocalCover(picked.path);
-    setState(() => _coverPath = saved);
+    
+    final cropped = await CoverService.cropCover(
+      picked.path, 
+      title: l10n.cropCoverTitle,
+      doneButtonTitle: l10n.done,
+      cancelButtonTitle: l10n.cancel,
+    );
+    
+    if (cropped != null) {
+      final saved = await CoverService.saveLocalCover(cropped);
+      setState(() => _coverPath = saved);
+    }
   }
 
   Future<void> _takePhoto() async {
     if (!await PermissionService.requestCamera()) return;
     if (!mounted) return;
+    
+    final l10n = context.l10n;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.camera);
     if (picked == null) return;
-    final saved = await CoverService.saveLocalCover(picked.path);
-    setState(() => _coverPath = saved);
+    
+    final cropped = await CoverService.cropCover(
+      picked.path, 
+      title: l10n.cropCoverTitle,
+      doneButtonTitle: l10n.done,
+      cancelButtonTitle: l10n.cancel,
+    );
+
+    if (cropped != null) {
+      final saved = await CoverService.saveLocalCover(cropped);
+      setState(() => _coverPath = saved);
+    }
   }
 
   Future<void> _pickCoverFromUrl() async {
@@ -196,7 +243,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (!mounted) return;
     
     setState(() => _isSaving = true);
-    final saved = await CoverService.saveCoverFromUrl(url);
+    final title = context.l10n.cropCoverTitle;
+    final saved = await CoverService.saveCoverFromUrl(
+      url, 
+      cropTitle: title,
+      doneButtonTitle: context.l10n.done,
+      cancelButtonTitle: context.l10n.cancel,
+    );
     setState(() {
       _isSaving = false;
       if (saved != null) _coverPath = saved;
@@ -268,8 +321,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       // Update existing record
       final updated = widget.existingBook!.copyWith(
         title: _titleCtrl.text.trim(),
+        subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
         author: _authorCtrl.text.trim(),
         isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
+        language: Value(_languageCtrl.text.trim().isEmpty ? null : _languageCtrl.text.trim()),
+        translator: Value(_translatorCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
         publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
         totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
         currentPage: Value(int.tryParse(_currentPageCtrl.text) ?? 0),
@@ -281,17 +337,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
         publishYear: Value(int.tryParse(_publishYearCtrl.text)),
+        startedAt: Value(_startedAt),
+        finishedAt: Value(_finishedAt),
       );
       await db.updateBook(updated);
-      
-      // Cleanup collections if reference was removed or changed
-      final oldCollection = widget.existingBook!.collectionName;
-      final newCollection = _collectionNameCtrl.text.trim().isEmpty
-          ? null
-          : _collectionNameCtrl.text.trim();
-      if (oldCollection != null && oldCollection != newCollection) {
-        await db.pruneCollectionIfOrphan(oldCollection);
-      }
       
       final existingIds = _selectedTags.map((t) => t.id).toList();
       for (final p in _pendingTags) {
@@ -304,6 +353,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         );
         existingIds.add(newId);
       }
+      
       await db.setBookTags(widget.existingBook!.id, existingIds);
       await db.setBookImprint(widget.existingBook!.id, _selectedImprint?.id);
       await db.pruneOrphanTags();
@@ -311,8 +361,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       // Insert new record
       final companion = BooksCompanion.insert(
         title: _titleCtrl.text.trim(),
+        subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
         author: _authorCtrl.text.trim(),
         isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
+        language: Value(_languageCtrl.text.trim().isEmpty ? null : _languageCtrl.text.trim()),
+        translator: Value(_translatorCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
         publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
         totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
         currentPage: Value(int.tryParse(_currentPageCtrl.text) ?? 0),
@@ -324,6 +377,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
         publishYear: Value(int.tryParse(_publishYearCtrl.text)),
+        startedAt: Value(_startedAt),
+        finishedAt: Value(_finishedAt),
       );
       final newId = await db.insertBook(companion);
       
@@ -569,9 +624,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
   /// Automatically updates reading status based on page progress.
   void _updateStatusFromPages() {
+    if (_isInitializing) return;
+    
     final current = int.tryParse(_currentPageCtrl.text);
     final total = int.tryParse(_totalPagesCtrl.text);
     if (current == null || total == null || total == 0) return;
+
+    // Do not auto-update if status is terminal or paused
+    if (_status == ReadingStatus.abandoned || _status == ReadingStatus.paused) return;
 
     ReadingStatus newStatus;
     if (current == 0) {
@@ -579,7 +639,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     } else if (current >= total) {
       newStatus = ReadingStatus.read;
       // Sync current page to total if exceeded
-      if (current > total) _currentPageCtrl.text = total.toString();
+      if (current > total) {
+        _currentPageCtrl.text = total.toString();
+        _currentPageCtrl.selection = TextSelection.fromPosition(
+          TextPosition(offset: _currentPageCtrl.text.length),
+        );
+      }
     } else {
       newStatus = ReadingStatus.reading;
     }
@@ -623,8 +688,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
           children: [
             _MainTab(
               titleCtrl: _titleCtrl,
+              subtitleCtrl: _subtitleCtrl,
               authorCtrl: _authorCtrl,
               isbnCtrl: _isbnCtrl,
+              languageCtrl: _languageCtrl,
+              translatorCtrl: _translatorCtrl,
               publisherCtrl: _publisherCtrl,
               totalPagesCtrl: _totalPagesCtrl,
               currentPageCtrl: _currentPageCtrl,
@@ -633,9 +701,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               format: _format,
               rating: _rating,
               coverPath: _coverPath,
+              startedAt: _startedAt,
+              finishedAt: _finishedAt,
               onStatusChanged: _onStatusChanged,
               onFormatChanged: (f) => setState(() => _format = f),
               onRatingChanged: (r) => setState(() => _rating = r),
+              onStartedAtChanged: (d) => setState(() => _startedAt = d),
+              onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
               onPickCover: _pickCover,
               onTakePhoto: _takePhoto,
               selectedTags: _selectedTags,
@@ -656,9 +728,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
             ),
             _DetailsTab(
               notesCtrl: _notesCtrl,
+              translatorCtrl: _translatorCtrl,
               collectionNameCtrl: _collectionNameCtrl,
               collectionNumberCtrl: _collectionNumberCtrl,
               selectedImprint: _selectedImprint,
+              startedAt: _startedAt,
+              finishedAt: _finishedAt,
+              onStartedAtChanged: (d) => setState(() => _startedAt = d),
+              onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
               onSelectImprint: (tag) => setState(() => _selectedImprint = tag),
               onClearImprint: () => setState(() => _selectedImprint = null),
             ),
@@ -674,8 +751,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 // -------------------------------------------------------
 class _MainTab extends ConsumerWidget {
   final TextEditingController titleCtrl;
+  final TextEditingController subtitleCtrl;
   final TextEditingController authorCtrl;
   final TextEditingController isbnCtrl;
+  final TextEditingController languageCtrl;
+  final TextEditingController translatorCtrl;
   final TextEditingController publisherCtrl;
   final TextEditingController totalPagesCtrl;
   final TextEditingController currentPageCtrl;
@@ -684,9 +764,13 @@ class _MainTab extends ConsumerWidget {
   final BookFormat? format;
   final double? rating;
   final String? coverPath;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
   final ValueChanged<ReadingStatus> onStatusChanged;
   final ValueChanged<BookFormat?> onFormatChanged;
   final ValueChanged<double?> onRatingChanged;
+  final ValueChanged<DateTime?> onStartedAtChanged;
+  final ValueChanged<DateTime?> onFinishedAtChanged;
   final VoidCallback onPickCover;
   final VoidCallback onTakePhoto;
   final List<Tag> selectedTags;
@@ -702,8 +786,11 @@ class _MainTab extends ConsumerWidget {
 
   const _MainTab({
     required this.titleCtrl,
+    required this.subtitleCtrl,
     required this.authorCtrl,
     required this.isbnCtrl,
+    required this.languageCtrl,
+    required this.translatorCtrl,
     required this.publisherCtrl,
     required this.totalPagesCtrl,
     required this.currentPageCtrl,
@@ -711,10 +798,14 @@ class _MainTab extends ConsumerWidget {
     required this.status,
     required this.format,
     required this.rating,
-    required this.coverPath,
+    this.coverPath,
+    this.startedAt,
+    this.finishedAt,
     required this.onStatusChanged,
     required this.onFormatChanged,
     required this.onRatingChanged,
+    required this.onStartedAtChanged,
+    required this.onFinishedAtChanged,
     required this.onPickCover,
     required this.onTakePhoto,
     required this.selectedTags,
@@ -807,6 +898,10 @@ class _MainTab extends ConsumerWidget {
             icon: Icons.title),
         const SizedBox(height: 12),
         _FormField(
+            controller: subtitleCtrl, label: context.l10n.fieldSubtitle,
+            icon: Icons.subtitles_outlined),
+        const SizedBox(height: 12),
+        _FormField(
             controller: authorCtrl, label: context.l10n.fieldAuthor, required: true,
             icon: Icons.person_outline),
         const SizedBox(height: 12),
@@ -827,7 +922,13 @@ class _MainTab extends ConsumerWidget {
             label: context.l10n.fieldIsbn,
             icon: Icons.barcode_reader,
             keyboardType: TextInputType.number),
+        const SizedBox(height: 12),
+        _FormField(
+            controller: languageCtrl,
+            label: context.l10n.fieldLanguage,
+            icon: Icons.language_outlined),
         const SizedBox(height: 24),
+
 
         // --- Categories (Tags) Section ---
         _SectionHeader(label: context.l10n.sectionCategories),
@@ -935,8 +1036,6 @@ class _MainTab extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 24),
-        
         // --- Status Section ---
         _SectionHeader(label: context.l10n.sectionReadingStatus),
         const SizedBox(height: 12),
@@ -964,17 +1063,27 @@ class _MainTab extends ConsumerWidget {
 // -------------------------------------------------------
 class _DetailsTab extends ConsumerWidget {
   final TextEditingController notesCtrl;
+  final TextEditingController translatorCtrl;
   final TextEditingController collectionNameCtrl;
   final TextEditingController collectionNumberCtrl;
   final Tag? selectedImprint;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final ValueChanged<DateTime?> onStartedAtChanged;
+  final ValueChanged<DateTime?> onFinishedAtChanged;
   final ValueChanged<Tag> onSelectImprint;
   final VoidCallback onClearImprint;
 
   const _DetailsTab({
     required this.notesCtrl,
+    required this.translatorCtrl,
     required this.collectionNameCtrl,
     required this.collectionNumberCtrl,
     required this.selectedImprint,
+    this.startedAt,
+    this.finishedAt,
+    required this.onStartedAtChanged,
+    required this.onFinishedAtChanged,
     required this.onSelectImprint,
     required this.onClearImprint,
   });
@@ -986,6 +1095,7 @@ class _DetailsTab extends ConsumerWidget {
       children: [
         _SectionHeader(label: context.l10n.fieldCollection),
         const SizedBox(height: 12),
+        // ... (collection autocomplete)
         Row(
           children: [
             Expanded(
@@ -1038,6 +1148,15 @@ class _DetailsTab extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
 
+        _SectionHeader(label: context.l10n.fieldTranslator),
+        const SizedBox(height: 12),
+        _FormField(
+          controller: translatorCtrl,
+          label: context.l10n.fieldTranslator,
+          icon: Icons.translate_outlined,
+        ),
+        const SizedBox(height: 24),
+
         _SectionHeader(label: context.l10n.bookDetailNotesTitle),
         const SizedBox(height: 12),
         _FormField(
@@ -1045,6 +1164,23 @@ class _DetailsTab extends ConsumerWidget {
           label: context.l10n.fieldNotes,
           icon: Icons.notes_outlined,
           maxLines: 6,
+        ),
+        const SizedBox(height: 24),
+
+        _SectionHeader(label: context.l10n.tabDetails),
+        const SizedBox(height: 12),
+        _DatePickerField(
+          label: context.l10n.bookDetailFieldStarted,
+          value: startedAt,
+          onChanged: onStartedAtChanged,
+          icon: Icons.play_circle_outline,
+        ),
+        const SizedBox(height: 12),
+        _DatePickerField(
+          label: context.l10n.bookDetailFieldFinished,
+          value: finishedAt,
+          onChanged: onFinishedAtChanged,
+          icon: Icons.check_circle_outline,
         ),
         const SizedBox(height: 32),
       ],
@@ -1437,6 +1573,54 @@ class _ImprintPlaceholder extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: content,
+    );
+  }
+}
+
+class _DatePickerField extends StatelessWidget {
+  final String label;
+  final DateTime? value;
+  final ValueChanged<DateTime?> onChanged;
+  final IconData icon;
+
+  const _DatePickerField({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: value ?? DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime(2100),
+        );
+        if (picked != null) onChanged(picked);
+      },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          border: const OutlineInputBorder(),
+          suffixIcon: value != null
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () => onChanged(null),
+                )
+              : null,
+        ),
+        child: Text(
+          value != null
+              ? '${value!.day}/${value!.month}/${value!.year}'
+              : '—',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
     );
   }
 }

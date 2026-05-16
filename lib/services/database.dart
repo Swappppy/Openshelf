@@ -9,8 +9,11 @@ part 'database.g.dart';
 class Books extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
+  TextColumn get subtitle => text().nullable()();
   TextColumn get author => text()();
   TextColumn get isbn => text().nullable()();
+  TextColumn get language => text().nullable()();
+  TextColumn get translator => text().nullable()();
   TextColumn get publisher => text().nullable()();
   TextColumn get coverUrl => text().nullable()();
   IntColumn get totalPages => integer().nullable()();
@@ -104,7 +107,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -124,6 +127,13 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 5) {
         await m.addColumn(books, books.publishYear as GeneratedColumn);
+      }
+      if (from < 6) {
+        await m.addColumn(books, books.subtitle as GeneratedColumn);
+        await m.addColumn(books, books.language as GeneratedColumn);
+      }
+      if (from < 7) {
+        await m.addColumn(books, books.translator as GeneratedColumn);
       }
     },
   );
@@ -195,6 +205,20 @@ class AppDatabase extends _$AppDatabase {
 
   Future<Book?> getBookByIsbn(String isbn) =>
       (select(books)..where((b) => b.isbn.equals(isbn))).getSingleOrNull();
+
+  Future<void> deleteAllBooks() async {
+    await transaction(() async {
+      await delete(bookTags).go();
+      await delete(books).go();
+      // Also prune orphan tags that are not imprints or collections
+      final allTags = await select(tags).get();
+      for (final tag in allTags) {
+        if (tag.type == 'tag') {
+          await (delete(tags)..where((t) => t.id.equals(tag.id))).go();
+        }
+      }
+    });
+  }
 
   // --- Collection Operations ---
 

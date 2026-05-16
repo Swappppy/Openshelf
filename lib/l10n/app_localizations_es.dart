@@ -190,7 +190,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get fieldTitle => 'Título';
 
   @override
+  String get fieldSubtitle => 'Subtítulo';
+
+  @override
   String get fieldIsbn => 'ISBN';
+
+  @override
+  String get fieldLanguage => 'Idioma';
+
+  @override
+  String get fieldTranslator => 'Traducción';
 
   @override
   String get fieldTotalPages => 'Páginas totales';
@@ -623,6 +632,42 @@ class AppLocalizationsEs extends AppLocalizations {
       'Se usará para buscar libros por ISBN o título';
 
   @override
+  String get settingsSectionData => 'Gestión de datos';
+
+  @override
+  String get settingsImportBookshelf => 'Importar desde Bookshelf';
+
+  @override
+  String get settingsImportBookshelfHint =>
+      'Importar libros desde un archivo CSV';
+
+  @override
+  String get settingsExportCsv => 'Exportar a CSV';
+
+  @override
+  String get settingsFullBackup => 'Copia de seguridad completa';
+
+  @override
+  String get devDeleteAllBooks => 'BORRAR TODOS LOS LIBROS (DEV)';
+
+  @override
+  String get devDeleteConfirmTitle => '¿Vaciar Biblioteca?';
+
+  @override
+  String get devDeleteConfirmContent =>
+      'Esto eliminará permanentemente TODOS los libros y categorías. Solo para pruebas. ¿Continuar?';
+
+  @override
+  String importSuccess(int count) {
+    return 'Importación completada: $count libros añadidos.';
+  }
+
+  @override
+  String importPartial(int added, int skipped) {
+    return 'Importación parcial: $added añadidos, $skipped omitidos.';
+  }
+
+  @override
   String get settingsApiKeyTitle => 'Google Books API key';
 
   @override
@@ -704,6 +749,44 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bookSearchRecommended => 'RECOMENDADO POR OPENSHELF';
+
+  @override
+  String get searchTabStatus => 'Estado';
+
+  @override
+  String get searchTabImprint => 'Sello';
+
+  @override
+  String get searchTabCategory => 'Categoría';
+
+  @override
+  String searchFilterStatus(String value) {
+    return 'Estado: $value';
+  }
+
+  @override
+  String searchFilterImprint(String value) {
+    return 'Sello: $value';
+  }
+
+  @override
+  String searchFilterCategory(String value) {
+    return 'Cat.: $value';
+  }
+
+  @override
+  String searchActiveFilters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filtros activos',
+      one: '1 filtro activo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get searchClearAll => 'Limpiar todo';
 
   @override
   String get addedToLibrary => 'Añadido a la biblioteca';

@@ -336,6 +336,18 @@ class _BookHeader extends ConsumerWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (book.subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          book.subtitle!,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontStyle: FontStyle.italic,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                       const SizedBox(height: 2),
                       Text(
                         book.author,
@@ -525,6 +537,10 @@ class _MainTab extends StatelessWidget {
       children: [
         _ReadOnlyField(label: context.l10n.fieldTitle, value: book.title),
         const SizedBox(height: 20),
+        if (book.subtitle != null) ...[
+          _ReadOnlyField(label: context.l10n.fieldSubtitle, value: book.subtitle!),
+          const SizedBox(height: 20),
+        ],
         _ReadOnlyField(label: context.l10n.fieldAuthor, value: book.author),
         const SizedBox(height: 20),
         _ReadOnlyField(label: context.l10n.fieldPublisher, value: book.publisher ?? '—'),
@@ -535,6 +551,8 @@ class _MainTab extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
+        const SizedBox(height: 20),
+        _ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
         const SizedBox(height: 20),
         
         // Full Category list
@@ -781,6 +799,12 @@ class _DetailsTab extends StatelessWidget {
 
         const SizedBox(height: 20),
 
+        _ReadOnlyField(
+          label: context.l10n.fieldTranslator,
+          value: book.translator ?? '—',
+        ),
+        const SizedBox(height: 20),
+
         // Personal Notes
         GestureDetector(
           onTap: onTapNotes,
@@ -834,7 +858,16 @@ class _DetailsTab extends StatelessWidget {
           ),
         ),
 
-        // Timestamps
+        // Timestamps Section
+        Text(
+          context.l10n.tabDetails.toUpperCase(), // Or create a new key for "DATES"
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: 12),
         _ReadOnlyField(
           label: context.l10n.bookDetailFieldAdded,
           value:

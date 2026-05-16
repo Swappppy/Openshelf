@@ -18,7 +18,7 @@ class OpenLibraryService {
     try {
       final uri = Uri.https(_host, _searchPath, {
         'q': query,
-        'limit': '10',
+        'limit': '40',
       });
       
       debugPrint('Open Library: Searching $uri');
@@ -70,8 +70,10 @@ class OpenLibraryService {
 
     return BookSearchResult(
       title: doc['title'] ?? 'Unknown Title',
+      subtitle: doc['subtitle'],
       authors: (doc['author_name'] as List?)?.cast<String>() ?? ['Unknown Author'],
       isbn: (doc['isbn'] as List?)?.first,
+      language: (doc['language'] as List?)?.first,
       publisher: (doc['publisher'] as List?)?.first,
       coverUrl: coverUrl,
       publishYear: doc['first_publish_year'],

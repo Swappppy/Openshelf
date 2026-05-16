@@ -853,20 +853,21 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
                 runSpacing: 6,
                 alignment: WrapAlignment.start,
                 children: [
+                  if (widget.filters.status != null)
                     _FilterChip(
-                      label: 'Status: ${_statusLabel(context, widget.filters.status!.name)}',
+                      label: context.l10n.searchFilterStatus(_statusLabel(context, widget.filters.status!.name)),
                       color: _statusColor(widget.filters.status!),
                       onDelete: () => widget.onChanged(widget.filters.copyWith(clearStatus: true)),
                     ),
                   ...widget.filters.imprints.map((imp) => _FilterChip(
-                    label: 'Imprint: ${imp.name}',
+                    label: context.l10n.searchFilterImprint(imp.name),
                     onDelete: () {
                       final newImprints = List<Tag>.from(widget.filters.imprints)..remove(imp);
                       widget.onChanged(widget.filters.copyWith(imprints: newImprints));
                     },
                   )),
                   ...widget.filters.tags.map((tag) => _FilterChip(
-                    label: 'Cat.: ${tag.name}',
+                    label: context.l10n.searchFilterCategory(tag.name),
                     color: tag.color != null ? Color(int.parse('0xFF${tag.color!}')) : null,
                     onDelete: () {
                       final newTags = List<Tag>.from(widget.filters.tags)..remove(tag);
@@ -891,10 +892,10 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
               indicatorColor: colorScheme.primary,
               dividerColor: Colors.transparent,
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              tabs: const [
-                Tab(text: 'Status'),
-                Tab(text: 'Imprint'),
-                Tab(text: 'Category'),
+              tabs: [
+                Tab(text: context.l10n.searchTabStatus),
+                Tab(text: context.l10n.searchTabImprint),
+                Tab(text: context.l10n.searchTabCategory),
               ],
             ),
 
@@ -923,7 +924,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
               child: Row(
                 children: [
                   Text(
-                    '${_activeFiltersCount()} ${_activeFiltersCount() == 1 ? 'active filter' : 'active filters'}',
+                    context.l10n.searchActiveFilters(_activeFiltersCount()),
                     style: textTheme.labelSmall?.copyWith(color: Colors.white24, fontSize: 10),
                   ),
                   const Spacer(),
@@ -934,7 +935,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
                       minimumSize: const Size(50, 30),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text('Clear all', style: TextStyle(fontSize: 11, color: Colors.redAccent)),
+                    child: Text(context.l10n.searchClearAll, style: const TextStyle(fontSize: 11, color: Colors.redAccent)),
                   ),
                 ],
               ),

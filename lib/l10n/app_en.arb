@@ -183,8 +183,17 @@
   "fieldTitle": "Title",
   "@fieldTitle": { "description": "Title field label" },
 
+  "fieldSubtitle": "Subtitle",
+  "@fieldSubtitle": { "description": "Subtitle field label" },
+
   "fieldIsbn": "ISBN",
   "@fieldIsbn": { "description": "ISBN field label" },
+
+  "fieldLanguage": "Language",
+  "@fieldLanguage": { "description": "Language field label" },
+
+  "fieldTranslator": "Translator",
+  "@fieldTranslator": { "description": "Translator field label" },
 
   "fieldTotalPages": "Total pages",
   "@fieldTotalPages": { "description": "Total pages field" },
@@ -628,6 +637,43 @@
   "settingsSearchServerHint": "Used to search for books by ISBN or title",
   "@settingsSearchServerHint": { "description": "Search server hint" },
 
+  "settingsSectionData": "Data management",
+  "@settingsSectionData": { "description": "Data management section header" },
+
+  "settingsImportBookshelf": "Import from Bookshelf",
+  "@settingsImportBookshelf": { "description": "Import from Bookshelf option" },
+
+  "settingsImportBookshelfHint": "Import books from a CSV export",
+  "@settingsImportBookshelfHint": { "description": "Import hint" },
+
+  "settingsExportCsv": "Export to CSV",
+  "@settingsExportCsv": { "description": "Export option" },
+
+  "settingsFullBackup": "Full backup",
+  "@settingsFullBackup": { "description": "Backup option" },
+
+  "devDeleteAllBooks": "DELETE ALL BOOKS (DEV)",
+  "@devDeleteAllBooks": { "description": "Developer option to clear database" },
+
+  "devDeleteConfirmTitle": "Clear Library?",
+  "@devDeleteConfirmTitle": { "description": "Dev delete confirmation title" },
+
+  "devDeleteConfirmContent": "This will permanently remove ALL books and categories. This is for testing only. Continue?",
+  "@devDeleteConfirmContent": { "description": "Dev delete confirmation content" },
+
+  "importSuccess": "Import complete: {count} books added.",
+  "@importSuccess": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "importPartial": "Import partial: {added} added, {skipped} skipped.",
+  "@importPartial": {
+    "placeholders": {
+      "added": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
+
   "settingsApiKeyTitle": "Google Books API key",
   "@settingsApiKeyTitle": { "description": "API key card title" },
 
@@ -702,6 +748,38 @@
 
   "bookSearchRecommended": "RECOMMENDED BY OPENSHELF",
   "@bookSearchRecommended": { "description": "Label for recommended result" },
+
+  "searchTabStatus": "Status",
+  "@searchTabStatus": { "description": "Search panel: Status tab" },
+
+  "searchTabImprint": "Imprint",
+  "@searchTabImprint": { "description": "Search panel: Imprint tab" },
+
+  "searchTabCategory": "Category",
+  "@searchTabCategory": { "description": "Search panel: Category tab" },
+
+  "searchFilterStatus": "Status: {value}",
+  "@searchFilterStatus": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+
+  "searchFilterImprint": "Imprint: {value}",
+  "@searchFilterImprint": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+
+  "searchFilterCategory": "Cat.: {value}",
+  "@searchFilterCategory": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+
+  "searchActiveFilters": "{count, plural, =1{1 active filter} other{{count} active filters}}",
+  "@searchActiveFilters": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "searchClearAll": "Clear all",
+  "@searchClearAll": { "description": "Button to clear all search filters" },
 
   "addedToLibrary": "Added to library",
   "@addedToLibrary": { "description": "Success message when book is added" },

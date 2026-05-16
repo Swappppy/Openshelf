@@ -952,11 +952,16 @@ class _ImprintsManager extends ConsumerWidget {
                     onTap: () async {
                       if (!await PermissionService.requestGallery()) return;
                       if (!context.mounted) return;
-                      final title = context.l10n.cropImprintTitle;
+                      final l10n = context.l10n;
                       final picker = ImagePicker();
                       final picked = await picker.pickImage(source: ImageSource.gallery);
                       if (picked == null) return;
-                      final cropped = await CoverService.cropImprint(picked.path, title: title);
+                      final cropped = await CoverService.cropImprint(
+                        picked.path, 
+                        title: l10n.cropImprintTitle,
+                        doneButtonTitle: l10n.done,
+                        cancelButtonTitle: l10n.cancel,
+                      );
                       if (cropped == null) return;
                       final saved = await CoverService.saveImprintImage(cropped);
                       setStateDialog(() => imagePath = saved);
@@ -997,7 +1002,27 @@ class _ImprintsManager extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextButton.icon(icon: const Icon(Icons.camera_alt_outlined, size: 16), label: Text(context.l10n.photo), onPressed: () async { if (!await PermissionService.requestCamera()) return; if (!context.mounted) return; final title = context.l10n.cropImprintTitle; final picker = ImagePicker(); final picked = await picker.pickImage(source: ImageSource.camera); if (picked == null) return; final cropped = await CoverService.cropImprint(picked.path, title: title); if (cropped == null) return; final saved = await CoverService.saveImprintImage(cropped); setStateDialog(() => imagePath = saved); }),
+                  TextButton.icon(
+                    icon: const Icon(Icons.camera_alt_outlined, size: 16),
+                    label: Text(context.l10n.photo),
+                    onPressed: () async {
+                      if (!await PermissionService.requestCamera()) return;
+                      if (!context.mounted) return;
+                      final l10n = context.l10n;
+                      final picker = ImagePicker();
+                      final picked = await picker.pickImage(source: ImageSource.camera);
+                      if (picked == null) return;
+                      final cropped = await CoverService.cropImprint(
+                        picked.path, 
+                        title: l10n.cropImprintTitle,
+                        doneButtonTitle: l10n.done,
+                        cancelButtonTitle: l10n.cancel,
+                      );
+                      if (cropped == null) return;
+                      final saved = await CoverService.saveImprintImage(cropped);
+                      setStateDialog(() => imagePath = saved);
+                    },
+                  ),
                   const SizedBox(width: 4),
                   TextButton.icon(icon: const Icon(Icons.link, size: 16), label: Text(context.l10n.url), onPressed: () async {
                     final ctrl = TextEditingController();
@@ -1029,8 +1054,13 @@ class _ImprintsManager extends ConsumerWidget {
                     );
                     if (url == null || url.isEmpty) return;
                     if (!context.mounted) return;
-                    final title = context.l10n.cropImprintTitle;
-                    final saved = await CoverService.saveImprintFromUrl(url, cropTitle: title);
+                    final l10n = context.l10n;
+                    final saved = await CoverService.saveImprintFromUrl(
+                      url, 
+                      cropTitle: l10n.cropImprintTitle,
+                      doneButtonTitle: l10n.done,
+                      cancelButtonTitle: l10n.cancel,
+                    );
                     if (saved != null) setStateDialog(() => imagePath = saved);
                   }),
                 ],
@@ -1093,11 +1123,16 @@ class _ImprintGridItem extends ConsumerWidget {
                     onTap: () async {
                       if (!await PermissionService.requestGallery()) return;
                       if (!context.mounted) return;
-                      final title = context.l10n.cropImprintTitle;
+                      final l10n = context.l10n;
                       final picker = ImagePicker();
                       final picked = await picker.pickImage(source: ImageSource.gallery);
                       if (picked == null) return;
-                      final cropped = await CoverService.cropImprint(picked.path, title: title);
+                      final cropped = await CoverService.cropImprint(
+                        picked.path, 
+                        title: l10n.cropImprintTitle,
+                        doneButtonTitle: l10n.done,
+                        cancelButtonTitle: l10n.cancel,
+                      );
                       if (cropped == null) return;
                       if (imagePath != null) {
                         await CoverService.deleteImprintImage(imagePath!);
@@ -1170,18 +1205,23 @@ class _ImprintGridItem extends ConsumerWidget {
                     onPressed: () async {
                       if (!await PermissionService.requestCamera()) return;
                       if (!context.mounted) return;
-                      final title = context.l10n.cropImprintTitle;
+                      final l10n = context.l10n;
                       final picker = ImagePicker();
                       final picked = await picker.pickImage(source: ImageSource.camera);
                       if (picked == null) return;
-                      final cropped = await CoverService.cropImprint(picked.path, title: title);
+                      final cropped = await CoverService.cropImprint(
+                        picked.path, 
+                        title: l10n.cropImprintTitle,
+                        doneButtonTitle: l10n.done,
+                        cancelButtonTitle: l10n.cancel,
+                      );
                       if (cropped == null) return;
                       final saved = await CoverService.saveImprintImage(cropped);
                       setStateDialog(() => imagePath = saved);
                     },
                   ),
                   const SizedBox(width: 4),
-                  TextButton.icon(
+                    TextButton.icon(
                     icon: const Icon(Icons.link, size: 16),
                     label: Text(context.l10n.url),
                     onPressed: () async {
@@ -1212,8 +1252,13 @@ class _ImprintGridItem extends ConsumerWidget {
                       );
                       if (url == null || url.isEmpty) return;
                       if (!context.mounted) return;
-                      final title = context.l10n.cropImprintTitle;
-                      final saved = await CoverService.saveImprintFromUrl(url, cropTitle: title);
+                      final l10n = context.l10n;
+                      final saved = await CoverService.saveImprintFromUrl(
+                        url, 
+                        cropTitle: l10n.cropImprintTitle,
+                        doneButtonTitle: l10n.done,
+                        cancelButtonTitle: l10n.cancel,
+                      );
                       if (saved != null) setStateDialog(() => imagePath = saved);
                     },
                   ),

@@ -9,7 +9,13 @@ import 'package:image/image.dart' as img;
 /// Service for managing book covers and imprint images locally.
 class CoverService {
   /// Downloads an image from a URL and saves it to the app's local documents directory.
-  static Future<String?> saveCoverFromUrl(String url, {String? cropTitle, bool shouldCrop = true}) async {
+  static Future<String?> saveCoverFromUrl(
+    String url, {
+    String? cropTitle,
+    String? doneButtonTitle,
+    String? cancelButtonTitle,
+    bool shouldCrop = true,
+  }) async {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -27,7 +33,12 @@ class CoverService {
             return finalPath;
           }
 
-          final cropped = await cropCover(tempPath, title: cropTitle ?? 'Crop Cover');
+          final cropped = await cropCover(
+            tempPath, 
+            title: cropTitle ?? 'Crop Cover',
+            doneButtonTitle: doneButtonTitle,
+            cancelButtonTitle: cancelButtonTitle,
+          );
           if (cropped != null) {
             final finalPath = await saveCover(cropped);
             await tempFile.delete();
@@ -47,7 +58,9 @@ class CoverService {
   /// Downloads an image to a temporary location for preview purposes.
   static Future<String?> downloadForPreview(String url) async {
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(Uri.parse(url), headers: {
+        'User-Agent': 'Openshelf/1.0.0 (https://github.com/ftena/openshelf)',
+      });
       if (response.statusCode == 200) {
         final directory = await getTemporaryDirectory();
         final fileName = 'preview_${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -91,7 +104,11 @@ class CoverService {
   }
 
   /// Provides a standard UI for cropping book covers (usually 2:3 ratio).
-  static Future<String?> cropCover(String path, {required String title}) async {
+  static Future<String?> cropCover(String path, {
+    required String title,
+    String? doneButtonTitle,
+    String? cancelButtonTitle,
+  }) async {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: path,
       uiSettings: [
@@ -101,6 +118,11 @@ class CoverService {
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,
+        ),
+        IOSUiSettings(
+          title: title,
+          doneButtonTitle: doneButtonTitle,
+          cancelButtonTitle: cancelButtonTitle,
         ),
       ],
     );
@@ -135,7 +157,11 @@ class CoverService {
   }
 
   /// Provides a standard UI for cropping imprint/publisher logos.
-  static Future<String?> cropImprint(String path, {required String title}) async {
+  static Future<String?> cropImprint(String path, {
+    required String title,
+    String? doneButtonTitle,
+    String? cancelButtonTitle,
+  }) async {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: path,
       uiSettings: [
@@ -145,6 +171,11 @@ class CoverService {
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.square,
           lockAspectRatio: true,
+        ),
+        IOSUiSettings(
+          title: title,
+          doneButtonTitle: doneButtonTitle,
+          cancelButtonTitle: cancelButtonTitle,
         ),
       ],
     );
@@ -169,10 +200,20 @@ class CoverService {
   }
 
   /// Downloads and crops an imprint image from a URL.
-  static Future<String?> saveImprintFromUrl(String url, {required String cropTitle}) async {
+  static Future<String?> saveImprintFromUrl(
+    String url, {
+    required String cropTitle,
+    String? doneButtonTitle,
+    String? cancelButtonTitle,
+  }) async {
     final temp = await downloadForPreview(url);
     if (temp == null) return null;
-    final cropped = await cropImprint(temp, title: cropTitle);
+    final cropped = await cropImprint(
+      temp, 
+      title: cropTitle,
+      doneButtonTitle: doneButtonTitle,
+      cancelButtonTitle: cancelButtonTitle,
+    );
     if (cropped == null) return null;
     return saveImprintImage(cropped);
   }

@@ -46,36 +46,36 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
   Future<void> _search() async {
     final settings = ref.read(appSettingsProvider);
     final apiKey = settings.googleBooksApiKey;
+    final lang = settings.locale?.languageCode;
 
     try {
-      final candidates = await CoverSearchService.search(
+      final stream = CoverSearchService.search(
         isbn: widget.isbn,
         title: widget.title,
         author: widget.author,
         publisher: widget.publisher,
         apiKey: apiKey,
+        preferredLanguage: lang,
         servers: settings.searchServers,
       );
 
-      if (!mounted) return;
+      await for (final candidate in stream) {
+        if (!mounted) return;
+        setState(() {
+          _searching = false; // Stop initial full-screen spinner
+          _items.add((candidate, null));
+        });
+        _downloadSinglePreview(_items.length - 1);
+      }
 
-      if (candidates.isEmpty) {
+      if (mounted && _items.isEmpty) {
         setState(() {
           _searching = false;
           _error = context.l10n.coverPickerNoResults;
         });
-        return;
+      } else if (mounted) {
+        setState(() => _searching = false);
       }
-
-      setState(() {
-        _searching = false;
-        for (final c in candidates) {
-          _items.add((c, null));
-        }
-      });
-
-      // Download previews in parallel batches to avoid overloading.
-      _downloadPreviews();
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -86,36 +86,25 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
     }
   }
 
-  /// Manages background download of preview images.
-  Future<void> _downloadPreviews() async {
-    const batchSize = 4;
-    for (var i = 0; i < _items.length; i += batchSize) {
-      final end = (i + batchSize).clamp(0, _items.length);
-      final batch = _items.sublist(i, end);
-
-      await Future.wait(
-        batch.asMap().entries.map((entry) async {
-          final idx = i + entry.key;
-          final (candidate, _) = entry.value;
-          final path = await CoverService.downloadForPreview(candidate.url);
-          if (mounted && path != null) {
-            setState(() {
-              _items[idx] = (candidate, path);
-            });
-          }
-        }),
-      );
+  /// Downloads a single preview image.
+  Future<void> _downloadSinglePreview(int index) async {
+    if (index >= _items.length) return;
+    final (candidate, _) = _items[index];
+    
+    final path = await CoverService.downloadForPreview(candidate.url);
+    if (mounted) {
+      setState(() {
+        _items[index] = (candidate, path ?? ''); // Use empty string to signal failure
+      });
     }
   }
 
   /// Finalizes selection, handles cropping if necessary, and saves the image permanently.
   Future<void> _selectCover(int index) async {
     final (candidate, previewPath) = _items[index];
-    if (previewPath == null) return;
+    if (previewPath == null || previewPath.isEmpty) return;
 
     setState(() => _saving = index);
-
-    final title = context.l10n.cropCoverTitle;
 
     // Smart Crop: check if the aspect ratio is already close to 2:3
     final isGood = await CoverService.isRatioCorrect(previewPath, 2 / 3);
@@ -124,8 +113,15 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
     if (isGood) {
       finalPath = await CoverService.saveCover(previewPath);
     } else {
+      if (!mounted) return;
+      final l10n = context.l10n;
       // Manual crop is standard for consistent library appearance.
-      final croppedPath = await CoverService.cropCover(previewPath, title: title);
+      final croppedPath = await CoverService.cropCover(
+        previewPath, 
+        title: l10n.cropCoverTitle,
+        doneButtonTitle: l10n.done,
+        cancelButtonTitle: l10n.cancel,
+      );
       if (croppedPath == null) {
         if (mounted) setState(() => _saving = null);
         return;
@@ -289,7 +285,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
         final isSaving = _saving == index;
 
         return GestureDetector(
-          onTap: previewPath != null && _saving == null
+          onTap: previewPath != null && previewPath.isNotEmpty && _saving == null
               ? () => _selectCover(index)
               : null,
           child: Stack(
@@ -298,11 +294,13 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: previewPath != null
-                    ? Image.file(
+                    ? (previewPath.isEmpty
+                        ? Center(child: Icon(Icons.broken_image, color: colorScheme.error, size: 24))
+                        : Image.file(
                   File(previewPath),
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(color: colorScheme.surfaceContainerHighest),
-                )
+                ))
                     : Container(
                   color: colorScheme.surfaceContainerHighest,
                   child: Center(
@@ -332,7 +330,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
                         bottom: Radius.circular(6)),
                   ),
                   child: Text(
-                    candidate.source == 'Google Books' ? 'Google' : 'OL',
+                    _formatSourceLabel(candidate.source),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                         color: Colors.white,
@@ -357,5 +355,12 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
         );
       },
     );
+  }
+
+  String _formatSourceLabel(String source) {
+    if (source.contains('Google')) return 'Google';
+    if (source.contains('Inventaire')) return 'Inventaire';
+    if (source.contains('Open Library')) return 'OL';
+    return source;
   }
 }

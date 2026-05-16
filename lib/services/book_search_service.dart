@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'dart:async';
+import 'package:collection/collection.dart';
 import '../models/app_settings.dart';
 import '../models/book_search_result.dart';
 import 'google_books_service.dart';
@@ -12,104 +14,242 @@ class CoverCandidate {
   CoverCandidate({required this.url, required this.source});
 }
 
-/// Specialized service for finding alternative cover images for a book.
+  /// Specialized service for finding alternative cover images for a book.
 class CoverSearchService {
   /// Searches for potential cover images across multiple providers using book metadata.
-  static Future<List<CoverCandidate>> search({
+  /// Returns a stream of candidates as they are found.
+  static Stream<CoverCandidate> search({
     String? isbn,
     String? title,
     String? author,
     String? publisher,
     String? apiKey,
+    String? preferredLanguage,
     List<BookSearchServer> servers = const [
       BookSearchServer.googleBooks,
       BookSearchServer.openLibrary,
       BookSearchServer.inventaire,
     ],
-  }) async {
-    final List<CoverCandidate> candidates = [];
+  }) {
+    final controller = StreamController<CoverCandidate>();
     final seenUrls = <String>{};
+    int foundCount = 0;
 
     void addCandidate(String url, String source) {
+      if (url.trim().isEmpty) return;
       if (!seenUrls.contains(url)) {
-        candidates.add(CoverCandidate(url: url, source: source));
         seenUrls.add(url);
+        foundCount++;
+        controller.add(CoverCandidate(url: url, source: source));
       }
     }
-    
-    // 1. ISBN Search (High confidence)
-    if (isbn != null) {
-      final isbnTasks = servers.map((server) async {
-        try {
-          switch (server) {
-            case BookSearchServer.googleBooks:
-              final res = await GoogleBooksService.getByIsbn(isbn, apiKey: apiKey);
-              if (res?.coverUrl != null) {
-                debugPrint('CoverSearch: Found ISBN cover from Google: ${res!.coverUrl}');
-                addCandidate(res.coverUrl!, 'Google Books');
+
+    Future<void> runSearch() async {
+      try {
+        // 1. ISBN Search (Specific high-confidence lookup as primary)
+        if (isbn != null) {
+          debugPrint('CoverSearch: Step 1 (ISBN) - ISBN: "$isbn"');
+          for (final server in servers) {
+            try {
+              switch (server) {
+                case BookSearchServer.googleBooks:
+                  final res = await GoogleBooksService.getByIsbn(isbn, apiKey: apiKey, preferredLanguage: preferredLanguage);
+                  if (res?.coverUrl != null && _isRelevant(res!.title, title ?? '')) {
+                    addCandidate(res.coverUrl!, 'Google Books');
+                  }
+                  break;
+                case BookSearchServer.openLibrary:
+                  final res = await OpenLibraryService.getByIsbn(isbn);
+                  if (res?.coverUrl != null && _isRelevant(res!.title, title ?? '')) {
+                    addCandidate(res.coverUrl!, 'Open Library');
+                  }
+                  break;
+                case BookSearchServer.inventaire:
+                  final res = await InventaireService.getByIsbn(isbn, preferredLanguage: preferredLanguage);
+                  if (res?.coverUrl != null && _isRelevant(res!.title, title ?? '')) {
+                    addCandidate(res.coverUrl!, 'Inventaire');
+                  }
+                  break;
               }
-              break;
-            case BookSearchServer.openLibrary:
-              final res = await OpenLibraryService.getByIsbn(isbn);
-              if (res?.coverUrl != null) {
-                debugPrint('CoverSearch: Found ISBN cover from OL: ${res!.coverUrl}');
-                addCandidate(res.coverUrl!, 'Open Library');
-              }
-              break;
-            case BookSearchServer.inventaire:
-              final res = await InventaireService.getByIsbn(isbn);
-              if (res?.coverUrl != null) {
-                debugPrint('CoverSearch: Found ISBN cover from Inventaire: ${res!.coverUrl}');
-                addCandidate(res.coverUrl!, 'Inventaire');
-              }
-              break;
-          }
-        } catch (e) {
-          debugPrint('CoverSearch: ISBN Error from ${server.name}: $e');
-        }
-      });
-      await Future.wait(isbnTasks);
-    }
-    
-    // 2. Title Search (Fallback or supplementary)
-    // We always perform title search if we have few results, or if the user wants more.
-    if (title != null && candidates.length < 10) {
-      final query = '$title ${author ?? ''}'.trim();
-      final titleTasks = servers.map((server) async {
-        try {
-          List<BookSearchResult> results = [];
-          switch (server) {
-            case BookSearchServer.googleBooks:
-              results = await GoogleBooksService.search(query, apiKey: apiKey);
-              break;
-            case BookSearchServer.openLibrary:
-              results = await OpenLibraryService.search(query);
-              break;
-            case BookSearchServer.inventaire:
-              results = await InventaireService.search(query);
-              break;
-          }
-          debugPrint('CoverSearch: ${server.name} found ${results.length} results by title');
-          for (final res in results) {
-            if (res.coverUrl != null) {
-              debugPrint('CoverSearch: Adding cover from ${server.name}: ${res.coverUrl}');
-              addCandidate(res.coverUrl!, server.name);
+            } catch (e) {
+              debugPrint('CoverSearch: ISBN Error from ${server.name}: $e');
             }
           }
-        } catch (e) {
-          debugPrint('CoverSearch: Title Error from ${server.name}: $e');
         }
-      });
-      await Future.wait(titleTasks);
+
+        // 2. Precise Text Search (Title + Publisher)
+        if (title != null && publisher != null && publisher.isNotEmpty) {
+          final query = '"$title" $publisher';
+          debugPrint('CoverSearch: Step 2 (Precise Title+Publisher) - Query: "$query"');
+          
+          for (final server in servers) {
+            try {
+              List<BookSearchResult> results = [];
+              switch (server) {
+                case BookSearchServer.googleBooks:
+                  results = await GoogleBooksService.search(
+                    query, 
+                    apiKey: apiKey, 
+                    preferredLanguage: preferredLanguage,
+                    title: title,
+                    publisher: publisher,
+                  );
+                  break;
+                case BookSearchServer.openLibrary:
+                  results = await OpenLibraryService.search(query);
+                  break;
+                case BookSearchServer.inventaire:
+                  results = await InventaireService.search(query, preferredLanguage: preferredLanguage);
+                  break;
+              }
+              for (final res in results) {
+                if (res.coverUrl != null && _isRelevant(res.title, title)) {
+                  addCandidate(res.coverUrl!, server.name);
+                }
+              }
+            } catch (e) {
+              debugPrint('CoverSearch: Error in precise search for ${server.name}: $e');
+            }
+          }
+        }
+
+        // 3. Specific Text Search (Title + Author) - Primary or Fallback
+        if (title != null) {
+          final queryParts = [
+            '"$title"',
+            if (author != null && author.isNotEmpty) author,
+          ];
+          final query = queryParts.join(' ');
+          debugPrint('CoverSearch: Step 3 (Specific Title+Author) - Query: "$query"');
+          
+          for (final server in servers) {
+            try {
+              List<BookSearchResult> results = [];
+              switch (server) {
+                case BookSearchServer.googleBooks:
+                  results = await GoogleBooksService.search(
+                    query, 
+                    apiKey: apiKey, 
+                    preferredLanguage: preferredLanguage,
+                    title: title,
+                    author: author,
+                  );
+                  break;
+                case BookSearchServer.openLibrary:
+                  results = await OpenLibraryService.search(query);
+                  break;
+                case BookSearchServer.inventaire:
+                  results = await InventaireService.search(query, preferredLanguage: preferredLanguage);
+                  break;
+              }
+              for (final res in results) {
+                if (res.coverUrl != null && _isRelevant(res.title, title)) {
+                  addCandidate(res.coverUrl!, server.name);
+                }
+              }
+            } catch (e) {
+              debugPrint('CoverSearch: Error in specific search for ${server.name}: $e');
+            }
+          }
+        }
+
+        // 4. Inventaire editions fallback — always execute if provider active
+        if (title != null && servers.contains(BookSearchServer.inventaire)) {
+          debugPrint('CoverSearch: Step 4 (Inventaire Deep Dive)');
+          try {
+            final works = await InventaireService.search(title, preferredLanguage: preferredLanguage, limit: 10);
+            
+            final candidateWorks = works.where((w) => w.inventaireWorkUri != null).toList();
+
+            // Scoring: every work gets points for title and author match
+            int scoreWork(BookSearchResult w) {
+              int score = 0;
+              if (_isRelevant(w.title, title)) score += 10;
+              if (author != null && author.isNotEmpty) {
+                final surname = _normalize(author.trim().split(' ').last);
+                final desc = _normalize(w.description ?? '');
+                if (desc.contains(surname)) score += 20; // Author carries more weight than title
+              }
+              return score;
+            }
+
+            // Sort by score descending; preserves Inventaire order (popularity) for ties
+            candidateWorks.sort((a, b) => scoreWork(b).compareTo(scoreWork(a)));
+            
+            final bestWork = candidateWorks.firstOrNull;
+            final bestScore = bestWork != null ? scoreWork(bestWork) : 0;
+            final workUri = bestWork?.inventaireWorkUri;
+            
+            // Require a minimum score (at least an author match) to avoid false positives
+            if (bestScore < 20) {
+              debugPrint('CoverSearch: Step 4 skipped - best score $bestScore too low for "${bestWork?.title}"');
+            } else if (workUri != null) {
+              debugPrint('CoverSearch: Step 4 - Using work "$workUri" (${bestWork!.title}) with score $bestScore');
+              final editions = await InventaireService.getEditionsByWork(
+                workUri,
+                preferredLanguage: preferredLanguage,
+              );
+              for (final ed in editions) {
+                if (ed.coverUrl != null) {
+                  addCandidate(ed.coverUrl!, 'Inventaire (Ed.)');
+                }
+              }
+            }
+          } catch (e) {
+            debugPrint('CoverSearch: Step 4 Error: $e');
+          }
+        }
+      } finally {
+        await controller.close();
+        debugPrint('CoverSearch: Stream closed. Total unique candidates found: $foundCount');
+      }
+    }
+
+    runSearch();
+    return controller.stream;
+  }
+
+  /// Checks if a result title is relevant to the target title using a keyword-based heuristic.
+  static bool _isRelevant(String resultTitle, String targetTitle) {
+    if (targetTitle.isEmpty) return true;
+    
+    final resNorm = _normalize(resultTitle);
+    final tgtNorm = _normalize(targetTitle);
+    
+    // Direct inclusion check
+    if (resNorm.contains(tgtNorm) || tgtNorm.contains(resNorm)) return true;
+
+    // Keyword overlap check (ignore very short common words)
+    final keywords = tgtNorm
+        .split(RegExp(r'\s+'))
+        .where((w) => w.length > 2) // Allow words like 'II', 'del', 'the' etc are still ignored
+        .toList();
+    
+    if (keywords.isEmpty) return true;
+
+    int matchCount = 0;
+    for (final kw in keywords) {
+      if (resNorm.contains(kw)) matchCount++;
     }
     
-    return candidates;
+    // Threshold: At least 50% of significant keywords must match
+    final relevance = matchCount / keywords.length;
+    return relevance >= 0.4; // Slightly more lenient
+  }
+
+  /// Normalize: lowercase, remove accents, and strip non-alphanumeric
+  static String _normalize(String s) {
+    // Simple accent removal for common Spanish/Latin chars
+    var norm = s.toLowerCase()
+      .replaceAll('á', 'a').replaceAll('é', 'e').replaceAll('í', 'i').replaceAll('ó', 'o').replaceAll('ú', 'u')
+      .replaceAll('ü', 'u').replaceAll('ñ', 'n');
+    return norm.replaceAll(RegExp(r'[^\w\s]'), ' ');
   }
 }
 
 /// Orchestrates multi-provider book searches and merges results intelligently.
 class BookSearchService {
-  /// Queries specified providers in parallel for a general search.
+  /// Queries specified providers sequentially in the order defined in settings.
   static Future<List<BookSearchResult>> searchAll(
     String query, {
     required List<BookSearchServer> servers,
@@ -119,53 +259,40 @@ class BookSearchService {
     final cleanIsbn = query.replaceAll(RegExp(r'[^0-9X]'), '');
     final isIsbn = (cleanIsbn.length == 10 || cleanIsbn.length == 13) && RegExp(r'^[0-9]+X?$').hasMatch(cleanIsbn);
 
-    final tasks = servers.map((server) async {
-      List<BookSearchResult> results = [];
+    final List<BookSearchResult> allResults = [];
+    
+    // We execute in sequence to respect the server order from settings
+    for (final server in servers) {
       try {
+        debugPrint('BookSearchService: Querying ${server.name}...');
+        List<BookSearchResult> serverResults = [];
         if (isIsbn) {
-          // If it's an ISBN, try specific lookup first as it's higher confidence
-          BookSearchResult? isbnRes;
-          switch (server) {
-            case BookSearchServer.googleBooks:
-              isbnRes = await GoogleBooksService.getByIsbn(cleanIsbn, apiKey: googleApiKey, preferredLanguage: preferredLanguage);
-              break;
-            case BookSearchServer.openLibrary:
-              isbnRes = await OpenLibraryService.getByIsbn(cleanIsbn);
-              break;
-            case BookSearchServer.inventaire:
-              isbnRes = await InventaireService.getByIsbn(cleanIsbn, preferredLanguage: preferredLanguage);
-              break;
-          }
-          if (isbnRes != null) {
-            results.add(isbnRes);
-            debugPrint('BookSearchService: Found exact ISBN match for ${server.name}');
+          final res = await _performIsbnLookup(server, cleanIsbn, googleApiKey, preferredLanguage);
+          if (res != null) {
+            serverResults.add(res);
           } else {
-            // Only try general search if ISBN lookup failed
-            results.addAll(await _performGeneralSearch(server, query, googleApiKey, preferredLanguage));
+            // Fallback to general search if ISBN lookup failed
+            serverResults.addAll(await _performGeneralSearch(server, query, googleApiKey, preferredLanguage));
           }
         } else {
-          // Normal search for non-ISBN queries
-          results.addAll(await _performGeneralSearch(server, query, googleApiKey, preferredLanguage));
+          serverResults.addAll(await _performGeneralSearch(server, query, googleApiKey, preferredLanguage));
         }
-
-        debugPrint('BookSearchService: ${server.name} returned ${results.length} results');
+        
+        debugPrint('BookSearchService: ${server.name} returned ${serverResults.length} results');
+        allResults.addAll(serverResults);
       } catch (e) {
         debugPrint('BookSearchService: Error from ${server.name}: $e');
       }
-      return results;
-    });
+    }
 
-    final allResults = await Future.wait(tasks);
-    final flattened = allResults.expand((e) => e).toList();
-    debugPrint('BookSearchService: Total flattened results: ${flattened.length}');
+    debugPrint('BookSearchService: Total results: ${allResults.length}');
 
-    // Create a "Recommended" summary if we have high-confidence matches.
-    if (flattened.isNotEmpty) {
-      final merged = _mergeResults(flattened, preferredLanguage: preferredLanguage);
+    if (allResults.isNotEmpty) {
+      final merged = _mergeResults(allResults, preferredLanguage: preferredLanguage);
       if (merged != null) {
         debugPrint('BookSearchService: Prepending merged recommended result');
         // Filter out individual provider results that are identical to the merged one
-        final others = flattened.where((r) => 
+        final others = allResults.where((r) => 
           !(r.isbn == merged.isbn && r.title == merged.title && r.authors.length == merged.authors.length)
         ).toList();
 
@@ -173,7 +300,23 @@ class BookSearchService {
       }
     }
 
-    return flattened;
+    return allResults;
+  }
+
+  static Future<BookSearchResult?> _performIsbnLookup(
+    BookSearchServer server,
+    String isbn,
+    String? googleApiKey,
+    String? preferredLanguage,
+  ) async {
+    switch (server) {
+      case BookSearchServer.googleBooks:
+        return await GoogleBooksService.getByIsbn(isbn, apiKey: googleApiKey, preferredLanguage: preferredLanguage);
+      case BookSearchServer.openLibrary:
+        return await OpenLibraryService.getByIsbn(isbn);
+      case BookSearchServer.inventaire:
+        return await InventaireService.getByIsbn(isbn, preferredLanguage: preferredLanguage);
+    }
   }
 
   static Future<List<BookSearchResult>> _performGeneralSearch(
@@ -192,36 +335,29 @@ class BookSearchService {
     }
   }
 
-  /// Queries specified providers in parallel using an ISBN.
+  /// Queries specified providers sequentially using an ISBN.
   static Future<List<BookSearchResult>> searchByIsbn(
     String isbn, {
     required List<BookSearchServer> servers,
     String? googleApiKey,
     String? preferredLanguage,
   }) async {
-    final tasks = servers.map((server) async {
+    final List<BookSearchResult> valid = [];
+    
+    for (final server in servers) {
       try {
-        switch (server) {
-          case BookSearchServer.googleBooks:
-            return await GoogleBooksService.getByIsbn(isbn, apiKey: googleApiKey, preferredLanguage: preferredLanguage);
-          case BookSearchServer.openLibrary:
-            return await OpenLibraryService.getByIsbn(isbn);
-          case BookSearchServer.inventaire:
-            return await InventaireService.getByIsbn(isbn, preferredLanguage: preferredLanguage);
+        final res = await _performIsbnLookup(server, isbn, googleApiKey, preferredLanguage);
+        if (res != null) {
+          valid.add(res);
         }
       } catch (e) {
         debugPrint('BookSearchService: ISBN Error from ${server.name}: $e');
-        return null;
       }
-    });
-
-    final allResults = await Future.wait(tasks);
-    final valid = allResults.whereType<BookSearchResult>().toList();
+    }
 
     if (valid.isNotEmpty) {
       final merged = _mergeResults(valid, preferredLanguage: preferredLanguage);
       if (merged != null) {
-        // Filter out individual provider results that are identical to the merged one
         final others = valid.where((r) => 
           !(r.isbn == merged.isbn && r.title == merged.title && r.authors.length == merged.authors.length)
         ).toList();

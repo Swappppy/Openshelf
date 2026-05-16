@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ucrop_label_edit_photo">Recortar</string>
+    <string name="ucrop_rotate">Girar</string>
+    <string name="ucrop_scale">Escalar</string>
+    <string name="ucrop_crop">Recortar</string>
+    <string name="ucrop_menu_crop">Hecho</string>
+</resources>
