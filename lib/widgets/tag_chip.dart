@@ -6,6 +6,7 @@ class TagChip extends StatelessWidget {
   final String? colorHex;
   final VoidCallback? onDeleted;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   const TagChip({
     super.key,
@@ -13,6 +14,7 @@ class TagChip extends StatelessWidget {
     this.colorHex,
     this.onDeleted,
     this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -30,6 +32,7 @@ class TagChip extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(

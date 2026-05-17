@@ -1841,6 +1841,39 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _filterSubtitleMeta = const VerificationMeta(
+    'filterSubtitle',
+  );
+  @override
+  late final GeneratedColumn<String> filterSubtitle = GeneratedColumn<String>(
+    'filter_subtitle',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterLanguageMeta = const VerificationMeta(
+    'filterLanguage',
+  );
+  @override
+  late final GeneratedColumn<String> filterLanguage = GeneratedColumn<String>(
+    'filter_language',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterTranslatorMeta = const VerificationMeta(
+    'filterTranslator',
+  );
+  @override
+  late final GeneratedColumn<String> filterTranslator = GeneratedColumn<String>(
+    'filter_translator',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _filterCollectionMeta = const VerificationMeta(
     'filterCollection',
   );
@@ -1874,15 +1907,15 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _filterImprintIdMeta = const VerificationMeta(
-    'filterImprintId',
+  static const VerificationMeta _filterImprintIdsMeta = const VerificationMeta(
+    'filterImprintIds',
   );
   @override
-  late final GeneratedColumn<int> filterImprintId = GeneratedColumn<int>(
-    'filter_imprint_id',
+  late final GeneratedColumn<String> filterImprintIds = GeneratedColumn<String>(
+    'filter_imprint_ids',
     aliasedName,
     true,
-    type: DriftSqlType.int,
+    type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
   @override
@@ -1893,10 +1926,13 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     filterAuthor,
     filterPublisher,
     filterIsbn,
+    filterSubtitle,
+    filterLanguage,
+    filterTranslator,
     filterCollection,
     filterStatus,
     filterTagIds,
-    filterImprintId,
+    filterImprintIds,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1954,6 +1990,33 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         filterIsbn.isAcceptableOrUnknown(data['filter_isbn']!, _filterIsbnMeta),
       );
     }
+    if (data.containsKey('filter_subtitle')) {
+      context.handle(
+        _filterSubtitleMeta,
+        filterSubtitle.isAcceptableOrUnknown(
+          data['filter_subtitle']!,
+          _filterSubtitleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_language')) {
+      context.handle(
+        _filterLanguageMeta,
+        filterLanguage.isAcceptableOrUnknown(
+          data['filter_language']!,
+          _filterLanguageMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_translator')) {
+      context.handle(
+        _filterTranslatorMeta,
+        filterTranslator.isAcceptableOrUnknown(
+          data['filter_translator']!,
+          _filterTranslatorMeta,
+        ),
+      );
+    }
     if (data.containsKey('filter_collection')) {
       context.handle(
         _filterCollectionMeta,
@@ -1981,12 +2044,12 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         ),
       );
     }
-    if (data.containsKey('filter_imprint_id')) {
+    if (data.containsKey('filter_imprint_ids')) {
       context.handle(
-        _filterImprintIdMeta,
-        filterImprintId.isAcceptableOrUnknown(
-          data['filter_imprint_id']!,
-          _filterImprintIdMeta,
+        _filterImprintIdsMeta,
+        filterImprintIds.isAcceptableOrUnknown(
+          data['filter_imprint_ids']!,
+          _filterImprintIdsMeta,
         ),
       );
     }
@@ -2011,6 +2074,10 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         DriftSqlType.string,
         data['${effectivePrefix}filter_query'],
       ),
+      filterSubtitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_subtitle'],
+      ),
       filterAuthor: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}filter_author'],
@@ -2022,6 +2089,14 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
       filterIsbn: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}filter_isbn'],
+      ),
+      filterLanguage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_language'],
+      ),
+      filterTranslator: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_translator'],
       ),
       filterCollection: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -2035,9 +2110,9 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         DriftSqlType.string,
         data['${effectivePrefix}filter_tag_ids'],
       ),
-      filterImprintId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}filter_imprint_id'],
+      filterImprintIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_imprint_ids'],
       ),
     );
   }
@@ -2055,10 +2130,13 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
   final Value<String?> filterAuthor;
   final Value<String?> filterPublisher;
   final Value<String?> filterIsbn;
+  final Value<String?> filterSubtitle;
+  final Value<String?> filterLanguage;
+  final Value<String?> filterTranslator;
   final Value<String?> filterCollection;
   final Value<String?> filterStatus;
   final Value<String?> filterTagIds;
-  final Value<int?> filterImprintId;
+  final Value<String?> filterImprintIds;
   const ShelvesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -2066,10 +2144,13 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     this.filterAuthor = const Value.absent(),
     this.filterPublisher = const Value.absent(),
     this.filterIsbn = const Value.absent(),
+    this.filterSubtitle = const Value.absent(),
+    this.filterLanguage = const Value.absent(),
+    this.filterTranslator = const Value.absent(),
     this.filterCollection = const Value.absent(),
     this.filterStatus = const Value.absent(),
     this.filterTagIds = const Value.absent(),
-    this.filterImprintId = const Value.absent(),
+    this.filterImprintIds = const Value.absent(),
   });
   ShelvesCompanion.insert({
     this.id = const Value.absent(),
@@ -2078,10 +2159,13 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     this.filterAuthor = const Value.absent(),
     this.filterPublisher = const Value.absent(),
     this.filterIsbn = const Value.absent(),
+    this.filterSubtitle = const Value.absent(),
+    this.filterLanguage = const Value.absent(),
+    this.filterTranslator = const Value.absent(),
     this.filterCollection = const Value.absent(),
     this.filterStatus = const Value.absent(),
     this.filterTagIds = const Value.absent(),
-    this.filterImprintId = const Value.absent(),
+    this.filterImprintIds = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Shelf> custom({
     Expression<int>? id,
@@ -2090,10 +2174,13 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     Expression<String>? filterAuthor,
     Expression<String>? filterPublisher,
     Expression<String>? filterIsbn,
+    Expression<String>? filterSubtitle,
+    Expression<String>? filterLanguage,
+    Expression<String>? filterTranslator,
     Expression<String>? filterCollection,
     Expression<String>? filterStatus,
     Expression<String>? filterTagIds,
-    Expression<int>? filterImprintId,
+    Expression<String>? filterImprintIds,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2102,10 +2189,13 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
       if (filterAuthor != null) 'filter_author': filterAuthor,
       if (filterPublisher != null) 'filter_publisher': filterPublisher,
       if (filterIsbn != null) 'filter_isbn': filterIsbn,
+      if (filterSubtitle != null) 'filter_subtitle': filterSubtitle,
+      if (filterLanguage != null) 'filter_language': filterLanguage,
+      if (filterTranslator != null) 'filter_translator': filterTranslator,
       if (filterCollection != null) 'filter_collection': filterCollection,
       if (filterStatus != null) 'filter_status': filterStatus,
       if (filterTagIds != null) 'filter_tag_ids': filterTagIds,
-      if (filterImprintId != null) 'filter_imprint_id': filterImprintId,
+      if (filterImprintIds != null) 'filter_imprint_ids': filterImprintIds,
     });
   }
 
@@ -2116,10 +2206,13 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     Value<String?>? filterAuthor,
     Value<String?>? filterPublisher,
     Value<String?>? filterIsbn,
+    Value<String?>? filterSubtitle,
+    Value<String?>? filterLanguage,
+    Value<String?>? filterTranslator,
     Value<String?>? filterCollection,
     Value<String?>? filterStatus,
     Value<String?>? filterTagIds,
-    Value<int?>? filterImprintId,
+    Value<String?>? filterImprintIds,
   }) {
     return ShelvesCompanion(
       id: id ?? this.id,
@@ -2128,10 +2221,13 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
       filterAuthor: filterAuthor ?? this.filterAuthor,
       filterPublisher: filterPublisher ?? this.filterPublisher,
       filterIsbn: filterIsbn ?? this.filterIsbn,
+      filterSubtitle: filterSubtitle ?? this.filterSubtitle,
+      filterLanguage: filterLanguage ?? this.filterLanguage,
+      filterTranslator: filterTranslator ?? this.filterTranslator,
       filterCollection: filterCollection ?? this.filterCollection,
       filterStatus: filterStatus ?? this.filterStatus,
       filterTagIds: filterTagIds ?? this.filterTagIds,
-      filterImprintId: filterImprintId ?? this.filterImprintId,
+      filterImprintIds: filterImprintIds ?? this.filterImprintIds,
     );
   }
 
@@ -2156,6 +2252,15 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     if (filterIsbn.present) {
       map['filter_isbn'] = Variable<String>(filterIsbn.value);
     }
+    if (filterSubtitle.present) {
+      map['filter_subtitle'] = Variable<String>(filterSubtitle.value);
+    }
+    if (filterLanguage.present) {
+      map['filter_language'] = Variable<String>(filterLanguage.value);
+    }
+    if (filterTranslator.present) {
+      map['filter_translator'] = Variable<String>(filterTranslator.value);
+    }
     if (filterCollection.present) {
       map['filter_collection'] = Variable<String>(filterCollection.value);
     }
@@ -2165,8 +2270,8 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     if (filterTagIds.present) {
       map['filter_tag_ids'] = Variable<String>(filterTagIds.value);
     }
-    if (filterImprintId.present) {
-      map['filter_imprint_id'] = Variable<int>(filterImprintId.value);
+    if (filterImprintIds.present) {
+      map['filter_imprint_ids'] = Variable<String>(filterImprintIds.value);
     }
     return map;
   }
@@ -2180,10 +2285,13 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
           ..write('filterAuthor: $filterAuthor, ')
           ..write('filterPublisher: $filterPublisher, ')
           ..write('filterIsbn: $filterIsbn, ')
+          ..write('filterSubtitle: $filterSubtitle, ')
+          ..write('filterLanguage: $filterLanguage, ')
+          ..write('filterTranslator: $filterTranslator, ')
           ..write('filterCollection: $filterCollection, ')
           ..write('filterStatus: $filterStatus, ')
           ..write('filterTagIds: $filterTagIds, ')
-          ..write('filterImprintId: $filterImprintId')
+          ..write('filterImprintIds: $filterImprintIds')
           ..write(')'))
         .toString();
   }
@@ -3472,10 +3580,13 @@ typedef $$ShelvesTableCreateCompanionBuilder =
       Value<String?> filterAuthor,
       Value<String?> filterPublisher,
       Value<String?> filterIsbn,
+      Value<String?> filterSubtitle,
+      Value<String?> filterLanguage,
+      Value<String?> filterTranslator,
       Value<String?> filterCollection,
       Value<String?> filterStatus,
       Value<String?> filterTagIds,
-      Value<int?> filterImprintId,
+      Value<String?> filterImprintIds,
     });
 typedef $$ShelvesTableUpdateCompanionBuilder =
     ShelvesCompanion Function({
@@ -3485,10 +3596,13 @@ typedef $$ShelvesTableUpdateCompanionBuilder =
       Value<String?> filterAuthor,
       Value<String?> filterPublisher,
       Value<String?> filterIsbn,
+      Value<String?> filterSubtitle,
+      Value<String?> filterLanguage,
+      Value<String?> filterTranslator,
       Value<String?> filterCollection,
       Value<String?> filterStatus,
       Value<String?> filterTagIds,
-      Value<int?> filterImprintId,
+      Value<String?> filterImprintIds,
     });
 
 class $$ShelvesTableFilterComposer
@@ -3530,6 +3644,21 @@ class $$ShelvesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get filterSubtitle => $composableBuilder(
+    column: $table.filterSubtitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterLanguage => $composableBuilder(
+    column: $table.filterLanguage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterTranslator => $composableBuilder(
+    column: $table.filterTranslator,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get filterCollection => $composableBuilder(
     column: $table.filterCollection,
     builder: (column) => ColumnFilters(column),
@@ -3545,8 +3674,8 @@ class $$ShelvesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get filterImprintId => $composableBuilder(
-    column: $table.filterImprintId,
+  ColumnFilters<String> get filterImprintIds => $composableBuilder(
+    column: $table.filterImprintIds,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3590,6 +3719,21 @@ class $$ShelvesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get filterSubtitle => $composableBuilder(
+    column: $table.filterSubtitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterLanguage => $composableBuilder(
+    column: $table.filterLanguage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterTranslator => $composableBuilder(
+    column: $table.filterTranslator,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get filterCollection => $composableBuilder(
     column: $table.filterCollection,
     builder: (column) => ColumnOrderings(column),
@@ -3605,8 +3749,8 @@ class $$ShelvesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get filterImprintId => $composableBuilder(
-    column: $table.filterImprintId,
+  ColumnOrderings<String> get filterImprintIds => $composableBuilder(
+    column: $table.filterImprintIds,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -3646,6 +3790,21 @@ class $$ShelvesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get filterSubtitle => $composableBuilder(
+    column: $table.filterSubtitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterLanguage => $composableBuilder(
+    column: $table.filterLanguage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterTranslator => $composableBuilder(
+    column: $table.filterTranslator,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get filterCollection => $composableBuilder(
     column: $table.filterCollection,
     builder: (column) => column,
@@ -3661,8 +3820,8 @@ class $$ShelvesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<int> get filterImprintId => $composableBuilder(
-    column: $table.filterImprintId,
+  GeneratedColumn<String> get filterImprintIds => $composableBuilder(
+    column: $table.filterImprintIds,
     builder: (column) => column,
   );
 }
@@ -3701,10 +3860,13 @@ class $$ShelvesTableTableManager
                 Value<String?> filterAuthor = const Value.absent(),
                 Value<String?> filterPublisher = const Value.absent(),
                 Value<String?> filterIsbn = const Value.absent(),
+                Value<String?> filterSubtitle = const Value.absent(),
+                Value<String?> filterLanguage = const Value.absent(),
+                Value<String?> filterTranslator = const Value.absent(),
                 Value<String?> filterCollection = const Value.absent(),
                 Value<String?> filterStatus = const Value.absent(),
                 Value<String?> filterTagIds = const Value.absent(),
-                Value<int?> filterImprintId = const Value.absent(),
+                Value<String?> filterImprintIds = const Value.absent(),
               }) => ShelvesCompanion(
                 id: id,
                 name: name,
@@ -3712,10 +3874,13 @@ class $$ShelvesTableTableManager
                 filterAuthor: filterAuthor,
                 filterPublisher: filterPublisher,
                 filterIsbn: filterIsbn,
+                filterSubtitle: filterSubtitle,
+                filterLanguage: filterLanguage,
+                filterTranslator: filterTranslator,
                 filterCollection: filterCollection,
                 filterStatus: filterStatus,
                 filterTagIds: filterTagIds,
-                filterImprintId: filterImprintId,
+                filterImprintIds: filterImprintIds,
               ),
           createCompanionCallback:
               ({
@@ -3725,10 +3890,13 @@ class $$ShelvesTableTableManager
                 Value<String?> filterAuthor = const Value.absent(),
                 Value<String?> filterPublisher = const Value.absent(),
                 Value<String?> filterIsbn = const Value.absent(),
+                Value<String?> filterSubtitle = const Value.absent(),
+                Value<String?> filterLanguage = const Value.absent(),
+                Value<String?> filterTranslator = const Value.absent(),
                 Value<String?> filterCollection = const Value.absent(),
                 Value<String?> filterStatus = const Value.absent(),
                 Value<String?> filterTagIds = const Value.absent(),
-                Value<int?> filterImprintId = const Value.absent(),
+                Value<String?> filterImprintIds = const Value.absent(),
               }) => ShelvesCompanion.insert(
                 id: id,
                 name: name,
@@ -3736,10 +3904,13 @@ class $$ShelvesTableTableManager
                 filterAuthor: filterAuthor,
                 filterPublisher: filterPublisher,
                 filterIsbn: filterIsbn,
+                filterSubtitle: filterSubtitle,
+                filterLanguage: filterLanguage,
+                filterTranslator: filterTranslator,
                 filterCollection: filterCollection,
                 filterStatus: filterStatus,
                 filterTagIds: filterTagIds,
-                filterImprintId: filterImprintId,
+                filterImprintIds: filterImprintIds,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

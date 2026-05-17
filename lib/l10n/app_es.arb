@@ -198,6 +198,9 @@
   "fieldTotalPages": "Páginas totales",
   "@fieldTotalPages": { "description": "Nombre del campo de páginas totales" },
 
+  "fieldTotalBooks": "Libros totales",
+  "@fieldTotalBooks": { "description": "Nombre del campo de libros totales" },
+
   "fieldCurrentPage": "Página actual",
   "@fieldCurrentPage": { "description": "Nombre del campo de página actual" },
 
@@ -496,7 +499,10 @@
   "managementCategories": "Categorías",
   "@managementCategories": { "description": "Sección de gestión: categorías" },
 
-  "managementImprints": "Sellos editoriales",
+  "managementCategoryCount": "Nº de libros",
+  "@managementCategoryCount": { "description": "Número de libros en una categoría" },
+
+  "managementImprints": "Sellos",
   "@managementImprints": { "description": "Sección de gestión: sellos editoriales" },
 
   "managementCollections": "Colecciones",
@@ -781,6 +787,8 @@
 
   "searchTabCategory": "Categoría",
   "@searchTabCategory": { "description": "Panel de búsqueda: pestaña Categoría" },
+  "searchTabCollection": "Colección",
+  "@searchTabCollection": { "description": "Panel de búsqueda: pestaña Colección" },
 
   "searchFilterStatus": "Estado: {value}",
   "@searchFilterStatus": {
@@ -794,6 +802,10 @@
 
   "searchFilterCategory": "Cat.: {value}",
   "@searchFilterCategory": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "searchFilterCollection": "Col.: {value}",
+  "@searchFilterCollection": {
     "placeholders": { "value": { "type": "String" } }
   },
 
@@ -857,5 +869,7 @@
   "@statsTitle": { "description": "Título de la pantalla de estadísticas" },
 
   "statsPlaceholder": "Tus estadísticas aparecerán aquí",
-  "@statsPlaceholder": { "description": "Placeholder de estadísticas" }
+  "@statsPlaceholder": { "description": "Placeholder de estadísticas" },
+
+  "sortTitle": "Ordenar"
 }

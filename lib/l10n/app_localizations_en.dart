@@ -205,6 +205,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldTotalPages => 'Total pages';
 
   @override
+  String get fieldTotalBooks => 'Total books';
+
+  @override
   String get fieldCurrentPage => 'Current page';
 
   @override
@@ -490,6 +493,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get managementCategories => 'Categories';
+
+  @override
+  String get managementCategoryCount => 'Book count';
 
   @override
   String get managementImprints => 'Imprints';
@@ -785,6 +791,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTabCategory => 'Category';
 
   @override
+  String get searchTabCollection => 'Collection';
+
+  @override
   String searchFilterStatus(String value) {
     return 'Status: $value';
   }
@@ -797,6 +806,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String searchFilterCategory(String value) {
     return 'Cat.: $value';
+  }
+
+  @override
+  String searchFilterCollection(String value) {
+    return 'Coll.: $value';
   }
 
   @override
@@ -864,4 +878,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsPlaceholder => 'Your statistics will appear here';
+
+  @override
+  String get sortTitle => 'Sort';
 }

@@ -11,12 +11,14 @@ class BookGridCard extends ConsumerWidget {
   final Book book;
   final DisplayPreferences prefs;
   final VoidCallback? onTap;
+  final String? overlayLabel;
 
   const BookGridCard({
     super.key,
     required this.book,
     required this.prefs,
     this.onTap,
+    this.overlayLabel,
   });
 
   @override
@@ -45,10 +47,35 @@ class BookGridCard extends ConsumerWidget {
           children: [
             // Cover Image
             Expanded(
-              child: BookCover(
-                coverUrl: book.coverUrl,
-                coverPath: book.coverPath,
-                author: book.author,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  BookCover(
+                    coverUrl: book.coverUrl,
+                    coverPath: book.coverPath,
+                    author: book.author,
+                  ),
+                  if (overlayLabel != null)
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          overlayLabel!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
 
@@ -125,5 +152,3 @@ class BookGridCard extends ConsumerWidget {
     }
   }
 }
-
-

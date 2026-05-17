@@ -404,6 +404,7 @@ class _DataSection extends ConsumerWidget {
 
       // 2. Ask for Covers ZIP
       File? zipFile;
+      if (!context.mounted) return;
       final restoreCovers = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -417,6 +418,7 @@ class _DataSection extends ConsumerWidget {
       );
 
       if (restoreCovers == true) {
+        if (!context.mounted) return;
         final zipResult = await FilePicker.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['zip'],

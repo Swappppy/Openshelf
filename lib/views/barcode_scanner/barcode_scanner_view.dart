@@ -7,6 +7,7 @@ import '../../services/permission_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../services/book_search_service.dart';
+import '../../services/database.dart';
 import '../../controllers/database_provider.dart';
 import '../../l10n/l10n_extension.dart';
 import 'dart:async';
@@ -38,8 +39,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
 
   // Batch mode feedback state
   bool _isBatchProcessing = false;
-  String? _lastAddedTitle;
-  String? _lastAddedAuthor;
+  final List<Book> _recentlyScanned = [];
   String? _warningMessage;
   Timer? _feedbackTimer;
 
@@ -235,20 +235,25 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
 
       // The first result is the Recommended one
       final book = results.first;
-      await db.insertBook(book.toCompanion());
+      final insertedBook = book.toCompanion();
+      final id = await db.insertBook(insertedBook);
+      
+      // Fetch full book with ID for the list
+      final fullBook = await db.getBook(id);
 
-      if (mounted) _showFeedback(title: book.title, author: book.authors.join(', '));
+      if (mounted && fullBook != null) {
+        _showFeedback(book: fullBook);
+      }
     } catch (e) {
       debugPrint('Batch scan error: $e');
       if (mounted) _showFeedback(warning: context.l10n.bookSearchErrorNetwork);
     }
   }
 
-  void _showFeedback({String? title, String? author, String? warning}) {
+  void _showFeedback({Book? book, String? warning}) {
     if (!mounted) return;
     setState(() {
-      _lastAddedTitle = title;
-      _lastAddedAuthor = author;
+      if (book != null) _recentlyScanned.insert(0, book);
       _warningMessage = warning;
       _isBatchProcessing = false;
     });
@@ -257,8 +262,6 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     _feedbackTimer = Timer(const Duration(seconds: 4), () {
       if (mounted) {
         setState(() {
-          _lastAddedTitle = null;
-          _lastAddedAuthor = null;
           _warningMessage = null;
         });
       }
@@ -352,91 +355,118 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
             ),
           ),
           
-          // Feedback notification area
-          if (_lastAddedTitle != null || _warningMessage != null)
+          // Recently Scanned List (Batch Mode Only)
+          if (widget.batchMode && _recentlyScanned.isNotEmpty)
             Positioned(
-              bottom: 100,
-              left: 16,
-              right: 16,
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 300),
-                builder: (context, value, child) => Opacity(
-                  opacity: value,
-                  child: Transform.translate(
-                    offset: Offset(0, 20 * (1 - value)),
-                    child: child,
-                  ),
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.8),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 ),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: _warningMessage != null 
-                        ? Colors.orange.withValues(alpha: 0.9)
-                        : Colors.green.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      )
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _warningMessage != null ? Icons.warning_amber_rounded : Icons.check_circle_outline,
-                        color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'RECIÉN AÑADIDOS (${_recentlyScanned.length})',
+                            style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(context.l10n.done, style: const TextStyle(color: Colors.blue, fontSize: 12)),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _warningMessage ?? context.l10n.addedToLibrary,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                            if (_lastAddedTitle != null)
-                              Text(
-                                '$_lastAddedTitle${_lastAddedAuthor != null ? " · $_lastAddedAuthor" : ""}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: _recentlyScanned.length,
+                        itemBuilder: (context, index) {
+                          final book = _recentlyScanned[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                if (book.coverPath != null && File(book.coverPath!).existsSync())
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: Image.file(File(book.coverPath!), width: 30, height: 45, fit: BoxFit.cover),
+                                  )
+                                else
+                                  Container(width: 30, height: 45, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4)), child: const Icon(Icons.book, size: 16, color: Colors.white24)),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(book.title, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                      Text(book.author, style: const TextStyle(color: Colors.white54, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                    ],
+                                  ),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                          ],
-                        ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
 
-          Positioned(
-            bottom: 48,
-            left: 0,
-            right: 0,
-            child: Center(
+          // Error/Warning Feedback
+          if (_warningMessage != null)
+            Positioned(
+              top: 100,
+              left: 16,
+              right: 16,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: Colors.black45,
-                child: Text(
-                  widget.batchMode ? context.l10n.scanBatchSubtitle : context.l10n.scanBarcodeSubtitle,
-                  style: const TextStyle(color: Colors.white),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _warningMessage!,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
+
+          if (!widget.batchMode || _recentlyScanned.isEmpty)
+            Positioned(
+              bottom: 48,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  color: Colors.black45,
+                  child: Text(
+                    widget.batchMode ? context.l10n.scanBatchSubtitle : context.l10n.scanBarcodeSubtitle,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

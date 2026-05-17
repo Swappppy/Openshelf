@@ -13,12 +13,14 @@ class BookListTile extends ConsumerWidget {
   final Book book;
   final DisplayPreferences prefs;
   final VoidCallback? onTap;
+  final Widget? leading;
 
   const BookListTile({
     super.key,
     required this.book,
     required this.prefs,
     this.onTap,
+    this.leading,
   });
 
   @override
@@ -42,6 +44,10 @@ class BookListTile extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (leading != null) ...[
+              leading!,
+              const SizedBox(width: 12),
+            ],
             BookCover(
               coverUrl: book.coverUrl,
               coverPath: book.coverPath,
@@ -211,7 +217,7 @@ class _TagsRow extends StatelessWidget {
         double totalWidth = 0;
         const spacing = 6.0;
         const padding = 12.0; 
-        const moreWidth = 25.0; // Width reserved for the "+N" indicator
+        const moreWidth = 32.0; // Increased reserved width for the "+N" indicator
 
         for (int i = 0; i < tags.length; i++) {
           final tag = tags[i];
@@ -222,9 +228,13 @@ class _TagsRow extends StatelessWidget {
 
           final tagWidth = painter.width + padding;
           final isLast = i == tags.length - 1;
+          
+          // Use moreWidth even for the last item if it's almost at the edge
+          // to ensure we don't overflow when the tag is just slightly shorter than constraints
           final neededWidth = totalWidth + tagWidth + (isLast ? 0 : spacing + moreWidth);
+          final safetyMargin = isLast ? 8.0 : 0.0;
 
-          if (neededWidth <= constraints.maxWidth) {
+          if (neededWidth + safetyMargin <= constraints.maxWidth) {
             visibleTags.add(tag);
             totalWidth += tagWidth + spacing;
           } else {

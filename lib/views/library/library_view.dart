@@ -1,19 +1,22 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../shelves/shelves_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/display_preferences_controller.dart';
 import '../../models/display_preferences.dart';
 import '../../services/database.dart';
+import '../../controllers/fab_visibility_controller.dart';
 import '../../widgets/book_list_tile.dart';
 import '../../widgets/book_grid_card.dart';
 import '../../controllers/books_controller.dart';
-import '../book_form/add_book_modal.dart';
 import '../book_detail/book_detail_view.dart';
 import '../settings/settings_view.dart';
+import '../../widgets/filter_grid_box.dart';
+import '../../widgets/sort_bottom_sheet.dart';
+import '../../widgets/scrollable_selection_bar.dart';
 import '../../l10n/l10n_extension.dart';
+import '../../widgets/add_entity_fab.dart';
+
+import 'stats_view.dart';
 
 /// Main container for the library, featuring a navigation bar for the three main sections.
 class LibraryView extends StatefulWidget {
@@ -29,7 +32,7 @@ class _LibraryViewState extends State<LibraryView> {
   final List<Widget> _screens = const [
     _LibraryScreen(),
     ShelvesScreen(),
-    _StatsScreen(),
+    StatsView(),
   ];
 
   @override
@@ -72,7 +75,6 @@ class _LibraryScreen extends ConsumerStatefulWidget {
 class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
   bool _searchVisible = false;
   late final ScrollController _scrollController;
-  bool _isFabVisible = true;
 
   @override
   void initState() {
@@ -90,31 +92,15 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
 
   /// Handles auto-hiding the FAB based on scroll position and direction.
   void _scrollListener() {
-    if (!_scrollController.hasClients) return;
-    
-    // Disable auto-hide if content doesn't exceed screen height.
-    final isScrollable = _scrollController.position.maxScrollExtent > 0;
-    if (!isScrollable) {
-      if (!_isFabVisible) setState(() => _isFabVisible = true);
-      return;
-    }
-
-    final isAtEnd = _scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 50;
-    final isScrollingDown = _scrollController.position.userScrollDirection == ScrollDirection.reverse;
-
-    if (isAtEnd || isScrollingDown) {
-      if (_isFabVisible) setState(() => _isFabVisible = false);
-    } else {
-      if (!_isFabVisible) setState(() => _isFabVisible = true);
-    }
+    ref.read(fabVisibilityProvider.notifier).handleScroll(_scrollController);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isFabVisible = ref.watch(fabVisibilityProvider);
     final viewMode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
     final filters = ref.watch(searchFiltersProvider);
     final booksAsync = ref.watch(filteredBooksProvider);
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: _LibraryAppBar(
@@ -128,28 +114,46 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
       ),
       body: Column(
         children: [
-          // Quick status filter row with horizontal scrolling.
-          Row(
-            children: [
-              const SizedBox(width: 16),
-              GestureDetector(
-                onTap: () => _SortMenu.show(context),
-                behavior: HitTestBehavior.opaque,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Icon(Icons.sort, size: 22, color: colorScheme.outline),
-                ),
-              ),
-              Expanded(
-                child: _StatusFilterRow(
-                  selectedStatus: filters.status,
-                  onChanged: (status) {
-                    ref.read(searchFiltersProvider.notifier).state =
-                        filters.copyWith(status: status, clearStatus: status == null);
-                  },
-                ),
-              ),
+          ScrollableSelectionBar<ReadingStatus?>(
+            items: [
+              SelectionItem(value: null, label: context.l10n.shelfAllBooks),
+              SelectionItem(value: ReadingStatus.reading, label: context.l10n.statusReading, color: Colors.blue),
+              SelectionItem(value: ReadingStatus.wantToRead, label: context.l10n.statusWantToRead, color: Colors.orange),
+              SelectionItem(value: ReadingStatus.read, label: context.l10n.statusRead, color: Colors.green),
+              SelectionItem(value: ReadingStatus.paused, label: context.l10n.statusPaused, color: const Color(0xFFB39DDB)),
+              SelectionItem(value: ReadingStatus.abandoned, label: context.l10n.statusAbandoned, color: Colors.red),
             ],
+            selectedValue: filters.status,
+            onSelected: (status) {
+              ref.read(searchFiltersProvider.notifier).state =
+                  filters.copyWith(status: status, clearStatus: status == null);
+            },
+            onSortTap: () {
+              final controller = ref.read(displayPreferencesProvider.notifier);
+              final l10n = context.l10n;
+
+              SortBottomSheet.show(
+                context,
+                title: l10n.sortTitle,
+                orderSelector: (p) => p.sortOrder,
+                directionsSelector: (p) => p.sortDirections,
+                labels: {
+                  'title': l10n.fieldTitle,
+                  'author': l10n.fieldAuthor,
+                  'publisher': l10n.fieldPublisher,
+                  'collection': l10n.fieldCollection,
+                  'imprint': l10n.managementImprints,
+                  'publishYear': l10n.fieldYear,
+                  'createdAt': l10n.bookDetailFieldAdded,
+                  'rating': l10n.fieldRating,
+                },
+                onReorder: controller.reorderSort,
+                onToggleDirection: controller.toggleFieldSortDirection,
+                showEmptyToggle: true,
+                emptyAtEndSelector: (p) => p.emptyAtEnd,
+                onToggleEmpty: controller.toggleEmptyAtEnd,
+              );
+            },
           ),
           if (_searchVisible)
             Padding(
@@ -173,24 +177,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
           ),
         ],
       ),
-      floatingActionButton: AnimatedSlide(
-        duration: const Duration(milliseconds: 300),
-        offset: _isFabVisible ? Offset.zero : const Offset(0, 2),
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 300),
-          opacity: _isFabVisible ? 1.0 : 0.0,
-          child: FloatingActionButton(
-            onPressed: () => showModalBottomSheet(
-              context: context,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              builder: (_) => const AddBookModal(),
-            ),
-            child: const Icon(Icons.add),
-          ),
-        ),
-      ),
+      floatingActionButton: AddEntityFab(visible: isFabVisible),
     );
   }
 }
@@ -347,119 +334,7 @@ class _BooksListOrGrid extends ConsumerWidget {
   }
 }
 
-class _SortMenu extends ConsumerWidget {
-  const _SortMenu();
-
-  static void show(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => const _SortMenu(),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final p = ref.watch(displayPreferencesProvider);
-    final controller = ref.read(displayPreferencesProvider.notifier);
-
-    final sortLabels = {
-      'title': l10n.fieldTitle,
-      'author': l10n.fieldAuthor,
-      'publisher': l10n.fieldPublisher,
-      'collection': l10n.fieldCollection,
-      'imprint': l10n.managementImprints,
-      'publishYear': l10n.fieldYear,
-      'createdAt': l10n.bookDetailFieldAdded,
-      'rating': l10n.fieldRating,
-    };
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        16, 16, 16,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.displaySettingsDragHint,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-              ),
-              _SortToggleButton(
-                label: p.emptyAtEnd ? 'V-↓' : 'V-↑',
-                onPressed: controller.toggleEmptyAtEnd,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ReorderableListView(
-            onReorder: controller.reorderSort,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: p.sortOrder
-                .map(
-                  (criteria) {
-                final isAsc = p.sortDirections[criteria] ?? true;
-                final isAlphabetical = ['title', 'author', 'publisher', 'collection', 'imprint'].contains(criteria);
-
-                return ListTile(
-                  key: ValueKey(criteria),
-                  leading: ReorderableDragStartListener(
-                    index: p.sortOrder.indexOf(criteria),
-                    child: const Icon(Icons.drag_handle),
-                  ),
-                  title: Text(sortLabels[criteria] ?? criteria),
-                  trailing: TextButton.icon(
-                    onPressed: () => controller.toggleFieldSortDirection(criteria),
-                    label: Text(
-                      isAsc
-                          ? (isAlphabetical ? 'A-Z' : '0-9')
-                          : (isAlphabetical ? 'Z-A' : '9-0'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    icon: Icon(
-                      isAsc ? Icons.arrow_upward : Icons.arrow_downward,
-                      size: 14,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                );
-              },
-            )
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// _SortMenu was deleted as it was replaced by SortBottomSheet abstraction.
 
 class _DisplaySettingsMenu extends ConsumerWidget {
   const _DisplaySettingsMenu();
@@ -613,37 +488,7 @@ class _DisplaySettingsMenu extends ConsumerWidget {
   }
 }
 
-class _SortToggleButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-
-  const _SortToggleButton({required this.label, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-      ),
-    );
-  }
-}
+// _SortToggleButton was removed as it was replaced by SortBottomSheet logic.
 
 /// A compact icon button with a boxed background and rounded corners.
 class _BoxedIconButton extends StatelessWidget {
@@ -689,71 +534,7 @@ class _BoxedIconButton extends StatelessWidget {
   }
 }
 
-class _StatusFilterRow extends StatelessWidget {
-  final ReadingStatus? selectedStatus;
-  final ValueChanged<ReadingStatus?> onChanged;
-
-  const _StatusFilterRow({
-    required this.selectedStatus,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final options = [
-      (null, context.l10n.shelfAllBooks, Theme.of(context).colorScheme.outline),
-      (ReadingStatus.reading, context.l10n.statusReading, Colors.blue),
-      (ReadingStatus.wantToRead, context.l10n.statusWantToRead, Colors.orange),
-      (ReadingStatus.read, context.l10n.statusRead, Colors.green),
-      (ReadingStatus.paused, context.l10n.statusPaused, const Color(0xFFB39DDB)),
-      (ReadingStatus.abandoned, context.l10n.statusAbandoned, Colors.red),
-    ];
-
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: options.length,
-        itemBuilder: (context, index) {
-          final opt = options[index];
-          final isSelected = selectedStatus == opt.$1;
-          final statusColor = opt.$3;
-
-          return Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: ChoiceChip(
-              label: Text(
-                opt.$2,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? statusColor : null,
-                ),
-              ),
-              selected: isSelected,
-              onSelected: (_) => onChanged(opt.$1),
-              showCheckmark: false,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              backgroundColor: Colors.transparent,
-              selectedColor: statusColor.withValues(alpha: 0.15),
-              side: BorderSide(
-                color: isSelected 
-                    ? statusColor.withValues(alpha: 0.4) 
-                    : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
+// _StatusFilterRow was deleted as it was replaced by ScrollableSelectionBar.
 
 /// The advanced search panel featuring multi-tab filtering for statuses, imprints, and categories.
 class _SearchPanel extends ConsumerStatefulWidget {
@@ -775,7 +556,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
   void initState() {
     super.initState();
     _queryCtrl = TextEditingController(text: widget.filters.query);
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -866,6 +647,13 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
                       widget.onChanged(widget.filters.copyWith(imprints: newImprints));
                     },
                   )),
+                  ...widget.filters.collections.map((col) => _FilterChip(
+                    label: context.l10n.searchFilterCollection(col.name),
+                    onDelete: () {
+                      final newCols = List<Tag>.from(widget.filters.collections)..remove(col);
+                      widget.onChanged(widget.filters.copyWith(collections: newCols));
+                    },
+                  )),
                   ...widget.filters.tags.map((tag) => _FilterChip(
                     label: context.l10n.searchFilterCategory(tag.name),
                     color: tag.color != null ? Color(int.parse('0xFF${tag.color!}')) : null,
@@ -896,6 +684,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
                 Tab(text: context.l10n.searchTabStatus),
                 Tab(text: context.l10n.searchTabImprint),
                 Tab(text: context.l10n.searchTabCategory),
+                Tab(text: context.l10n.searchTabCollection),
               ],
             ),
 
@@ -911,6 +700,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
                     _StatusFiltersTab(filters: widget.filters, onChanged: widget.onChanged),
                     _ImprintFiltersTab(filters: widget.filters, onChanged: widget.onChanged),
                     _TagFiltersTab(filters: widget.filters, onChanged: widget.onChanged),
+                    _CollectionFiltersTab(filters: widget.filters, onChanged: widget.onChanged),
                   ],
                 ),
               ),
@@ -950,6 +740,7 @@ class _SearchPanelState extends ConsumerState<_SearchPanel> with SingleTickerPro
     if (widget.filters.status != null) count++;
     count += widget.filters.imprints.length;
     count += widget.filters.tags.length;
+    count += widget.filters.collections.length;
     return count;
   }
 
@@ -1036,7 +827,7 @@ class _StatusFiltersTab extends StatelessWidget {
         runSpacing: 6,
         children: options.map((opt) {
           final isSelected = filters.status == opt.$1;
-          return _FilterGridBox(
+          return FilterGridBox(
             label: opt.$2,
             isSelected: isSelected,
             color: opt.$3,
@@ -1068,19 +859,60 @@ class _ImprintFiltersTab extends ConsumerWidget {
           runSpacing: 6,
           children: list.map((imp) {
             final isSelected = filters.imprints.any((i) => i.id == imp.id);
-            return _FilterGridBox(
+            return FilterGridBox(
               label: imp.name,
               isSelected: isSelected,
               imagePath: imp.imagePath,
-                onTap: () {
-                  final newImprints = List<Tag>.from(filters.imprints);
-                  if (isSelected) {
-                    newImprints.removeWhere((i) => i.id == imp.id);
-                  } else {
-                    newImprints.add(imp);
-                  }
-                  onChanged(filters.copyWith(imprints: newImprints));
-                },
+              isImprint: true,
+              onTap: () {
+                final newImprints = List<Tag>.from(filters.imprints);
+                if (isSelected) {
+                  newImprints.removeWhere((i) => i.id == imp.id);
+                } else {
+                  newImprints.add(imp);
+                }
+                onChanged(filters.copyWith(imprints: newImprints));
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+class _CollectionFiltersTab extends ConsumerWidget {
+  final SearchFilters filters;
+  final ValueChanged<SearchFilters> onChanged;
+
+  const _CollectionFiltersTab({required this.filters, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final collectionsAsync = ref.watch(allCollectionsProvider);
+    return collectionsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => const SizedBox.shrink(),
+      data: (list) => SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(8),
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: list.map((col) {
+            final isSelected = filters.collections.any((c) => c.id == col.id);
+            return FilterGridBox(
+              label: col.name,
+              isSelected: isSelected,
+              onTap: () {
+                final newCollections = List<Tag>.from(filters.collections);
+                if (isSelected) {
+                  newCollections.removeWhere((c) => c.id == col.id);
+                } else {
+                  newCollections.add(col);
+                }
+                onChanged(filters.copyWith(collections: newCollections));
+              },
             );
           }).toList(),
         ),
@@ -1110,19 +942,19 @@ class _TagFiltersTab extends ConsumerWidget {
           children: list.map((tag) {
             final isSelected = filters.tags.any((t) => t.id == tag.id);
             final color = tag.color != null ? Color(int.parse('0xFF${tag.color!}')) : null;
-            return _FilterGridBox(
+            return FilterGridBox(
               label: tag.name,
               isSelected: isSelected,
               color: color,
-                onTap: () {
-                  final newTags = List<Tag>.from(filters.tags);
-                  if (isSelected) {
-                    newTags.removeWhere((t) => t.id == tag.id);
-                  } else {
-                    newTags.add(tag);
-                  }
-                  onChanged(filters.copyWith(tags: newTags));
-                },
+              onTap: () {
+                final newTags = List<Tag>.from(filters.tags);
+                if (isSelected) {
+                  newTags.removeWhere((t) => t.id == tag.id);
+                } else {
+                  newTags.add(tag);
+                }
+                onChanged(filters.copyWith(tags: newTags));
+              },
             );
           }).toList(),
         ),
@@ -1131,124 +963,4 @@ class _TagFiltersTab extends ConsumerWidget {
   }
 }
 
-/// A flexible grid box that highlights when selected. Used for filter options.
-class _FilterGridBox extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final Color? color;
-  final String? imagePath;
-  final VoidCallback onTap;
 
-  const _FilterGridBox({
-    required this.label,
-    required this.isSelected,
-    this.color,
-    this.imagePath,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final baseColor = color ?? Colors.white70;
-    return IntrinsicWidth(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: isSelected ? baseColor.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isSelected ? baseColor.withValues(alpha: 0.5) : Colors.white10,
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Display either the imprint image or initials as placeholder.
-              if (imagePath != null || (color == null && imagePath == null)) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: imagePath != null 
-                    ? Image.file(
-                        File(imagePath!),
-                        width: 24,
-                        height: 24,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _initialsPlaceholder(context, label),
-                      )
-                    : _initialsPlaceholder(context, label),
-                ),
-                const SizedBox(width: 8),
-              ],
-              Flexible(
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? baseColor.withValues(alpha: 0.9) : Colors.white60,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _initialsPlaceholder(BuildContext context, String name) {
-    final initials = name
-        .split(RegExp(r'\s+'))
-        .where((w) => w.isNotEmpty)
-        .take(2)
-        .map((w) => w[0].toUpperCase())
-        .join();
-        
-    return Container(
-      width: 24,
-      height: 24,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white10,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        initials,
-        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white38),
-      ),
-    );
-  }
-}
-
-/// Placeholder screen for library statistics.
-class _StatsScreen extends StatelessWidget {
-  const _StatsScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          context.l10n.navStats,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Serif',
-            color: Colors.white,
-          ),
-        ),
-        toolbarHeight: 64,
-        backgroundColor: Colors.black,
-        scrolledUnderElevation: 0,
-      ),
-      body: Center(child: Text(context.l10n.statsPlaceholder)),
-    );
-  }
-}

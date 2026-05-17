@@ -19,11 +19,15 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
   final tagIds = shelf.filterTagIds != null
       ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>()
       : <int>[];
+      
+  final imprintIds = shelf.filterImprintIds != null
+      ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>()
+      : <int>[];
 
   // If only a status filter is set, use the faster status-only query
   if (shelf.filterStatus != null &&
       tagIds.isEmpty &&
-      shelf.filterImprintId == null &&
+      imprintIds.isEmpty &&
       shelf.filterQuery == null &&
       shelf.filterAuthor == null &&
       shelf.filterPublisher == null &&
@@ -42,7 +46,7 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
     publisher: shelf.filterPublisher,
     isbn: shelf.filterIsbn,
     collectionName: shelf.filterCollection,
-    imprintIds: shelf.filterImprintId != null ? [shelf.filterImprintId!] : null,
+    imprintIds: imprintIds.isEmpty ? null : imprintIds,
   );
 });
 
@@ -72,6 +76,11 @@ final allTagsProvider = StreamProvider<List<Tag>>((ref) {
   return ref.watch(databaseProvider).watchTagsByType('tag');
 });
 
+/// Provider for tags including their usage count for visual scaling (cloud).
+final allTagsWithCountsProvider = StreamProvider<List<(Tag, int)>>((ref) {
+  return ref.watch(databaseProvider).watchTagsWithCounts('tag');
+});
+
 final allImprintsProvider = StreamProvider<List<Tag>>((ref) {
   return ref.watch(databaseProvider).watchTagsByType('imprint');
 });
@@ -89,6 +98,11 @@ final booksByImprintProvider = StreamProvider.family<List<Book>, int>((ref, impr
   return db.watchBooksFiltered(imprintIds: [imprintId]);
 });
 
+final booksByCollectionProvider = StreamProvider.family<List<Book>, String>((ref, collectionName) {
+  final db = ref.watch(databaseProvider);
+  return db.watchBooksFiltered(collectionName: collectionName);
+});
+
 /// Main filtered provider used by the Library view
 final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
   final filters = ref.watch(searchFiltersProvider);
@@ -103,7 +117,7 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
   // Decide which database stream to use based on active filters
   if (filters.isEmpty && filters.status == null) {
     booksStream = db.watchAllBooks();
-  } else if (filters.status != null && filters.isEmpty && filters.imprints.isEmpty) {
+  } else if (filters.status != null && filters.isEmpty && filters.imprints.isEmpty && filters.collections.isEmpty) {
     booksStream = db.watchBooksByStatus(filters.status!);
   } else {
     booksStream = db.watchBooksFiltered(
@@ -160,23 +174,21 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
             comparison = a.createdAt.compareTo(b.createdAt);
             break;
           case 'rating':
-            comparison = (a.rating ?? 0).compareTo(b.rating ?? 0);
+            comparison = (a.rating ?? 0.0).compareTo(b.rating ?? 0.0);
             break;
         }
-        
+
         if (comparison != 0) {
           return isAsc ? comparison : -comparison;
         }
       }
-
-      // Tie-breaker: Deterministic order by unique ID
-      return a.id.compareTo(b.id);
+      return 0;
     });
     return sortedList;
   });
 });
 
-/// Extracts property value for sorting logic
+/// Helper to get the value of a specific field for sorting
 Object? _getSortValue(Book b, String criteria) {
   switch (criteria) {
     case 'title': return b.title;
@@ -200,6 +212,7 @@ class SearchFilters {
   final String isbn;
   final String collection;
   final List<Tag> imprints;
+  final List<Tag> collections;
   final ReadingStatus? status;
 
   const SearchFilters({
@@ -210,6 +223,7 @@ class SearchFilters {
     this.isbn = '',
     this.collection = '',
     this.imprints = const [],
+    this.collections = const [],
     this.status,
   });
 
@@ -220,7 +234,8 @@ class SearchFilters {
           publisher.isEmpty &&
           isbn.isEmpty &&
           collection.isEmpty &&
-          imprints.isEmpty;
+          imprints.isEmpty &&
+          collections.isEmpty;
 
   SearchFilters copyWith({
     String? query,
@@ -231,6 +246,8 @@ class SearchFilters {
     String? collection,
     List<Tag>? imprints,
     bool clearImprints = false,
+    List<Tag>? collections,
+    bool clearCollections = false,
     ReadingStatus? status,
     bool clearStatus = false,
   }) =>
@@ -242,6 +259,7 @@ class SearchFilters {
         isbn: isbn ?? this.isbn,
         collection: collection ?? this.collection,
         imprints: clearImprints ? [] : (imprints ?? this.imprints),
+        collections: clearCollections ? [] : (collections ?? this.collections),
         status: clearStatus ? null : (status ?? this.status),
       );
 }
@@ -256,4 +274,35 @@ final allShelvesProvider = StreamProvider<List<Shelf>>((ref) {
 final imprintBookCountProvider =
 StreamProvider.family<int, int>((ref, imprintId) {
   return ref.watch(databaseProvider).watchBookCountByImprint(imprintId);
+});
+
+/// Provider that calculates stats (count, read count) for all shelves reactively.
+final allShelvesWithStatsProvider = Provider<AsyncValue<List<(Shelf, int, double)>>>((ref) {
+  final shelvesAsync = ref.watch(allShelvesProvider);
+  
+  return shelvesAsync.when(
+    loading: () => const AsyncValue.loading(),
+    error: (e, st) => AsyncValue.error(e, st),
+    data: (shelves) {
+      final stats = <(Shelf, int, double)>[];
+      bool isAnyLoading = false;
+      
+      for (final shelf in shelves) {
+        final booksAsync = ref.watch(shelfBooksProvider(shelf));
+        booksAsync.when(
+          data: (books) {
+            final count = books.length;
+            final readCount = books.where((b) => b.status == ReadingStatus.read).length;
+            final progress = count > 0 ? readCount / count : 0.0;
+            stats.add((shelf, count, progress));
+          },
+          loading: () => isAnyLoading = true,
+          error: (e, st) {}, // Ignore errors for individual shelves for now
+        );
+      }
+      
+      if (isAnyLoading) return const AsyncValue.loading();
+      return AsyncValue.data(stats);
+    },
+  );
 });

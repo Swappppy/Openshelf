@@ -61,11 +61,14 @@ class Shelves extends Table {
   TextColumn get filterAuthor => text().nullable()();
   TextColumn get filterPublisher => text().nullable()();
   TextColumn get filterIsbn => text().nullable()();
+  TextColumn get filterSubtitle => text().nullable()();
+  TextColumn get filterLanguage => text().nullable()();
+  TextColumn get filterTranslator => text().nullable()();
   TextColumn get filterCollection => text().nullable()();
   TextColumn get filterStatus => text().nullable()();
   /// JSON-encoded list of tag IDs for the shelf filter
   TextColumn get filterTagIds => text().nullable()();
-  IntColumn get filterImprintId => integer().nullable()();
+  TextColumn get filterImprintIds => text().nullable()();
 }
 
 enum ReadingStatus {
@@ -107,7 +110,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -141,6 +144,18 @@ class AppDatabase extends _$AppDatabase {
         // Guard against duplicate column if version 7 was partially applied
         try {
           await m.addColumn(books, books.translator as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 8) {
+        try {
+          await m.addColumn(shelves, shelves.filterSubtitle as GeneratedColumn);
+          await m.addColumn(shelves, shelves.filterLanguage as GeneratedColumn);
+          await m.addColumn(shelves, shelves.filterTranslator as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 9) {
+        try {
+          await m.addColumn(shelves, shelves.filterImprintIds as GeneratedColumn);
         } catch (_) {}
       }
     },
@@ -332,6 +347,25 @@ class AppDatabase extends _$AppDatabase {
   Stream<List<Tag>> watchTagsByType(String type) =>
       (select(tags)..where((t) => t.type.equals(type))).watch();
 
+  /// Watches all tags of a specific type along with the count of books linked to each.
+  Stream<List<(Tag, int)>> watchTagsWithCounts(String type) {
+    final countExp = bookTags.bookId.count();
+    final query = select(tags).join([
+      leftOuterJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
+    ])
+      ..where(tags.type.equals(type))
+      ..addColumns([countExp])
+      ..groupBy([tags.id]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        final tag = row.readTable(tags);
+        final tagCount = row.read(countExp) ?? 0;
+        return (tag, tagCount);
+      }).toList();
+    });
+  }
+
   Future<int> getBookCountByImprint(int imprintId) async {
     final rows = await (select(bookTags)
       ..where((bt) => bt.tagId.equals(imprintId)))
@@ -342,6 +376,20 @@ class AppDatabase extends _$AppDatabase {
   Stream<int> watchBookCountByImprint(int imprintId) {
     return (select(bookTags)
       ..where((bt) => bt.tagId.equals(imprintId)))
+        .watch()
+        .map((rows) => rows.length);
+  }
+
+  Future<int> getBookCountByTag(int tagId) async {
+    final rows = await (select(bookTags)
+      ..where((bt) => bt.tagId.equals(tagId)))
+        .get();
+    return rows.length;
+  }
+
+  Stream<int> watchBookCountByTag(int tagId) {
+    return (select(bookTags)
+      ..where((bt) => bt.tagId.equals(tagId)))
         .watch()
         .map((rows) => rows.length);
   }

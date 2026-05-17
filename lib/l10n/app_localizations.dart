@@ -476,6 +476,12 @@ abstract class AppLocalizations {
   /// **'Páginas totales'**
   String get fieldTotalPages;
 
+  /// Nombre del campo de libros totales
+  ///
+  /// In es, this message translates to:
+  /// **'Libros totales'**
+  String get fieldTotalBooks;
+
   /// Nombre del campo de página actual
   ///
   /// In es, this message translates to:
@@ -1034,10 +1040,16 @@ abstract class AppLocalizations {
   /// **'Categorías'**
   String get managementCategories;
 
+  /// Número de libros en una categoría
+  ///
+  /// In es, this message translates to:
+  /// **'Nº de libros'**
+  String get managementCategoryCount;
+
   /// Sección de gestión: sellos editoriales
   ///
   /// In es, this message translates to:
-  /// **'Sellos editoriales'**
+  /// **'Sellos'**
   String get managementImprints;
 
   /// Sección de gestión: colecciones
@@ -1562,6 +1574,12 @@ abstract class AppLocalizations {
   /// **'Categoría'**
   String get searchTabCategory;
 
+  /// Panel de búsqueda: pestaña Colección
+  ///
+  /// In es, this message translates to:
+  /// **'Colección'**
+  String get searchTabCollection;
+
   /// No description provided for @searchFilterStatus.
   ///
   /// In es, this message translates to:
@@ -1579,6 +1597,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cat.: {value}'**
   String searchFilterCategory(String value);
+
+  /// No description provided for @searchFilterCollection.
+  ///
+  /// In es, this message translates to:
+  /// **'Col.: {value}'**
+  String searchFilterCollection(String value);
 
   /// No description provided for @searchActiveFilters.
   ///
@@ -1675,6 +1699,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tus estadísticas aparecerán aquí'**
   String get statsPlaceholder;
+
+  /// No description provided for @sortTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Ordenar'**
+  String get sortTitle;
 }
 
 class _AppLocalizationsDelegate

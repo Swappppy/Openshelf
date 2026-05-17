@@ -53,8 +53,10 @@ class TagBooksView extends ConsumerWidget {
     final viewMode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
     final controller = ref.read(displayPreferencesProvider.notifier);
 
-    // Dynamic filtering based on tag ID.
-    final booksAsync = ref.watch(booksByImprintProvider(tag.id));
+    // Dynamic filtering based on tag ID or collection name.
+    final booksAsync = tag.type == 'collection' 
+        ? ref.watch(booksByCollectionProvider(tag.name))
+        : ref.watch(booksByImprintProvider(tag.id));
 
     return Scaffold(
       appBar: AppBar(
@@ -74,6 +76,7 @@ class TagBooksView extends ConsumerWidget {
       body: _BooksListOrGrid(
         booksAsync: booksAsync,
         viewMode: viewMode,
+        isCollection: tag.type == 'collection',
       ),
     );
   }
@@ -124,10 +127,12 @@ class StatusBooksView extends ConsumerWidget {
 class _BooksListOrGrid extends ConsumerWidget {
   final AsyncValue<List<Book>> booksAsync;
   final LibraryViewMode viewMode;
+  final bool isCollection;
 
   const _BooksListOrGrid({
     required this.booksAsync,
     required this.viewMode,
+    this.isCollection = false,
   });
 
   @override
@@ -153,20 +158,41 @@ class _BooksListOrGrid extends ConsumerWidget {
             ),
           );
         }
+
+        final items = List<Book>.from(bookList);
+        if (isCollection) {
+          items.sort((a, b) => (a.collectionNumber ?? 0).compareTo(b.collectionNumber ?? 0));
+        }
+
         return viewMode == LibraryViewMode.list
             ? ListView.builder(
           padding: EdgeInsets.zero,
-          itemCount: bookList.length,
-          itemBuilder: (context, index) => BookListTile(
-            book: bookList[index],
-            prefs: prefs,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BookDetailView(book: bookList[index]),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final book = items[index];
+            return BookListTile(
+              book: book,
+              prefs: prefs,
+              leading: isCollection ? Container(
+                width: 32,
+                alignment: Alignment.center,
+                child: Text(
+                  '${book.collectionNumber ?? ""}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 10,
+                  ),
+                ),
+              ) : null,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BookDetailView(book: book),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         )
             : GridView.builder(
           padding: const EdgeInsets.all(12),
@@ -176,19 +202,25 @@ class _BooksListOrGrid extends ConsumerWidget {
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
-          itemCount: bookList.length,
-          itemBuilder: (context, index) => BookGridCard(
-            book: bookList[index],
-            prefs: prefs,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BookDetailView(book: bookList[index]),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final book = items[index];
+            return BookGridCard(
+              book: book,
+              prefs: prefs,
+              overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BookDetailView(book: book),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
   }
 }
+
+// Deleted _CollectionBookTile as it is no longer used.

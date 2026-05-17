@@ -198,6 +198,9 @@
   "fieldTotalPages": "Total pages",
   "@fieldTotalPages": { "description": "Total pages field" },
 
+  "fieldTotalBooks": "Total books",
+  "@fieldTotalBooks": { "description": "Total books field" },
+
   "fieldCurrentPage": "Current page",
   "@fieldCurrentPage": { "description": "Current page field" },
 
@@ -496,6 +499,9 @@
   "managementCategories": "Categories",
   "@managementCategories": { "description": "Management: categories" },
 
+  "managementCategoryCount": "Book count",
+  "@managementCategoryCount": { "description": "Number of books in a category" },
+
   "managementImprints": "Imprints",
   "@managementImprints": { "description": "Management: imprints" },
 
@@ -781,6 +787,8 @@
 
   "searchTabCategory": "Category",
   "@searchTabCategory": { "description": "Search panel: Category tab" },
+  "searchTabCollection": "Collection",
+  "@searchTabCollection": { "description": "Search panel: Collection tab" },
 
   "searchFilterStatus": "Status: {value}",
   "@searchFilterStatus": {
@@ -794,6 +802,10 @@
 
   "searchFilterCategory": "Cat.: {value}",
   "@searchFilterCategory": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "searchFilterCollection": "Coll.: {value}",
+  "@searchFilterCollection": {
     "placeholders": { "value": { "type": "String" } }
   },
 
@@ -857,5 +869,7 @@
   "@statsTitle": { "description": "Stats screen title" },
 
   "statsPlaceholder": "Your statistics will appear here",
-  "@statsPlaceholder": { "description": "Stats placeholder" }
+  "@statsPlaceholder": { "description": "Stats placeholder" },
+
+  "sortTitle": "Sort"
 }
