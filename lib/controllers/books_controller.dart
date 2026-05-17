@@ -78,15 +78,23 @@ final allTagsProvider = StreamProvider<List<Tag>>((ref) {
 
 /// Provider for tags including their usage count for visual scaling (cloud).
 final allTagsWithCountsProvider = StreamProvider<List<(Tag, int)>>((ref) {
-  return ref.watch(databaseProvider).watchTagsWithCounts('tag');
+  return ref.watch(databaseProvider).watchTagsByTypeWithCounts('tag');
 });
 
 final allImprintsProvider = StreamProvider<List<Tag>>((ref) {
   return ref.watch(databaseProvider).watchTagsByType('imprint');
 });
 
+final allImprintsWithCountsProvider = StreamProvider<List<(Tag, int)>>((ref) {
+  return ref.watch(databaseProvider).watchTagsByTypeWithCounts('imprint');
+});
+
 final allCollectionsProvider = StreamProvider<List<Tag>>((ref) {
   return ref.watch(databaseProvider).watchTagsByType('collection');
+});
+
+final allCollectionsWithCountsProvider = StreamProvider<List<(Tag, int)>>((ref) {
+  return ref.watch(databaseProvider).watchCollectionsWithCounts();
 });
 
 final bookImprintProvider = StreamProvider.family<Tag?, int>((ref, bookId) {
@@ -96,6 +104,11 @@ final bookImprintProvider = StreamProvider.family<Tag?, int>((ref, bookId) {
 final booksByImprintProvider = StreamProvider.family<List<Book>, int>((ref, imprintId) {
   final db = ref.watch(databaseProvider);
   return db.watchBooksFiltered(imprintIds: [imprintId]);
+});
+
+final booksByTagProvider = StreamProvider.family<List<Book>, int>((ref, tagId) {
+  final db = ref.watch(databaseProvider);
+  return db.watchBooksFiltered(tagIds: [tagId]);
 });
 
 final booksByCollectionProvider = StreamProvider.family<List<Book>, String>((ref, collectionName) {
@@ -277,14 +290,14 @@ StreamProvider.family<int, int>((ref, imprintId) {
 });
 
 /// Provider that calculates stats (count, read count) for all shelves reactively.
-final allShelvesWithStatsProvider = Provider<AsyncValue<List<(Shelf, int, double)>>>((ref) {
+final allShelvesWithStatsProvider = Provider<AsyncValue<List<(Shelf, int, int)>>>((ref) {
   final shelvesAsync = ref.watch(allShelvesProvider);
   
   return shelvesAsync.when(
     loading: () => const AsyncValue.loading(),
     error: (e, st) => AsyncValue.error(e, st),
     data: (shelves) {
-      final stats = <(Shelf, int, double)>[];
+      final stats = <(Shelf, int, int)>[];
       bool isAnyLoading = false;
       
       for (final shelf in shelves) {
@@ -293,8 +306,7 @@ final allShelvesWithStatsProvider = Provider<AsyncValue<List<(Shelf, int, double
           data: (books) {
             final count = books.length;
             final readCount = books.where((b) => b.status == ReadingStatus.read).length;
-            final progress = count > 0 ? readCount / count : 0.0;
-            stats.add((shelf, count, progress));
+            stats.add((shelf, count, readCount));
           },
           loading: () => isAnyLoading = true,
           error: (e, st) {}, // Ignore errors for individual shelves for now

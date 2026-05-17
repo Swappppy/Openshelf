@@ -415,8 +415,11 @@
   "shelfNewTooltip": "New shelf",
   "@shelfNewTooltip": { "description": "New shelf tooltip" },
 
-  "shelfEmpty": "No custom shelves created",
+  "shelfEmpty": "You don't have any custom shelves",
   "@shelfEmpty": { "description": "Empty custom shelves state" },
+
+  "shelfEmptySubtitle": "Tap + to add your first shelf",
+  "@shelfEmptySubtitle": { "description": "Empty shelves state subtitle" },
 
   "shelfBooksEmpty": "No books in this shelf",
   "@shelfBooksEmpty": { "description": "Empty shelf books state" },
@@ -511,6 +514,9 @@
   "tagNone": "No categories yet",
   "@tagNone": { "description": "Empty categories state" },
 
+  "tagNoneSubtitle": "Tap + to add your first category \n Or edit a book to create it",
+  "@tagNoneSubtitle": { "description": "Empty categories state subtitle" },
+
   "tagNew": "New category",
   "@tagNew": { "description": "New category button" },
 
@@ -534,6 +540,9 @@
 
   "imprintNone": "No imprints yet",
   "@imprintNone": { "description": "Empty imprints state" },
+
+  "imprintNoneSubtitle": "Tap + to add your first imprint",
+  "@imprintNoneSubtitle": { "description": "Empty imprints state subtitle" },
 
   "imprintNew": "New imprint",
   "@imprintNew": { "description": "New imprint button" },
@@ -571,8 +580,11 @@
   "imprintNoImprints": "No imprints created",
   "@imprintNoImprints": { "description": "Shelf form no imprints message" },
 
-  "collectionNone": "Collections are created when saving a book",
+  "collectionNone": "No collections yet",
   "@collectionNone": { "description": "Empty collections state" },
+
+  "collectionNoneSubtitle": "Tap + to add your first collection \n Or edit a book to create it",
+  "@collectionNoneSubtitle": { "description": "Empty collections state subtitle" },
 
   "collectionDeleteTitle": "Delete collection",
   "@collectionDeleteTitle": { "description": "Delete collection title" },

@@ -18,8 +18,8 @@ class DataMigrationService {
 
   // --- Export ---
 
-  /// Exports all books and tags to a CSV string.
-  Future<String> exportToCsv() async {
+  /// Exports all books to a CSV string.
+  Future<String> exportBooksToCsv() async {
     final books = await _db.select(_db.books).get();
     
     final rows = <List<dynamic>>[];
@@ -54,106 +54,249 @@ class DataMigrationService {
     return const ListToCsvConverter().convert(rows);
   }
 
-  /// Bundles all local cover images and imprint logos into a ZIP file.
-  Future<File?> exportCoversToZip() async {
-    final books = await _db.select(_db.books).get();
-    final encoder = ZipEncoder();
-    final archive = Archive();
+  /// Exports all custom shelves to a CSV string.
+  Future<String> exportShelvesToCsv() async {
+    final shelves = await _db.select(_db.shelves).get();
+    final rows = <List<dynamic>>[];
+    
+    rows.add([
+      'name', 'filterQuery', 'filterAuthor', 'filterPublisher', 'filterIsbn',
+      'filterSubtitle', 'filterLanguage', 'filterTranslator', 'filterCollection',
+      'filterStatus', 'filterTagNames', 'filterImprintNames'
+    ]);
 
-    int addedCount = 0;
+    for (final s in shelves) {
+      final tagNames = await _getNamesFromIds(s.filterTagIds);
+      final imprintNames = await _getNamesFromIds(s.filterImprintIds);
 
-    // Helper to add files to archive with subdirectories
-    Future<void> addFileToArchive(String? path, {String? subDir}) async {
-      if (path == null) return;
-      final file = File(path);
-      if (await file.exists()) {
-        final bytes = await file.readAsBytes();
-        final fileName = p.basename(path);
-        final archivePath = subDir != null ? p.join(subDir, fileName) : fileName;
-        archive.addFile(ArchiveFile(archivePath, bytes.length, bytes));
-        addedCount++;
-      }
+      rows.add([
+        s.name, s.filterQuery, s.filterAuthor, s.filterPublisher, s.filterIsbn,
+        s.filterSubtitle, s.filterLanguage, s.filterTranslator, s.filterCollection,
+        s.filterStatus, tagNames.join('|'), imprintNames.join('|')
+      ]);
     }
 
-    for (final b in books) {
-      await addFileToArchive(b.coverPath);
-      
-      // Also zip imprints linked to this book
-      final imprint = await _db.watchImprintForBook(b.id).first;
-      if (imprint?.imagePath != null) {
-        await addFileToArchive(imprint!.imagePath, subDir: 'imprints');
-      }
-    }
-
-    if (addedCount == 0) return null;
-
-    final zipData = encoder.encode(archive);
-    final tempDir = await getTemporaryDirectory();
-    final zipFile = File(p.join(tempDir.path, 'openshelf_media_backup.zip'));
-    await zipFile.writeAsBytes(zipData);
-    return zipFile;
+    return const ListToCsvConverter().convert(rows);
   }
 
-  /// Exports both CSV and optionally ZIP, then opens the system share sheet.
-  Future<void> shareBackup({bool includeCovers = true}) async {
-    final csvContent = await exportToCsv();
-    final tempDir = await getTemporaryDirectory();
+  /// Exports all tags (categories, imprints, collections) to a CSV string.
+  Future<String> exportTagsToCsv() async {
+    final tags = await _db.select(_db.tags).get();
+    final rows = <List<dynamic>>[];
     
-    final csvFile = File(p.join(tempDir.path, 'openshelf_library_backup.csv'));
-    await csvFile.writeAsString(csvContent, encoding: utf8);
+    rows.add(['name', 'type', 'color', 'imagePath']);
 
-    final filesToShare = [XFile(csvFile.path)];
+    for (final t in tags) {
+      rows.add([
+        t.name, t.type, t.color, 
+        t.imagePath != null ? p.basename(t.imagePath!) : null
+      ]);
+    }
 
-    if (includeCovers) {
-      final zipFile = await exportCoversToZip();
-      if (zipFile != null) {
-        filesToShare.add(XFile(zipFile.path));
+    return const ListToCsvConverter().convert(rows);
+  }
+
+  Future<List<String>> _getNamesFromIds(String? jsonIds) async {
+    if (jsonIds == null || jsonIds.isEmpty) return [];
+    try {
+      final ids = (jsonDecode(jsonIds) as List).cast<int>();
+      if (ids.isEmpty) return [];
+      final tags = await _db.getTagsByIds(ids);
+      return tags.map((t) => t.name).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Bundles all local media (covers and imprint images) into an Archive.
+  Future<void> _bundleMedia(Archive archive) async {
+    // 1. Book Covers
+    final books = await _db.select(_db.books).get();
+    for (final b in books) {
+      if (b.coverPath != null) {
+        await _addFileToArchive(archive, b.coverPath!);
       }
     }
 
+    // 2. Tag Images (Imprints)
+    final tags = await _db.select(_db.tags).get();
+    for (final t in tags) {
+      if (t.imagePath != null) {
+        // Imprints are usually in a subfolder or just docDir. 
+        // We preserve the 'imprints/' prefix if it was there or just put them in imprints/
+        await _addFileToArchive(archive, t.imagePath!, subDir: 'imprints');
+      }
+    }
+  }
+
+  Future<void> _addFileToArchive(Archive archive, String path, {String? subDir}) async {
+    final file = File(path);
+    if (await file.exists()) {
+      final bytes = await file.readAsBytes();
+      final fileName = p.basename(path);
+      final archivePath = subDir != null ? p.join(subDir, fileName) : fileName;
+      
+      // Avoid duplicates in archive
+      if (archive.files.any((f) => f.name == archivePath)) return;
+      
+      archive.addFile(ArchiveFile(archivePath, bytes.length, bytes));
+    }
+  }
+
+  /// Exports everything into a single ZIP file and opens the share sheet.
+  Future<void> shareBackup({bool includeCovers = true}) async {
+    final tempDir = await getTemporaryDirectory();
+    final archive = Archive();
+    final encoder = ZipEncoder();
+
+    // 1. Add CSVs to Archive
+    final booksCsv = await exportBooksToCsv();
+    archive.addFile(ArchiveFile('books.csv', booksCsv.length, utf8.encode(booksCsv)));
+
+    final shelvesCsv = await exportShelvesToCsv();
+    archive.addFile(ArchiveFile('shelves.csv', shelvesCsv.length, utf8.encode(shelvesCsv)));
+
+    final tagsCsv = await exportTagsToCsv();
+    archive.addFile(ArchiveFile('tags.csv', tagsCsv.length, utf8.encode(tagsCsv)));
+
+    // 2. Add Media if requested
+    if (includeCovers) {
+      await _bundleMedia(archive);
+    }
+
+    final zipData = encoder.encode(archive);
+    final zipFile = File(p.join(tempDir.path, 'openshelf_full_backup.zip'));
+    await zipFile.writeAsBytes(zipData);
+
     // ignore: deprecated_member_use
-    await Share.shareXFiles(filesToShare, subject: 'Openshelf Library Backup');
+    await Share.shareXFiles([XFile(zipFile.path)], subject: 'Openshelf Full Backup');
   }
 
   // --- Import ---
 
-  /// Imports a previously exported CSV and optionally restores covers from a ZIP.
-  /// This operation is additive by default (doesn't delete existing books).
-  Future<int> importFromBackup(File csvFile, {File? zipFile}) async {
+  /// Imports from an Openshelf backup (ZIP or CSV).
+  Future<int> importFromBackup(File sourceFile, {File? zipFile}) async {
+    // Compatibility: if sourceFile is CSV and zipFile is provided, handle as legacy
+    if (p.extension(sourceFile.path).toLowerCase() == '.csv' && zipFile != null) {
+      return _importLegacy(sourceFile, zipFile);
+    }
+
+    // If it's a ZIP, extract and process
+    if (p.extension(sourceFile.path).toLowerCase() == '.zip') {
+      return _importFromZip(sourceFile);
+    }
+
+    // If it's just a CSV, import books only
+    if (p.extension(sourceFile.path).toLowerCase() == '.csv') {
+      return _importBooksCsv(sourceFile);
+    }
+
+    throw Exception('Unsupported file format');
+  }
+
+  Future<int> _importFromZip(File zipFile) async {
+    final bytes = await zipFile.readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
     final docDir = await getApplicationDocumentsDirectory();
 
-    // 1. Extract covers if provided
-    if (zipFile != null) {
-      final bytes = await zipFile.readAsBytes();
-      final archive = ZipDecoder().decodeBytes(bytes);
+    ArchiveFile? booksFile;
+    ArchiveFile? shelvesFile;
+    ArchiveFile? tagsFile;
 
-      for (final file in archive) {
-        if (file.isFile) {
-          final data = file.content as List<int>;
-          // Zip entry might be 'cover.jpg' or 'imprints/logo.png'
-          final fullPath = p.join(docDir.path, file.name);
-          File(fullPath)
-            ..createSync(recursive: true)
-            ..writeAsBytesSync(data);
-        }
+    // 1. Extract files and identify CSVs
+    for (final file in archive) {
+      if (!file.isFile) continue;
+      
+      if (file.name == 'books.csv') {
+        booksFile = file;
+      } else if (file.name == 'shelves.csv') {
+        shelvesFile = file;
+      } else if (file.name == 'tags.csv') {
+        tagsFile = file;
+      } else {
+        // Extract media
+        final data = file.content as List<int>;
+        final fullPath = p.join(docDir.path, file.name);
+        File(fullPath)
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(data);
       }
     }
 
-    // 2. Parse CSV
-    final contents = await csvFile.readAsString(encoding: utf8);
-    final rows = const CsvToListConverter().convert(contents);
-    if (rows.length < 2) return 0; // Only header or empty
+    if (booksFile == null) throw Exception('Invalid backup: books.csv missing');
 
+    // 2. Process Tags first (they are dependencies for books and shelves)
+    if (tagsFile != null) {
+      final content = utf8.decode(tagsFile.content as List<int>);
+      await _importTagsCsvContent(content, localBaseDir: docDir.path);
+    }
+
+    // 3. Process Books
+    final booksContent = utf8.decode(booksFile.content as List<int>);
+    final importedCount = await _importBooksCsvContent(booksContent, localBaseDir: docDir.path);
+
+    // 4. Process Shelves
+    if (shelvesFile != null) {
+      final content = utf8.decode(shelvesFile.content as List<int>);
+      await _importShelvesCsvContent(content);
+    }
+
+    return importedCount;
+  }
+
+  Future<int> _importLegacy(File csvFile, File zipFile) async {
+    // Extract media from ZIP
+    final bytes = await zipFile.readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
+    final docDir = await getApplicationDocumentsDirectory();
+    for (final file in archive) {
+      if (file.isFile) {
+        final data = file.content as List<int>;
+        final fullPath = p.join(docDir.path, file.name);
+        File(fullPath)..createSync(recursive: true)..writeAsBytesSync(data);
+      }
+    }
+    return _importBooksCsv(csvFile);
+  }
+
+  Future<int> _importBooksCsv(File file) async {
+    final docDir = await getApplicationDocumentsDirectory();
+    final content = await file.readAsString(encoding: utf8);
+    return _importBooksCsvContent(content, localBaseDir: docDir.path);
+  }
+
+  Future<void> _importTagsCsvContent(String content, {required String localBaseDir}) async {
+    final rows = const CsvToListConverter().convert(content);
+    if (rows.length < 2) return;
     final header = rows.first.map((e) => e.toString().toLowerCase()).toList();
-    final data = rows.skip(1);
-
-    int imported = 0;
     
+    for (final row in rows.skip(1)) {
+      final name = _getRaw(header, row, 'name');
+      final type = _getRaw(header, row, 'type') ?? 'tag';
+      final color = _getRaw(header, row, 'color');
+      final img = _getRaw(header, row, 'imagePath');
+      
+      if (name == null) continue;
+      
+      String? localImgPath;
+      if (img != null && img.isNotEmpty) {
+        localImgPath = p.join(localBaseDir, 'imprints', p.basename(img));
+      }
+      
+      await _getOrCreateTag(name, type, color: color, imagePath: localImgPath);
+    }
+  }
+
+  Future<int> _importBooksCsvContent(String content, {required String localBaseDir}) async {
+    final rows = const CsvToListConverter().convert(content);
+    if (rows.length < 2) return 0;
+    final header = rows.first.map((e) => e.toString().toLowerCase()).toList();
+    int imported = 0;
+
     await _db.transaction(() async {
-      for (final row in data) {
-        final b = _mapRowToCompanion(header, row, localBaseDir: docDir.path);
+      for (final row in rows.skip(1)) {
+        final b = _mapRowToCompanion(header, row, localBaseDir: localBaseDir);
         
-        // Duplicate check (by Title + Author)
         final existing = await (_db.select(_db.books)
           ..where((tbl) => tbl.title.equals(b.title.value) & tbl.author.equals(b.author.value)))
           .getSingleOrNull();
@@ -164,18 +307,19 @@ class DataMigrationService {
           imported++;
         } else {
           bookId = existing.id;
-          // Optionally update existing book if needed, but let's keep it additive for now
         }
 
-        // Handle tags (categories)
+        // Handle tags
         final cats = _getRaw(header, row, 'categories')?.split('|') ?? [];
         final clrs = _getRaw(header, row, 'categoryColors')?.split('|') ?? [];
         final List<int> tagIds = [];
         for (int j = 0; j < cats.length; j++) {
           final name = cats[j].trim();
           if (name.isEmpty) continue;
+          
           final colorRaw = j < clrs.length ? clrs[j].trim() : null;
           final color = (colorRaw == null || colorRaw.isEmpty || colorRaw.toLowerCase() == 'null') ? null : colorRaw;
+
           final tid = await _getOrCreateTag(name, 'tag', color: color);
           tagIds.add(tid);
         }
@@ -186,26 +330,89 @@ class DataMigrationService {
         if (impName != null && impName.isNotEmpty) {
           final impColor = _getRaw(header, row, 'imprintColor')?.trim();
           final impImg = _getRaw(header, row, 'imprintImage')?.trim();
-          // Relink image path to local directory
           String? localImpPath;
           if (impImg != null && impImg.isNotEmpty) {
-            localImpPath = p.join(docDir.path, 'imprints', p.basename(impImg));
+            localImpPath = p.join(localBaseDir, 'imprints', p.basename(impImg));
           }
           final tid = await _getOrCreateTag(impName, 'imprint', color: impColor, imagePath: localImpPath);
           await _db.setBookImprint(bookId, tid);
         }
       }
     });
-
     return imported;
   }
+
+  Future<void> _importShelvesCsvContent(String content) async {
+    final rows = const CsvToListConverter().convert(content);
+    if (rows.length < 2) return;
+    final header = rows.first.map((e) => e.toString().toLowerCase()).toList();
+
+    for (final row in rows.skip(1)) {
+      final name = _getRaw(header, row, 'name');
+      if (name == null) continue;
+
+      // Map names back to IDs
+      final tagNames = _getRaw(header, row, 'filterTagNames')?.split('|') ?? [];
+      final imprintNames = _getRaw(header, row, 'filterImprintNames')?.split('|') ?? [];
+
+      final List<int> tagIds = [];
+      for (final tn in tagNames) {
+        if (tn.isEmpty) continue;
+        final t = await _getOrCreateTag(tn, 'tag');
+        tagIds.add(t);
+      }
+
+      final List<int> imprintIds = [];
+      for (final iname in imprintNames) {
+        if (iname.isEmpty) continue;
+        final i = await _getOrCreateTag(iname, 'imprint');
+        imprintIds.add(i);
+      }
+
+      final companion = ShelvesCompanion.insert(
+        name: name,
+        filterQuery: Value(_getRaw(header, row, 'filterQuery')),
+        filterAuthor: Value(_getRaw(header, row, 'filterAuthor')),
+        filterPublisher: Value(_getRaw(header, row, 'filterPublisher')),
+        filterIsbn: Value(_getRaw(header, row, 'filterIsbn')),
+        filterSubtitle: Value(_getRaw(header, row, 'filterSubtitle')),
+        filterLanguage: Value(_getRaw(header, row, 'filterLanguage')),
+        filterTranslator: Value(_getRaw(header, row, 'filterTranslator')),
+        filterCollection: Value(_getRaw(header, row, 'filterCollection')),
+        filterStatus: Value(_getRaw(header, row, 'filterStatus')),
+        filterTagIds: Value(tagIds.isEmpty ? null : jsonEncode(tagIds)),
+        filterImprintIds: Value(imprintIds.isEmpty ? null : jsonEncode(imprintIds)),
+      );
+
+      // Check if shelf exists
+      final existing = await (_db.select(_db.shelves)..where((t) => t.name.equals(name))).getSingleOrNull();
+      if (existing == null) {
+        await _db.into(_db.shelves).insert(companion);
+      } else {
+        await _db.updateShelf(existing.copyWith(
+          filterQuery: companion.filterQuery.value,
+          filterAuthor: companion.filterAuthor.value,
+          filterPublisher: companion.filterPublisher.value,
+          filterIsbn: companion.filterIsbn.value,
+          filterSubtitle: companion.filterSubtitle.value,
+          filterLanguage: companion.filterLanguage.value,
+          filterTranslator: companion.filterTranslator.value,
+          filterCollection: companion.filterCollection.value,
+          filterStatus: companion.filterStatus.value,
+          filterTagIds: companion.filterTagIds.value,
+          filterImprintIds: companion.filterImprintIds.value,
+        ));
+      }
+    }
+  }
+
+  // --- Helpers ---
 
   Future<int> _getOrCreateTag(String name, String type, {String? color, String? imagePath}) async {
     final existing = await _db.searchTags(name, type);
     final exact = existing.firstWhereOrNull((t) => t.name.toLowerCase() == name.toLowerCase());
     
     if (exact != null) {
-      // If tag exists but migration provides color/image that is missing, update it
       if ((color != null && exact.color == null) || (imagePath != null && exact.imagePath == null)) {
         final updated = exact.copyWith(
           color: Value(exact.color ?? color),
@@ -234,16 +441,8 @@ class DataMigrationService {
 
   BooksCompanion _mapRowToCompanion(List<String> header, List<dynamic> row, {required String localBaseDir}) {
     String? s(String col) => _getRaw(header, row, col);
-
-    int? i(String col) {
-      final v = s(col);
-      return v != null ? int.tryParse(v) : null;
-    }
-
-    DateTime? d(String col) {
-      final v = s(col);
-      return v != null ? DateTime.tryParse(v) : null;
-    }
+    int? i(String col) => int.tryParse(s(col) ?? '');
+    DateTime? d(String col) => DateTime.tryParse(s(col) ?? '');
 
     final originalCoverPath = s('coverPath');
     String? relinkedCoverPath;
@@ -270,19 +469,14 @@ class DataMigrationService {
       notes: Value(s('notes')),
       startedAt: Value(d('startedAt')),
       finishedAt: Value(d('finishedAt')),
-      createdAt: s('createdAt') != null 
-          ? Value(DateTime.parse(s('createdAt')!)) 
-          : const Value.absent(),
+      createdAt: s('createdAt') != null ? Value(DateTime.parse(s('createdAt')!)) : const Value.absent(),
       coverUrl: Value(s('coverUrl')),
       coverPath: Value(relinkedCoverPath),
     );
   }
 
   ReadingStatus _parseStatus(String? name) {
-    return ReadingStatus.values.firstWhere(
-      (e) => e.name == name,
-      orElse: () => ReadingStatus.wantToRead,
-    );
+    return ReadingStatus.values.firstWhere((e) => e.name == name, orElse: () => ReadingStatus.wantToRead);
   }
 
   BookFormat? _parseFormat(String? name) {

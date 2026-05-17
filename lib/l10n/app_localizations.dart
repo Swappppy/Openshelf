@@ -878,6 +878,12 @@ abstract class AppLocalizations {
   /// **'No tienes estanterías personalizadas'**
   String get shelfEmpty;
 
+  /// Subtítulo del estado vacío de estanterías
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa + para añadir tu primera estantería'**
+  String get shelfEmptySubtitle;
+
   /// Estado vacío de libros en una estantería
   ///
   /// In es, this message translates to:
@@ -1064,6 +1070,12 @@ abstract class AppLocalizations {
   /// **'No hay categorías todavía'**
   String get tagNone;
 
+  /// Subtítulo del estado vacío de categorías
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa + para añadir tu primera categoría \n O edita un libro para crearla'**
+  String get tagNoneSubtitle;
+
   /// Botón de nueva categoría
   ///
   /// In es, this message translates to:
@@ -1105,6 +1117,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No hay sellos todavía'**
   String get imprintNone;
+
+  /// Subtítulo del estado vacío de sellos
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa + para añadir tu primer sello'**
+  String get imprintNoneSubtitle;
 
   /// Botón de nuevo sello
   ///
@@ -1175,8 +1193,14 @@ abstract class AppLocalizations {
   /// Estado vacío de colecciones
   ///
   /// In es, this message translates to:
-  /// **'Las colecciones se crean al guardar un libro'**
+  /// **'No hay colecciones todavía'**
   String get collectionNone;
+
+  /// Subtítulo del estado vacío de colecciones
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa + para añadir tu primera colección \n O edita un libro para crearla'**
+  String get collectionNoneSubtitle;
 
   /// Título del diálogo de eliminar colección
   ///

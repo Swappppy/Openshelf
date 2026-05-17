@@ -418,6 +418,9 @@
   "shelfEmpty": "No tienes estanterías personalizadas",
   "@shelfEmpty": { "description": "Estado vacío de estanterías personalizadas" },
 
+  "shelfEmptySubtitle": "Pulsa + para añadir tu primera estantería",
+  "@shelfEmptySubtitle": { "description": "Subtítulo del estado vacío de estanterías" },
+
   "shelfBooksEmpty": "Sin libros en esta estantería",
   "@shelfBooksEmpty": { "description": "Estado vacío de libros en una estantería" },
 
@@ -511,6 +514,9 @@
   "tagNone": "No hay categorías todavía",
   "@tagNone": { "description": "Estado vacío de categorías" },
 
+  "tagNoneSubtitle": "Pulsa + para añadir tu primera categoría \n O edita un libro para crearla",
+  "@tagNoneSubtitle": { "description": "Subtítulo del estado vacío de categorías" },
+
   "tagNew": "Nueva categoría",
   "@tagNew": { "description": "Botón de nueva categoría" },
 
@@ -534,6 +540,9 @@
 
   "imprintNone": "No hay sellos todavía",
   "@imprintNone": { "description": "Estado vacío de sellos editoriales" },
+
+  "imprintNoneSubtitle": "Pulsa + para añadir tu primer sello",
+  "@imprintNoneSubtitle": { "description": "Subtítulo del estado vacío de sellos" },
 
   "imprintNew": "Nuevo sello",
   "@imprintNew": { "description": "Botón de nuevo sello" },
@@ -571,8 +580,11 @@
   "imprintNoImprints": "No hay sellos creados",
   "@imprintNoImprints": { "description": "Estado vacío de sellos en el formulario de estantería" },
 
-  "collectionNone": "Las colecciones se crean al guardar un libro",
+  "collectionNone": "No hay colecciones todavía",
   "@collectionNone": { "description": "Estado vacío de colecciones" },
+
+  "collectionNoneSubtitle": "Pulsa + para añadir tu primera colección \n O edita un libro para crearla",
+  "@collectionNoneSubtitle": { "description": "Subtítulo del estado vacío de colecciones" },
 
   "collectionDeleteTitle": "Eliminar colección",
   "@collectionDeleteTitle": { "description": "Título del diálogo de eliminar colección" },

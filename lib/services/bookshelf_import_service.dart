@@ -151,13 +151,19 @@ class BookshelfImportService {
 
         final bookId = await _db.insertBook(companion);
         
+        // Handle Collections (as Tags)
+        final collectionName = companion.collectionName.value;
+        if (collectionName != null && collectionName.isNotEmpty) {
+          await _getOrCreateTag(collectionName, 'collection');
+        }
+
         // Handle Categories
         final categoriesRaw = _str(row, _colCategories);
         if (categoriesRaw.isNotEmpty) {
           final categoryNames = categoriesRaw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
           final List<int> tagIds = [];
           for (final name in categoryNames) {
-            final tagId = await _getOrCreateTag(name);
+            final tagId = await _getOrCreateTag(name, 'tag');
             tagIds.add(tagId);
           }
           if (tagIds.isNotEmpty) {
@@ -179,8 +185,8 @@ class BookshelfImportService {
     );
   }
 
-  Future<int> _getOrCreateTag(String name) async {
-    final existing = await _db.searchTags(name, 'tag');
+  Future<int> _getOrCreateTag(String name, String type) async {
+    final existing = await _db.searchTags(name, type);
     // searchTags uses .contains, so we check for exact match
     final exact = existing.cast<Tag?>().firstWhere(
       (t) => t?.name.toLowerCase() == name.toLowerCase(),
@@ -191,7 +197,7 @@ class BookshelfImportService {
 
     return await _db.insertTag(TagsCompanion.insert(
       name: name,
-      type: const Value('tag'),
+      type: Value(type),
     ));
   }
 

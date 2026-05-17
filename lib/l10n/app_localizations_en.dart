@@ -411,7 +411,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelfNewTooltip => 'New shelf';
 
   @override
-  String get shelfEmpty => 'No custom shelves created';
+  String get shelfEmpty => 'You don\'t have any custom shelves';
+
+  @override
+  String get shelfEmptySubtitle => 'Tap + to add your first shelf';
 
   @override
   String get shelfBooksEmpty => 'No books in this shelf';
@@ -507,6 +510,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tagNone => 'No categories yet';
 
   @override
+  String get tagNoneSubtitle =>
+      'Tap + to add your first category \n Or edit a book to create it';
+
+  @override
   String get tagNew => 'New category';
 
   @override
@@ -528,6 +535,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get imprintNone => 'No imprints yet';
+
+  @override
+  String get imprintNoneSubtitle => 'Tap + to add your first imprint';
 
   @override
   String get imprintNew => 'New imprint';
@@ -565,7 +575,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imprintNoImprints => 'No imprints created';
 
   @override
-  String get collectionNone => 'Collections are created when saving a book';
+  String get collectionNone => 'No collections yet';
+
+  @override
+  String get collectionNoneSubtitle =>
+      'Tap + to add your first collection \n Or edit a book to create it';
 
   @override
   String get collectionDeleteTitle => 'Delete collection';

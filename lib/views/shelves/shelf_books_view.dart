@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/shelf.dart';
+import '../../services/database.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/display_preferences_controller.dart';
 import '../../models/display_preferences.dart';
-import '../../widgets/book_list_tile.dart';
-import '../../widgets/book_grid_card.dart';
-import '../book_detail/book_detail_view.dart';
-import '../../services/database.dart';
-import '../../l10n/l10n_extension.dart';
+import '../../widgets/books_list_or_grid.dart';
 
 /// Displays the collection of books that match a dynamic shelf's criteria.
 class ShelfBooksView extends ConsumerWidget {
@@ -17,8 +14,6 @@ class ShelfBooksView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewMode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
-    final controller = ref.read(displayPreferencesProvider.notifier);
     final booksAsync = ref.watch(shelfBooksProvider(shelf));
 
     return Scaffold(
@@ -27,18 +22,16 @@ class ShelfBooksView extends ConsumerWidget {
         toolbarHeight: 40,
         actions: [
           IconButton(
-            icon: Icon(
-              viewMode == LibraryViewMode.list
-                  ? Icons.grid_view
-                  : Icons.view_list,
-            ),
-            onPressed: controller.toggleViewMode,
+            icon: Consumer(builder: (context, ref, _) {
+              final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
+              return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
+            }),
+            onPressed: () => ref.read(displayPreferencesProvider.notifier).toggleViewMode(),
           ),
         ],
       ),
-      body: _BooksListOrGrid(
+      body: BooksListOrGrid(
         booksAsync: booksAsync,
-        viewMode: viewMode,
       ),
     );
   }
@@ -50,13 +43,12 @@ class TagBooksView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewMode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
-    final controller = ref.read(displayPreferencesProvider.notifier);
-
-    // Dynamic filtering based on tag ID or collection name.
-    final booksAsync = tag.type == 'collection' 
-        ? ref.watch(booksByCollectionProvider(tag.name))
-        : ref.watch(booksByImprintProvider(tag.id));
+    // Dynamic filtering based on tag type.
+    final booksAsync = switch (tag.type) {
+      'collection' => ref.watch(booksByCollectionProvider(tag.name)),
+      'imprint' => ref.watch(booksByImprintProvider(tag.id)),
+      _ => ref.watch(booksByTagProvider(tag.id)),
+    };
 
     return Scaffold(
       appBar: AppBar(
@@ -64,18 +56,16 @@ class TagBooksView extends ConsumerWidget {
         toolbarHeight: 40,
         actions: [
           IconButton(
-            icon: Icon(
-              viewMode == LibraryViewMode.list
-                  ? Icons.grid_view
-                  : Icons.view_list,
-            ),
-            onPressed: controller.toggleViewMode,
+            icon: Consumer(builder: (context, ref, _) {
+              final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
+              return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
+            }),
+            onPressed: () => ref.read(displayPreferencesProvider.notifier).toggleViewMode(),
           ),
         ],
       ),
-      body: _BooksListOrGrid(
+      body: BooksListOrGrid(
         booksAsync: booksAsync,
-        viewMode: viewMode,
         isCollection: tag.type == 'collection',
       ),
     );
@@ -94,9 +84,6 @@ class StatusBooksView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewMode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
-    final controller = ref.read(displayPreferencesProvider.notifier);
-
     final booksAsync = status == null
         ? ref.watch(allBooksProvider)
         : ref.watch(booksByStatusProvider(status!));
@@ -107,120 +94,17 @@ class StatusBooksView extends ConsumerWidget {
         toolbarHeight: 40,
         actions: [
           IconButton(
-            icon: Icon(
-              viewMode == LibraryViewMode.list
-                  ? Icons.grid_view
-                  : Icons.view_list,
-            ),
-            onPressed: controller.toggleViewMode,
+            icon: Consumer(builder: (context, ref, _) {
+              final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
+              return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
+            }),
+            onPressed: () => ref.read(displayPreferencesProvider.notifier).toggleViewMode(),
           ),
         ],
       ),
-      body: _BooksListOrGrid(
+      body: BooksListOrGrid(
         booksAsync: booksAsync,
-        viewMode: viewMode,
       ),
     );
   }
 }
-
-class _BooksListOrGrid extends ConsumerWidget {
-  final AsyncValue<List<Book>> booksAsync;
-  final LibraryViewMode viewMode;
-  final bool isCollection;
-
-  const _BooksListOrGrid({
-    required this.booksAsync,
-    required this.viewMode,
-    this.isCollection = false,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final prefs = ref.watch(displayPreferencesProvider);
-
-    return booksAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text(context.l10n.errorPrefix(e.toString()))),
-      data: (bookList) {
-        if (bookList.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.menu_book,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.outline),
-                const SizedBox(height: 16),
-                Text(context.l10n.shelfStatusBooksEmpty,
-                    style: Theme.of(context).textTheme.titleLarge),
-              ],
-            ),
-          );
-        }
-
-        final items = List<Book>.from(bookList);
-        if (isCollection) {
-          items.sort((a, b) => (a.collectionNumber ?? 0).compareTo(b.collectionNumber ?? 0));
-        }
-
-        return viewMode == LibraryViewMode.list
-            ? ListView.builder(
-          padding: EdgeInsets.zero,
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final book = items[index];
-            return BookListTile(
-              book: book,
-              prefs: prefs,
-              leading: isCollection ? Container(
-                width: 32,
-                alignment: Alignment.center,
-                child: Text(
-                  '${book.collectionNumber ?? ""}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 10,
-                  ),
-                ),
-              ) : null,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BookDetailView(book: book),
-                ),
-              ),
-            );
-          },
-        )
-            : GridView.builder(
-          padding: const EdgeInsets.all(12),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.65,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final book = items[index];
-            return BookGridCard(
-              book: book,
-              prefs: prefs,
-              overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BookDetailView(book: book),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-// Deleted _CollectionBookTile as it is no longer used.

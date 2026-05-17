@@ -233,13 +233,8 @@ class AppDatabase extends _$AppDatabase {
     await transaction(() async {
       await delete(bookTags).go();
       await delete(books).go();
-      // Also prune orphan tags that are not imprints or collections
-      final allTags = await select(tags).get();
-      for (final tag in allTags) {
-        if (tag.type == 'tag') {
-          await (delete(tags)..where((t) => t.id.equals(tag.id))).go();
-        }
-      }
+      await delete(shelves).go();
+      await delete(tags).go(); // Clears Categories, Imprints, and Collections
     });
   }
 
@@ -262,6 +257,9 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<Tag>> getTagsByType(String type) =>
       (select(tags)..where((t) => t.type.equals(type))).get();
+
+  Future<List<Tag>> getTagsByIds(List<int> ids) =>
+      (select(tags)..where((t) => t.id.isIn(ids))).get();
 
   Future<List<Tag>> searchTags(String query, String type) =>
       (select(tags)
@@ -347,13 +345,30 @@ class AppDatabase extends _$AppDatabase {
   Stream<List<Tag>> watchTagsByType(String type) =>
       (select(tags)..where((t) => t.type.equals(type))).watch();
 
-  /// Watches all tags of a specific type along with the count of books linked to each.
-  Stream<List<(Tag, int)>> watchTagsWithCounts(String type) {
+  Stream<List<(Tag, int)>> watchTagsByTypeWithCounts(String type) {
     final countExp = bookTags.bookId.count();
     final query = select(tags).join([
       leftOuterJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
     ])
       ..where(tags.type.equals(type))
+      ..addColumns([countExp])
+      ..groupBy([tags.id]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        final tag = row.readTable(tags);
+        final tagCount = row.read(countExp) ?? 0;
+        return (tag, tagCount);
+      }).toList();
+    });
+  }
+
+  Stream<List<(Tag, int)>> watchCollectionsWithCounts() {
+    final countExp = books.id.count();
+    final query = select(tags).join([
+      leftOuterJoin(books, books.collectionName.equalsExp(tags.name)),
+    ])
+      ..where(tags.type.equals('collection'))
       ..addColumns([countExp])
       ..groupBy([tags.id]);
 

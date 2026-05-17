@@ -318,8 +318,8 @@ class _BookHeader extends ConsumerWidget {
 
           // Summary Column
           Expanded(
-            child: SizedBox(
-              height: 150, // Matches cover height for perfect alignment
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 150), // Ensures alignment for short content
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween, 

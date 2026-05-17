@@ -13,14 +13,14 @@ class BookListTile extends ConsumerWidget {
   final Book book;
   final DisplayPreferences prefs;
   final VoidCallback? onTap;
-  final Widget? leading;
+  final int? collectionNumber;
 
   const BookListTile({
     super.key,
     required this.book,
     required this.prefs,
     this.onTap,
-    this.leading,
+    this.collectionNumber,
   });
 
   @override
@@ -44,17 +44,44 @@ class BookListTile extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (leading != null) ...[
-              leading!,
-              const SizedBox(width: 12),
-            ],
-            BookCover(
-              coverUrl: book.coverUrl,
-              coverPath: book.coverPath,
-              height: 136, 
-              width: 92, 
-              author: book.author,
-              borderRadius: BorderRadius.circular(8),
+            Stack(
+              children: [
+                BookCover(
+                  coverUrl: book.coverUrl,
+                  coverPath: book.coverPath,
+                  height: 136, 
+                  width: 92, 
+                  author: book.author,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                if (collectionNumber != null)
+                  Positioned(
+                    top: 4,
+                    left: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '$collectionNumber',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(width: 16),
             Expanded(

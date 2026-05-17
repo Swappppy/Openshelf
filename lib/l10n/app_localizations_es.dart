@@ -414,6 +414,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shelfEmpty => 'No tienes estanterías personalizadas';
 
   @override
+  String get shelfEmptySubtitle => 'Pulsa + para añadir tu primera estantería';
+
+  @override
   String get shelfBooksEmpty => 'Sin libros en esta estantería';
 
   @override
@@ -507,6 +510,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tagNone => 'No hay categorías todavía';
 
   @override
+  String get tagNoneSubtitle =>
+      'Pulsa + para añadir tu primera categoría \n O edita un libro para crearla';
+
+  @override
   String get tagNew => 'Nueva categoría';
 
   @override
@@ -528,6 +535,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get imprintNone => 'No hay sellos todavía';
+
+  @override
+  String get imprintNoneSubtitle => 'Pulsa + para añadir tu primer sello';
 
   @override
   String get imprintNew => 'Nuevo sello';
@@ -565,7 +575,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get imprintNoImprints => 'No hay sellos creados';
 
   @override
-  String get collectionNone => 'Las colecciones se crean al guardar un libro';
+  String get collectionNone => 'No hay colecciones todavía';
+
+  @override
+  String get collectionNoneSubtitle =>
+      'Pulsa + para añadir tu primera colección \n O edita un libro para crearla';
 
   @override
   String get collectionDeleteTitle => 'Eliminar colección';

@@ -11,6 +11,7 @@ import '../../services/bookshelf_import_service.dart';
 import '../../services/database.dart';
 import '../../services/data_migration_service.dart';
 import '../../l10n/l10n_extension.dart';
+import '../../widgets/app_color_picker.dart';
 
 /// Main settings view for global application configuration.
 class SettingsView extends StatelessWidget {
@@ -155,9 +156,11 @@ class _AppearanceSection extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _ColorPicker(
-                  current: seedColor,
-                  onSelected: controller.setSeedColor,
+                AppColorPicker(
+                  selectedColor: seedColor,
+                  onColorSelected: (color) {
+                    if (color != null) controller.setSeedColor(color);
+                  },
                 ),
               ],
             ),
@@ -392,45 +395,47 @@ class _DataSection extends ConsumerWidget {
 
   Future<void> _handleLibraryImport(BuildContext context, AppDatabase db) async {
     try {
-      // 1. Pick CSV
-      final csvResult = await FilePicker.pickFiles(
+      // 1. Pick Backup File (ZIP or CSV)
+      final backupResult = await FilePicker.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['csv'],
-        dialogTitle: 'Select Openshelf Backup CSV',
+        allowedExtensions: ['zip', 'csv'],
+        dialogTitle: 'Select Openshelf Backup',
       );
 
-      if (csvResult == null) return;
-      final csvFile = File(csvResult.files.single.path!);
+      if (backupResult == null) return;
+      final backupFile = File(backupResult.files.single.path!);
 
-      // 2. Ask for Covers ZIP
+      // 2. If it's a legacy CSV, optionally ask for Covers ZIP
       File? zipFile;
-      if (!context.mounted) return;
-      final restoreCovers = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(context.l10n.importRestoreCoversTitle),
-          content: Text(context.l10n.importRestoreCoversPrompt),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.no)),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.l10n.yes)),
-          ],
-        ),
-      );
-
-      if (restoreCovers == true) {
+      if (p.extension(backupFile.path).toLowerCase() == '.csv') {
         if (!context.mounted) return;
-        final zipResult = await FilePicker.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: ['zip'],
-          dialogTitle: 'Select Openshelf Covers ZIP',
+        final restoreCovers = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(context.l10n.importRestoreCoversTitle),
+            content: Text(context.l10n.importRestoreCoversPrompt),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.no)),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.l10n.yes)),
+            ],
+          ),
         );
-        if (zipResult != null) {
-          zipFile = File(zipResult.files.single.path!);
+
+        if (restoreCovers == true) {
+          if (!context.mounted) return;
+          final zipResult = await FilePicker.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: ['zip'],
+            dialogTitle: 'Select Openshelf Covers ZIP',
+          );
+          if (zipResult != null) {
+            zipFile = File(zipResult.files.single.path!);
+          }
         }
       }
 
       final migration = DataMigrationService(db);
-      final count = await migration.importFromBackup(csvFile, zipFile: zipFile);
+      final count = await migration.importFromBackup(backupFile, zipFile: zipFile);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -613,65 +618,6 @@ class _PathTile extends StatelessWidget {
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
-    );
-  }
-}
-
-class _ColorPicker extends StatelessWidget {
-  final Color current;
-  final ValueChanged<Color> onSelected;
-
-  const _ColorPicker({required this.current, required this.onSelected});
-
-  static const _colors = [
-    Color(0xFF6B4E3D), // Warm Brown
-    Color(0xFF1565C0), // Blue
-    Color(0xFF2E7D32), // Green
-    Color(0xFF6A1B9A), // Purple
-    Color(0xFFC62828), // Red
-    Color(0xFF00695C), // Teal
-    Color(0xFFE65100), // Orange
-    Color(0xFF37474F), // Blue Grey
-    Color(0xFFAD1457), // Pink
-    Color(0xFF4527A0), // Indigo
-    Color(0xFF558B2F), // Olive
-    Color(0xFF4E342E), // Dark Brown
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: _colors.map((color) {
-        final isSelected = current.toARGB32() == color.toARGB32();
-        return GestureDetector(
-          onTap: () => onSelected(color),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: isSelected
-                  ? Border.all(color: Colors.white, width: 3)
-                  : null,
-              boxShadow: isSelected
-                  ? [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.6),
-                  blurRadius: 8,
-                )
-              ]
-                  : null,
-            ),
-            child: isSelected
-                ? const Icon(Icons.check, color: Colors.white, size: 20)
-                : null,
-          ),
-        );
-      }).toList(),
     );
   }
 }
