@@ -895,4 +895,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sortTitle => 'Sort';
+
+  @override
+  String get openSettings => 'Open settings';
+
+  @override
+  String get permissionRequired => 'Permission required';
+
+  @override
+  String get storagePermissionExplanation =>
+      'To select a cover you need to grant storage access. You can do this from the application settings.';
+
+  @override
+  String get cameraPermissionExplanation =>
+      'To take a photo you need to grant camera access. You can do this from the application settings.';
 }

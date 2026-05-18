@@ -883,5 +883,17 @@
   "statsPlaceholder": "Your statistics will appear here",
   "@statsPlaceholder": { "description": "Stats placeholder" },
 
-  "sortTitle": "Sort"
+  "sortTitle": "Sort",
+
+  "openSettings": "Open settings",
+  "@openSettings": { "description": "Button to open system settings" },
+
+  "permissionRequired": "Permission required",
+  "@permissionRequired": { "description": "Title for permanently denied permission dialog" },
+
+  "storagePermissionExplanation": "To select a cover you need to grant storage access. You can do this from the application settings.",
+  "@storagePermissionExplanation": { "description": "Explanation for permanently denied storage permission" },
+
+  "cameraPermissionExplanation": "To take a photo you need to grant camera access. You can do this from the application settings.",
+  "@cameraPermissionExplanation": { "description": "Explanation for permanently denied camera permission" }
 }

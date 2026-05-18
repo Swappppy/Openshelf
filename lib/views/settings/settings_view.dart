@@ -11,6 +11,7 @@ import '../../services/bookshelf_import_service.dart';
 import '../../services/database.dart';
 import '../../services/data_migration_service.dart';
 import '../../l10n/l10n_extension.dart';
+import '../../services/permission_service.dart';
 import '../../widgets/app_color_picker.dart';
 
 /// Main settings view for global application configuration.
@@ -194,6 +195,7 @@ class _StorageSection extends ConsumerWidget {
                 label: context.l10n.settingsCoversFolder,
                 path: coversPath,
                 onTap: () async {
+                  if (!await _checkAndRequestStorage(context)) return;
                   final result = await FilePicker.getDirectoryPath();
                   if (result == null) return;
                   await _StorageMigrationHelper.migrateCovers(coversPath, result);
@@ -206,6 +208,7 @@ class _StorageSection extends ConsumerWidget {
                 label: context.l10n.settingsDatabase,
                 path: dbPath,
                 onTap: () async {
+                  if (!await _checkAndRequestStorage(context)) return;
                   final result = await FilePicker.getDirectoryPath();
                   if (result == null) return;
                   if (context.mounted) {
@@ -367,14 +370,23 @@ class _DataSection extends ConsumerWidget {
   }
 
   Future<void> _handleLibraryExport(BuildContext context, AppDatabase db) async {
+    if (!await _checkAndRequestStorage(context)) return;
+    if (!context.mounted) return;
+
     final includeCovers = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.l10n.exportTitle),
         content: Text(context.l10n.exportCoversPrompt),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.no)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.l10n.yes)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.l10n.no),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(context.l10n.yes),
+          ),
         ],
       ),
     );
@@ -394,8 +406,9 @@ class _DataSection extends ConsumerWidget {
   }
 
   Future<void> _handleLibraryImport(BuildContext context, AppDatabase db) async {
+    if (!await _checkAndRequestStorage(context)) return;
+
     try {
-      // 1. Pick Backup File (ZIP or CSV)
       final backupResult = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['zip', 'csv'],
@@ -405,7 +418,6 @@ class _DataSection extends ConsumerWidget {
       if (backupResult == null) return;
       final backupFile = File(backupResult.files.single.path!);
 
-      // 2. If it's a legacy CSV, optionally ask for Covers ZIP
       File? zipFile;
       if (p.extension(backupFile.path).toLowerCase() == '.csv') {
         if (!context.mounted) return;
@@ -415,8 +427,14 @@ class _DataSection extends ConsumerWidget {
             title: Text(context.l10n.importRestoreCoversTitle),
             content: Text(context.l10n.importRestoreCoversPrompt),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.no)),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.l10n.yes)),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(context.l10n.no),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(context.l10n.yes),
+              ),
             ],
           ),
         );
@@ -452,9 +470,9 @@ class _DataSection extends ConsumerWidget {
   }
 
   Future<void> _handleBookshelfImport(BuildContext context, AppDatabase db) async {
+    if (!await _checkAndRequestStorage(context)) return;
+
     try {
-      // In this project, FilePicker seems to have a direct pickFiles static method
-      // or at least doesn't use the .platform getter.
       final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['csv'],
@@ -464,14 +482,13 @@ class _DataSection extends ConsumerWidget {
 
       final file = File(result.files.single.path!);
       final importService = BookshelfImportService(db);
-      
       final importResult = await importService.importFromFile(file);
 
       if (context.mounted) {
         final message = importResult.skipped == 0
             ? context.l10n.importSuccess(importResult.imported)
             : context.l10n.importPartial(importResult.imported, importResult.skipped);
-            
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
@@ -871,4 +888,22 @@ class _Step extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<bool> _checkAndRequestStorage(BuildContext context) async {
+  if (!await PermissionService.requestStorage()) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.storagePermissionExplanation),
+          action: SnackBarAction(
+            label: context.l10n.openSettings,
+            onPressed: () => PermissionService.openSettings(),
+          ),
+        ),
+      );
+    }
+    return false;
+  }
+  return true;
 }

@@ -899,4 +899,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sortTitle => 'Ordenar';
+
+  @override
+  String get openSettings => 'Abrir ajustes';
+
+  @override
+  String get permissionRequired => 'Permiso necesario';
+
+  @override
+  String get storagePermissionExplanation =>
+      'Para seleccionar una portada necesitas conceder acceso al almacenamiento. Puedes hacerlo desde los ajustes de la aplicación.';
+
+  @override
+  String get cameraPermissionExplanation =>
+      'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.';
 }

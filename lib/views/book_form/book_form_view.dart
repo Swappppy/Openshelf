@@ -3,6 +3,7 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../services/database.dart';
 import '../../services/cover_service.dart';
 import '../../services/permission_service.dart';
@@ -155,12 +156,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _prefillCoverFromUrl(String url) async {
+    if (!mounted) return;
     final title = context.l10n.cropCoverTitle;
+    final l10n = context.l10n;
     final saved = await CoverService.saveCoverFromUrl(
       url, 
       cropTitle: title,
-      doneButtonTitle: context.l10n.done,
-      cancelButtonTitle: context.l10n.cancel,
+      doneButtonTitle: l10n.done,
+      cancelButtonTitle: l10n.cancel,
     );
     if (saved != null && mounted) {
       setState(() => _coverPath = saved);
@@ -168,21 +171,48 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _pickCover() async {
-    if (!await PermissionService.requestGallery()) return;
+    final result = await PermissionService.requestGallery();
+
+    if (result == GalleryPermissionResult.permanentlyDenied) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text(context.l10n.permissionRequired),
+          content: Text(context.l10n.storagePermissionExplanation),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.l10n.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                PermissionService.openSettings();
+              },
+              child: Text(context.l10n.openSettings),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (result != GalleryPermissionResult.granted) return;
     if (!mounted) return;
-    
+
     final l10n = context.l10n;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-    
+
     final cropped = await CoverService.cropCover(
-      picked.path, 
+      picked.path,
       title: l10n.cropCoverTitle,
       doneButtonTitle: l10n.done,
       cancelButtonTitle: l10n.cancel,
     );
-    
+
     if (cropped != null) {
       final saved = await CoverService.saveLocalCover(cropped);
       setState(() => _coverPath = saved);
@@ -190,16 +220,48 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _takePhoto() async {
-    if (!await PermissionService.requestCamera()) return;
+    final granted = await PermissionService.requestCamera();
+
+    if (!granted) {
+      if (!mounted) return;
+      final permanentlyDenied = await PermissionService
+          .isPermanentlyDenied(Permission.camera);
+      if (!mounted) return;
+
+      if (permanentlyDenied) {
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text(context.l10n.permissionRequired),
+            content: Text(context.l10n.cameraPermissionExplanation),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(context.l10n.cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  PermissionService.openSettings();
+                },
+                child: Text(context.l10n.openSettings),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     if (!mounted) return;
-    
+
     final l10n = context.l10n;
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.camera);
     if (picked == null) return;
-    
+
     final cropped = await CoverService.cropCover(
-      picked.path, 
+      picked.path,
       title: l10n.cropCoverTitle,
       doneButtonTitle: l10n.done,
       cancelButtonTitle: l10n.cancel,
@@ -243,25 +305,28 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (!mounted) return;
     
     setState(() => _isSaving = true);
-    final title = context.l10n.cropCoverTitle;
+    final l10n = context.l10n;
+    final title = l10n.cropCoverTitle;
     final saved = await CoverService.saveCoverFromUrl(
       url, 
       cropTitle: title,
-      doneButtonTitle: context.l10n.done,
-      cancelButtonTitle: context.l10n.cancel,
+      doneButtonTitle: l10n.done,
+      cancelButtonTitle: l10n.cancel,
     );
+    if (!mounted) return;
     setState(() {
       _isSaving = false;
       if (saved != null) _coverPath = saved;
     });
-    if (saved == null && mounted) {
+    if (saved == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.coverDownloadError)),
+        SnackBar(content: Text(l10n.coverDownloadError)),
       );
     }
   }
 
   Future<void> _searchCovers() async {
+    if (!mounted) return;
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -294,19 +359,20 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (widget.existingBook == null && isbn.isNotEmpty) {
       final existing = await db.getBookByIsbn(isbn);
       if (existing != null && mounted) {
+        final l10n = context.l10n;
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(context.l10n.bookDuplicateTitle),
-            content: Text(context.l10n.bookDuplicateContent(isbn)),
+            title: Text(l10n.bookDuplicateTitle),
+            content: Text(l10n.bookDuplicateContent(isbn)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: Text(context.l10n.cancel),
+                child: Text(l10n.cancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(context.l10n.addBook),
+                child: Text(l10n.addBook),
               ),
             ],
           ),
@@ -314,6 +380,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         if (confirmed != true) return;
       }
     }
+    if (!mounted) return;
 
     setState(() => _isSaving = true);
 

@@ -1,65 +1,46 @@
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 
+enum GalleryPermissionResult { granted, denied, permanentlyDenied }
+
 class PermissionService {
 
-  static int? _sdk;
+  static Future<GalleryPermissionResult> requestGallery() async {
+    if (Platform.isAndroid) {
+      final photos = await Permission.photos.request();
+      debugPrint('>>> photos status: $photos');
+      if (photos.isGranted || photos.isLimited) {
+        return GalleryPermissionResult.granted;
+      }
 
-  static Future<int> _getAndroidSdk() async {
-    if (_sdk != null) return _sdk!;
-    if (!Platform.isAndroid) return 0;
-    try {
-      _sdk = await const MethodChannel('dev.flutter.pigeon/platform_info')
-          .invokeMethod<int>('getAndroidSdkInt') ?? 21;    } catch (_) {
-      _sdk = 21; // fallback conservador, no 33
+      final storage = await Permission.storage.request();
+      debugPrint('>>> storage status: $storage');
+
+      if (storage.isGranted) return GalleryPermissionResult.granted;
+      if (storage.isPermanentlyDenied) return GalleryPermissionResult.permanentlyDenied;
+      return GalleryPermissionResult.denied;
     }
-    return _sdk!;
-  }
 
-  static Future<bool> requestGallery() async {
     if (Platform.isIOS) {
       final s = await Permission.photos.request();
-      return s.isGranted || s.isLimited;
+      if (s.isGranted || s.isLimited) return GalleryPermissionResult.granted;
+      if (s.isPermanentlyDenied) return GalleryPermissionResult.permanentlyDenied;
+      return GalleryPermissionResult.denied;
     }
 
-    if (Platform.isAndroid) {
-      final sdk = await _getAndroidSdk();
-
-      if (sdk >= 34) {
-        // Android 14+: pedir ambos para activar el selector parcial
-        final results = await [
-          Permission.photos,
-          Permission.mediaLibrary,
-        ].request();
-        return (results[Permission.photos]?.isGranted ?? false) ||
-            (results[Permission.photos]?.isLimited ?? false) ||
-            (results[Permission.mediaLibrary]?.isGranted ?? false) ||
-            (results[Permission.mediaLibrary]?.isLimited ?? false);
-      }
-
-      if (sdk >= 33) {
-        // Android 13: solo READ_MEDIA_IMAGES
-        final s = await Permission.photos.request();
-        return s.isGranted || s.isLimited;
-      }
-
-      // Android 6–12: READ_EXTERNAL_STORAGE
-      return (await Permission.storage.request()).isGranted;
-    }
-
-    return true;
+    return GalleryPermissionResult.granted;
   }
 
   static Future<bool> requestCamera() async {
-    return (await Permission.camera.request()).isGranted;
+    final s = await Permission.camera.request();
+    return s.isGranted;
   }
 
   static Future<bool> requestStorage() async {
     if (!Platform.isAndroid) return true;
-    final sdk = await _getAndroidSdk();
-    if (sdk >= 33) return true; // el almacenamiento interno no necesita permiso
-    return (await Permission.storage.request()).isGranted;
+    final s = await Permission.storage.request();
+    return s.isGranted;
   }
 
   static Future<bool> isPermanentlyDenied(Permission permission) =>

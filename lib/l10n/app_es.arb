@@ -883,5 +883,17 @@
   "statsPlaceholder": "Tus estadísticas aparecerán aquí",
   "@statsPlaceholder": { "description": "Placeholder de estadísticas" },
 
-  "sortTitle": "Ordenar"
+  "sortTitle": "Ordenar",
+
+  "openSettings": "Abrir ajustes",
+  "@openSettings": { "description": "Botón para abrir los ajustes del sistema" },
+
+  "permissionRequired": "Permiso necesario",
+  "@permissionRequired": { "description": "Título del diálogo de permiso denegado permanentemente" },
+
+  "storagePermissionExplanation": "Para seleccionar una portada necesitas conceder acceso al almacenamiento. Puedes hacerlo desde los ajustes de la aplicación.",
+  "@storagePermissionExplanation": { "description": "Explicación del permiso de almacenamiento denegado permanentemente" },
+
+  "cameraPermissionExplanation": "Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.",
+  "@cameraPermissionExplanation": { "description": "Explicación del permiso de cámara denegado permanentemente" }
 }

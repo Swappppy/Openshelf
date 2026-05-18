@@ -36,7 +36,8 @@ void showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, requ
                       children: [
                         GestureDetector(
                           onTap: () async {
-                            if (!await PermissionService.requestGallery()) return;
+                            final result = await PermissionService.requestGallery();
+                            if (result != GalleryPermissionResult.granted) return;
                             if (!context.mounted) return;
                             final l10n = context.l10n;
                             final picker = ImagePicker();

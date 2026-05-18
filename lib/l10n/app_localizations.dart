@@ -1729,6 +1729,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ordenar'**
   String get sortTitle;
+
+  /// Botón para abrir los ajustes del sistema
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir ajustes'**
+  String get openSettings;
+
+  /// Título del diálogo de permiso denegado permanentemente
+  ///
+  /// In es, this message translates to:
+  /// **'Permiso necesario'**
+  String get permissionRequired;
+
+  /// Explicación del permiso de almacenamiento denegado permanentemente
+  ///
+  /// In es, this message translates to:
+  /// **'Para seleccionar una portada necesitas conceder acceso al almacenamiento. Puedes hacerlo desde los ajustes de la aplicación.'**
+  String get storagePermissionExplanation;
+
+  /// Explicación del permiso de cámara denegado permanentemente
+  ///
+  /// In es, this message translates to:
+  /// **'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.'**
+  String get cameraPermissionExplanation;
 }
 
 class _AppLocalizationsDelegate
