@@ -5,6 +5,7 @@ import '../controllers/books_controller.dart';
 import '../controllers/database_provider.dart';
 import '../controllers/display_preferences_controller.dart';
 import '../l10n/l10n_extension.dart';
+import 'package:drift/drift.dart' show Value;
 import 'modern_shelf_card.dart';
 import 'shelf_form_sheet.dart';
 import 'os_empty_state.dart';
@@ -75,21 +76,9 @@ class ShelvesSection extends ConsumerWidget {
                   builder: (ctx2) => ShelfFormSheet(
                     existing: shelf,
                     onSave: (companion) async {
-                      final updated = shelf.copyWith(
-                        name: companion.name.value,
-                        filterQuery: companion.filterQuery.value,
-                        filterAuthor: companion.filterAuthor.value,
-                        filterPublisher: companion.filterPublisher.value,
-                        filterIsbn: companion.filterIsbn.value,
-                        filterCollection: companion.filterCollection.value,
-                        filterStatus: companion.filterStatus.value,
-                        filterTagIds: companion.filterTagIds.value,
-                        filterImprintIds: companion.filterImprintIds.value,
-                        filterSubtitle: companion.filterSubtitle.value,
-                        filterLanguage: companion.filterLanguage.value,
-                        filterTranslator: companion.filterTranslator.value,
-                      );
-                      await ref.read(databaseProvider).updateShelf(updated);
+                      final db = ref.read(databaseProvider);
+                      final updated = companion.copyWith(id: Value(shelf.id));
+                      await db.update(db.shelves).replace(updated);
                       if (ctx2.mounted) Navigator.pop(ctx2);
                     },
                   ),

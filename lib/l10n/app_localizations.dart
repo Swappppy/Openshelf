@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// Placeholder del campo de búsqueda en la biblioteca
   ///
   /// In es, this message translates to:
-  /// **'Buscar por título…'**
+  /// **'Buscar por título...'**
   String get searchHint;
 
   /// Placeholder del filtro de autor
@@ -451,6 +451,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Subtítulo'**
   String get fieldSubtitle;
+
+  /// Nombre del campo sinopsis/descripción
+  ///
+  /// In es, this message translates to:
+  /// **'Sinopsis'**
+  String get fieldDescription;
 
   /// Nombre del campo ISBN
   ///
@@ -707,13 +713,13 @@ abstract class AppLocalizations {
   /// Placeholder del campo de notas
   ///
   /// In es, this message translates to:
-  /// **'Escribe tus notas aquí…'**
+  /// **'Escribe tus notas aquí...'**
   String get bookDetailNotesHint;
 
   /// Texto cuando no hay notas
   ///
   /// In es, this message translates to:
-  /// **'Toca para añadir notas…'**
+  /// **'Toca para añadir notas...'**
   String get bookDetailNotesEmpty;
 
   /// Título del diálogo de eliminar libro
@@ -913,6 +919,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Nombre de la estantería'**
   String get shelfFormNameLabel;
+
+  /// Label del campo nombre de colección
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de la colección'**
+  String get collectionNameLabel;
 
   /// Sección de estado en formulario de estantería
   ///
@@ -1553,7 +1565,7 @@ abstract class AppLocalizations {
   /// Placeholder del campo de búsqueda de libros
   ///
   /// In es, this message translates to:
-  /// **'Título, autor o ISBN…'**
+  /// **'Título, autor o ISBN...'**
   String get bookSearchHint;
 
   /// Mensaje inicial de la pantalla de búsqueda
@@ -1723,6 +1735,348 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tus estadísticas aparecerán aquí'**
   String get statsPlaceholder;
+
+  /// No description provided for @statsGoalTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'META'**
+  String get statsGoalTitle;
+
+  /// No description provided for @statsGoalFullTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'META DE LECTURA'**
+  String get statsGoalFullTitle;
+
+  /// No description provided for @statsGoalUnitBooks.
+  ///
+  /// In es, this message translates to:
+  /// **'libros'**
+  String get statsGoalUnitBooks;
+
+  /// No description provided for @statsGoalUnitPages.
+  ///
+  /// In es, this message translates to:
+  /// **'págs'**
+  String get statsGoalUnitPages;
+
+  /// No description provided for @statsGoalRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Faltan {count}'**
+  String statsGoalRemaining(int count);
+
+  /// No description provided for @statsGoalCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Listo!'**
+  String get statsGoalCompleted;
+
+  /// No description provided for @statsGoalNew.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva meta'**
+  String get statsGoalNew;
+
+  /// No description provided for @statsGoalEdit.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar meta'**
+  String get statsGoalEdit;
+
+  /// No description provided for @statsGoalDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get statsGoalDelete;
+
+  /// No description provided for @statsGoalNameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre (ej: Reto 2026)'**
+  String get statsGoalNameLabel;
+
+  /// No description provided for @statsGoalTypeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo'**
+  String get statsGoalTypeLabel;
+
+  /// No description provided for @statsGoalTypeBooks.
+  ///
+  /// In es, this message translates to:
+  /// **'Libros leídos'**
+  String get statsGoalTypeBooks;
+
+  /// No description provided for @statsGoalTypePages.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas leídas'**
+  String get statsGoalTypePages;
+
+  /// No description provided for @statsGoalTargetLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo numérico'**
+  String get statsGoalTargetLabel;
+
+  /// No description provided for @statsGoalFromLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde'**
+  String get statsGoalFromLabel;
+
+  /// No description provided for @statsGoalToLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta'**
+  String get statsGoalToLabel;
+
+  /// No description provided for @statsPagesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'PÁGINAS'**
+  String get statsPagesTitle;
+
+  /// No description provided for @statsPagesSub.
+  ///
+  /// In es, this message translates to:
+  /// **'páginas leídas'**
+  String get statsPagesSub;
+
+  /// No description provided for @statsStreakTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'RACHA'**
+  String get statsStreakTitle;
+
+  /// No description provided for @statsStreakSub.
+  ///
+  /// In es, this message translates to:
+  /// **'días seguidos'**
+  String get statsStreakSub;
+
+  /// No description provided for @statsStatusTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'ESTADOS'**
+  String get statsStatusTitle;
+
+  /// No description provided for @statsAddedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'LIBROS AÑADIDOS'**
+  String get statsAddedTitle;
+
+  /// No description provided for @statsAddedNoData.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin datos'**
+  String get statsAddedNoData;
+
+  /// No description provided for @statsCategoriesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'CATEGORÍAS'**
+  String get statsCategoriesTitle;
+
+  /// No description provided for @statsYearsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'AÑOS DE PUBLICACIÓN'**
+  String get statsYearsTitle;
+
+  /// No description provided for @statsReadingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'LECTURA'**
+  String get statsReadingTitle;
+
+  /// No description provided for @statsReadingNowTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'LEYENDO AHORA'**
+  String get statsReadingNowTitle;
+
+  /// No description provided for @statsReadingNone.
+  ///
+  /// In es, this message translates to:
+  /// **'Nada en lectura'**
+  String get statsReadingNone;
+
+  /// No description provided for @statsReadByYearTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'LIBROS LEÍDOS POR AÑO'**
+  String get statsReadByYearTitle;
+
+  /// No description provided for @statsCollectionsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'COLECCIONES'**
+  String get statsCollectionsTitle;
+
+  /// No description provided for @statsLastAddedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'ÚLTIMOS AÑADIDOS'**
+  String get statsLastAddedTitle;
+
+  /// No description provided for @statsAvgPagesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'PÁGINAS PROMEDIO'**
+  String get statsAvgPagesTitle;
+
+  /// No description provided for @statsAvgPagesSub.
+  ///
+  /// In es, this message translates to:
+  /// **'páginas por libro'**
+  String get statsAvgPagesSub;
+
+  /// No description provided for @statsOptPagesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas totales'**
+  String get statsOptPagesTitle;
+
+  /// No description provided for @statsOptPagesSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de páginas leídas'**
+  String get statsOptPagesSub;
+
+  /// No description provided for @statsOptStreakTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha'**
+  String get statsOptStreakTitle;
+
+  /// No description provided for @statsOptStreakSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Días consecutivos leyendo'**
+  String get statsOptStreakSub;
+
+  /// No description provided for @statsOptGoalTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Meta de lectura'**
+  String get statsOptGoalTitle;
+
+  /// No description provided for @statsOptGoalSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Libros, estanterías o colecciones'**
+  String get statsOptGoalSub;
+
+  /// No description provided for @statsOptStatusTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estados de lectura'**
+  String get statsOptStatusTitle;
+
+  /// No description provided for @statsOptStatusSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Libros por estado'**
+  String get statsOptStatusSub;
+
+  /// No description provided for @statsOptCurrentTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Libro actual'**
+  String get statsOptCurrentTitle;
+
+  /// No description provided for @statsOptCurrentSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso de lectura en curso'**
+  String get statsOptCurrentSub;
+
+  /// No description provided for @statsOptAddedTimeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Libros añadidos'**
+  String get statsOptAddedTimeTitle;
+
+  /// No description provided for @statsOptAddedTimeSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Gráfico temporal de adquisiciones'**
+  String get statsOptAddedTimeSub;
+
+  /// No description provided for @statsOptCategoriesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías'**
+  String get statsOptCategoriesTitle;
+
+  /// No description provided for @statsOptCategoriesSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Distribución por géneros'**
+  String get statsOptCategoriesSub;
+
+  /// No description provided for @statsOptYearsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Año de publicación'**
+  String get statsOptYearsTitle;
+
+  /// No description provided for @statsOptYearsSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Histograma histórico'**
+  String get statsOptYearsSub;
+
+  /// No description provided for @statsOptReadYearTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Leídos por año'**
+  String get statsOptReadYearTitle;
+
+  /// No description provided for @statsOptReadYearSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Gráfico de lectura anual'**
+  String get statsOptReadYearSub;
+
+  /// No description provided for @statsOptCollectionsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Colecciones'**
+  String get statsOptCollectionsTitle;
+
+  /// No description provided for @statsOptCollectionsSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Libros por colección'**
+  String get statsOptCollectionsSub;
+
+  /// No description provided for @statsOptLastAddedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimos añadidos'**
+  String get statsOptLastAddedTitle;
+
+  /// No description provided for @statsOptLastAddedSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Recién llegados'**
+  String get statsOptLastAddedSub;
+
+  /// No description provided for @statsOptAvgPagesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Extensión promedio'**
+  String get statsOptAvgPagesTitle;
+
+  /// No description provided for @statsOptAvgPagesSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas promedio por libro'**
+  String get statsOptAvgPagesSub;
 
   /// No description provided for @sortTitle.
   ///

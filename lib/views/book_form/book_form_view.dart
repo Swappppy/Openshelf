@@ -8,9 +8,8 @@ import '../../services/database.dart';
 import '../../services/cover_service.dart';
 import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
-import '../../controllers/books_controller.dart';
 import '../../controllers/reading_log_controller.dart';
-import '../../widgets/tag_chip.dart';
+import '../../widgets/entity_field_selector.dart';
 import '../../models/book_search_result.dart';
 import '../../l10n/l10n_extension.dart';
 import 'cover_picker_sheet.dart';
@@ -24,13 +23,6 @@ class BookFormView extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<BookFormView> createState() => _BookFormViewState();
-}
-
-/// Helper model for tags created during the form session but not yet saved to DB.
-class _PendingTag {
-  final String name;
-  String? color;
-  _PendingTag({required this.name});
 }
 
 class _BookFormViewState extends ConsumerState<BookFormView>
@@ -49,6 +41,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   late final TextEditingController _totalPagesCtrl;
   late final TextEditingController _currentPageCtrl;
   late final TextEditingController _notesCtrl;
+  late final TextEditingController _descriptionCtrl;
   late final TextEditingController _collectionNameCtrl;
   late final TextEditingController _collectionNumberCtrl;
   late final TextEditingController _publishYearCtrl;
@@ -62,7 +55,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   DateTime? _finishedAt;
   List<Tag> _selectedTags = [];        
   Tag? _selectedImprint;
-  final List<_PendingTag> _pendingTags = []; 
   bool _isInitializing = true;
 
   @override
@@ -84,6 +76,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         text: b?.totalPages?.toString() ?? pre?.pageCount?.toString() ?? '');
     _currentPageCtrl = TextEditingController(text: '0');
     _notesCtrl = TextEditingController(text: b?.notes ?? '');
+    _descriptionCtrl = TextEditingController(text: b?.description ?? '');
     _collectionNameCtrl =
         TextEditingController(text: b?.collectionName ?? '');
     _collectionNumberCtrl =
@@ -128,6 +121,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _totalPagesCtrl.dispose();
     _currentPageCtrl.dispose();
     _notesCtrl.dispose();
+    _descriptionCtrl.dispose();
     _collectionNameCtrl.dispose();
     _collectionNumberCtrl.dispose();
     _publishYearCtrl.dispose();
@@ -404,6 +398,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         bookFormat: Value(_format),
         rating: Value(_rating),
         notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
+        description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
         coverPath: Value(_coverPath),
         collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
@@ -418,17 +413,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       }
       
       final existingIds = _selectedTags.map((t) => t.id).toList();
-      for (final p in _pendingTags) {
-        final newId = await db.insertTag(
-          TagsCompanion(
-            name: Value(p.name),
-            type: const Value('tag'),
-            color: Value(p.color),
-          ),
-        );
-        existingIds.add(newId);
-      }
-      
       await db.setBookTags(widget.existingBook!.id, existingIds);
       await db.setBookImprint(widget.existingBook!.id, _selectedImprint?.id);
       await db.pruneOrphanTags();
@@ -441,7 +425,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         author: _authorCtrl.text.trim(),
         isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
         language: Value(_languageCtrl.text.trim().isEmpty ? null : _languageCtrl.text.trim()),
-        translator: Value(_translatorCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
+        translator: Value(_languageCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
         publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
         totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
         currentPage: Value(newPage),
@@ -449,6 +433,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         bookFormat: Value<BookFormat?>(_format),
         rating: Value(_rating),
         notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
+        description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
         coverPath: Value(_coverPath),
         collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
         collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
@@ -463,16 +448,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       }
       
       final existingIds = _selectedTags.map((t) => t.id).toList();
-      for (final p in _pendingTags) {
-        final newId = await db.insertTag(
-          TagsCompanion(
-            name: Value(p.name),
-            type: const Value('tag'),
-            color: Value(p.color),
-          ),
-        );
-        existingIds.add(newId);
-      }
       await db.setBookTags(newId, existingIds);
       await db.setBookImprint(newId, _selectedImprint?.id);
     }
@@ -484,210 +459,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     }
 
     if (mounted) Navigator.pop(context);
-  }
-
-  Future<void> _showTagPicker(BuildContext context) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.6,
-        maxChildSize: 0.9,
-        builder: (_, scrollController) => Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40, height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Text(
-                context.l10n.sectionCategories,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: FutureBuilder<List<Tag>>(
-                  future: ref.read(databaseProvider).getTagsByType('tag'),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    final allTags = snapshot.data!;
-                    if (allTags.isEmpty) {
-                      return Center(
-                        child: Text(
-                          context.l10n.tagNoCategories,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                        ),
-                      );
-                    }
-                    return StatefulBuilder(
-                      builder: (context, setStateSheet) => SingleChildScrollView(
-                        controller: scrollController,
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: allTags.map((tag) {
-                            final isSelected = _selectedTags.any((t) => t.id == tag.id)
-                                || _pendingTags.any((p) => p.name == tag.name);
-                            final baseColor = tag.color != null
-                                ? Color(int.parse('0xFF${tag.color!}'))
-                                : Theme.of(context).colorScheme.secondaryContainer;
-
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (isSelected) {
-                                    _selectedTags.removeWhere((t) => t.id == tag.id);
-                                  } else {
-                                    if (!_selectedTags.any((t) => t.id == tag.id)) {
-                                      _selectedTags.add(tag);
-                                    }
-                                  }
-                                });
-                                setStateSheet(() {});
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? baseColor.withValues(alpha: 0.25)
-                                      : baseColor.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: isSelected
-                                      ? Border.all(color: baseColor, width: 1.5)
-                                      : Border.all(color: Colors.transparent, width: 1.5),
-                                ),
-                                child: Text(
-                                  tag.name,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: tag.color != null
-                                        ? baseColor
-                                        : Theme.of(context).colorScheme.onSecondaryContainer,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: Text(context.l10n.done),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _showColorPicker(BuildContext context, {
-    Tag? existingTag,
-    _PendingTag? pendingTag,
-  }) async {
-    final colors = [
-      'E53935', 'D81B60', '8E24AA', '3949AB', '1E88E5', '00ACC1',
-      '00897B', '43A047', 'C0CA33', 'FB8C00', '6D4C41', '757575',
-    ];
-
-    await showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.l10n.tagColorLabel,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: colors.map((hex) {
-                final color = Color(int.parse('0xFF$hex'));
-                final currentHex = existingTag?.color ?? pendingTag?.color;
-                final isSelected = currentHex == hex;
-                return GestureDetector(
-                  onTap: () async {
-                    if (existingTag != null) {
-                      final updated = Tag(
-                        id: existingTag.id,
-                        name: existingTag.name,
-                        type: existingTag.type,
-                        color: hex,
-                        imagePath: existingTag.imagePath,
-                      );
-                      await ref.read(databaseProvider).updateTag(updated);
-                      setState(() {
-                        final idx = _selectedTags.indexWhere((t) => t.id == existingTag.id);
-                        if (idx != -1) _selectedTags[idx] = updated;
-                      });
-                    } else if (pendingTag != null) {
-                      setState(() => pendingTag.color = hex);
-                    }
-                    if (ctx.mounted) Navigator.pop(ctx);
-                  },
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      border: isSelected
-                          ? Border.all(color: Colors.white, width: 3)
-                          : null,
-                      boxShadow: isSelected
-                          ? [BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 6)]
-                          : null,
-                    ),
-                    child: isSelected
-                        ? const Icon(Icons.check, color: Colors.white, size: 20)
-                        : null,
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
   }
 
   Future<void> _loadExistingTags(int bookId) async {
@@ -770,44 +541,34 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               titleCtrl: _titleCtrl,
               subtitleCtrl: _subtitleCtrl,
               authorCtrl: _authorCtrl,
-              isbnCtrl: _isbnCtrl,
-              languageCtrl: _languageCtrl,
-              translatorCtrl: _translatorCtrl,
+              descriptionCtrl: _descriptionCtrl,
               publisherCtrl: _publisherCtrl,
               totalPagesCtrl: _totalPagesCtrl,
               currentPageCtrl: _currentPageCtrl,
-              publishYearCtrl: _publishYearCtrl,
               status: _status,
               format: _format,
               rating: _rating,
               coverPath: _coverPath,
-              startedAt: _startedAt,
-              finishedAt: _finishedAt,
               onStatusChanged: _onStatusChanged,
               onFormatChanged: (f) => setState(() => _format = f),
               onRatingChanged: (r) => setState(() => _rating = r),
-              onStartedAtChanged: (d) => setState(() => _startedAt = d),
-              onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
               onPickCover: _pickCover,
               onTakePhoto: _takePhoto,
               selectedTags: _selectedTags,
-              pendingTags: _pendingTags,
               onAddTag: (tag) => setState(() {
                 if (!_selectedTags.any((t) => t.id == tag.id)) {
                   _selectedTags.add(tag);
                 }
               }),
               onRemoveTag: (tag) => setState(() => _selectedTags.remove(tag)),
-              onCreateTag: (name) => setState(() => _pendingTags.add(_PendingTag(name: name))),
-              onRemovePending: (p) => setState(() => _pendingTags.remove(p)),
-              onTapTagColor: ({Tag? existingTag, _PendingTag? pendingTag}) =>
-                  _showColorPicker(context, existingTag: existingTag, pendingTag: pendingTag),
-              onTapGrid: () => _showTagPicker(context),
               onPickCoverFromUrl: _pickCoverFromUrl,
               onSearchCovers: _searchCovers,
             ),
             _DetailsTab(
               notesCtrl: _notesCtrl,
+              isbnCtrl: _isbnCtrl,
+              languageCtrl: _languageCtrl,
+              publishYearCtrl: _publishYearCtrl,
               translatorCtrl: _translatorCtrl,
               collectionNameCtrl: _collectionNameCtrl,
               collectionNumberCtrl: _collectionNumberCtrl,
@@ -833,34 +594,22 @@ class _MainTab extends ConsumerWidget {
   final TextEditingController titleCtrl;
   final TextEditingController subtitleCtrl;
   final TextEditingController authorCtrl;
-  final TextEditingController isbnCtrl;
-  final TextEditingController languageCtrl;
-  final TextEditingController translatorCtrl;
+  final TextEditingController descriptionCtrl;
   final TextEditingController publisherCtrl;
   final TextEditingController totalPagesCtrl;
   final TextEditingController currentPageCtrl;
-  final TextEditingController publishYearCtrl;
   final ReadingStatus status;
   final BookFormat? format;
   final double? rating;
   final String? coverPath;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
   final ValueChanged<ReadingStatus> onStatusChanged;
   final ValueChanged<BookFormat?> onFormatChanged;
   final ValueChanged<double?> onRatingChanged;
-  final ValueChanged<DateTime?> onStartedAtChanged;
-  final ValueChanged<DateTime?> onFinishedAtChanged;
   final VoidCallback onPickCover;
   final VoidCallback onTakePhoto;
   final List<Tag> selectedTags;
-  final List<_PendingTag> pendingTags;
   final ValueChanged<Tag> onAddTag;
   final ValueChanged<Tag> onRemoveTag;
-  final void Function(String) onCreateTag;
-  final void Function(_PendingTag) onRemovePending;
-  final void Function({Tag? existingTag, _PendingTag? pendingTag}) onTapTagColor;
-  final VoidCallback onTapGrid;
   final VoidCallback onPickCoverFromUrl;
   final VoidCallback onSearchCovers;
 
@@ -868,34 +617,22 @@ class _MainTab extends ConsumerWidget {
     required this.titleCtrl,
     required this.subtitleCtrl,
     required this.authorCtrl,
-    required this.isbnCtrl,
-    required this.languageCtrl,
-    required this.translatorCtrl,
+    required this.descriptionCtrl,
     required this.publisherCtrl,
     required this.totalPagesCtrl,
     required this.currentPageCtrl,
-    required this.publishYearCtrl,
     required this.status,
     required this.format,
     required this.rating,
     this.coverPath,
-    this.startedAt,
-    this.finishedAt,
     required this.onStatusChanged,
     required this.onFormatChanged,
     required this.onRatingChanged,
-    required this.onStartedAtChanged,
-    required this.onFinishedAtChanged,
     required this.onPickCover,
     required this.onTakePhoto,
     required this.selectedTags,
-    required this.pendingTags,
     required this.onAddTag,
     required this.onRemoveTag,
-    required this.onCreateTag,
-    required this.onRemovePending,
-    required this.onTapTagColor,
-    required this.onTapGrid,
     required this.onPickCoverFromUrl,
     required this.onSearchCovers,
   });
@@ -991,103 +728,36 @@ class _MainTab extends ConsumerWidget {
             icon: Icons.business_outlined),
         const SizedBox(height: 12),
         _FormField(
-          controller: publishYearCtrl,
-          label: context.l10n.fieldYear,
-          icon: Icons.calendar_today_outlined,
-          keyboardType: TextInputType.number,
+          controller: descriptionCtrl,
+          label: context.l10n.fieldDescription,
+          icon: Icons.description_outlined,
+          maxLines: 5,
         ),
-        const SizedBox(height: 12),
-        _FormField(
-            controller: isbnCtrl,
-            label: context.l10n.fieldIsbn,
-            icon: Icons.barcode_reader,
-            keyboardType: TextInputType.number),
-        const SizedBox(height: 12),
-        _FormField(
-            controller: languageCtrl,
-            label: context.l10n.fieldLanguage,
-            icon: Icons.language_outlined),
         const SizedBox(height: 24),
 
 
         // --- Categories (Tags) Section ---
         _SectionHeader(label: context.l10n.sectionCategories),
-        const SizedBox(height: 4),
-        Text(
-          context.l10n.tagCreateHint,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.outline,
-          ),
-        ),
         const SizedBox(height: 12),
-        if (selectedTags.isNotEmpty || pendingTags.isNotEmpty) ...[
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              ...selectedTags.map((tag) => TagChip(
-                label: tag.name,
-                colorHex: tag.color,
-                onTap: () => onTapTagColor(existingTag: tag),
-                onDeleted: () => onRemoveTag(tag),
-              )),
-              ...pendingTags.map((p) => TagChip(
-                label: p.name,
-                colorHex: p.color,
-                onTap: () => onTapTagColor(pendingTag: p),
-                onDeleted: () => onRemovePending(p),
-              )),
-            ],
-          ),
-          const SizedBox(height: 12),
-        ],
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Autocomplete<Tag>(
-                displayStringForOption: (t) => t.name,
-                optionsBuilder: (textEditingValue) async {
-                  final input = textEditingValue.text.trim();
-                  if (input.isEmpty) return [];
-                  final results = await ref.read(databaseProvider).searchTags(input, 'tag');
-                  return results.where(
-                        (t) => !selectedTags.any((s) => s.id == t.id),
-                  ).toList();
-                },
-                onSelected: onAddTag,
-                fieldViewBuilder: (_, controller, focusNode, _) => TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  decoration: InputDecoration(
-                    labelText: context.l10n.tagSearchOrCreate,
-                    prefixIcon: const Icon(Icons.label_outline),
-                    border: const OutlineInputBorder(),
-                  ),
-                  onSubmitted: (value) {
-                    final name = value.trim();
-                    if (name.isEmpty) return;
-                    onCreateTag(name);
-                    controller.clear();
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              height: 56,
-              child: OutlinedButton(
-                onPressed: onTapGrid,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                child: const Icon(Icons.grid_view),
-              ),
-            ),
-          ],
+        EntityFieldSelector(
+          selected: selectedTags,
+          onChanged: (list) {
+            // Update selected tags
+            for (final tag in list) {
+              if (!selectedTags.any((t) => t.id == tag.id)) {
+                onAddTag(tag);
+              }
+            }
+            // Handle removal
+            for (final tag in selectedTags) {
+              if (!list.any((t) => t.id == tag.id)) {
+                onRemoveTag(tag);
+              }
+            }
+          },
+          type: 'tag',
+          label: context.l10n.tagSearchOrCreate,
+          icon: Icons.label_outline,
         ),
 
         const SizedBox(height: 24),
@@ -1143,6 +813,9 @@ class _MainTab extends ConsumerWidget {
 // -------------------------------------------------------
 class _DetailsTab extends ConsumerWidget {
   final TextEditingController notesCtrl;
+  final TextEditingController isbnCtrl;
+  final TextEditingController languageCtrl;
+  final TextEditingController publishYearCtrl;
   final TextEditingController translatorCtrl;
   final TextEditingController collectionNameCtrl;
   final TextEditingController collectionNumberCtrl;
@@ -1156,6 +829,9 @@ class _DetailsTab extends ConsumerWidget {
 
   const _DetailsTab({
     required this.notesCtrl,
+    required this.isbnCtrl,
+    required this.languageCtrl,
+    required this.publishYearCtrl,
     required this.translatorCtrl,
     required this.collectionNameCtrl,
     required this.collectionNumberCtrl,
@@ -1173,36 +849,49 @@ class _DetailsTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        _SectionHeader(label: context.l10n.sectionBasicInfo),
+        const SizedBox(height: 12),
+        _FormField(
+          controller: publishYearCtrl,
+          label: context.l10n.fieldYear,
+          icon: Icons.calendar_today_outlined,
+          keyboardType: TextInputType.number,
+        ),
+        const SizedBox(height: 12),
+        _FormField(
+            controller: isbnCtrl,
+            label: context.l10n.fieldIsbn,
+            icon: Icons.barcode_reader,
+            keyboardType: TextInputType.number),
+        const SizedBox(height: 12),
+        _FormField(
+            controller: languageCtrl,
+            label: context.l10n.fieldLanguage,
+            icon: Icons.language_outlined),
+        const SizedBox(height: 24),
+
         _SectionHeader(label: context.l10n.fieldCollection),
         const SizedBox(height: 12),
-        // ... (collection autocomplete)
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 3,
-              child: Autocomplete<Tag>(
-                displayStringForOption: (t) => t.name,
-                optionsBuilder: (textEditingValue) async {
-                  final input = textEditingValue.text.trim();
-                  if (input.isEmpty) return [];
-                  return ref.read(databaseProvider).searchTags(input, 'collection');
+              child: EntityFieldSelector(
+                selected: collectionNameCtrl.text.isNotEmpty 
+                    ? [Tag(id: -1, name: collectionNameCtrl.text, type: 'collection')] 
+                    : [],
+                onChanged: (list) {
+                  if (list.isNotEmpty) {
+                    collectionNameCtrl.text = list.first.name;
+                  } else {
+                    collectionNameCtrl.text = '';
+                  }
                 },
-                onSelected: (tag) {
-                  collectionNameCtrl.text = tag.name;
-                },
-                fieldViewBuilder: (_, controller, focusNode, _) {
-                  controller.text = collectionNameCtrl.text;
-                  return TextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    onChanged: (v) => collectionNameCtrl.text = v,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.fieldCollection,
-                      prefixIcon: const Icon(Icons.collections_bookmark_outlined),
-                      border: const OutlineInputBorder(),
-                    ),
-                  );
-                },
+                type: 'collection',
+                label: context.l10n.fieldCollection,
+                icon: Icons.collections_bookmark_outlined,
+                multiSelection: false,
               ),
             ),
             const SizedBox(width: 12),
@@ -1221,10 +910,19 @@ class _DetailsTab extends ConsumerWidget {
 
         _SectionHeader(label: context.l10n.sectionImprint),
         const SizedBox(height: 12),
-        _ImprintSelector(
-          selected: selectedImprint,
-          onSelect: onSelectImprint,
-          onClear: onClearImprint,
+        EntityFieldSelector(
+          selected: selectedImprint != null ? [selectedImprint!] : [],
+          onChanged: (list) {
+            if (list.isNotEmpty) {
+              onSelectImprint(list.first);
+            } else {
+              onClearImprint();
+            }
+          },
+          type: 'imprint',
+          label: context.l10n.imprintSearch,
+          icon: Icons.business_outlined,
+          multiSelection: false,
         ),
         const SizedBox(height: 24),
 
@@ -1263,147 +961,6 @@ class _DetailsTab extends ConsumerWidget {
           icon: Icons.check_circle_outline,
         ),
         const SizedBox(height: 32),
-      ],
-    );
-  }
-}
-
-// -------------------------------------------------------
-// Helper Widgets
-// -------------------------------------------------------
-
-class _ImprintSelector extends ConsumerWidget {
-  final Tag? selected;
-  final ValueChanged<Tag> onSelect;
-  final VoidCallback onClear;
-
-  const _ImprintSelector({
-    required this.selected,
-    required this.onSelect,
-    required this.onClear,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (selected != null) ...[
-          _ImprintRow(imprint: selected!, onClear: onClear),
-          const SizedBox(height: 12),
-        ],
-        Autocomplete<Tag>(
-          displayStringForOption: (t) => t.name,
-          optionsBuilder: (textEditingValue) async {
-            final input = textEditingValue.text.trim();
-            if (input.isEmpty) return [];
-            return ref.read(databaseProvider).searchTags(input, 'imprint');
-          },
-          onSelected: (tag) => onSelect(tag),
-          fieldViewBuilder: (_, controller, focusNode, _) => TextField(
-            controller: controller,
-            focusNode: focusNode,
-            decoration: InputDecoration(
-              labelText: context.l10n.imprintSearch,
-              prefixIcon: const Icon(Icons.business_outlined),
-              border: const OutlineInputBorder(),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ImprintRow extends ConsumerWidget {
-  final Tag imprint;
-  final VoidCallback onClear;
-
-  const _ImprintRow({required this.imprint, required this.onClear});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Stack(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            border: Border.all(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              // Thumbnail or initials
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: imprint.imagePath != null
-                    ? Image.file(
-                  File(imprint.imagePath!),
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
-                )
-                    : _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      imprint.name,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Consumer(builder: (context, ref, _) {
-                      final countAsync =
-                      ref.watch(imprintBookCountProvider(imprint.id));
-                      return countAsync.maybeWhen(
-                        data: (count) => Text(
-                          context.l10n.imprintBookCount(count),
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: colorScheme.outline,
-                          ),
-                        ),
-                        orElse: () => const SizedBox.shrink(),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        Positioned(
-          top: 6,
-          right: 6,
-          child: GestureDetector(
-            onTap: onClear,
-            child: Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.close,
-                size: 14,
-                color: Theme.of(context).colorScheme.outline,
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -1600,59 +1157,6 @@ class _CoverPlaceholder extends StatelessWidget {
         size: iconSize,
         color: Theme.of(context).colorScheme.outline,
       ),
-    );
-  }
-}
-
-class _ImprintPlaceholder extends StatelessWidget {
-  final double size;
-  final double iconSize;
-  final String? name;
-
-  const _ImprintPlaceholder({
-    this.size = 80,
-    this.iconSize = 32,
-    this.name,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    Widget content;
-    if (name != null && name!.isNotEmpty) {
-      final initials = name!
-          .split(RegExp(r'\s+'))
-          .where((w) => w.isNotEmpty)
-          .take(3)
-          .map((w) => w[0].toUpperCase())
-          .join();
-      content = Center(
-        child: Text(
-          initials,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface.withValues(alpha: 0.5),
-            fontSize: size * 0.35,
-          ),
-        ),
-      );
-    } else {
-      content = Icon(
-        Icons.business_outlined,
-        size: iconSize,
-        color: colorScheme.outline,
-      );
-    }
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: content,
     );
   }
 }

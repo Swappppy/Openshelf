@@ -161,7 +161,7 @@ class _SortBottomSheetState extends ConsumerState<SortBottomSheet> {
           ),
           const SizedBox(height: 12),
           ReorderableListView(
-            onReorder: widget.onReorder,
+            onReorderItem: widget.onReorder,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             children: currentOrder.map((criteria) {

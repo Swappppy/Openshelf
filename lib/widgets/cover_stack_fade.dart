@@ -8,17 +8,19 @@ class CoverStackFade extends StatelessWidget {
   final List<Book> books;
   final double height;
   final double borderRadius;
+  final int maxBooks;
 
   const CoverStackFade({
     super.key,
     required this.books,
-    this.height = 60.0,
+    this.height = 24.0,
     this.borderRadius = 6.0,
+    this.maxBooks = 3,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hasCovers = books.where((b) => b.coverPath != null).take(3).toList();
+    final hasCovers = books.where((b) => b.coverPath != null).take(maxBooks).toList();
     
     if (hasCovers.isEmpty) {
       return Container(
@@ -28,7 +30,7 @@ class CoverStackFade extends StatelessWidget {
           color: Colors.black12,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
-        child: const Icon(Icons.library_books_outlined, size: 24, color: Colors.white10),
+        child: Icon(Icons.library_books_outlined, size: height * 0.5, color: Colors.white10),
       );
     }
 
@@ -38,12 +40,12 @@ class CoverStackFade extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(hasCovers.length, (index) {
         final path = hasCovers[index].coverPath!;
-        final isThird = index == 2;
+        final isLast = index == hasCovers.length - 1;
         
         Widget cover = Container(
           width: coverWidth,
           height: height,
-          margin: EdgeInsets.only(right: isThird ? 0 : 4),
+          margin: EdgeInsets.only(right: isLast ? 0 : 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
             boxShadow: [
@@ -64,7 +66,7 @@ class CoverStackFade extends StatelessWidget {
               : Container(color: Colors.black12),
         );
 
-        if (isThird) {
+        if (isLast && hasCovers.length >= 3) {
           return ShaderMask(
             shaderCallback: (rect) {
               return const LinearGradient(

@@ -5,6 +5,7 @@ import '../../../controllers/books_controller.dart';
 import '../../../services/database.dart';
 import '../../../models/stats_widget.dart';
 import '../../book_detail/book_detail_view.dart';
+import '../../../l10n/l10n_extension.dart';
 import 'widget_header.dart';
 
 class CurrentBookTile extends ConsumerStatefulWidget {
@@ -31,10 +32,10 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
       data: (books) {
         final readingBooks = books.where((b) => b.status == ReadingStatus.reading).toList();
         if (readingBooks.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
-              'Nada en lectura',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+              context.l10n.statsReadingNone,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           );
         }
@@ -68,7 +69,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const WidgetHeader(title: 'LECTURA', icon: Icons.auto_stories),
+          WidgetHeader(title: context.l10n.statsReadingTitle, icon: Icons.auto_stories),
           Expanded(
             child: Center(
               child: Padding(
@@ -120,7 +121,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const WidgetHeader(title: 'LEYENDO AHORA', icon: Icons.auto_stories),
+                WidgetHeader(title: context.l10n.statsReadingNowTitle, icon: Icons.auto_stories),
                 const SizedBox(height: 4),
                 Text(book.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
                 Text('${book.author} · ${book.publishYear ?? ""}', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10)),

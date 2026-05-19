@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 import '../../../controllers/stats_controller.dart';
 import '../../../controllers/reading_goals_controller.dart';
 import '../../../controllers/database_provider.dart';
+import '../../../controllers/books_controller.dart';
 import '../../../services/database.dart';
 import '../../../models/stats_widget.dart';
+import '../../../widgets/cover_mosaic.dart';
+import '../../../widgets/cover_stack_fade.dart';
 import 'widget_header.dart';
+import '../../../l10n/l10n_extension.dart';
 
 class GoalTile extends ConsumerStatefulWidget {
   final StatWidgetConfig config;
@@ -60,13 +65,13 @@ class _GoalTileState extends ConsumerState<GoalTile> {
     return InkWell(
       onTap: () => showGoalConfig(context, ref, config: widget.config),
       borderRadius: BorderRadius.circular(20),
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_circle_outline, size: 32, color: Colors.grey),
-            SizedBox(height: 4),
-            Text('Nueva meta', style: TextStyle(fontSize: 12, color: Colors.grey)),
+            const Icon(Icons.add_circle_outline, size: 32, color: Colors.grey),
+            const SizedBox(height: 4),
+            Text(context.l10n.statsGoalNew, style: const TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
       ),
@@ -77,38 +82,81 @@ class _GoalTileState extends ConsumerState<GoalTile> {
     final theme = Theme.of(context);
     final progress = (current / goal.targetValue).clamp(0.0, 1.0);
     final isPages = goal.type == 'pages';
-    final unit = isPages ? 'págs' : 'libros';
+    final isShelf = goal.type == 'shelf';
+    final unit = isPages ? context.l10n.statsGoalUnitPages : context.l10n.statsGoalUnitBooks;
+
+    Widget? covers;
+    if (isShelf && goal.shelfId != null) {
+      final shelfAsync = ref.watch(allShelvesProvider);
+      final shelf = shelfAsync.maybeWhen(
+        data: (list) => list.firstWhereOrNull((s) => s.id == goal.shelfId),
+        orElse: () => null,
+      );
+      if (shelf != null) {
+        final booksAsync = ref.watch(shelfBooksProvider(shelf));
+        covers = booksAsync.maybeWhen(
+          data: (books) => widget.size == StatWidgetSize.s1x1 
+            ? CoverMosaic(books: books, width: double.infinity, height: double.infinity, borderRadius: 0)
+            : CoverStackFade(
+                books: books, 
+                height: 52,
+                maxBooks: 5,
+              ),
+          orElse: () => null,
+        );
+      }
+    }
 
     if (widget.size == StatWidgetSize.s1x1) {
-      return Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            WidgetHeader(
-              title: 'META', 
-              icon: Icons.track_changes,
-              trailing: IconButton(
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(Icons.add, size: 14),
-                onPressed: () => showGoalConfig(context, ref, config: widget.config),
+      return Stack(
+        children: [
+          if (covers != null)
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0.15,
+                child: covers,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(goal.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
-            const Spacer(),
-            Text('${(progress * 100).toInt()}%', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 22)),
-            const Spacer(),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(value: progress, minHeight: 4, backgroundColor: theme.colorScheme.surfaceContainerHighest),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                WidgetHeader(
+                  title: context.l10n.statsGoalTitle, 
+                  icon: Icons.track_changes,
+                  trailing: IconButton(
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: const Icon(Icons.add, size: 14),
+                    onPressed: () => showGoalConfig(context, ref, config: widget.config),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(goal.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                const Spacer(),
+                SizedBox(
+                  child: Text(
+                    '${(progress * 100).toInt()}%', 
+                    style: TextStyle(
+                      color: theme.colorScheme.primary, 
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 26,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(value: progress, minHeight: 4, backgroundColor: theme.colorScheme.surfaceContainerHighest),
+                ),
+                const SizedBox(height: 4),
+                Text('$current/${goal.targetValue}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text('$current/${goal.targetValue}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500)),
-          ],
-        ),
+          ),
+        ],
       );
     }
     
@@ -118,7 +166,7 @@ class _GoalTileState extends ConsumerState<GoalTile> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           WidgetHeader(
-            title: 'META DE LECTURA', 
+            title: context.l10n.statsGoalFullTitle, 
             icon: Icons.track_changes, 
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -135,9 +183,26 @@ class _GoalTileState extends ConsumerState<GoalTile> {
               ],
             ),
           ),
-          const SizedBox(height: 4),
-          Text(goal.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
-          Text('${DateFormat('d MMM').format(goal.startDate)} — ${DateFormat('d MMM').format(goal.endDate)}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 9)),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(goal.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 2),
+                    Text('${DateFormat('d MMM').format(goal.startDate)} — ${DateFormat('d MMM').format(goal.endDate)}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 10)),
+                  ],
+                ),
+              ),
+              if (covers != null) ...[
+                const SizedBox(width: 12),
+                covers,
+              ],
+            ],
+          ),
           const Spacer(),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -153,9 +218,9 @@ class _GoalTileState extends ConsumerState<GoalTile> {
               Text('$current/${goal.targetValue} $unit', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
               const Spacer(),
               if (current < goal.targetValue)
-                Text('Faltan ${goal.targetValue - current}', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, fontSize: 9))
+                Text(context.l10n.statsGoalRemaining(goal.targetValue - current), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, fontSize: 9))
               else
-                const Text('¡Listo! 🎉', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 9)),
+                Text(context.l10n.statsGoalCompleted, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 9)),
             ],
           ),
         ],
@@ -175,22 +240,22 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(existingGoal == null ? 'Nueva meta' : 'Editar meta'),
+          title: Text(existingGoal == null ? context.l10n.statsGoalNew : context.l10n.statsGoalEdit),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: titleCtrl,
-                  decoration: const InputDecoration(labelText: 'Nombre (ej: Reto 2026)'),
+                  decoration: InputDecoration(labelText: context.l10n.statsGoalNameLabel),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: type,
-                  decoration: const InputDecoration(labelText: 'Tipo'),
-                  items: const [
-                    DropdownMenuItem(value: 'books', child: Text('Libros leídos')),
-                    DropdownMenuItem(value: 'pages', child: Text('Páginas leídas')),
+                  decoration: InputDecoration(labelText: context.l10n.statsGoalTypeLabel),
+                  items: [
+                    DropdownMenuItem(value: 'books', child: Text(context.l10n.statsGoalTypeBooks)),
+                    DropdownMenuItem(value: 'pages', child: Text(context.l10n.statsGoalTypePages)),
                   ],
                   onChanged: (v) => setDialogState(() => type = v!),
                 ),
@@ -198,12 +263,12 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
                 TextField(
                   controller: targetCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Objetivo numérico'),
+                  decoration: InputDecoration(labelText: context.l10n.statsGoalTargetLabel),
                 ),
                 const SizedBox(height: 16),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Desde', style: TextStyle(fontSize: 14)),
+                  title: Text(context.l10n.statsGoalFromLabel, style: const TextStyle(fontSize: 14)),
                   subtitle: Text(DateFormat('d MMM yyyy').format(start)),
                   onTap: () async {
                     final d = await showDatePicker(context: context, initialDate: start, firstDate: DateTime(2020), lastDate: DateTime(2100));
@@ -212,7 +277,7 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Hasta', style: TextStyle(fontSize: 14)),
+                  title: Text(context.l10n.statsGoalToLabel, style: const TextStyle(fontSize: 14)),
                   subtitle: Text(DateFormat('d MMM yyyy').format(end)),
                   onTap: () async {
                     final d = await showDatePicker(context: context, initialDate: end, firstDate: DateTime(2020), lastDate: DateTime(2100));
@@ -229,15 +294,15 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
                   ref.read(readingGoalsControllerProvider.notifier).deleteGoal(existingGoal.id);
                   Navigator.pop(ctx);
                 },
-                child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                child: Text(context.l10n.statsGoalDelete, style: const TextStyle(color: Colors.red)),
               ),
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(context.l10n.cancel)),
             FilledButton(
               onPressed: () {
                 if (titleCtrl.text.isEmpty || targetCtrl.text.isEmpty) return;
                 Navigator.pop(ctx, true);
               },
-              child: Text(existingGoal == null ? 'Crear' : 'Guardar'),
+              child: Text(existingGoal == null ? context.l10n.create : context.l10n.save),
             ),
           ],
         ),

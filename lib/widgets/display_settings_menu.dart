@@ -104,7 +104,7 @@ class DisplaySettingsMenu extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ReorderableListView(
-                    onReorder: controller.reorderFields,
+                    onReorderItem: controller.reorderFields,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: p.fieldOrder.map((field) {

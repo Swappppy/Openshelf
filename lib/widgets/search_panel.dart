@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/books_controller.dart';
 import '../services/database.dart';
 import '../l10n/l10n_extension.dart';
+import 'entity_selector_grid.dart';
 import 'filter_grid_box.dart';
 
 class SearchPanel extends ConsumerStatefulWidget {
@@ -17,6 +18,10 @@ class SearchPanel extends ConsumerStatefulWidget {
 
 class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProviderStateMixin {
   late final TextEditingController _queryCtrl;
+  late final TextEditingController _authorCtrl;
+  late final TextEditingController _publisherCtrl;
+  late final TextEditingController _isbnCtrl;
+  late final TextEditingController _langCtrl;
   late final TabController _tabController;
   bool _isExpanded = false;
 
@@ -24,12 +29,20 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
   void initState() {
     super.initState();
     _queryCtrl = TextEditingController(text: widget.filters.query);
-    _tabController = TabController(length: 4, vsync: this);
+    _authorCtrl = TextEditingController(text: widget.filters.author);
+    _publisherCtrl = TextEditingController(text: widget.filters.publisher);
+    _isbnCtrl = TextEditingController(text: widget.filters.isbn);
+    _langCtrl = TextEditingController(text: widget.filters.language);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
   void dispose() {
     _queryCtrl.dispose();
+    _authorCtrl.dispose();
+    _publisherCtrl.dispose();
+    _isbnCtrl.dispose();
+    _langCtrl.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -92,7 +105,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
             ),
           ),
           
-          if (widget.filters.tags.isNotEmpty || widget.filters.status != null || widget.filters.imprints.isNotEmpty || widget.filters.collections.isNotEmpty)
+          if (widget.filters.tags.isNotEmpty || widget.filters.status != null || widget.filters.imprints.isNotEmpty || widget.filters.collections.isNotEmpty || widget.filters.author.isNotEmpty || widget.filters.publisher.isNotEmpty || widget.filters.isbn.isNotEmpty || widget.filters.language.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: Wrap(
@@ -105,6 +118,38 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                       label: context.l10n.searchFilterStatus(_statusLabel(context, widget.filters.status!.name)),
                       color: _statusColor(widget.filters.status!),
                       onDelete: () => widget.onChanged(widget.filters.copyWith(clearStatus: true)),
+                    ),
+                  if (widget.filters.author.isNotEmpty)
+                    _FilterChip(
+                      label: '${context.l10n.fieldAuthor}: ${widget.filters.author}',
+                      onDelete: () {
+                        _authorCtrl.clear();
+                        widget.onChanged(widget.filters.copyWith(author: ''));
+                      },
+                    ),
+                  if (widget.filters.publisher.isNotEmpty)
+                    _FilterChip(
+                      label: '${context.l10n.fieldPublisher}: ${widget.filters.publisher}',
+                      onDelete: () {
+                        _publisherCtrl.clear();
+                        widget.onChanged(widget.filters.copyWith(publisher: ''));
+                      },
+                    ),
+                  if (widget.filters.isbn.isNotEmpty)
+                    _FilterChip(
+                      label: 'ISBN: ${widget.filters.isbn}',
+                      onDelete: () {
+                        _isbnCtrl.clear();
+                        widget.onChanged(widget.filters.copyWith(isbn: ''));
+                      },
+                    ),
+                  if (widget.filters.language.isNotEmpty)
+                    _FilterChip(
+                      label: '${context.l10n.fieldLanguage}: ${widget.filters.language}',
+                      onDelete: () {
+                        _langCtrl.clear();
+                        widget.onChanged(widget.filters.copyWith(language: ''));
+                      },
                     ),
                   ...widget.filters.imprints.map((imp) => _FilterChip(
                     label: context.l10n.searchFilterImprint(imp.name),
@@ -146,6 +191,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
               dividerColor: Colors.transparent,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               tabs: [
+                Tab(text: context.l10n.tabMain),
                 Tab(text: context.l10n.searchTabStatus),
                 Tab(text: context.l10n.searchTabImprint),
                 Tab(text: context.l10n.searchTabCategory),
@@ -157,14 +203,69 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 120),
+                constraints: const BoxConstraints(maxHeight: 180),
                 child: TabBarView(
                   controller: _tabController,
                   children: [
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          _SearchFilterField(
+                            controller: _authorCtrl,
+                            hint: context.l10n.fieldAuthor,
+                            onChanged: (v) => widget.onChanged(widget.filters.copyWith(author: v)),
+                          ),
+                          const SizedBox(height: 8),
+                          _SearchFilterField(
+                            controller: _publisherCtrl,
+                            hint: context.l10n.fieldPublisher,
+                            onChanged: (v) => widget.onChanged(widget.filters.copyWith(publisher: v)),
+                          ),
+                          const SizedBox(height: 8),
+                          _SearchFilterField(
+                            controller: _isbnCtrl,
+                            hint: context.l10n.fieldIsbn,
+                            onChanged: (v) => widget.onChanged(widget.filters.copyWith(isbn: v)),
+                          ),
+                          const SizedBox(height: 8),
+                          _SearchFilterField(
+                            controller: _langCtrl,
+                            hint: context.l10n.fieldLanguage,
+                            onChanged: (v) => widget.onChanged(widget.filters.copyWith(language: v)),
+                          ),
+                        ],
+                      ),
+                    ),
                     _StatusFiltersTab(filters: widget.filters, onChanged: widget.onChanged),
-                    _ImprintFiltersTab(filters: widget.filters, onChanged: widget.onChanged),
-                    _TagFiltersTab(filters: widget.filters, onChanged: widget.onChanged),
-                    _CollectionFiltersTab(filters: widget.filters, onChanged: widget.onChanged),
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(8),
+                      child: EntitySelectorGrid(
+                        selected: widget.filters.imprints,
+                        onChanged: (list) => widget.onChanged(widget.filters.copyWith(imprints: list)),
+                        provider: allImprintsProvider,
+                        type: 'imprint',
+                        isImprint: true,
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(8),
+                      child: EntitySelectorGrid(
+                        selected: widget.filters.tags,
+                        onChanged: (list) => widget.onChanged(widget.filters.copyWith(tags: list)),
+                        provider: allTagsProvider,
+                        type: 'tag',
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(8),
+                      child: EntitySelectorGrid(
+                        selected: widget.filters.collections,
+                        onChanged: (list) => widget.onChanged(widget.filters.copyWith(collections: list)),
+                        provider: allCollectionsProvider,
+                        type: 'collection',
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -182,7 +283,13 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                   ),
                   const Spacer(),
                   TextButton(
-                    onPressed: () => widget.onChanged(const SearchFilters()),
+                    onPressed: () {
+                      _authorCtrl.clear();
+                      _publisherCtrl.clear();
+                      _isbnCtrl.clear();
+                      _langCtrl.clear();
+                      widget.onChanged(const SearchFilters());
+                    },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero, 
                       minimumSize: const Size(50, 30),
@@ -226,6 +333,40 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
       case ReadingStatus.abandoned: return Colors.red;
       case ReadingStatus.paused: return const Color(0xFFB39DDB);
     }
+  }
+}
+
+class _SearchFilterField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hint;
+  final ValueChanged<String> onChanged;
+
+  const _SearchFilterField({
+    required this.controller,
+    required this.hint,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      style: const TextStyle(fontSize: 12, color: Colors.white),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(fontSize: 12, color: Colors.white38),
+        isDense: true,
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.05),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      ),
+    );
   }
 }
 
@@ -287,7 +428,7 @@ class _StatusFiltersTab extends StatelessWidget {
       child: Wrap(
         spacing: 6,
         runSpacing: 6,
-        children: options.map((opt) {
+        children: options.map<Widget>((opt) {
           final isSelected = filters.status == opt.$1;
           return FilterGridBox(
             label: opt.$2,
@@ -296,130 +437,6 @@ class _StatusFiltersTab extends StatelessWidget {
             onTap: () => onChanged(filters.copyWith(status: opt.$1, clearStatus: isSelected)),
           );
         }).toList(),
-      ),
-    );
-  }
-}
-
-class _ImprintFiltersTab extends ConsumerWidget {
-  final SearchFilters filters;
-  final ValueChanged<SearchFilters> onChanged;
-
-  const _ImprintFiltersTab({required this.filters, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final imprintsAsync = ref.watch(allImprintsProvider);
-    return imprintsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => const SizedBox.shrink(),
-      data: (list) => SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(8),
-        child: Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: list.map((imp) {
-            final isSelected = filters.imprints.any((i) => i.id == imp.id);
-            return FilterGridBox(
-              label: imp.name,
-              isSelected: isSelected,
-              imagePath: imp.imagePath,
-              isImprint: true,
-              onTap: () {
-                final newImprints = List<Tag>.from(filters.imprints);
-                if (isSelected) {
-                  newImprints.removeWhere((i) => i.id == imp.id);
-                } else {
-                  newImprints.add(imp);
-                }
-                onChanged(filters.copyWith(imprints: newImprints));
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-}
-
-class _CollectionFiltersTab extends ConsumerWidget {
-  final SearchFilters filters;
-  final ValueChanged<SearchFilters> onChanged;
-
-  const _CollectionFiltersTab({required this.filters, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final collectionsAsync = ref.watch(allCollectionsProvider);
-    return collectionsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => const SizedBox.shrink(),
-      data: (list) => SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(8),
-        child: Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: list.map((col) {
-            final isSelected = filters.collections.any((c) => c.id == col.id);
-            return FilterGridBox(
-              label: col.name,
-              isSelected: isSelected,
-              onTap: () {
-                final newCollections = List<Tag>.from(filters.collections);
-                if (isSelected) {
-                  newCollections.removeWhere((c) => c.id == col.id);
-                } else {
-                  newCollections.add(col);
-                }
-                onChanged(filters.copyWith(collections: newCollections));
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-}
-
-class _TagFiltersTab extends ConsumerWidget {
-  final SearchFilters filters;
-  final ValueChanged<SearchFilters> onChanged;
-
-  const _TagFiltersTab({required this.filters, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tagsAsync = ref.watch(allTagsProvider);
-    return tagsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => const SizedBox.shrink(),
-      data: (list) => SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(8),
-        child: Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: list.map((tag) {
-            final isSelected = filters.tags.any((t) => t.id == tag.id);
-            final color = tag.color != null ? Color(int.parse('0xFF${tag.color!}')) : null;
-            return FilterGridBox(
-              label: tag.name,
-              isSelected: isSelected,
-              color: color,
-              onTap: () {
-                final newTags = List<Tag>.from(filters.tags);
-                if (isSelected) {
-                  newTags.removeWhere((t) => t.id == tag.id);
-                } else {
-                  newTags.add(tag);
-                }
-                onChanged(filters.copyWith(tags: newTags));
-              },
-            );
-          }).toList(),
-        ),
       ),
     );
   }

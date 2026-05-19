@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../controllers/reading_log_controller.dart';
 import 'widget_header.dart';
+import '../../../l10n/l10n_extension.dart';
 
 class PagesTile extends ConsumerWidget {
   const PagesTile({super.key});
@@ -15,14 +16,14 @@ class PagesTile extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const WidgetHeader(title: 'PÁGINAS', icon: Icons.menu_book),
+          WidgetHeader(title: context.l10n.statsPagesTitle, icon: Icons.menu_book),
           const Spacer(),
           Text(
             pagesAsync.maybeWhen(data: (v) => _formatNumber(v), orElse: () => '0'), 
             style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)
           ),
           Text(
-            'páginas leídas', 
+            context.l10n.statsPagesSub,
             style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontSize: 10)
           ),
           const Spacer(),

@@ -8,13 +8,14 @@ import '../../services/database.dart';
 import '../../models/stats_widget.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../widgets/add_entity_fab.dart';
-
 import 'widgets/pages_tile.dart';
 import 'widgets/streak_tile.dart';
 import 'widgets/status_tile.dart';
 import 'widgets/current_book_tile.dart';
 import 'widgets/goal_tile.dart';
 import 'widgets/chart_tiles.dart';
+import 'widgets/last_added_tile.dart';
+import 'widgets/avg_pages_tile.dart';
 
 class StatsView extends ConsumerStatefulWidget {
   const StatsView({super.key});
@@ -298,9 +299,17 @@ class _StatTile extends ConsumerWidget {
         return [StatWidgetSize.s2x1, StatWidgetSize.s1x1];
       case StatWidgetType.addedOverTime:
         return [StatWidgetSize.s2x2, StatWidgetSize.s2x1, StatWidgetSize.s1x1];
+      case StatWidgetType.readByYear:
+        return [StatWidgetSize.s2x2, StatWidgetSize.s2x1, StatWidgetSize.s1x2];
       case StatWidgetType.categories:
+      case StatWidgetType.collections:
+        return [StatWidgetSize.s2x2, StatWidgetSize.s1x2];
       case StatWidgetType.publishYear:
         return [StatWidgetSize.s2x2, StatWidgetSize.s2x1, StatWidgetSize.s1x2];
+      case StatWidgetType.lastAdded:
+        return [StatWidgetSize.s2x1, StatWidgetSize.s1x2, StatWidgetSize.s1x1];
+      case StatWidgetType.avgPages:
+        return [StatWidgetSize.s1x1];
     }
   }
 
@@ -314,6 +323,10 @@ class _StatTile extends ConsumerWidget {
       case StatWidgetType.categories: return CategoriesDistributionTile(size: size);
       case StatWidgetType.publishYear: return PublishYearTile(size: size);
       case StatWidgetType.goal: return GoalTile(config: config, size: size);
+      case StatWidgetType.readByYear: return ReadByYearTile(size: size);
+      case StatWidgetType.collections: return CollectionsDistributionTile(size: size);
+      case StatWidgetType.lastAdded: return LastAddedTile(size: size);
+      case StatWidgetType.avgPages: return const AvgPagesTile();
     }
   }
 }
@@ -334,14 +347,18 @@ class _AddWidgetSheet extends ConsumerWidget {
           child: ListView(
             shrinkWrap: true,
             children: [
-              _buildOption(context, ref, StatWidgetType.pages, 'Páginas totales', 'Total de páginas leídas', Icons.menu_book, StatWidgetSize.s1x1),
-              _buildOption(context, ref, StatWidgetType.streak, 'Racha', 'Días consecutivos leyendo', Icons.local_fire_department, StatWidgetSize.s1x1),
-              _buildOption(context, ref, StatWidgetType.goal, 'Meta de lectura', 'Libros, estanterías o colecciones', Icons.track_changes, StatWidgetSize.s2x1),
-              _buildOption(context, ref, StatWidgetType.status, 'Estados de lectura', 'Libros por estado', Icons.pie_chart_outline, StatWidgetSize.s1x1),
-              _buildOption(context, ref, StatWidgetType.currentBook, 'Libro actual', 'Progreso de lectura en curso', Icons.auto_stories, StatWidgetSize.s2x1),
-              _buildOption(context, ref, StatWidgetType.addedOverTime, 'Libros añadidos', 'Gráfico temporal de adquisiciones', Icons.timeline, StatWidgetSize.s2x2),
-              _buildOption(context, ref, StatWidgetType.categories, 'Categorías', 'Distribución por géneros', Icons.bar_chart, StatWidgetSize.s2x2),
-              _buildOption(context, ref, StatWidgetType.publishYear, 'Año de publicación', 'Histograma histórico', Icons.history, StatWidgetSize.s2x2),
+              _buildOption(context, ref, StatWidgetType.pages, context.l10n.statsOptPagesTitle, context.l10n.statsOptPagesSub, Icons.menu_book, StatWidgetSize.s1x1),
+              _buildOption(context, ref, StatWidgetType.streak, context.l10n.statsOptStreakTitle, context.l10n.statsOptStreakSub, Icons.local_fire_department, StatWidgetSize.s1x1),
+              _buildOption(context, ref, StatWidgetType.goal, context.l10n.statsOptGoalTitle, context.l10n.statsOptGoalSub, Icons.track_changes, StatWidgetSize.s2x1),
+              _buildOption(context, ref, StatWidgetType.status, context.l10n.statsOptStatusTitle, context.l10n.statsOptStatusSub, Icons.pie_chart_outline, StatWidgetSize.s1x1),
+              _buildOption(context, ref, StatWidgetType.currentBook, context.l10n.statsOptCurrentTitle, context.l10n.statsOptCurrentSub, Icons.auto_stories, StatWidgetSize.s2x1),
+              _buildOption(context, ref, StatWidgetType.addedOverTime, context.l10n.statsOptAddedTimeTitle, context.l10n.statsOptAddedTimeSub, Icons.timeline, StatWidgetSize.s2x2),
+              _buildOption(context, ref, StatWidgetType.categories, context.l10n.statsOptCategoriesTitle, context.l10n.statsOptCategoriesSub, Icons.bar_chart, StatWidgetSize.s2x2),
+              _buildOption(context, ref, StatWidgetType.publishYear, context.l10n.statsOptYearsTitle, context.l10n.statsOptYearsSub, Icons.history, StatWidgetSize.s2x2),
+              _buildOption(context, ref, StatWidgetType.readByYear, context.l10n.statsOptReadYearTitle, context.l10n.statsOptReadYearSub, Icons.bar_chart, StatWidgetSize.s2x2),
+              _buildOption(context, ref, StatWidgetType.collections, context.l10n.statsOptCollectionsTitle, context.l10n.statsOptCollectionsSub, Icons.collections_bookmark, StatWidgetSize.s2x2),
+              _buildOption(context, ref, StatWidgetType.lastAdded, context.l10n.statsOptLastAddedTitle, context.l10n.statsOptLastAddedSub, Icons.history, StatWidgetSize.s2x1),
+              _buildOption(context, ref, StatWidgetType.avgPages, context.l10n.statsOptAvgPagesTitle, context.l10n.statsOptAvgPagesSub, Icons.analytics, StatWidgetSize.s1x1),
             ],
           ),
         ),

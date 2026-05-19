@@ -9,7 +9,7 @@ import '../controllers/database_provider.dart';
 import '../l10n/l10n_extension.dart';
 import 'tag_chip.dart';
 import 'filter_grid_box.dart';
-import 'tag_form_dialog.dart';
+import 'entity_selector_grid.dart';
 
 class ShelfFormSheet extends ConsumerStatefulWidget {
   final Shelf? existing;
@@ -261,27 +261,34 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                 Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: SingleChildScrollView(
-                                    child: _MultiTagSelector(
+                                    child: EntitySelectorGrid(
                                       selected: _selectedTags,
                                       onChanged: (list) => setState(() => _selectedTags = list),
+                                      provider: allTagsProvider,
+                                      type: 'tag',
                                     ),
                                   ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: SingleChildScrollView(
-                                    child: _CollectionSelectGrid(
+                                    child: EntitySelectorGrid(
                                       selected: _selectedCollections,
                                       onChanged: (list) => setState(() => _selectedCollections = list),
+                                      provider: allCollectionsProvider,
+                                      type: 'collection',
                                     ),
                                   ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: SingleChildScrollView(
-                                    child: _ImprintSelectGrid(
+                                    child: EntitySelectorGrid(
                                       selected: _selectedImprints,
                                       onChanged: (list) => setState(() => _selectedImprints = list),
+                                      provider: allImprintsProvider,
+                                      type: 'imprint',
+                                      isImprint: true,
                                     ),
                                   ),
                                 ),
@@ -407,122 +414,6 @@ class _StatusFilterRow extends StatelessWidget {
           onTap: () => onChanged(opt.$1),
         );
       }).toList(),
-    );
-  }
-}
-
-class _MultiTagSelector extends ConsumerWidget {
-  final List<Tag> selected;
-  final ValueChanged<List<Tag>> onChanged;
-  const _MultiTagSelector({required this.selected, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tagsAsync = ref.watch(allTagsProvider);
-    
-    return tagsAsync.maybeWhen(
-      data: (all) => Wrap(
-        spacing: 6, runSpacing: 6,
-        children: all.map((tag) {
-          final isSelected = selected.any((t) => t.id == tag.id);
-          final color = tag.color != null ? Color(int.parse('0xFF${tag.color}')) : null;
-          
-          return FilterGridBox(
-            label: tag.name,
-            isSelected: isSelected,
-            color: color,
-            onTap: () {
-              final newList = List<Tag>.from(selected);
-              if (isSelected) {
-                newList.removeWhere((t) => t.id == tag.id);
-              } else {
-                newList.add(tag);
-              }
-              onChanged(newList);
-            },
-            onLongPress: () => showTagFormDialog(context, ref, existing: tag, title: context.l10n.edit, type: tag.type),
-          );
-        }).toList(),
-      ),
-      orElse: () => const SizedBox.shrink(),
-    );
-  }
-}
-
-class _ImprintSelectGrid extends ConsumerWidget {
-  final List<Tag> selected;
-  final ValueChanged<List<Tag>> onChanged;
-  const _ImprintSelectGrid({required this.selected, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final imprintsAsync = ref.watch(allImprintsProvider);
-
-    return imprintsAsync.maybeWhen(
-      data: (all) => Wrap(
-        spacing: 6, runSpacing: 6,
-        children: all.map((imp) {
-          final isSelected = selected.any((t) => t.id == imp.id);
-          final color = imp.color != null ? Color(int.parse('0xFF${imp.color}')) : null;
-          
-          return FilterGridBox(
-            label: imp.name,
-            isSelected: isSelected,
-            color: color,
-            imagePath: imp.imagePath,
-            isImprint: true,
-            onTap: () {
-              final newList = List<Tag>.from(selected);
-              if (isSelected) {
-                newList.removeWhere((t) => t.id == imp.id);
-              } else {
-                newList.add(imp);
-              }
-              onChanged(newList);
-            },
-            onLongPress: () => showTagFormDialog(context, ref, existing: imp, title: context.l10n.edit, type: imp.type),
-          );
-        }).toList(),
-      ),
-      orElse: () => const SizedBox.shrink(),
-    );
-  }
-}
-
-class _CollectionSelectGrid extends ConsumerWidget {
-  final List<Tag> selected;
-  final ValueChanged<List<Tag>> onChanged;
-  const _CollectionSelectGrid({required this.selected, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final collectionsAsync = ref.watch(allCollectionsProvider);
-
-    return collectionsAsync.maybeWhen(
-      data: (all) => Wrap(
-        spacing: 6, runSpacing: 6,
-        children: all.map((col) {
-          final isSelected = selected.any((t) => t.id == col.id);
-          final color = col.color != null ? Color(int.parse('0xFF${col.color}')) : null;
-          
-          return FilterGridBox(
-            label: col.name,
-            isSelected: isSelected,
-            color: color,
-            onTap: () {
-              final newList = List<Tag>.from(selected);
-              if (isSelected) {
-                newList.removeWhere((t) => t.id == col.id);
-              } else {
-                newList.add(col);
-              }
-              onChanged(newList);
-            },
-            onLongPress: () => showTagFormDialog(context, ref, existing: col, title: context.l10n.edit, type: col.type),
-          );
-        }).toList(),
-      ),
-      orElse: () => const SizedBox.shrink(),
     );
   }
 }

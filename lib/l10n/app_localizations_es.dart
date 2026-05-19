@@ -79,7 +79,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get fieldStatusChip => 'Chip de estado';
 
   @override
-  String get searchHint => 'Buscar por título…';
+  String get searchHint => 'Buscar por título...';
 
   @override
   String get filterAuthor => 'Autor';
@@ -191,6 +191,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get fieldSubtitle => 'Subtítulo';
+
+  @override
+  String get fieldDescription => 'Sinopsis';
 
   @override
   String get fieldIsbn => 'ISBN';
@@ -319,10 +322,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bookDetailNotesTitle => 'Notas personales';
 
   @override
-  String get bookDetailNotesHint => 'Escribe tus notas aquí…';
+  String get bookDetailNotesHint => 'Escribe tus notas aquí...';
 
   @override
-  String get bookDetailNotesEmpty => 'Toca para añadir notas…';
+  String get bookDetailNotesEmpty => 'Toca para añadir notas...';
 
   @override
   String get bookDetailDeleteTitle => 'Eliminar libro';
@@ -430,6 +433,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shelfFormNameLabel => 'Nombre de la estantería';
+
+  @override
+  String get collectionNameLabel => 'Nombre de la colección';
 
   @override
   String get shelfFormSectionStatus => 'Estado de lectura';
@@ -780,7 +786,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'La clave es gratuita y permite hasta 1.000 búsquedas diarias. No se comparte con nadie: se guarda solo en este dispositivo.';
 
   @override
-  String get bookSearchHint => 'Título, autor o ISBN…';
+  String get bookSearchHint => 'Título, autor o ISBN...';
 
   @override
   String get bookSearchPrompt => 'Busca por título, autor o ISBN';
@@ -896,6 +902,179 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get statsPlaceholder => 'Tus estadísticas aparecerán aquí';
+
+  @override
+  String get statsGoalTitle => 'META';
+
+  @override
+  String get statsGoalFullTitle => 'META DE LECTURA';
+
+  @override
+  String get statsGoalUnitBooks => 'libros';
+
+  @override
+  String get statsGoalUnitPages => 'págs';
+
+  @override
+  String statsGoalRemaining(int count) {
+    return 'Faltan $count';
+  }
+
+  @override
+  String get statsGoalCompleted => '¡Listo!';
+
+  @override
+  String get statsGoalNew => 'Nueva meta';
+
+  @override
+  String get statsGoalEdit => 'Editar meta';
+
+  @override
+  String get statsGoalDelete => 'Eliminar';
+
+  @override
+  String get statsGoalNameLabel => 'Nombre (ej: Reto 2026)';
+
+  @override
+  String get statsGoalTypeLabel => 'Tipo';
+
+  @override
+  String get statsGoalTypeBooks => 'Libros leídos';
+
+  @override
+  String get statsGoalTypePages => 'Páginas leídas';
+
+  @override
+  String get statsGoalTargetLabel => 'Objetivo numérico';
+
+  @override
+  String get statsGoalFromLabel => 'Desde';
+
+  @override
+  String get statsGoalToLabel => 'Hasta';
+
+  @override
+  String get statsPagesTitle => 'PÁGINAS';
+
+  @override
+  String get statsPagesSub => 'páginas leídas';
+
+  @override
+  String get statsStreakTitle => 'RACHA';
+
+  @override
+  String get statsStreakSub => 'días seguidos';
+
+  @override
+  String get statsStatusTitle => 'ESTADOS';
+
+  @override
+  String get statsAddedTitle => 'LIBROS AÑADIDOS';
+
+  @override
+  String get statsAddedNoData => 'Sin datos';
+
+  @override
+  String get statsCategoriesTitle => 'CATEGORÍAS';
+
+  @override
+  String get statsYearsTitle => 'AÑOS DE PUBLICACIÓN';
+
+  @override
+  String get statsReadingTitle => 'LECTURA';
+
+  @override
+  String get statsReadingNowTitle => 'LEYENDO AHORA';
+
+  @override
+  String get statsReadingNone => 'Nada en lectura';
+
+  @override
+  String get statsReadByYearTitle => 'LIBROS LEÍDOS POR AÑO';
+
+  @override
+  String get statsCollectionsTitle => 'COLECCIONES';
+
+  @override
+  String get statsLastAddedTitle => 'ÚLTIMOS AÑADIDOS';
+
+  @override
+  String get statsAvgPagesTitle => 'PÁGINAS PROMEDIO';
+
+  @override
+  String get statsAvgPagesSub => 'páginas por libro';
+
+  @override
+  String get statsOptPagesTitle => 'Páginas totales';
+
+  @override
+  String get statsOptPagesSub => 'Total de páginas leídas';
+
+  @override
+  String get statsOptStreakTitle => 'Racha';
+
+  @override
+  String get statsOptStreakSub => 'Días consecutivos leyendo';
+
+  @override
+  String get statsOptGoalTitle => 'Meta de lectura';
+
+  @override
+  String get statsOptGoalSub => 'Libros, estanterías o colecciones';
+
+  @override
+  String get statsOptStatusTitle => 'Estados de lectura';
+
+  @override
+  String get statsOptStatusSub => 'Libros por estado';
+
+  @override
+  String get statsOptCurrentTitle => 'Libro actual';
+
+  @override
+  String get statsOptCurrentSub => 'Progreso de lectura en curso';
+
+  @override
+  String get statsOptAddedTimeTitle => 'Libros añadidos';
+
+  @override
+  String get statsOptAddedTimeSub => 'Gráfico temporal de adquisiciones';
+
+  @override
+  String get statsOptCategoriesTitle => 'Categorías';
+
+  @override
+  String get statsOptCategoriesSub => 'Distribución por géneros';
+
+  @override
+  String get statsOptYearsTitle => 'Año de publicación';
+
+  @override
+  String get statsOptYearsSub => 'Histograma histórico';
+
+  @override
+  String get statsOptReadYearTitle => 'Leídos por año';
+
+  @override
+  String get statsOptReadYearSub => 'Gráfico de lectura anual';
+
+  @override
+  String get statsOptCollectionsTitle => 'Colecciones';
+
+  @override
+  String get statsOptCollectionsSub => 'Libros por colección';
+
+  @override
+  String get statsOptLastAddedTitle => 'Últimos añadidos';
+
+  @override
+  String get statsOptLastAddedSub => 'Recién llegados';
+
+  @override
+  String get statsOptAvgPagesTitle => 'Extensión promedio';
+
+  @override
+  String get statsOptAvgPagesSub => 'Páginas promedio por libro';
 
   @override
   String get sortTitle => 'Ordenar';

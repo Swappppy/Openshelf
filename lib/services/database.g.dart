@@ -194,6 +194,17 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _publishYearMeta = const VerificationMeta(
     'publishYear',
   );
@@ -259,6 +270,7 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     collectionNumber,
     coverPath,
     notes,
+    description,
     publishYear,
     startedAt,
     finishedAt,
@@ -382,6 +394,15 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
     if (data.containsKey('publish_year')) {
       context.handle(
         _publishYearMeta,
@@ -494,6 +515,10 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
       publishYear: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}publish_year'],
@@ -543,6 +568,7 @@ class Book extends DataClass implements Insertable<Book> {
   final int? collectionNumber;
   final String? coverPath;
   final String? notes;
+  final String? description;
   final int? publishYear;
   final DateTime? startedAt;
   final DateTime? finishedAt;
@@ -566,6 +592,7 @@ class Book extends DataClass implements Insertable<Book> {
     this.collectionNumber,
     this.coverPath,
     this.notes,
+    this.description,
     this.publishYear,
     this.startedAt,
     this.finishedAt,
@@ -626,6 +653,9 @@ class Book extends DataClass implements Insertable<Book> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
     if (!nullToAbsent || publishYear != null) {
       map['publish_year'] = Variable<int>(publishYear);
     }
@@ -685,6 +715,9 @@ class Book extends DataClass implements Insertable<Book> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
       publishYear: publishYear == null && nullToAbsent
           ? const Value.absent()
           : Value(publishYear),
@@ -724,6 +757,7 @@ class Book extends DataClass implements Insertable<Book> {
       collectionNumber: serializer.fromJson<int?>(json['collectionNumber']),
       coverPath: serializer.fromJson<String?>(json['coverPath']),
       notes: serializer.fromJson<String?>(json['notes']),
+      description: serializer.fromJson<String?>(json['description']),
       publishYear: serializer.fromJson<int?>(json['publishYear']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
       finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
@@ -754,6 +788,7 @@ class Book extends DataClass implements Insertable<Book> {
       'collectionNumber': serializer.toJson<int?>(collectionNumber),
       'coverPath': serializer.toJson<String?>(coverPath),
       'notes': serializer.toJson<String?>(notes),
+      'description': serializer.toJson<String?>(description),
       'publishYear': serializer.toJson<int?>(publishYear),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
       'finishedAt': serializer.toJson<DateTime?>(finishedAt),
@@ -780,6 +815,7 @@ class Book extends DataClass implements Insertable<Book> {
     Value<int?> collectionNumber = const Value.absent(),
     Value<String?> coverPath = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> description = const Value.absent(),
     Value<int?> publishYear = const Value.absent(),
     Value<DateTime?> startedAt = const Value.absent(),
     Value<DateTime?> finishedAt = const Value.absent(),
@@ -807,6 +843,7 @@ class Book extends DataClass implements Insertable<Book> {
         : this.collectionNumber,
     coverPath: coverPath.present ? coverPath.value : this.coverPath,
     notes: notes.present ? notes.value : this.notes,
+    description: description.present ? description.value : this.description,
     publishYear: publishYear.present ? publishYear.value : this.publishYear,
     startedAt: startedAt.present ? startedAt.value : this.startedAt,
     finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
@@ -844,6 +881,9 @@ class Book extends DataClass implements Insertable<Book> {
           : this.collectionNumber,
       coverPath: data.coverPath.present ? data.coverPath.value : this.coverPath,
       notes: data.notes.present ? data.notes.value : this.notes,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
       publishYear: data.publishYear.present
           ? data.publishYear.value
           : this.publishYear,
@@ -876,6 +916,7 @@ class Book extends DataClass implements Insertable<Book> {
           ..write('collectionNumber: $collectionNumber, ')
           ..write('coverPath: $coverPath, ')
           ..write('notes: $notes, ')
+          ..write('description: $description, ')
           ..write('publishYear: $publishYear, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
@@ -904,6 +945,7 @@ class Book extends DataClass implements Insertable<Book> {
     collectionNumber,
     coverPath,
     notes,
+    description,
     publishYear,
     startedAt,
     finishedAt,
@@ -931,6 +973,7 @@ class Book extends DataClass implements Insertable<Book> {
           other.collectionNumber == this.collectionNumber &&
           other.coverPath == this.coverPath &&
           other.notes == this.notes &&
+          other.description == this.description &&
           other.publishYear == this.publishYear &&
           other.startedAt == this.startedAt &&
           other.finishedAt == this.finishedAt &&
@@ -956,6 +999,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
   final Value<int?> collectionNumber;
   final Value<String?> coverPath;
   final Value<String?> notes;
+  final Value<String?> description;
   final Value<int?> publishYear;
   final Value<DateTime?> startedAt;
   final Value<DateTime?> finishedAt;
@@ -979,6 +1023,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.collectionNumber = const Value.absent(),
     this.coverPath = const Value.absent(),
     this.notes = const Value.absent(),
+    this.description = const Value.absent(),
     this.publishYear = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
@@ -1003,6 +1048,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.collectionNumber = const Value.absent(),
     this.coverPath = const Value.absent(),
     this.notes = const Value.absent(),
+    this.description = const Value.absent(),
     this.publishYear = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
@@ -1029,6 +1075,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Expression<int>? collectionNumber,
     Expression<String>? coverPath,
     Expression<String>? notes,
+    Expression<String>? description,
     Expression<int>? publishYear,
     Expression<DateTime>? startedAt,
     Expression<DateTime>? finishedAt,
@@ -1053,6 +1100,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
       if (collectionNumber != null) 'collection_number': collectionNumber,
       if (coverPath != null) 'cover_path': coverPath,
       if (notes != null) 'notes': notes,
+      if (description != null) 'description': description,
       if (publishYear != null) 'publish_year': publishYear,
       if (startedAt != null) 'started_at': startedAt,
       if (finishedAt != null) 'finished_at': finishedAt,
@@ -1079,6 +1127,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Value<int?>? collectionNumber,
     Value<String?>? coverPath,
     Value<String?>? notes,
+    Value<String?>? description,
     Value<int?>? publishYear,
     Value<DateTime?>? startedAt,
     Value<DateTime?>? finishedAt,
@@ -1103,6 +1152,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
       collectionNumber: collectionNumber ?? this.collectionNumber,
       coverPath: coverPath ?? this.coverPath,
       notes: notes ?? this.notes,
+      description: description ?? this.description,
       publishYear: publishYear ?? this.publishYear,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,
@@ -1171,6 +1221,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
     if (publishYear.present) {
       map['publish_year'] = Variable<int>(publishYear.value);
     }
@@ -1207,6 +1260,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
           ..write('collectionNumber: $collectionNumber, ')
           ..write('coverPath: $coverPath, ')
           ..write('notes: $notes, ')
+          ..write('description: $description, ')
           ..write('publishYear: $publishYear, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
@@ -3511,6 +3565,7 @@ typedef $$BooksTableCreateCompanionBuilder =
       Value<int?> collectionNumber,
       Value<String?> coverPath,
       Value<String?> notes,
+      Value<String?> description,
       Value<int?> publishYear,
       Value<DateTime?> startedAt,
       Value<DateTime?> finishedAt,
@@ -3536,6 +3591,7 @@ typedef $$BooksTableUpdateCompanionBuilder =
       Value<int?> collectionNumber,
       Value<String?> coverPath,
       Value<String?> notes,
+      Value<String?> description,
       Value<int?> publishYear,
       Value<DateTime?> startedAt,
       Value<DateTime?> finishedAt,
@@ -3681,6 +3737,11 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3854,6 +3915,11 @@ class $$BooksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get publishYear => $composableBuilder(
     column: $table.publishYear,
     builder: (column) => ColumnOrderings(column),
@@ -3950,6 +4016,11 @@ class $$BooksTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get publishYear => $composableBuilder(
     column: $table.publishYear,
@@ -4064,6 +4135,7 @@ class $$BooksTableTableManager
                 Value<int?> collectionNumber = const Value.absent(),
                 Value<String?> coverPath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> description = const Value.absent(),
                 Value<int?> publishYear = const Value.absent(),
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> finishedAt = const Value.absent(),
@@ -4087,6 +4159,7 @@ class $$BooksTableTableManager
                 collectionNumber: collectionNumber,
                 coverPath: coverPath,
                 notes: notes,
+                description: description,
                 publishYear: publishYear,
                 startedAt: startedAt,
                 finishedAt: finishedAt,
@@ -4112,6 +4185,7 @@ class $$BooksTableTableManager
                 Value<int?> collectionNumber = const Value.absent(),
                 Value<String?> coverPath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> description = const Value.absent(),
                 Value<int?> publishYear = const Value.absent(),
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> finishedAt = const Value.absent(),
@@ -4135,6 +4209,7 @@ class $$BooksTableTableManager
                 collectionNumber: collectionNumber,
                 coverPath: coverPath,
                 notes: notes,
+                description: description,
                 publishYear: publishYear,
                 startedAt: startedAt,
                 finishedAt: finishedAt,

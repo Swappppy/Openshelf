@@ -525,15 +525,32 @@ class _MainTab extends StatelessWidget {
         const SizedBox(height: 20),
         _ReadOnlyField(label: context.l10n.fieldPublisher, value: book.publisher ?? '—'),
         const SizedBox(height: 20),
-        _ReadOnlyField(
-          label: context.l10n.fieldYear,
-          value: book.publishYear?.toString() ?? '—',
-        ),
-        const SizedBox(height: 20),
-        _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
-        const SizedBox(height: 20),
-        _ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
-        const SizedBox(height: 20),
+        
+        if (book.description != null && book.description!.isNotEmpty) ...[
+          Text(
+            context.l10n.fieldDescription.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5)),
+            ),
+            child: Text(
+              book.description!,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
         
         // Full Category list
         Text(
@@ -676,6 +693,15 @@ class _DetailsTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        _ReadOnlyField(
+          label: context.l10n.fieldYear,
+          value: book.publishYear?.toString() ?? '—',
+        ),
+        const SizedBox(height: 20),
+        _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
+        const SizedBox(height: 20),
+        _ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
+        const SizedBox(height: 20),
         _ReadOnlyField(
           label: context.l10n.fieldCollection,
           value: book.collectionName ?? '—',
@@ -839,14 +865,6 @@ class _DetailsTab extends StatelessWidget {
         ),
 
         // Timestamps Section
-        Text(
-          context.l10n.tabDetails.toUpperCase(), // Or create a new key for "DATES"
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
         const SizedBox(height: 12),
         _ReadOnlyField(
           label: context.l10n.bookDetailFieldAdded,

@@ -10,8 +10,8 @@ import '../controllers/database_provider.dart';
 import '../l10n/l10n_extension.dart';
 import 'app_color_picker.dart';
 
-void showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, required String title, required String type}) {
-  final ctrl = TextEditingController(text: existing?.name ?? '');
+void showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, String? initialName, required String title, required String type}) {
+  final ctrl = TextEditingController(text: existing?.name ?? initialName ?? '');
   String? selectedColor = existing?.color;
   String? imagePath = existing?.imagePath;
 
@@ -21,7 +21,7 @@ void showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, requ
       builder: (context, setState) {
         String hint = context.l10n.tagNameLabel;
         if (type == 'imprint') hint = context.l10n.imprintNameLabel;
-        if (type == 'collection') hint = context.l10n.shelfFormNameLabel;
+        if (type == 'collection') hint = context.l10n.collectionNameLabel;
 
         return AlertDialog(
           title: Text(title),

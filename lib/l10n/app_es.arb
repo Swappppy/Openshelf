@@ -73,7 +73,7 @@
   "fieldStatusChip": "Chip de estado",
   "@fieldStatusChip": { "description": "Nombre del campo chip de estado" },
 
-  "searchHint": "Buscar por título…",
+  "searchHint": "Buscar por título...",
   "@searchHint": { "description": "Placeholder del campo de búsqueda en la biblioteca" },
 
   "filterAuthor": "Autor",
@@ -185,6 +185,9 @@
 
   "fieldSubtitle": "Subtítulo",
   "@fieldSubtitle": { "description": "Nombre del campo subtítulo" },
+
+  "fieldDescription": "Sinopsis",
+  "@fieldDescription": { "description": "Nombre del campo sinopsis/descripción" },
 
   "fieldIsbn": "ISBN",
   "@fieldIsbn": { "description": "Nombre del campo ISBN" },
@@ -312,10 +315,10 @@
   "bookDetailNotesTitle": "Notas personales",
   "@bookDetailNotesTitle": { "description": "Título de la sección de notas personales" },
 
-  "bookDetailNotesHint": "Escribe tus notas aquí…",
+  "bookDetailNotesHint": "Escribe tus notas aquí...",
   "@bookDetailNotesHint": { "description": "Placeholder del campo de notas" },
 
-  "bookDetailNotesEmpty": "Toca para añadir notas…",
+  "bookDetailNotesEmpty": "Toca para añadir notas...",
   "@bookDetailNotesEmpty": { "description": "Texto cuando no hay notas" },
 
   "bookDetailDeleteTitle": "Eliminar libro",
@@ -435,6 +438,9 @@
 
   "shelfFormNameLabel": "Nombre de la estantería",
   "@shelfFormNameLabel": { "description": "Label del campo nombre de estantería" },
+
+  "collectionNameLabel": "Nombre de la colección",
+  "@collectionNameLabel": { "description": "Label del campo nombre de colección" },
 
   "shelfFormSectionStatus": "Estado de lectura",
   "@shelfFormSectionStatus": { "description": "Sección de estado en formulario de estantería" },
@@ -770,7 +776,7 @@
   "settingsApiKeyNote": "La clave es gratuita y permite hasta 1.000 búsquedas diarias. No se comparte con nadie: se guarda solo en este dispositivo.",
   "@settingsApiKeyNote": { "description": "Nota informativa sobre la API key" },
 
-  "bookSearchHint": "Título, autor o ISBN…",
+  "bookSearchHint": "Título, autor o ISBN...",
   "@bookSearchHint": { "description": "Placeholder del campo de búsqueda de libros" },
 
   "bookSearchPrompt": "Busca por título, autor o ISBN",
@@ -882,6 +888,69 @@
 
   "statsPlaceholder": "Tus estadísticas aparecerán aquí",
   "@statsPlaceholder": { "description": "Placeholder de estadísticas" },
+
+  "statsGoalTitle": "META",
+  "statsGoalFullTitle": "META DE LECTURA",
+  "statsGoalUnitBooks": "libros",
+  "statsGoalUnitPages": "págs",
+  "statsGoalRemaining": "Faltan {count}",
+  "@statsGoalRemaining": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statsGoalCompleted": "¡Listo!",
+  "statsGoalNew": "Nueva meta",
+  "statsGoalEdit": "Editar meta",
+  "statsGoalDelete": "Eliminar",
+  "statsGoalNameLabel": "Nombre (ej: Reto 2026)",
+  "statsGoalTypeLabel": "Tipo",
+  "statsGoalTypeBooks": "Libros leídos",
+  "statsGoalTypePages": "Páginas leídas",
+  "statsGoalTargetLabel": "Objetivo numérico",
+  "statsGoalFromLabel": "Desde",
+  "statsGoalToLabel": "Hasta",
+
+  "statsPagesTitle": "PÁGINAS",
+  "statsPagesSub": "páginas leídas",
+  "statsStreakTitle": "RACHA",
+  "statsStreakSub": "días seguidos",
+  "statsStatusTitle": "ESTADOS",
+  "statsAddedTitle": "LIBROS AÑADIDOS",
+  "statsAddedNoData": "Sin datos",
+  "statsCategoriesTitle": "CATEGORÍAS",
+  "statsYearsTitle": "AÑOS DE PUBLICACIÓN",
+  "statsReadingTitle": "LECTURA",
+  "statsReadingNowTitle": "LEYENDO AHORA",
+  "statsReadingNone": "Nada en lectura",
+  "statsReadByYearTitle": "LIBROS LEÍDOS POR AÑO",
+  "statsCollectionsTitle": "COLECCIONES",
+  "statsLastAddedTitle": "ÚLTIMOS AÑADIDOS",
+  "statsAvgPagesTitle": "PÁGINAS PROMEDIO",
+  "statsAvgPagesSub": "páginas por libro",
+
+  "statsOptPagesTitle": "Páginas totales",
+  "statsOptPagesSub": "Total de páginas leídas",
+  "statsOptStreakTitle": "Racha",
+  "statsOptStreakSub": "Días consecutivos leyendo",
+  "statsOptGoalTitle": "Meta de lectura",
+  "statsOptGoalSub": "Libros, estanterías o colecciones",
+  "statsOptStatusTitle": "Estados de lectura",
+  "statsOptStatusSub": "Libros por estado",
+  "statsOptCurrentTitle": "Libro actual",
+  "statsOptCurrentSub": "Progreso de lectura en curso",
+  "statsOptAddedTimeTitle": "Libros añadidos",
+  "statsOptAddedTimeSub": "Gráfico temporal de adquisiciones",
+  "statsOptCategoriesTitle": "Categorías",
+  "statsOptCategoriesSub": "Distribución por géneros",
+  "statsOptYearsTitle": "Año de publicación",
+  "statsOptYearsSub": "Histograma histórico",
+  "statsOptReadYearTitle": "Leídos por año",
+  "statsOptReadYearSub": "Gráfico de lectura anual",
+  "statsOptCollectionsTitle": "Colecciones",
+  "statsOptCollectionsSub": "Libros por colección",
+  "statsOptLastAddedTitle": "Últimos añadidos",
+  "statsOptLastAddedSub": "Recién llegados",
+  "statsOptAvgPagesTitle": "Extensión promedio",
+  "statsOptAvgPagesSub": "Páginas promedio por libro",
 
   "sortTitle": "Ordenar",
 

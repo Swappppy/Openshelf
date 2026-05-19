@@ -71,7 +71,8 @@ class BookshelfImportService {
   // 32: Edition       — ignored
   static const int _colSeries = 33;
   static const int _colVolume = 34;
-  // 35–47: Loan / Purchase / Transfer / Description / Date added — ignored
+  static const int _colDescription = 46;
+  static const int _colDateAdded = 47;
 
   static const int _minColumns = 35;
 
@@ -218,10 +219,12 @@ class BookshelfImportService {
     final collectionName = _str(row, _colSeries).nullIfEmpty();
     final collectionNumber = _parseInt(row, _colVolume);
     final notes = _buildNotes(row);
+    final description = _str(row, _colDescription).nullIfEmpty();
     final publishYear = _parseYear(row);
     final startedAt = _parseDate(row, _colStartedAt);
     final finishedAt = _parseDate(row, _colEndedAt);
     final status = _parseStatus(row, currentPage, totalPages);
+    final createdAt = _parseDate(row, _colDateAdded) ?? DateTime.now();
 
     return BooksCompanion.insert(
       title: title,
@@ -239,9 +242,11 @@ class BookshelfImportService {
       collectionName: Value(collectionName),
       collectionNumber: Value(collectionNumber),
       notes: Value(notes.nullIfEmpty()),
+      description: Value(description),
       publishYear: Value(publishYear),
       startedAt: Value(startedAt),
       finishedAt: Value(finishedAt),
+      createdAt: Value(createdAt),
     );
   }
 
@@ -306,11 +311,39 @@ class BookshelfImportService {
     return int.tryParse(raw.split('-').first);
   }
 
-  /// Parses an optional DateTime from a "yyyy-MM-dd" column.
+  /// Parses an optional DateTime from a "yyyy-MM-dd", "dd/MM/yyyy" or similar column.
   DateTime? _parseDate(List<String> row, int col) {
-    final raw = _str(row, col);
+    final raw = _str(row, col).trim();
     if (raw.isEmpty) return null;
-    return DateTime.tryParse(raw);
+
+    // 1. Try standard ISO/Dart parsing (works for yyyy-MM-dd)
+    final parsed = DateTime.tryParse(raw);
+    if (parsed != null) return parsed;
+
+    // 2. Manual split fallback for common formats (yyyy-MM-dd or dd/MM/yyyy)
+    final parts = raw.split(RegExp(r'[/ \-.]'));
+    if (parts.length >= 3) {
+      try {
+        if (parts[0].length == 4) {
+          // Likely YYYY MM DD
+          return DateTime(
+            int.parse(parts[0]),
+            int.parse(parts[1]),
+            int.parse(parts[2]),
+          );
+        } else if (parts[2].length == 4) {
+          // Likely DD MM YYYY
+          return DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+        }
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
   }
 
   /// Safely reads a string cell, returning '' on out-of-bounds.

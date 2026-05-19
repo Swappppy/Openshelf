@@ -259,7 +259,7 @@ class _SearchSection extends ConsumerWidget {
                 ReorderableListView(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  onReorder: (oldIndex, newIndex) {
+                  onReorderItem: (oldIndex, newIndex) {
                     final list = List<BookSearchServer>.from(searchServers);
                     if (newIndex > oldIndex) newIndex -= 1;
                     final item = list.removeAt(oldIndex);

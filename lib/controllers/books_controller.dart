@@ -24,6 +24,10 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
       ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>()
       : <int>[];
 
+  final collectionNames = shelf.filterCollection != null
+      ? shelf.filterCollection!.split(' | ')
+      : <String>[];
+
   // If only a status filter is set, use the faster status-only query
   if (shelf.filterStatus != null &&
       tagIds.isEmpty &&
@@ -32,7 +36,7 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
       shelf.filterAuthor == null &&
       shelf.filterPublisher == null &&
       shelf.filterIsbn == null &&
-      shelf.filterCollection == null) {
+      collectionNames.isEmpty) {
     final status = ReadingStatus.values.firstWhere(
           (s) => s.name == shelf.filterStatus,
     );
@@ -45,7 +49,7 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
     author: shelf.filterAuthor,
     publisher: shelf.filterPublisher,
     isbn: shelf.filterIsbn,
-    collectionName: shelf.filterCollection,
+    collectionNames: collectionNames.isEmpty ? null : collectionNames,
     imprintIds: imprintIds.isEmpty ? null : imprintIds,
   );
 });
@@ -113,7 +117,7 @@ final booksByTagProvider = StreamProvider.family<List<Book>, int>((ref, tagId) {
 
 final booksByCollectionProvider = StreamProvider.family<List<Book>, String>((ref, collectionName) {
   final db = ref.watch(databaseProvider);
-  return db.watchBooksFiltered(collectionName: collectionName);
+  return db.watchBooksFiltered(collectionNames: [collectionName]);
 });
 
 /// Main filtered provider used by the Library view
@@ -126,6 +130,11 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
   final emptyAtEnd = ref.watch(displayPreferencesProvider.select((p) => p.emptyAtEnd));
   
   Stream<List<Book>> booksStream;
+
+  final activeCollectionNames = [
+    if (filters.collection.isNotEmpty) filters.collection,
+    ...filters.collections.map((c) => c.name),
+  ].toSet().toList();
   
   // Decide which database stream to use based on active filters
   if (filters.isEmpty && filters.status == null) {
@@ -139,7 +148,8 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
       author: filters.author.isEmpty ? null : filters.author,
       publisher: filters.publisher.isEmpty ? null : filters.publisher,
       isbn: filters.isbn.isEmpty ? null : filters.isbn,
-      collectionName: filters.collection.isEmpty ? null : filters.collection,
+      language: filters.language.isEmpty ? null : filters.language,
+      collectionNames: activeCollectionNames.isEmpty ? null : activeCollectionNames,
       imprintIds: filters.imprints.isEmpty ? null : filters.imprints.map((i) => i.id).toList(),
     );
   }
@@ -224,6 +234,7 @@ class SearchFilters {
   final String publisher;
   final String isbn;
   final String collection;
+  final String language;
   final List<Tag> imprints;
   final List<Tag> collections;
   final ReadingStatus? status;
@@ -235,6 +246,7 @@ class SearchFilters {
     this.publisher = '',
     this.isbn = '',
     this.collection = '',
+    this.language = '',
     this.imprints = const [],
     this.collections = const [],
     this.status,
@@ -247,6 +259,7 @@ class SearchFilters {
           publisher.isEmpty &&
           isbn.isEmpty &&
           collection.isEmpty &&
+          language.isEmpty &&
           imprints.isEmpty &&
           collections.isEmpty;
 
@@ -257,6 +270,7 @@ class SearchFilters {
     String? publisher,
     String? isbn,
     String? collection,
+    String? language,
     List<Tag>? imprints,
     bool clearImprints = false,
     List<Tag>? collections,
@@ -271,6 +285,7 @@ class SearchFilters {
         publisher: publisher ?? this.publisher,
         isbn: isbn ?? this.isbn,
         collection: collection ?? this.collection,
+        language: language ?? this.language,
         imprints: clearImprints ? [] : (imprints ?? this.imprints),
         collections: clearCollections ? [] : (collections ?? this.collections),
         status: clearStatus ? null : (status ?? this.status),

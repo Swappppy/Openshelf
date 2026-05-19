@@ -27,6 +27,7 @@ class Books extends Table {
   IntColumn get collectionNumber => integer().nullable()();
   TextColumn get coverPath => text().nullable()();
   TextColumn get notes => text().nullable()();
+  TextColumn get description => text().nullable()();
   IntColumn get publishYear => integer().nullable()();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();
@@ -143,7 +144,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -195,6 +196,11 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(readingGoals);
         await m.createTable(readingLog);
         await m.createTable(statWidgetConfigs);
+      }
+      if (from < 11) {
+        try {
+          await m.addColumn(books, books.description as GeneratedColumn);
+        } catch (_) {}
       }
     },
   );
@@ -493,7 +499,8 @@ class AppDatabase extends _$AppDatabase {
     String? author,
     String? publisher,
     String? isbn,
-    String? collectionName,
+    String? language,
+    List<String>? collectionNames,
     List<int>? imprintIds,
   }) {
     // If filtering by tags or imprints, use the complex join query
@@ -504,7 +511,8 @@ class AppDatabase extends _$AppDatabase {
         author: author,
         publisher: publisher,
         isbn: isbn,
-        collectionName: collectionName,
+        language: language,
+        collectionNames: collectionNames,
         imprintIds: imprintIds,
       );
     }
@@ -525,8 +533,11 @@ class AppDatabase extends _$AppDatabase {
         if (isbn != null && isbn.isNotEmpty) {
           expr = expr & b.isbn.contains(isbn);
         }
-        if (collectionName != null && collectionName.isNotEmpty) {
-          expr = expr & b.collectionName.contains(collectionName);
+        if (language != null && language.isNotEmpty) {
+          expr = expr & b.language.contains(language);
+        }
+        if (collectionNames != null && collectionNames.isNotEmpty) {
+          expr = expr & b.collectionName.isIn(collectionNames);
         }
         return expr;
       });
@@ -540,7 +551,8 @@ class AppDatabase extends _$AppDatabase {
     String? author,
     String? publisher,
     String? isbn,
-    String? collectionName,
+    String? language,
+    List<String>? collectionNames,
     List<int>? imprintIds,
   }) {
     final allRequiredTagIds = [
@@ -582,8 +594,11 @@ class AppDatabase extends _$AppDatabase {
           if (isbn != null && isbn.isNotEmpty) {
             expr = expr & b.isbn.contains(isbn);
           }
-          if (collectionName != null && collectionName.isNotEmpty) {
-            expr = expr & b.collectionName.contains(collectionName);
+          if (language != null && language.isNotEmpty) {
+            expr = expr & b.language.contains(language);
+          }
+          if (collectionNames != null && collectionNames.isNotEmpty) {
+            expr = expr & b.collectionName.isIn(collectionNames);
           }
           return expr;
         });

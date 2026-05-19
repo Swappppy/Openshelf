@@ -73,7 +73,7 @@
   "fieldStatusChip": "Status chip",
   "@fieldStatusChip": { "description": "Status chip field" },
 
-  "searchHint": "Search by title…",
+  "searchHint": "Search by title...",
   "@searchHint": { "description": "Library search placeholder" },
 
   "filterAuthor": "Author",
@@ -185,6 +185,9 @@
 
   "fieldSubtitle": "Subtitle",
   "@fieldSubtitle": { "description": "Subtitle field label" },
+
+  "fieldDescription": "Description",
+  "@fieldDescription": { "description": "Description field label" },
 
   "fieldIsbn": "ISBN",
   "@fieldIsbn": { "description": "ISBN field label" },
@@ -312,10 +315,10 @@
   "bookDetailNotesTitle": "Personal notes",
   "@bookDetailNotesTitle": { "description": "Personal notes section title" },
 
-  "bookDetailNotesHint": "Write your notes here…",
+  "bookDetailNotesHint": "Write your notes here...",
   "@bookDetailNotesHint": { "description": "Notes field placeholder" },
 
-  "bookDetailNotesEmpty": "Tap to add notes…",
+  "bookDetailNotesEmpty": "Tap to add notes...",
   "@bookDetailNotesEmpty": { "description": "Notes empty message" },
 
   "bookDetailDeleteTitle": "Delete book",
@@ -435,6 +438,9 @@
 
   "shelfFormNameLabel": "Shelf name",
   "@shelfFormNameLabel": { "description": "Shelf name field label" },
+
+  "collectionNameLabel": "Collection name",
+  "@collectionNameLabel": { "description": "Collection name field label" },
 
   "shelfFormSectionStatus": "Reading status",
   "@shelfFormSectionStatus": { "description": "Shelf form status section" },
@@ -770,7 +776,7 @@
   "settingsApiKeyNote": "The key is free and allows up to 1,000 searches per day. It is not shared with anyone: it is only saved on this device.",
   "@settingsApiKeyNote": { "description": "API key information note" },
 
-  "bookSearchHint": "Title, author, or ISBN…",
+  "bookSearchHint": "Title, author, or ISBN...",
   "@bookSearchHint": { "description": "Book search field hint" },
 
   "bookSearchPrompt": "Search by title, author, or ISBN",
@@ -882,6 +888,69 @@
 
   "statsPlaceholder": "Your statistics will appear here",
   "@statsPlaceholder": { "description": "Stats placeholder" },
+
+  "statsGoalTitle": "GOAL",
+  "statsGoalFullTitle": "READING GOAL",
+  "statsGoalUnitBooks": "books",
+  "statsGoalUnitPages": "pages",
+  "statsGoalRemaining": "{count} remaining",
+  "@statsGoalRemaining": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "statsGoalCompleted": "Done!",
+  "statsGoalNew": "New goal",
+  "statsGoalEdit": "Edit goal",
+  "statsGoalDelete": "Delete",
+  "statsGoalNameLabel": "Name (e.g., Challenge 2026)",
+  "statsGoalTypeLabel": "Type",
+  "statsGoalTypeBooks": "Books read",
+  "statsGoalTypePages": "Pages read",
+  "statsGoalTargetLabel": "Numerical target",
+  "statsGoalFromLabel": "From",
+  "statsGoalToLabel": "To",
+
+  "statsPagesTitle": "PAGES",
+  "statsPagesSub": "pages read",
+  "statsStreakTitle": "STREAK",
+  "statsStreakSub": "days in a row",
+  "statsStatusTitle": "STATUS",
+  "statsAddedTitle": "BOOKS ADDED",
+  "statsAddedNoData": "No data",
+  "statsCategoriesTitle": "CATEGORIES",
+  "statsYearsTitle": "PUBLISH YEARS",
+  "statsReadingTitle": "READING",
+  "statsReadingNowTitle": "READING NOW",
+  "statsReadingNone": "Nothing in reading",
+  "statsReadByYearTitle": "BOOKS READ BY YEAR",
+  "statsCollectionsTitle": "COLLECTIONS",
+  "statsLastAddedTitle": "LAST ADDED",
+  "statsAvgPagesTitle": "AVERAGE PAGES",
+  "statsAvgPagesSub": "pages per book",
+
+  "statsOptPagesTitle": "Total pages",
+  "statsOptPagesSub": "Total pages read",
+  "statsOptStreakTitle": "Streak",
+  "statsOptStreakSub": "Consecutive days reading",
+  "statsOptGoalTitle": "Reading goal",
+  "statsOptGoalSub": "Books, shelves or collections",
+  "statsOptStatusTitle": "Reading status",
+  "statsOptStatusSub": "Books by status",
+  "statsOptCurrentTitle": "Current book",
+  "statsOptCurrentSub": "Current reading progress",
+  "statsOptAddedTimeTitle": "Books added",
+  "statsOptAddedTimeSub": "Acquisitions timeline",
+  "statsOptCategoriesTitle": "Categories",
+  "statsOptCategoriesSub": "Distribution by genre",
+  "statsOptYearsTitle": "Publish year",
+  "statsOptYearsSub": "Historical histogram",
+  "statsOptReadYearTitle": "Read by year",
+  "statsOptReadYearSub": "Annual reading chart",
+  "statsOptCollectionsTitle": "Collections",
+  "statsOptCollectionsSub": "Books per collection",
+  "statsOptLastAddedTitle": "Last added",
+  "statsOptLastAddedSub": "Recent arrivals",
+  "statsOptAvgPagesTitle": "Average length",
+  "statsOptAvgPagesSub": "Average pages per book",
 
   "sortTitle": "Sort",
 

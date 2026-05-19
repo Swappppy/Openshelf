@@ -23,7 +23,7 @@ class StatusDistributionTile extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const WidgetHeader(title: 'ESTADOS', icon: Icons.pie_chart_outline),
+              WidgetHeader(title: context.l10n.statsStatusTitle, icon: Icons.pie_chart_outline),
               const Spacer(),
               ...ReadingStatus.values.map((s) => Padding(
                 padding: const EdgeInsets.only(bottom: 2),
