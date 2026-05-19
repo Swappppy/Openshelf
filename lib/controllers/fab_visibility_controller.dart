@@ -43,6 +43,25 @@ class FabVisibilityController extends Notifier<bool> {
     });
   }
 
+  void handleScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      final metrics = notification.metrics;
+      final isAtEnd = metrics.pixels >= metrics.maxScrollExtent - 50;
+      final isAtTop = metrics.pixels <= 50;
+
+      if (!isAtEnd && !isAtTop) {
+        if (state) state = false;
+      } else {
+        if (!state) state = true;
+      }
+
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 600), () {
+        if (!state) state = true;
+      });
+    }
+  }
+
   void show() {
     _debounceTimer?.cancel();
     if (!state) state = true;

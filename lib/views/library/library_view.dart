@@ -13,7 +13,7 @@ import '../../widgets/add_entity_fab.dart';
 import '../../widgets/library_app_bar.dart';
 import '../../widgets/search_panel.dart';
 
-import 'stats_view.dart';
+import '../stats/stats_view.dart';
 
 /// Main container for the library, featuring a navigation bar for the three main sections.
 class LibraryView extends StatefulWidget {

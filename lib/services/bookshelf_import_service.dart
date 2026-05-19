@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:csv/csv.dart';
 import 'package:drift/drift.dart';
+import 'package:csv/csv.dart';
 
 import '../services/database.dart';
 
@@ -98,8 +98,8 @@ class BookshelfImportService {
     // We detect explicitly so the parser splits rows correctly while still
     // respecting quoted multiline cells (e.g. multi-paragraph descriptions).
     final eol = contents.contains('\r\n') ? '\r\n' : '\n';
-    final rows = CsvToListConverter(eol: eol, shouldParseNumbers: false)
-        .convert(contents);
+    final rows = Csv(lineDelimiter: eol, dynamicTyping: false, autoDetect: false)
+        .decode(contents);
 
     if (rows.isEmpty) {
       return const BookshelfImportResult(

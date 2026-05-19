@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/database.dart';
 import '../../controllers/database_provider.dart';
 import '../../controllers/books_controller.dart';
+import '../../controllers/reading_log_controller.dart';
 import '../book_form/book_form_view.dart';
 import '../../widgets/page_picker.dart';
 import '../../widgets/tag_chip.dart';
@@ -69,6 +70,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
   /// Updates the book's current page and intelligently adjusts reading status.
   Future<void> _updatePage(int newPage) async {
     final book = widget.book;
+    final oldPage = book.currentPage ?? 0;
     final total = book.totalPages ?? 0;
     ReadingStatus newStatus = book.status;
 
@@ -85,6 +87,10 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       status: newStatus,
     );
     await ref.read(databaseProvider).updateBook(updated);
+
+    if (newPage > oldPage) {
+      await ref.read(readingLogControllerProvider.notifier).logPages(book.id, newPage - oldPage);
+    }
   }
 
   Future<void> _updateNotes(String notes) async {

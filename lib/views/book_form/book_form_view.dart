@@ -9,6 +9,7 @@ import '../../services/cover_service.dart';
 import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
 import '../../controllers/books_controller.dart';
+import '../../controllers/reading_log_controller.dart';
 import '../../widgets/tag_chip.dart';
 import '../../models/book_search_result.dart';
 import '../../l10n/l10n_extension.dart';
@@ -386,6 +387,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
     if (widget.existingBook != null) {
       // Update existing record
+      final oldPage = widget.existingBook!.currentPage ?? 0;
+      final newPage = int.tryParse(_currentPageCtrl.text) ?? 0;
+
       final updated = widget.existingBook!.copyWith(
         title: _titleCtrl.text.trim(),
         subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
@@ -395,7 +399,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         translator: Value(_translatorCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
         publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
         totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
-        currentPage: Value(int.tryParse(_currentPageCtrl.text) ?? 0),
+        currentPage: Value(newPage),
         status: _status,
         bookFormat: Value(_format),
         rating: Value(_rating),
@@ -408,6 +412,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         finishedAt: Value(_finishedAt),
       );
       await db.updateBook(updated);
+
+      if (newPage > oldPage) {
+        await ref.read(readingLogControllerProvider.notifier).logPages(widget.existingBook!.id, newPage - oldPage);
+      }
       
       final existingIds = _selectedTags.map((t) => t.id).toList();
       for (final p in _pendingTags) {
@@ -426,6 +434,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       await db.pruneOrphanTags();
     } else {
       // Insert new record
+      final newPage = int.tryParse(_currentPageCtrl.text) ?? 0;
       final companion = BooksCompanion.insert(
         title: _titleCtrl.text.trim(),
         subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
@@ -435,7 +444,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         translator: Value(_translatorCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
         publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
         totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
-        currentPage: Value(int.tryParse(_currentPageCtrl.text) ?? 0),
+        currentPage: Value(newPage),
         status: _status,
         bookFormat: Value<BookFormat?>(_format),
         rating: Value(_rating),
@@ -448,6 +457,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         finishedAt: Value(_finishedAt),
       );
       final newId = await db.insertBook(companion);
+
+      if (newPage > 0) {
+        await ref.read(readingLogControllerProvider.notifier).logPages(newId, newPage);
+      }
       
       final existingIds = _selectedTags.map((t) => t.id).toList();
       for (final p in _pendingTags) {

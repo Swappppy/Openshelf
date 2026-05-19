@@ -2297,6 +2297,1174 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
   }
 }
 
+class $ReadingGoalsTable extends ReadingGoals
+    with TableInfo<$ReadingGoalsTable, ReadingGoal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingGoalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetValueMeta = const VerificationMeta(
+    'targetValue',
+  );
+  @override
+  late final GeneratedColumn<int> targetValue = GeneratedColumn<int>(
+    'target_value',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endDateMeta = const VerificationMeta(
+    'endDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
+    'end_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _shelfIdMeta = const VerificationMeta(
+    'shelfId',
+  );
+  @override
+  late final GeneratedColumn<int> shelfId = GeneratedColumn<int>(
+    'shelf_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES shelves (id)',
+    ),
+  );
+  static const VerificationMeta _collectionIdMeta = const VerificationMeta(
+    'collectionId',
+  );
+  @override
+  late final GeneratedColumn<int> collectionId = GeneratedColumn<int>(
+    'collection_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tags (id)',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    type,
+    targetValue,
+    startDate,
+    endDate,
+    shelfId,
+    collectionId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_goals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReadingGoal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('target_value')) {
+      context.handle(
+        _targetValueMeta,
+        targetValue.isAcceptableOrUnknown(
+          data['target_value']!,
+          _targetValueMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetValueMeta);
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(
+        _endDateMeta,
+        endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endDateMeta);
+    }
+    if (data.containsKey('shelf_id')) {
+      context.handle(
+        _shelfIdMeta,
+        shelfId.isAcceptableOrUnknown(data['shelf_id']!, _shelfIdMeta),
+      );
+    }
+    if (data.containsKey('collection_id')) {
+      context.handle(
+        _collectionIdMeta,
+        collectionId.isAcceptableOrUnknown(
+          data['collection_id']!,
+          _collectionIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReadingGoal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingGoal(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      targetValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_value'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_date'],
+      )!,
+      endDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_date'],
+      )!,
+      shelfId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}shelf_id'],
+      ),
+      collectionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}collection_id'],
+      ),
+    );
+  }
+
+  @override
+  $ReadingGoalsTable createAlias(String alias) {
+    return $ReadingGoalsTable(attachedDatabase, alias);
+  }
+}
+
+class ReadingGoal extends DataClass implements Insertable<ReadingGoal> {
+  final int id;
+  final String title;
+
+  /// Type can be 'books' or 'pages'
+  final String type;
+  final int targetValue;
+  final DateTime startDate;
+  final DateTime endDate;
+
+  /// Optional filters
+  final int? shelfId;
+  final int? collectionId;
+  const ReadingGoal({
+    required this.id,
+    required this.title,
+    required this.type,
+    required this.targetValue,
+    required this.startDate,
+    required this.endDate,
+    this.shelfId,
+    this.collectionId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    map['type'] = Variable<String>(type);
+    map['target_value'] = Variable<int>(targetValue);
+    map['start_date'] = Variable<DateTime>(startDate);
+    map['end_date'] = Variable<DateTime>(endDate);
+    if (!nullToAbsent || shelfId != null) {
+      map['shelf_id'] = Variable<int>(shelfId);
+    }
+    if (!nullToAbsent || collectionId != null) {
+      map['collection_id'] = Variable<int>(collectionId);
+    }
+    return map;
+  }
+
+  ReadingGoalsCompanion toCompanion(bool nullToAbsent) {
+    return ReadingGoalsCompanion(
+      id: Value(id),
+      title: Value(title),
+      type: Value(type),
+      targetValue: Value(targetValue),
+      startDate: Value(startDate),
+      endDate: Value(endDate),
+      shelfId: shelfId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(shelfId),
+      collectionId: collectionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectionId),
+    );
+  }
+
+  factory ReadingGoal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingGoal(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      type: serializer.fromJson<String>(json['type']),
+      targetValue: serializer.fromJson<int>(json['targetValue']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      endDate: serializer.fromJson<DateTime>(json['endDate']),
+      shelfId: serializer.fromJson<int?>(json['shelfId']),
+      collectionId: serializer.fromJson<int?>(json['collectionId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+      'type': serializer.toJson<String>(type),
+      'targetValue': serializer.toJson<int>(targetValue),
+      'startDate': serializer.toJson<DateTime>(startDate),
+      'endDate': serializer.toJson<DateTime>(endDate),
+      'shelfId': serializer.toJson<int?>(shelfId),
+      'collectionId': serializer.toJson<int?>(collectionId),
+    };
+  }
+
+  ReadingGoal copyWith({
+    int? id,
+    String? title,
+    String? type,
+    int? targetValue,
+    DateTime? startDate,
+    DateTime? endDate,
+    Value<int?> shelfId = const Value.absent(),
+    Value<int?> collectionId = const Value.absent(),
+  }) => ReadingGoal(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    type: type ?? this.type,
+    targetValue: targetValue ?? this.targetValue,
+    startDate: startDate ?? this.startDate,
+    endDate: endDate ?? this.endDate,
+    shelfId: shelfId.present ? shelfId.value : this.shelfId,
+    collectionId: collectionId.present ? collectionId.value : this.collectionId,
+  );
+  ReadingGoal copyWithCompanion(ReadingGoalsCompanion data) {
+    return ReadingGoal(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      type: data.type.present ? data.type.value : this.type,
+      targetValue: data.targetValue.present
+          ? data.targetValue.value
+          : this.targetValue,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      shelfId: data.shelfId.present ? data.shelfId.value : this.shelfId,
+      collectionId: data.collectionId.present
+          ? data.collectionId.value
+          : this.collectionId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingGoal(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('type: $type, ')
+          ..write('targetValue: $targetValue, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('shelfId: $shelfId, ')
+          ..write('collectionId: $collectionId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    type,
+    targetValue,
+    startDate,
+    endDate,
+    shelfId,
+    collectionId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingGoal &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.type == this.type &&
+          other.targetValue == this.targetValue &&
+          other.startDate == this.startDate &&
+          other.endDate == this.endDate &&
+          other.shelfId == this.shelfId &&
+          other.collectionId == this.collectionId);
+}
+
+class ReadingGoalsCompanion extends UpdateCompanion<ReadingGoal> {
+  final Value<int> id;
+  final Value<String> title;
+  final Value<String> type;
+  final Value<int> targetValue;
+  final Value<DateTime> startDate;
+  final Value<DateTime> endDate;
+  final Value<int?> shelfId;
+  final Value<int?> collectionId;
+  const ReadingGoalsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.type = const Value.absent(),
+    this.targetValue = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.shelfId = const Value.absent(),
+    this.collectionId = const Value.absent(),
+  });
+  ReadingGoalsCompanion.insert({
+    this.id = const Value.absent(),
+    required String title,
+    required String type,
+    required int targetValue,
+    required DateTime startDate,
+    required DateTime endDate,
+    this.shelfId = const Value.absent(),
+    this.collectionId = const Value.absent(),
+  }) : title = Value(title),
+       type = Value(type),
+       targetValue = Value(targetValue),
+       startDate = Value(startDate),
+       endDate = Value(endDate);
+  static Insertable<ReadingGoal> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? type,
+    Expression<int>? targetValue,
+    Expression<DateTime>? startDate,
+    Expression<DateTime>? endDate,
+    Expression<int>? shelfId,
+    Expression<int>? collectionId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (type != null) 'type': type,
+      if (targetValue != null) 'target_value': targetValue,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (shelfId != null) 'shelf_id': shelfId,
+      if (collectionId != null) 'collection_id': collectionId,
+    });
+  }
+
+  ReadingGoalsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? title,
+    Value<String>? type,
+    Value<int>? targetValue,
+    Value<DateTime>? startDate,
+    Value<DateTime>? endDate,
+    Value<int?>? shelfId,
+    Value<int?>? collectionId,
+  }) {
+    return ReadingGoalsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      type: type ?? this.type,
+      targetValue: targetValue ?? this.targetValue,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      shelfId: shelfId ?? this.shelfId,
+      collectionId: collectionId ?? this.collectionId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (targetValue.present) {
+      map['target_value'] = Variable<int>(targetValue.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<DateTime>(endDate.value);
+    }
+    if (shelfId.present) {
+      map['shelf_id'] = Variable<int>(shelfId.value);
+    }
+    if (collectionId.present) {
+      map['collection_id'] = Variable<int>(collectionId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingGoalsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('type: $type, ')
+          ..write('targetValue: $targetValue, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('shelfId: $shelfId, ')
+          ..write('collectionId: $collectionId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReadingLogTable extends ReadingLog
+    with TableInfo<$ReadingLogTable, ReadingLogData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingLogTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _bookIdMeta = const VerificationMeta('bookId');
+  @override
+  late final GeneratedColumn<int> bookId = GeneratedColumn<int>(
+    'book_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES books (id)',
+    ),
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pagesReadMeta = const VerificationMeta(
+    'pagesRead',
+  );
+  @override
+  late final GeneratedColumn<int> pagesRead = GeneratedColumn<int>(
+    'pages_read',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, bookId, date, pagesRead];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReadingLogData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('book_id')) {
+      context.handle(
+        _bookIdMeta,
+        bookId.isAcceptableOrUnknown(data['book_id']!, _bookIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookIdMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('pages_read')) {
+      context.handle(
+        _pagesReadMeta,
+        pagesRead.isAcceptableOrUnknown(data['pages_read']!, _pagesReadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pagesReadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReadingLogData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingLogData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      bookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}book_id'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      pagesRead: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pages_read'],
+      )!,
+    );
+  }
+
+  @override
+  $ReadingLogTable createAlias(String alias) {
+    return $ReadingLogTable(attachedDatabase, alias);
+  }
+}
+
+class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
+  final int id;
+  final int bookId;
+  final DateTime date;
+  final int pagesRead;
+  const ReadingLogData({
+    required this.id,
+    required this.bookId,
+    required this.date,
+    required this.pagesRead,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['book_id'] = Variable<int>(bookId);
+    map['date'] = Variable<DateTime>(date);
+    map['pages_read'] = Variable<int>(pagesRead);
+    return map;
+  }
+
+  ReadingLogCompanion toCompanion(bool nullToAbsent) {
+    return ReadingLogCompanion(
+      id: Value(id),
+      bookId: Value(bookId),
+      date: Value(date),
+      pagesRead: Value(pagesRead),
+    );
+  }
+
+  factory ReadingLogData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingLogData(
+      id: serializer.fromJson<int>(json['id']),
+      bookId: serializer.fromJson<int>(json['bookId']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      pagesRead: serializer.fromJson<int>(json['pagesRead']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'bookId': serializer.toJson<int>(bookId),
+      'date': serializer.toJson<DateTime>(date),
+      'pagesRead': serializer.toJson<int>(pagesRead),
+    };
+  }
+
+  ReadingLogData copyWith({
+    int? id,
+    int? bookId,
+    DateTime? date,
+    int? pagesRead,
+  }) => ReadingLogData(
+    id: id ?? this.id,
+    bookId: bookId ?? this.bookId,
+    date: date ?? this.date,
+    pagesRead: pagesRead ?? this.pagesRead,
+  );
+  ReadingLogData copyWithCompanion(ReadingLogCompanion data) {
+    return ReadingLogData(
+      id: data.id.present ? data.id.value : this.id,
+      bookId: data.bookId.present ? data.bookId.value : this.bookId,
+      date: data.date.present ? data.date.value : this.date,
+      pagesRead: data.pagesRead.present ? data.pagesRead.value : this.pagesRead,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingLogData(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('date: $date, ')
+          ..write('pagesRead: $pagesRead')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, bookId, date, pagesRead);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingLogData &&
+          other.id == this.id &&
+          other.bookId == this.bookId &&
+          other.date == this.date &&
+          other.pagesRead == this.pagesRead);
+}
+
+class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
+  final Value<int> id;
+  final Value<int> bookId;
+  final Value<DateTime> date;
+  final Value<int> pagesRead;
+  const ReadingLogCompanion({
+    this.id = const Value.absent(),
+    this.bookId = const Value.absent(),
+    this.date = const Value.absent(),
+    this.pagesRead = const Value.absent(),
+  });
+  ReadingLogCompanion.insert({
+    this.id = const Value.absent(),
+    required int bookId,
+    required DateTime date,
+    required int pagesRead,
+  }) : bookId = Value(bookId),
+       date = Value(date),
+       pagesRead = Value(pagesRead);
+  static Insertable<ReadingLogData> custom({
+    Expression<int>? id,
+    Expression<int>? bookId,
+    Expression<DateTime>? date,
+    Expression<int>? pagesRead,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bookId != null) 'book_id': bookId,
+      if (date != null) 'date': date,
+      if (pagesRead != null) 'pages_read': pagesRead,
+    });
+  }
+
+  ReadingLogCompanion copyWith({
+    Value<int>? id,
+    Value<int>? bookId,
+    Value<DateTime>? date,
+    Value<int>? pagesRead,
+  }) {
+    return ReadingLogCompanion(
+      id: id ?? this.id,
+      bookId: bookId ?? this.bookId,
+      date: date ?? this.date,
+      pagesRead: pagesRead ?? this.pagesRead,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (bookId.present) {
+      map['book_id'] = Variable<int>(bookId.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (pagesRead.present) {
+      map['pages_read'] = Variable<int>(pagesRead.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingLogCompanion(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('date: $date, ')
+          ..write('pagesRead: $pagesRead')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StatWidgetConfigsTable extends StatWidgetConfigs
+    with TableInfo<$StatWidgetConfigsTable, StatWidgetConfig> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StatWidgetConfigsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sizeMeta = const VerificationMeta('size');
+  @override
+  late final GeneratedColumn<String> size = GeneratedColumn<String>(
+    'size',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
+  @override
+  late final GeneratedColumn<int> goalId = GeneratedColumn<int>(
+    'goal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES reading_goals (id)',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, type, size, sortOrder, goalId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'stat_widget_configs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StatWidgetConfig> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('size')) {
+      context.handle(
+        _sizeMeta,
+        size.isAcceptableOrUnknown(data['size']!, _sizeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sizeMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    if (data.containsKey('goal_id')) {
+      context.handle(
+        _goalIdMeta,
+        goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StatWidgetConfig map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StatWidgetConfig(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      size: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}size'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      goalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}goal_id'],
+      ),
+    );
+  }
+
+  @override
+  $StatWidgetConfigsTable createAlias(String alias) {
+    return $StatWidgetConfigsTable(attachedDatabase, alias);
+  }
+}
+
+class StatWidgetConfig extends DataClass
+    implements Insertable<StatWidgetConfig> {
+  final int id;
+
+  /// Type: 'pages', 'streak', 'goal', 'status', 'currentBook', 'addedOverTime', 'categories', 'publishYear'
+  final String type;
+
+  /// Size: 'half', 'full', 'fullTall'
+  final String size;
+  final int sortOrder;
+  final int? goalId;
+  const StatWidgetConfig({
+    required this.id,
+    required this.type,
+    required this.size,
+    required this.sortOrder,
+    this.goalId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['type'] = Variable<String>(type);
+    map['size'] = Variable<String>(size);
+    map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || goalId != null) {
+      map['goal_id'] = Variable<int>(goalId);
+    }
+    return map;
+  }
+
+  StatWidgetConfigsCompanion toCompanion(bool nullToAbsent) {
+    return StatWidgetConfigsCompanion(
+      id: Value(id),
+      type: Value(type),
+      size: Value(size),
+      sortOrder: Value(sortOrder),
+      goalId: goalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(goalId),
+    );
+  }
+
+  factory StatWidgetConfig.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StatWidgetConfig(
+      id: serializer.fromJson<int>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      size: serializer.fromJson<String>(json['size']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      goalId: serializer.fromJson<int?>(json['goalId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'type': serializer.toJson<String>(type),
+      'size': serializer.toJson<String>(size),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'goalId': serializer.toJson<int?>(goalId),
+    };
+  }
+
+  StatWidgetConfig copyWith({
+    int? id,
+    String? type,
+    String? size,
+    int? sortOrder,
+    Value<int?> goalId = const Value.absent(),
+  }) => StatWidgetConfig(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    size: size ?? this.size,
+    sortOrder: sortOrder ?? this.sortOrder,
+    goalId: goalId.present ? goalId.value : this.goalId,
+  );
+  StatWidgetConfig copyWithCompanion(StatWidgetConfigsCompanion data) {
+    return StatWidgetConfig(
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      size: data.size.present ? data.size.value : this.size,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      goalId: data.goalId.present ? data.goalId.value : this.goalId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StatWidgetConfig(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('size: $size, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('goalId: $goalId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, type, size, sortOrder, goalId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StatWidgetConfig &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.size == this.size &&
+          other.sortOrder == this.sortOrder &&
+          other.goalId == this.goalId);
+}
+
+class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
+  final Value<int> id;
+  final Value<String> type;
+  final Value<String> size;
+  final Value<int> sortOrder;
+  final Value<int?> goalId;
+  const StatWidgetConfigsCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.size = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.goalId = const Value.absent(),
+  });
+  StatWidgetConfigsCompanion.insert({
+    this.id = const Value.absent(),
+    required String type,
+    required String size,
+    required int sortOrder,
+    this.goalId = const Value.absent(),
+  }) : type = Value(type),
+       size = Value(size),
+       sortOrder = Value(sortOrder);
+  static Insertable<StatWidgetConfig> custom({
+    Expression<int>? id,
+    Expression<String>? type,
+    Expression<String>? size,
+    Expression<int>? sortOrder,
+    Expression<int>? goalId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (size != null) 'size': size,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (goalId != null) 'goal_id': goalId,
+    });
+  }
+
+  StatWidgetConfigsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? type,
+    Value<String>? size,
+    Value<int>? sortOrder,
+    Value<int?>? goalId,
+  }) {
+    return StatWidgetConfigsCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      size: size ?? this.size,
+      sortOrder: sortOrder ?? this.sortOrder,
+      goalId: goalId ?? this.goalId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (size.present) {
+      map['size'] = Variable<String>(size.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (goalId.present) {
+      map['goal_id'] = Variable<int>(goalId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StatWidgetConfigsCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('size: $size, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('goalId: $goalId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2304,6 +3472,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TagsTable tags = $TagsTable(this);
   late final $BookTagsTable bookTags = $BookTagsTable(this);
   late final $ShelvesTable shelves = $ShelvesTable(this);
+  late final $ReadingGoalsTable readingGoals = $ReadingGoalsTable(this);
+  late final $ReadingLogTable readingLog = $ReadingLogTable(this);
+  late final $StatWidgetConfigsTable statWidgetConfigs =
+      $StatWidgetConfigsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2313,6 +3485,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     tags,
     bookTags,
     shelves,
+    readingGoals,
+    readingLog,
+    statWidgetConfigs,
   ];
 }
 
@@ -2385,6 +3560,24 @@ final class $$BooksTableReferences
     ).filter((f) => f.bookId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_bookTagsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ReadingLogTable, List<ReadingLogData>>
+  _readingLogRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.readingLog,
+    aliasName: $_aliasNameGenerator(db.books.id, db.readingLog.bookId),
+  );
+
+  $$ReadingLogTableProcessedTableManager get readingLogRefs {
+    final manager = $$ReadingLogTableTableManager(
+      $_db,
+      $_db.readingLog,
+    ).filter((f) => f.bookId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_readingLogRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -2527,6 +3720,31 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
           }) => $$BookTagsTableFilterComposer(
             $db: $db,
             $table: $db.bookTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> readingLogRefs(
+    Expression<bool> Function($$ReadingLogTableFilterComposer f) f,
+  ) {
+    final $$ReadingLogTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingLog,
+      getReferencedColumn: (t) => t.bookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingLogTableFilterComposer(
+            $db: $db,
+            $table: $db.readingLog,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2773,6 +3991,31 @@ class $$BooksTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> readingLogRefs<T extends Object>(
+    Expression<T> Function($$ReadingLogTableAnnotationComposer a) f,
+  ) {
+    final $$ReadingLogTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingLog,
+      getReferencedColumn: (t) => t.bookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingLogTableAnnotationComposer(
+            $db: $db,
+            $table: $db.readingLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BooksTableTableManager
@@ -2788,7 +4031,7 @@ class $$BooksTableTableManager
           $$BooksTableUpdateCompanionBuilder,
           (Book, $$BooksTableReferences),
           Book,
-          PrefetchHooks Function({bool bookTagsRefs})
+          PrefetchHooks Function({bool bookTagsRefs, bool readingLogRefs})
         > {
   $$BooksTableTableManager(_$AppDatabase db, $BooksTable table)
     : super(
@@ -2903,28 +4146,59 @@ class $$BooksTableTableManager
                     (e.readTable(table), $$BooksTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({bookTagsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (bookTagsRefs) db.bookTags],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (bookTagsRefs)
-                    await $_getPrefetchedData<Book, $BooksTable, BookTag>(
-                      currentTable: table,
-                      referencedTable: $$BooksTableReferences
-                          ._bookTagsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$BooksTableReferences(db, table, p0).bookTagsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.bookId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({bookTagsRefs = false, readingLogRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (bookTagsRefs) db.bookTags,
+                    if (readingLogRefs) db.readingLog,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (bookTagsRefs)
+                        await $_getPrefetchedData<Book, $BooksTable, BookTag>(
+                          currentTable: table,
+                          referencedTable: $$BooksTableReferences
+                              ._bookTagsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BooksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).bookTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bookId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (readingLogRefs)
+                        await $_getPrefetchedData<
+                          Book,
+                          $BooksTable,
+                          ReadingLogData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BooksTableReferences
+                              ._readingLogRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BooksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).readingLogRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bookId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2941,7 +4215,7 @@ typedef $$BooksTableProcessedTableManager =
       $$BooksTableUpdateCompanionBuilder,
       (Book, $$BooksTableReferences),
       Book,
-      PrefetchHooks Function({bool bookTagsRefs})
+      PrefetchHooks Function({bool bookTagsRefs, bool readingLogRefs})
     >;
 typedef $$TagsTableCreateCompanionBuilder =
     TagsCompanion Function({
@@ -2978,6 +4252,24 @@ final class $$TagsTableReferences
     ).filter((f) => f.tagId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_bookTagsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ReadingGoalsTable, List<ReadingGoal>>
+  _readingGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.readingGoals,
+    aliasName: $_aliasNameGenerator(db.tags.id, db.readingGoals.collectionId),
+  );
+
+  $$ReadingGoalsTableProcessedTableManager get readingGoalsRefs {
+    final manager = $$ReadingGoalsTableTableManager(
+      $_db,
+      $_db.readingGoals,
+    ).filter((f) => f.collectionId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_readingGoalsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3033,6 +4325,31 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
           }) => $$BookTagsTableFilterComposer(
             $db: $db,
             $table: $db.bookTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> readingGoalsRefs(
+    Expression<bool> Function($$ReadingGoalsTableFilterComposer f) f,
+  ) {
+    final $$ReadingGoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingGoals,
+      getReferencedColumn: (t) => t.collectionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingGoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.readingGoals,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3125,6 +4442,31 @@ class $$TagsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> readingGoalsRefs<T extends Object>(
+    Expression<T> Function($$ReadingGoalsTableAnnotationComposer a) f,
+  ) {
+    final $$ReadingGoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingGoals,
+      getReferencedColumn: (t) => t.collectionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingGoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.readingGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TagsTableTableManager
@@ -3140,7 +4482,7 @@ class $$TagsTableTableManager
           $$TagsTableUpdateCompanionBuilder,
           (Tag, $$TagsTableReferences),
           Tag,
-          PrefetchHooks Function({bool bookTagsRefs})
+          PrefetchHooks Function({bool bookTagsRefs, bool readingGoalsRefs})
         > {
   $$TagsTableTableManager(_$AppDatabase db, $TagsTable table)
     : super(
@@ -3187,29 +4529,50 @@ class $$TagsTableTableManager
                     (e.readTable(table), $$TagsTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({bookTagsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (bookTagsRefs) db.bookTags],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (bookTagsRefs)
-                    await $_getPrefetchedData<Tag, $TagsTable, BookTag>(
-                      currentTable: table,
-                      referencedTable: $$TagsTableReferences._bookTagsRefsTable(
-                        db,
-                      ),
-                      managerFromTypedResult: (p0) =>
-                          $$TagsTableReferences(db, table, p0).bookTagsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.tagId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({bookTagsRefs = false, readingGoalsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (bookTagsRefs) db.bookTags,
+                    if (readingGoalsRefs) db.readingGoals,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (bookTagsRefs)
+                        await $_getPrefetchedData<Tag, $TagsTable, BookTag>(
+                          currentTable: table,
+                          referencedTable: $$TagsTableReferences
+                              ._bookTagsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TagsTableReferences(db, table, p0).bookTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.tagId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (readingGoalsRefs)
+                        await $_getPrefetchedData<Tag, $TagsTable, ReadingGoal>(
+                          currentTable: table,
+                          referencedTable: $$TagsTableReferences
+                              ._readingGoalsRefsTable(db),
+                          managerFromTypedResult: (p0) => $$TagsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).readingGoalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.collectionId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -3226,7 +4589,7 @@ typedef $$TagsTableProcessedTableManager =
       $$TagsTableUpdateCompanionBuilder,
       (Tag, $$TagsTableReferences),
       Tag,
-      PrefetchHooks Function({bool bookTagsRefs})
+      PrefetchHooks Function({bool bookTagsRefs, bool readingGoalsRefs})
     >;
 typedef $$BookTagsTableCreateCompanionBuilder =
     BookTagsCompanion Function({
@@ -3605,6 +4968,29 @@ typedef $$ShelvesTableUpdateCompanionBuilder =
       Value<String?> filterImprintIds,
     });
 
+final class $$ShelvesTableReferences
+    extends BaseReferences<_$AppDatabase, $ShelvesTable, Shelf> {
+  $$ShelvesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ReadingGoalsTable, List<ReadingGoal>>
+  _readingGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.readingGoals,
+    aliasName: $_aliasNameGenerator(db.shelves.id, db.readingGoals.shelfId),
+  );
+
+  $$ReadingGoalsTableProcessedTableManager get readingGoalsRefs {
+    final manager = $$ReadingGoalsTableTableManager(
+      $_db,
+      $_db.readingGoals,
+    ).filter((f) => f.shelfId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_readingGoalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
 class $$ShelvesTableFilterComposer
     extends Composer<_$AppDatabase, $ShelvesTable> {
   $$ShelvesTableFilterComposer({
@@ -3678,6 +5064,31 @@ class $$ShelvesTableFilterComposer
     column: $table.filterImprintIds,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> readingGoalsRefs(
+    Expression<bool> Function($$ReadingGoalsTableFilterComposer f) f,
+  ) {
+    final $$ReadingGoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingGoals,
+      getReferencedColumn: (t) => t.shelfId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingGoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.readingGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ShelvesTableOrderingComposer
@@ -3824,6 +5235,31 @@ class $$ShelvesTableAnnotationComposer
     column: $table.filterImprintIds,
     builder: (column) => column,
   );
+
+  Expression<T> readingGoalsRefs<T extends Object>(
+    Expression<T> Function($$ReadingGoalsTableAnnotationComposer a) f,
+  ) {
+    final $$ReadingGoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingGoals,
+      getReferencedColumn: (t) => t.shelfId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingGoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.readingGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ShelvesTableTableManager
@@ -3837,9 +5273,9 @@ class $$ShelvesTableTableManager
           $$ShelvesTableAnnotationComposer,
           $$ShelvesTableCreateCompanionBuilder,
           $$ShelvesTableUpdateCompanionBuilder,
-          (Shelf, BaseReferences<_$AppDatabase, $ShelvesTable, Shelf>),
+          (Shelf, $$ShelvesTableReferences),
           Shelf,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool readingGoalsRefs})
         > {
   $$ShelvesTableTableManager(_$AppDatabase db, $ShelvesTable table)
     : super(
@@ -3913,9 +5349,42 @@ class $$ShelvesTableTableManager
                 filterImprintIds: filterImprintIds,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ShelvesTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({readingGoalsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (readingGoalsRefs) db.readingGoals],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (readingGoalsRefs)
+                    await $_getPrefetchedData<
+                      Shelf,
+                      $ShelvesTable,
+                      ReadingGoal
+                    >(
+                      currentTable: table,
+                      referencedTable: $$ShelvesTableReferences
+                          ._readingGoalsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$ShelvesTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).readingGoalsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.shelfId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -3930,9 +5399,1206 @@ typedef $$ShelvesTableProcessedTableManager =
       $$ShelvesTableAnnotationComposer,
       $$ShelvesTableCreateCompanionBuilder,
       $$ShelvesTableUpdateCompanionBuilder,
-      (Shelf, BaseReferences<_$AppDatabase, $ShelvesTable, Shelf>),
+      (Shelf, $$ShelvesTableReferences),
       Shelf,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool readingGoalsRefs})
+    >;
+typedef $$ReadingGoalsTableCreateCompanionBuilder =
+    ReadingGoalsCompanion Function({
+      Value<int> id,
+      required String title,
+      required String type,
+      required int targetValue,
+      required DateTime startDate,
+      required DateTime endDate,
+      Value<int?> shelfId,
+      Value<int?> collectionId,
+    });
+typedef $$ReadingGoalsTableUpdateCompanionBuilder =
+    ReadingGoalsCompanion Function({
+      Value<int> id,
+      Value<String> title,
+      Value<String> type,
+      Value<int> targetValue,
+      Value<DateTime> startDate,
+      Value<DateTime> endDate,
+      Value<int?> shelfId,
+      Value<int?> collectionId,
+    });
+
+final class $$ReadingGoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $ReadingGoalsTable, ReadingGoal> {
+  $$ReadingGoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ShelvesTable _shelfIdTable(_$AppDatabase db) =>
+      db.shelves.createAlias(
+        $_aliasNameGenerator(db.readingGoals.shelfId, db.shelves.id),
+      );
+
+  $$ShelvesTableProcessedTableManager? get shelfId {
+    final $_column = $_itemColumn<int>('shelf_id');
+    if ($_column == null) return null;
+    final manager = $$ShelvesTableTableManager(
+      $_db,
+      $_db.shelves,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_shelfIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TagsTable _collectionIdTable(_$AppDatabase db) => db.tags.createAlias(
+    $_aliasNameGenerator(db.readingGoals.collectionId, db.tags.id),
+  );
+
+  $$TagsTableProcessedTableManager? get collectionId {
+    final $_column = $_itemColumn<int>('collection_id');
+    if ($_column == null) return null;
+    final manager = $$TagsTableTableManager(
+      $_db,
+      $_db.tags,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_collectionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$StatWidgetConfigsTable, List<StatWidgetConfig>>
+  _statWidgetConfigsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.statWidgetConfigs,
+        aliasName: $_aliasNameGenerator(
+          db.readingGoals.id,
+          db.statWidgetConfigs.goalId,
+        ),
+      );
+
+  $$StatWidgetConfigsTableProcessedTableManager get statWidgetConfigsRefs {
+    final manager = $$StatWidgetConfigsTableTableManager(
+      $_db,
+      $_db.statWidgetConfigs,
+    ).filter((f) => f.goalId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _statWidgetConfigsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ReadingGoalsTableFilterComposer
+    extends Composer<_$AppDatabase, $ReadingGoalsTable> {
+  $$ReadingGoalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetValue => $composableBuilder(
+    column: $table.targetValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ShelvesTableFilterComposer get shelfId {
+    final $$ShelvesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shelfId,
+      referencedTable: $db.shelves,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelvesTableFilterComposer(
+            $db: $db,
+            $table: $db.shelves,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableFilterComposer get collectionId {
+    final $$TagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.collectionId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableFilterComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> statWidgetConfigsRefs(
+    Expression<bool> Function($$StatWidgetConfigsTableFilterComposer f) f,
+  ) {
+    final $$StatWidgetConfigsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.statWidgetConfigs,
+      getReferencedColumn: (t) => t.goalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StatWidgetConfigsTableFilterComposer(
+            $db: $db,
+            $table: $db.statWidgetConfigs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ReadingGoalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReadingGoalsTable> {
+  $$ReadingGoalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetValue => $composableBuilder(
+    column: $table.targetValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ShelvesTableOrderingComposer get shelfId {
+    final $$ShelvesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shelfId,
+      referencedTable: $db.shelves,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelvesTableOrderingComposer(
+            $db: $db,
+            $table: $db.shelves,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableOrderingComposer get collectionId {
+    final $$TagsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.collectionId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableOrderingComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingGoalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReadingGoalsTable> {
+  $$ReadingGoalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<int> get targetValue => $composableBuilder(
+    column: $table.targetValue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  $$ShelvesTableAnnotationComposer get shelfId {
+    final $$ShelvesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shelfId,
+      referencedTable: $db.shelves,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelvesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.shelves,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableAnnotationComposer get collectionId {
+    final $$TagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.collectionId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> statWidgetConfigsRefs<T extends Object>(
+    Expression<T> Function($$StatWidgetConfigsTableAnnotationComposer a) f,
+  ) {
+    final $$StatWidgetConfigsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.statWidgetConfigs,
+          getReferencedColumn: (t) => t.goalId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StatWidgetConfigsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.statWidgetConfigs,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$ReadingGoalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReadingGoalsTable,
+          ReadingGoal,
+          $$ReadingGoalsTableFilterComposer,
+          $$ReadingGoalsTableOrderingComposer,
+          $$ReadingGoalsTableAnnotationComposer,
+          $$ReadingGoalsTableCreateCompanionBuilder,
+          $$ReadingGoalsTableUpdateCompanionBuilder,
+          (ReadingGoal, $$ReadingGoalsTableReferences),
+          ReadingGoal,
+          PrefetchHooks Function({
+            bool shelfId,
+            bool collectionId,
+            bool statWidgetConfigsRefs,
+          })
+        > {
+  $$ReadingGoalsTableTableManager(_$AppDatabase db, $ReadingGoalsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingGoalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingGoalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingGoalsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<int> targetValue = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
+                Value<DateTime> endDate = const Value.absent(),
+                Value<int?> shelfId = const Value.absent(),
+                Value<int?> collectionId = const Value.absent(),
+              }) => ReadingGoalsCompanion(
+                id: id,
+                title: title,
+                type: type,
+                targetValue: targetValue,
+                startDate: startDate,
+                endDate: endDate,
+                shelfId: shelfId,
+                collectionId: collectionId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String title,
+                required String type,
+                required int targetValue,
+                required DateTime startDate,
+                required DateTime endDate,
+                Value<int?> shelfId = const Value.absent(),
+                Value<int?> collectionId = const Value.absent(),
+              }) => ReadingGoalsCompanion.insert(
+                id: id,
+                title: title,
+                type: type,
+                targetValue: targetValue,
+                startDate: startDate,
+                endDate: endDate,
+                shelfId: shelfId,
+                collectionId: collectionId,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ReadingGoalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                shelfId = false,
+                collectionId = false,
+                statWidgetConfigsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (statWidgetConfigsRefs) db.statWidgetConfigs,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (shelfId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.shelfId,
+                                    referencedTable:
+                                        $$ReadingGoalsTableReferences
+                                            ._shelfIdTable(db),
+                                    referencedColumn:
+                                        $$ReadingGoalsTableReferences
+                                            ._shelfIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (collectionId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.collectionId,
+                                    referencedTable:
+                                        $$ReadingGoalsTableReferences
+                                            ._collectionIdTable(db),
+                                    referencedColumn:
+                                        $$ReadingGoalsTableReferences
+                                            ._collectionIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (statWidgetConfigsRefs)
+                        await $_getPrefetchedData<
+                          ReadingGoal,
+                          $ReadingGoalsTable,
+                          StatWidgetConfig
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ReadingGoalsTableReferences
+                              ._statWidgetConfigsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ReadingGoalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).statWidgetConfigsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.goalId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$ReadingGoalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReadingGoalsTable,
+      ReadingGoal,
+      $$ReadingGoalsTableFilterComposer,
+      $$ReadingGoalsTableOrderingComposer,
+      $$ReadingGoalsTableAnnotationComposer,
+      $$ReadingGoalsTableCreateCompanionBuilder,
+      $$ReadingGoalsTableUpdateCompanionBuilder,
+      (ReadingGoal, $$ReadingGoalsTableReferences),
+      ReadingGoal,
+      PrefetchHooks Function({
+        bool shelfId,
+        bool collectionId,
+        bool statWidgetConfigsRefs,
+      })
+    >;
+typedef $$ReadingLogTableCreateCompanionBuilder =
+    ReadingLogCompanion Function({
+      Value<int> id,
+      required int bookId,
+      required DateTime date,
+      required int pagesRead,
+    });
+typedef $$ReadingLogTableUpdateCompanionBuilder =
+    ReadingLogCompanion Function({
+      Value<int> id,
+      Value<int> bookId,
+      Value<DateTime> date,
+      Value<int> pagesRead,
+    });
+
+final class $$ReadingLogTableReferences
+    extends BaseReferences<_$AppDatabase, $ReadingLogTable, ReadingLogData> {
+  $$ReadingLogTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $BooksTable _bookIdTable(_$AppDatabase db) => db.books.createAlias(
+    $_aliasNameGenerator(db.readingLog.bookId, db.books.id),
+  );
+
+  $$BooksTableProcessedTableManager get bookId {
+    final $_column = $_itemColumn<int>('book_id')!;
+
+    final manager = $$BooksTableTableManager(
+      $_db,
+      $_db.books,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bookIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ReadingLogTableFilterComposer
+    extends Composer<_$AppDatabase, $ReadingLogTable> {
+  $$ReadingLogTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pagesRead => $composableBuilder(
+    column: $table.pagesRead,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BooksTableFilterComposer get bookId {
+    final $$BooksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableFilterComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingLogTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReadingLogTable> {
+  $$ReadingLogTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pagesRead => $composableBuilder(
+    column: $table.pagesRead,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BooksTableOrderingComposer get bookId {
+    final $$BooksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableOrderingComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingLogTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReadingLogTable> {
+  $$ReadingLogTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<int> get pagesRead =>
+      $composableBuilder(column: $table.pagesRead, builder: (column) => column);
+
+  $$BooksTableAnnotationComposer get bookId {
+    final $$BooksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingLogTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReadingLogTable,
+          ReadingLogData,
+          $$ReadingLogTableFilterComposer,
+          $$ReadingLogTableOrderingComposer,
+          $$ReadingLogTableAnnotationComposer,
+          $$ReadingLogTableCreateCompanionBuilder,
+          $$ReadingLogTableUpdateCompanionBuilder,
+          (ReadingLogData, $$ReadingLogTableReferences),
+          ReadingLogData,
+          PrefetchHooks Function({bool bookId})
+        > {
+  $$ReadingLogTableTableManager(_$AppDatabase db, $ReadingLogTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingLogTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingLogTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingLogTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> bookId = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<int> pagesRead = const Value.absent(),
+              }) => ReadingLogCompanion(
+                id: id,
+                bookId: bookId,
+                date: date,
+                pagesRead: pagesRead,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int bookId,
+                required DateTime date,
+                required int pagesRead,
+              }) => ReadingLogCompanion.insert(
+                id: id,
+                bookId: bookId,
+                date: date,
+                pagesRead: pagesRead,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ReadingLogTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({bookId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (bookId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.bookId,
+                                referencedTable: $$ReadingLogTableReferences
+                                    ._bookIdTable(db),
+                                referencedColumn: $$ReadingLogTableReferences
+                                    ._bookIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ReadingLogTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReadingLogTable,
+      ReadingLogData,
+      $$ReadingLogTableFilterComposer,
+      $$ReadingLogTableOrderingComposer,
+      $$ReadingLogTableAnnotationComposer,
+      $$ReadingLogTableCreateCompanionBuilder,
+      $$ReadingLogTableUpdateCompanionBuilder,
+      (ReadingLogData, $$ReadingLogTableReferences),
+      ReadingLogData,
+      PrefetchHooks Function({bool bookId})
+    >;
+typedef $$StatWidgetConfigsTableCreateCompanionBuilder =
+    StatWidgetConfigsCompanion Function({
+      Value<int> id,
+      required String type,
+      required String size,
+      required int sortOrder,
+      Value<int?> goalId,
+    });
+typedef $$StatWidgetConfigsTableUpdateCompanionBuilder =
+    StatWidgetConfigsCompanion Function({
+      Value<int> id,
+      Value<String> type,
+      Value<String> size,
+      Value<int> sortOrder,
+      Value<int?> goalId,
+    });
+
+final class $$StatWidgetConfigsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $StatWidgetConfigsTable,
+          StatWidgetConfig
+        > {
+  $$StatWidgetConfigsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ReadingGoalsTable _goalIdTable(_$AppDatabase db) =>
+      db.readingGoals.createAlias(
+        $_aliasNameGenerator(db.statWidgetConfigs.goalId, db.readingGoals.id),
+      );
+
+  $$ReadingGoalsTableProcessedTableManager? get goalId {
+    final $_column = $_itemColumn<int>('goal_id');
+    if ($_column == null) return null;
+    final manager = $$ReadingGoalsTableTableManager(
+      $_db,
+      $_db.readingGoals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$StatWidgetConfigsTableFilterComposer
+    extends Composer<_$AppDatabase, $StatWidgetConfigsTable> {
+  $$StatWidgetConfigsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get size => $composableBuilder(
+    column: $table.size,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ReadingGoalsTableFilterComposer get goalId {
+    final $$ReadingGoalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalId,
+      referencedTable: $db.readingGoals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingGoalsTableFilterComposer(
+            $db: $db,
+            $table: $db.readingGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StatWidgetConfigsTableOrderingComposer
+    extends Composer<_$AppDatabase, $StatWidgetConfigsTable> {
+  $$StatWidgetConfigsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get size => $composableBuilder(
+    column: $table.size,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ReadingGoalsTableOrderingComposer get goalId {
+    final $$ReadingGoalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalId,
+      referencedTable: $db.readingGoals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingGoalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.readingGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StatWidgetConfigsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StatWidgetConfigsTable> {
+  $$StatWidgetConfigsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get size =>
+      $composableBuilder(column: $table.size, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$ReadingGoalsTableAnnotationComposer get goalId {
+    final $$ReadingGoalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.goalId,
+      referencedTable: $db.readingGoals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingGoalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.readingGoals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StatWidgetConfigsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StatWidgetConfigsTable,
+          StatWidgetConfig,
+          $$StatWidgetConfigsTableFilterComposer,
+          $$StatWidgetConfigsTableOrderingComposer,
+          $$StatWidgetConfigsTableAnnotationComposer,
+          $$StatWidgetConfigsTableCreateCompanionBuilder,
+          $$StatWidgetConfigsTableUpdateCompanionBuilder,
+          (StatWidgetConfig, $$StatWidgetConfigsTableReferences),
+          StatWidgetConfig,
+          PrefetchHooks Function({bool goalId})
+        > {
+  $$StatWidgetConfigsTableTableManager(
+    _$AppDatabase db,
+    $StatWidgetConfigsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StatWidgetConfigsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StatWidgetConfigsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StatWidgetConfigsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> size = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int?> goalId = const Value.absent(),
+              }) => StatWidgetConfigsCompanion(
+                id: id,
+                type: type,
+                size: size,
+                sortOrder: sortOrder,
+                goalId: goalId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String type,
+                required String size,
+                required int sortOrder,
+                Value<int?> goalId = const Value.absent(),
+              }) => StatWidgetConfigsCompanion.insert(
+                id: id,
+                type: type,
+                size: size,
+                sortOrder: sortOrder,
+                goalId: goalId,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$StatWidgetConfigsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({goalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (goalId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.goalId,
+                                referencedTable:
+                                    $$StatWidgetConfigsTableReferences
+                                        ._goalIdTable(db),
+                                referencedColumn:
+                                    $$StatWidgetConfigsTableReferences
+                                        ._goalIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$StatWidgetConfigsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StatWidgetConfigsTable,
+      StatWidgetConfig,
+      $$StatWidgetConfigsTableFilterComposer,
+      $$StatWidgetConfigsTableOrderingComposer,
+      $$StatWidgetConfigsTableAnnotationComposer,
+      $$StatWidgetConfigsTableCreateCompanionBuilder,
+      $$StatWidgetConfigsTableUpdateCompanionBuilder,
+      (StatWidgetConfig, $$StatWidgetConfigsTableReferences),
+      StatWidgetConfig,
+      PrefetchHooks Function({bool goalId})
     >;
 
 class $AppDatabaseManager {
@@ -3945,4 +6611,10 @@ class $AppDatabaseManager {
       $$BookTagsTableTableManager(_db, _db.bookTags);
   $$ShelvesTableTableManager get shelves =>
       $$ShelvesTableTableManager(_db, _db.shelves);
+  $$ReadingGoalsTableTableManager get readingGoals =>
+      $$ReadingGoalsTableTableManager(_db, _db.readingGoals);
+  $$ReadingLogTableTableManager get readingLog =>
+      $$ReadingLogTableTableManager(_db, _db.readingLog);
+  $$StatWidgetConfigsTableTableManager get statWidgetConfigs =>
+      $$StatWidgetConfigsTableTableManager(_db, _db.statWidgetConfigs);
 }

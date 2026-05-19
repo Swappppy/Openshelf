@@ -71,6 +71,39 @@ class Shelves extends Table {
   TextColumn get filterImprintIds => text().nullable()();
 }
 
+/// Reading Goals table
+class ReadingGoals extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+  /// Type can be 'books' or 'pages'
+  TextColumn get type => text()();
+  IntColumn get targetValue => integer()();
+  DateTimeColumn get startDate => dateTime()();
+  DateTimeColumn get endDate => dateTime()();
+  /// Optional filters
+  IntColumn get shelfId => integer().nullable().references(Shelves, #id)();
+  IntColumn get collectionId => integer().nullable().references(Tags, #id)();
+}
+
+/// Reading Log table for tracking daily activity
+class ReadingLog extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get bookId => integer().references(Books, #id)();
+  DateTimeColumn get date => dateTime()();
+  IntColumn get pagesRead => integer()();
+}
+
+/// Configuration for stats widgets layout
+class StatWidgetConfigs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  /// Type: 'pages', 'streak', 'goal', 'status', 'currentBook', 'addedOverTime', 'categories', 'publishYear'
+  TextColumn get type => text()();
+  /// Size: 'half', 'full', 'fullTall'
+  TextColumn get size => text()();
+  IntColumn get sortOrder => integer()();
+  IntColumn get goalId => integer().nullable().references(ReadingGoals, #id)();
+}
+
 enum ReadingStatus {
   wantToRead,
   reading,
@@ -105,12 +138,12 @@ class BookFormatConverter extends TypeConverter<BookFormat?, String?> {
   String? toSql(BookFormat? value) => value?.name;
 }
 
-@DriftDatabase(tables: [Books, Tags, BookTags, Shelves])
+@DriftDatabase(tables: [Books, Tags, BookTags, Shelves, ReadingGoals, ReadingLog, StatWidgetConfigs])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -157,6 +190,11 @@ class AppDatabase extends _$AppDatabase {
         try {
           await m.addColumn(shelves, shelves.filterImprintIds as GeneratedColumn);
         } catch (_) {}
+      }
+      if (from < 10) {
+        await m.createTable(readingGoals);
+        await m.createTable(readingLog);
+        await m.createTable(statWidgetConfigs);
       }
     },
   );
@@ -565,4 +603,23 @@ class AppDatabase extends _$AppDatabase {
   Future<void> deleteShelf(int id) =>
       (delete(shelves)..where((s) => s.id.equals(id))).go();
 
+  // --- Reading Goal Operations ---
+  Stream<List<ReadingGoal>> watchAllGoals() => select(readingGoals).watch();
+  Future<int> insertGoal(ReadingGoalsCompanion goal) => into(readingGoals).insert(goal);
+  Future<bool> updateGoal(ReadingGoal goal) => update(readingGoals).replace(goal);
+  Future<void> deleteGoal(int id) => (delete(readingGoals)..where((t) => t.id.equals(id))).go();
+
+  // --- Reading Log Operations ---
+  Stream<List<ReadingLogData>> watchLogs() => select(readingLog).watch();
+  Stream<List<ReadingLogData>> watchLogForBook(int bookId) =>
+      (select(readingLog)..where((l) => l.bookId.equals(bookId))).watch();
+  Future<int> insertLog(ReadingLogCompanion log) => into(readingLog).insert(log);
+  Future<void> deleteLog(int id) => (delete(readingLog)..where((l) => l.id.equals(id))).go();
+
+  // --- Stat Widget Operations ---
+  Stream<List<StatWidgetConfig>> watchWidgetConfigs() =>
+      (select(statWidgetConfigs)..orderBy([(t) => OrderingTerm(expression: t.sortOrder)])).watch();
+  Future<int> insertWidgetConfig(StatWidgetConfigsCompanion config) => into(statWidgetConfigs).insert(config);
+  Future<bool> updateWidgetConfig(StatWidgetConfig config) => update(statWidgetConfigs).replace(config);
+  Future<void> deleteWidgetConfig(int id) => (delete(statWidgetConfigs)..where((t) => t.id.equals(id))).go();
 }

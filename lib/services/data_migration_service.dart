@@ -51,7 +51,7 @@ class DataMigrationService {
       ]);
     }
 
-    return const ListToCsvConverter().convert(rows);
+    return Csv().encode(rows);
   }
 
   /// Exports all custom shelves to a CSV string.
@@ -76,7 +76,7 @@ class DataMigrationService {
       ]);
     }
 
-    return const ListToCsvConverter().convert(rows);
+    return Csv().encode(rows);
   }
 
   /// Exports all tags (categories, imprints, collections) to a CSV string.
@@ -93,7 +93,7 @@ class DataMigrationService {
       ]);
     }
 
-    return const ListToCsvConverter().convert(rows);
+    return Csv().encode(rows);
   }
 
   Future<List<String>> _getNamesFromIds(String? jsonIds) async {
@@ -266,7 +266,7 @@ class DataMigrationService {
   }
 
   Future<void> _importTagsCsvContent(String content, {required String localBaseDir}) async {
-    final rows = const CsvToListConverter().convert(content);
+    final rows = Csv().decode(content);
     if (rows.length < 2) return;
     final header = rows.first.map((e) => e.toString().toLowerCase()).toList();
     
@@ -288,7 +288,7 @@ class DataMigrationService {
   }
 
   Future<int> _importBooksCsvContent(String content, {required String localBaseDir}) async {
-    final rows = const CsvToListConverter().convert(content);
+    final rows = Csv().decode(content);
     if (rows.length < 2) return 0;
     final header = rows.first.map((e) => e.toString().toLowerCase()).toList();
     int imported = 0;
@@ -343,7 +343,7 @@ class DataMigrationService {
   }
 
   Future<void> _importShelvesCsvContent(String content) async {
-    final rows = const CsvToListConverter().convert(content);
+    final rows = Csv().decode(content);
     if (rows.length < 2) return;
     final header = rows.first.map((e) => e.toString().toLowerCase()).toList();
 
