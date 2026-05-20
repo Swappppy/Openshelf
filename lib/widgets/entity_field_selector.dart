@@ -14,6 +14,7 @@ class EntityFieldSelector extends ConsumerWidget {
   final String label;
   final IconData icon;
   final bool multiSelection;
+  final Widget? trailing;
 
   const EntityFieldSelector({
     super.key,
@@ -23,6 +24,7 @@ class EntityFieldSelector extends ConsumerWidget {
     required this.label,
     required this.icon,
     this.multiSelection = true,
+    this.trailing,
   });
 
   @override
@@ -53,48 +55,59 @@ class EntityFieldSelector extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
         ],
-        Autocomplete<Tag>(
-          displayStringForOption: (t) => t.name,
-          optionsBuilder: (textEditingValue) async {
-            final input = textEditingValue.text.trim();
-            if (input.isEmpty) return [];
-            final results = await ref.read(databaseProvider).searchTags(input, type);
-            return results.where((t) => !selected.any((s) => s.id == t.id)).toList();
-          },
-          onSelected: (tag) {
-            if (multiSelection) {
-              onChanged([...selected, tag]);
-            } else {
-              onChanged([tag]);
-            }
-          },
-          fieldViewBuilder: (ctx, controller, focusNode, onFieldSubmitted) => TextField(
-            controller: controller,
-            focusNode: focusNode,
-            decoration: InputDecoration(
-              labelText: label,
-              prefixIcon: Icon(icon),
-              border: const OutlineInputBorder(),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: () {
-                  final name = controller.text.trim();
-                  showTagFormDialog(
-                    context, 
-                    ref, 
-                    title: context.l10n.create, 
-                    type: type,
-                    initialName: name.isNotEmpty ? name : null,
-                  );
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Autocomplete<Tag>(
+                displayStringForOption: (t) => t.name,
+                optionsBuilder: (textEditingValue) async {
+                  final input = textEditingValue.text.trim();
+                  if (input.isEmpty) return [];
+                  final results = await ref.read(databaseProvider).searchTags(input, type);
+                  return results.where((t) => !selected.any((s) => s.id == t.id)).toList();
                 },
+                onSelected: (tag) {
+                  if (multiSelection) {
+                    onChanged([...selected, tag]);
+                  } else {
+                    onChanged([tag]);
+                  }
+                },
+                fieldViewBuilder: (ctx, controller, focusNode, onFieldSubmitted) => TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    labelText: label,
+                    prefixIcon: Icon(icon),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        final name = controller.text.trim();
+                        showTagFormDialog(
+                          context, 
+                          ref, 
+                          title: context.l10n.create, 
+                          type: type,
+                          initialName: name.isNotEmpty ? name : null,
+                        );
+                      },
+                    ),
+                  ),
+                  onSubmitted: (value) {
+                    final name = value.trim();
+                    if (name.isEmpty) return;
+                    _handleNewTag(context, ref, name, controller);
+                  },
+                ),
               ),
             ),
-            onSubmitted: (value) {
-              final name = value.trim();
-              if (name.isEmpty) return;
-              _handleNewTag(context, ref, name, controller);
-            },
-          ),
+            if (trailing != null) ...[
+              const SizedBox(width: 8),
+              trailing!,
+            ],
+          ],
         ),
       ],
     );

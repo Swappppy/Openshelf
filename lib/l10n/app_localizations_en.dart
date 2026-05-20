@@ -661,6 +661,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionData => 'Data management';
 
   @override
+  String get dataManagementOpenShelf => 'OpenShelf';
+
+  @override
+  String get dataManagementBookshelf => 'Bookshelf';
+
+  @override
+  String get dataManagementGoodreads => 'Goodreads';
+
+  @override
+  String get dataManagementImport => 'Import books';
+
+  @override
+  String get dataManagementExport => 'Export books';
+
+  @override
+  String dataManagementImportHint(String source) {
+    return 'Import from $source CSV';
+  }
+
+  @override
+  String dataManagementExportHint(String source) {
+    return 'Export to $source CSV';
+  }
+
+  @override
+  String get dataManagementRestoreBackup => 'Restore backup';
+
+  @override
+  String get dataManagementRestoreBackupHint =>
+      'Restore from OpenShelf CSV/ZIP';
+
+  @override
+  String get dataManagementCreateBackup => 'Create backup';
+
+  @override
+  String get dataManagementCreateBackupHint => 'Full export with covers option';
+
+  @override
   String get settingsImportBookshelf => 'Import from Bookshelf';
 
   @override

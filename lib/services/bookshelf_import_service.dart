@@ -71,8 +71,8 @@ class BookshelfImportService {
   // 32: Edition       — ignored
   static const int _colSeries = 33;
   static const int _colVolume = 34;
-  static const int _colDescription = 46;
-  static const int _colDateAdded = 47;
+  static const int _colDescription = 47;
+  static const int _colDateAdded = 48;
 
   static const int _minColumns = 35;
 

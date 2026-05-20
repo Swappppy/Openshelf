@@ -45,7 +45,7 @@ class AddedOverTimeTile extends ConsumerWidget {
                     e.key.toDouble(), 
                     count.toDouble(),
                     dotPainter: FlDotCirclePainter(
-                      radius: 6,
+                      radius: 3,
                       color: _getPointColor(count),
                     ),
                   );

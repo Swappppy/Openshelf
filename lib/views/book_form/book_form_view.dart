@@ -10,6 +10,7 @@ import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
 import '../../controllers/reading_log_controller.dart';
 import '../../widgets/entity_field_selector.dart';
+import '../../widgets/tag_grid_selector.dart';
 import '../../models/book_search_result.dart';
 import '../../l10n/l10n_extension.dart';
 import 'cover_picker_sheet.dart';
@@ -557,10 +558,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               selectedTags: _selectedTags,
               onAddTag: (tag) => setState(() {
                 if (!_selectedTags.any((t) => t.id == tag.id)) {
-                  _selectedTags.add(tag);
+                  _selectedTags = [..._selectedTags, tag];
                 }
               }),
-              onRemoveTag: (tag) => setState(() => _selectedTags.remove(tag)),
+              onRemoveTag: (tag) => setState(() {
+                _selectedTags = _selectedTags.where((t) => t.id != tag.id).toList();
+              }),
               onPickCoverFromUrl: _pickCoverFromUrl,
               onSearchCovers: _searchCovers,
             ),
@@ -736,20 +739,18 @@ class _MainTab extends ConsumerWidget {
         const SizedBox(height: 24),
 
 
-        // --- Categories (Tags) Section ---
-        _SectionHeader(label: context.l10n.sectionCategories),
-        const SizedBox(height: 12),
         EntityFieldSelector(
           selected: selectedTags,
           onChanged: (list) {
             // Update selected tags
+            final current = List<Tag>.from(selectedTags);
             for (final tag in list) {
-              if (!selectedTags.any((t) => t.id == tag.id)) {
+              if (!current.any((t) => t.id == tag.id)) {
                 onAddTag(tag);
               }
             }
             // Handle removal
-            for (final tag in selectedTags) {
+            for (final tag in current) {
               if (!list.any((t) => t.id == tag.id)) {
                 onRemoveTag(tag);
               }
@@ -758,6 +759,24 @@ class _MainTab extends ConsumerWidget {
           type: 'tag',
           label: context.l10n.tagSearchOrCreate,
           icon: Icons.label_outline,
+          trailing: TagGridSelector(
+            selected: selectedTags,
+            type: 'tag',
+            onChanged: (list) {
+               // Sync back
+               final current = List<Tag>.from(selectedTags);
+               for (final tag in list) {
+                 if (!current.any((t) => t.id == tag.id)) {
+                   onAddTag(tag);
+                 }
+               }
+               for (final tag in current) {
+                 if (!list.any((t) => t.id == tag.id)) {
+                   onRemoveTag(tag);
+                 }
+               }
+            },
+          ),
         ),
 
         const SizedBox(height: 24),

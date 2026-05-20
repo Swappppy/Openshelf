@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,10 +37,19 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
   /// Index of the item currently being finalized and saved.
   int? _saving;
 
+  /// Stream of candidates from the online search.
+  StreamSubscription<CoverCandidate>? _searchSubscription;
+
   @override
   void initState() {
     super.initState();
     _search();
+  }
+
+  @override
+  void dispose() {
+    _searchSubscription?.cancel();
+    super.dispose();
   }
 
   /// Triggers the online search for cover candidates.
@@ -59,23 +69,34 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
         servers: settings.searchServers,
       );
 
-      await for (final candidate in stream) {
-        if (!mounted) return;
-        setState(() {
-          _searching = false; // Stop initial full-screen spinner
-          _items.add((candidate, null));
-        });
-        _downloadSinglePreview(_items.length - 1);
-      }
-
-      if (mounted && _items.isEmpty) {
-        setState(() {
-          _searching = false;
-          _error = context.l10n.coverPickerNoResults;
-        });
-      } else if (mounted) {
-        setState(() => _searching = false);
-      }
+      _searchSubscription = stream.listen(
+        (candidate) {
+          if (!mounted) return;
+          setState(() {
+            _searching = false; // Stop initial full-screen spinner
+            _items.add((candidate, null));
+          });
+          _downloadSinglePreview(_items.length - 1);
+        },
+        onDone: () {
+          if (mounted && _items.isEmpty) {
+            setState(() {
+              _searching = false;
+              _error = context.l10n.coverPickerNoResults;
+            });
+          } else if (mounted) {
+            setState(() => _searching = false);
+          }
+        },
+        onError: (e) {
+          if (mounted) {
+            setState(() {
+              _searching = false;
+              _error = context.l10n.coverPickerNetworkError;
+            });
+          }
+        },
+      );
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -103,6 +124,10 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
   Future<void> _selectCover(int index) async {
     final (candidate, previewPath) = _items[index];
     if (previewPath == null || previewPath.isEmpty) return;
+
+    // Cancel ongoing searches immediately when a selection is made.
+    _searchSubscription?.cancel();
+    _searchSubscription = null;
 
     setState(() => _saving = index);
 

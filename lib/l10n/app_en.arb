@@ -664,6 +664,24 @@
   "settingsSectionData": "Data management",
   "@settingsSectionData": { "description": "Data management section header" },
 
+  "dataManagementOpenShelf": "OpenShelf",
+  "dataManagementBookshelf": "Bookshelf",
+  "dataManagementGoodreads": "Goodreads",
+  "dataManagementImport": "Import books",
+  "dataManagementExport": "Export books",
+  "dataManagementImportHint": "Import from {source} CSV",
+  "@dataManagementImportHint": {
+    "placeholders": { "source": { "type": "String" } }
+  },
+  "dataManagementExportHint": "Export to {source} CSV",
+  "@dataManagementExportHint": {
+    "placeholders": { "source": { "type": "String" } }
+  },
+  "dataManagementRestoreBackup": "Restore backup",
+  "dataManagementRestoreBackupHint": "Restore from OpenShelf CSV/ZIP",
+  "dataManagementCreateBackup": "Create backup",
+  "dataManagementCreateBackupHint": "Full export with covers option",
+
   "settingsImportBookshelf": "Import from Bookshelf",
   "@settingsImportBookshelf": { "description": "Import from Bookshelf option" },
 

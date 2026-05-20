@@ -1352,6 +1352,72 @@ abstract class AppLocalizations {
   /// **'Gestión de datos'**
   String get settingsSectionData;
 
+  /// No description provided for @dataManagementOpenShelf.
+  ///
+  /// In es, this message translates to:
+  /// **'OpenShelf'**
+  String get dataManagementOpenShelf;
+
+  /// No description provided for @dataManagementBookshelf.
+  ///
+  /// In es, this message translates to:
+  /// **'Bookshelf'**
+  String get dataManagementBookshelf;
+
+  /// No description provided for @dataManagementGoodreads.
+  ///
+  /// In es, this message translates to:
+  /// **'Goodreads'**
+  String get dataManagementGoodreads;
+
+  /// No description provided for @dataManagementImport.
+  ///
+  /// In es, this message translates to:
+  /// **'Importar libros'**
+  String get dataManagementImport;
+
+  /// No description provided for @dataManagementExport.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar libros'**
+  String get dataManagementExport;
+
+  /// No description provided for @dataManagementImportHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Importar desde CSV de {source}'**
+  String dataManagementImportHint(String source);
+
+  /// No description provided for @dataManagementExportHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar a CSV de {source}'**
+  String dataManagementExportHint(String source);
+
+  /// No description provided for @dataManagementRestoreBackup.
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar copia de seguridad'**
+  String get dataManagementRestoreBackup;
+
+  /// No description provided for @dataManagementRestoreBackupHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar desde CSV/ZIP de OpenShelf'**
+  String get dataManagementRestoreBackupHint;
+
+  /// No description provided for @dataManagementCreateBackup.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear copia de seguridad'**
+  String get dataManagementCreateBackup;
+
+  /// No description provided for @dataManagementCreateBackupHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportación completa con opción de portadas'**
+  String get dataManagementCreateBackupHint;
+
   /// Opción de importar desde Bookshelf
   ///
   /// In es, this message translates to:

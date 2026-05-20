@@ -4,10 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../controllers/database_provider.dart';
 import '../../models/app_settings.dart';
 import '../../services/bookshelf_import_service.dart';
+import '../../services/bookshelf_export_service.dart';
+import '../../services/goodreads_import_service.dart';
+import '../../services/goodreads_export_service.dart';
 import '../../services/database.dart';
 import '../../services/data_migration_service.dart';
 import '../../l10n/l10n_extension.dart';
@@ -310,24 +314,51 @@ class _DataSection extends ConsumerWidget {
           child: Column(
             children: [
               ListTile(
-                leading: const Icon(Icons.upload_file_outlined),
-                title: Text(l10n.settingsImportBookshelf),
-                subtitle: Text(l10n.settingsImportBookshelfHint),
-                onTap: () => _handleBookshelfImport(context, db),
+                leading: const Icon(Icons.shelves),
+                title: Text(l10n.dataManagementOpenShelf),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _showServiceOptions(
+                  context,
+                  title: l10n.dataManagementOpenShelf,
+                  importLabel: l10n.dataManagementRestoreBackup,
+                  importHint: l10n.dataManagementRestoreBackupHint,
+                  onImport: () => _handleLibraryImport(context, db),
+                  exportLabel: l10n.dataManagementCreateBackup,
+                  exportHint: l10n.dataManagementCreateBackupHint,
+                  onExport: () => _handleLibraryExport(context, db),
+                ),
               ),
               const Divider(height: 1, indent: 56),
               ListTile(
-                leading: const Icon(Icons.download_outlined),
-                title: Text(l10n.settingsExportCsv),
-                subtitle: Text(l10n.settingsExportCsvHint),
-                onTap: () => _handleLibraryExport(context, db),
+                leading: const Icon(Icons.bookmark_outline),
+                title: Text(l10n.dataManagementBookshelf),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _showServiceOptions(
+                  context,
+                  title: l10n.dataManagementBookshelf,
+                  importLabel: l10n.dataManagementImport,
+                  importHint: l10n.dataManagementImportHint(l10n.dataManagementBookshelf),
+                  onImport: () => _handleBookshelfImport(context, db),
+                  exportLabel: l10n.dataManagementExport,
+                  exportHint: l10n.dataManagementExportHint(l10n.dataManagementBookshelf),
+                  onExport: () => _handleBookshelfExport(context, db),
+                ),
               ),
               const Divider(height: 1, indent: 56),
               ListTile(
-                leading: const Icon(Icons.backup_outlined),
-                title: Text(l10n.settingsFullBackup),
-                subtitle: Text(l10n.settingsFullBackupHint),
-                onTap: () => _handleLibraryImport(context, db),
+                leading: const Icon(Icons.star_outline),
+                title: Text(l10n.dataManagementGoodreads),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _showServiceOptions(
+                  context,
+                  title: l10n.dataManagementGoodreads,
+                  importLabel: l10n.dataManagementImport,
+                  importHint: l10n.dataManagementImportHint(l10n.dataManagementGoodreads),
+                  onImport: () => _handleGoodreadsImport(context, db),
+                  exportLabel: l10n.dataManagementExport,
+                  exportHint: l10n.dataManagementExportHint(l10n.dataManagementGoodreads),
+                  onExport: () => _handleGoodreadsExport(context, db),
+                ),
               ),
               const Divider(height: 1, indent: 56),
               ListTile(
@@ -340,6 +371,54 @@ class _DataSection extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showServiceOptions(
+    BuildContext context, {
+    required String title,
+    required String importLabel,
+    required String importHint,
+    required VoidCallback onImport,
+    required String exportLabel,
+    required String exportHint,
+    required VoidCallback onExport,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+            ),
+            ListTile(
+              leading: const Icon(Icons.upload_file_outlined),
+              title: Text(importLabel),
+              subtitle: Text(importHint),
+              onTap: () {
+                Navigator.pop(context);
+                onImport();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.download_outlined),
+              title: Text(exportLabel),
+              subtitle: Text(exportHint),
+              onTap: () {
+                Navigator.pop(context);
+                onExport();
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
     );
   }
 
@@ -500,6 +579,90 @@ class _DataSection extends ConsumerWidget {
           debugPrint('Import Errors: ${importResult.errors.join('\n')}');
         }
       }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleBookshelfExport(BuildContext context, AppDatabase db) async {
+    if (!await _checkAndRequestStorage(context)) return;
+
+    try {
+      final exportService = BookshelfExportService(db);
+      final result = await exportService.export();
+      
+      final tempDir = await getTemporaryDirectory();
+      final file = File(p.join(tempDir.path, 'bookshelf_export_${DateTime.now().millisecondsSinceEpoch}.csv'));
+      await exportService.writeToFile(result, file);
+
+      // ignore: deprecated_member_use
+      await Share.shareXFiles([XFile(file.path)], subject: 'Bookshelf Export');
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleGoodreadsImport(BuildContext context, AppDatabase db) async {
+    if (!await _checkAndRequestStorage(context)) return;
+
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result == null || result.files.single.path == null) return;
+
+      final file = File(result.files.single.path!);
+      final importService = GoodreadsImportService(db);
+      final importResult = await importService.importFromFile(file);
+
+      if (context.mounted) {
+        final message = importResult.skipped == 0
+            ? context.l10n.importSuccess(importResult.imported)
+            : context.l10n.importPartial(importResult.imported, importResult.skipped);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+
+        if (importResult.errors.isNotEmpty) {
+          debugPrint('Import Errors: ${importResult.errors.join('\n')}');
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleGoodreadsExport(BuildContext context, AppDatabase db) async {
+    if (!await _checkAndRequestStorage(context)) return;
+
+    try {
+      final exportService = GoodreadsExportService(db);
+      final result = await exportService.export();
+      
+      final tempDir = await getTemporaryDirectory();
+      final file = File(p.join(tempDir.path, 'goodreads_export_${DateTime.now().millisecondsSinceEpoch}.csv'));
+      await exportService.writeToFile(result, file);
+
+      // ignore: deprecated_member_use
+      await Share.shareXFiles([XFile(file.path)], subject: 'Goodreads Export');
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
