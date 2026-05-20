@@ -51,6 +51,7 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
     isbn: shelf.filterIsbn,
     collectionNames: collectionNames.isEmpty ? null : collectionNames,
     imprintIds: imprintIds.isEmpty ? null : imprintIds,
+    noCover: shelf.filterNoCover,
   );
 });
 
@@ -131,10 +132,10 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
   
   Stream<List<Book>> booksStream;
 
-  final activeCollectionNames = [
+  final activeCollectionNames = {
     if (filters.collection.isNotEmpty) filters.collection,
     ...filters.collections.map((c) => c.name),
-  ].toSet().toList();
+  }.toList();
   
   // Decide which database stream to use based on active filters
   if (filters.isEmpty && filters.status == null) {

@@ -71,7 +71,7 @@ class _LastAddedTileState extends ConsumerState<LastAddedTile> {
                 child: ListView.separated(
                   scrollDirection: widget.size == StatWidgetSize.s1x2 ? Axis.vertical : Axis.horizontal,
                   itemCount: lastBooks.length,
-                  separatorBuilder: (_, __) => widget.size == StatWidgetSize.s1x2 ? const SizedBox(height: 12) : const SizedBox(width: 12),
+                  separatorBuilder: (_, _) => widget.size == StatWidgetSize.s1x2 ? const SizedBox(height: 12) : const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final book = lastBooks[index];
                     return widget.size == StatWidgetSize.s1x2 ? _buildVerticalBook(context, book) : _buildWideBook(context, book);

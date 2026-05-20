@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
+import 'package:drift/drift.dart' show Value;
 import '../../../controllers/stats_controller.dart';
 import '../../../controllers/reading_goals_controller.dart';
 import '../../../controllers/database_provider.dart';
@@ -39,22 +41,27 @@ class _GoalTileState extends ConsumerState<GoalTile> {
       data: (goals) {
         if (goals.isEmpty) return _buildEmptyState(context, ref);
 
-        return PageView.builder(
-          controller: _pageController,
-          itemCount: goals.length,
-          itemBuilder: (context, index) {
-            final goal = goals[index];
-            final progressAsync = ref.watch(goalProgressProvider(goal.id));
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            final index = _pageController.page?.round() ?? 0;
+            if (index < goals.length) {
+              showGoalConfig(context, ref, config: widget.config, existingGoal: goals[index]);
+            }
+          },
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: goals.length,
+            itemBuilder: (context, index) {
+              final goal = goals[index];
+              final progressAsync = ref.watch(goalProgressProvider(goal.id));
 
-            return InkWell(
-              onTap: () => showGoalConfig(context, ref, config: widget.config, existingGoal: goal),
-              borderRadius: BorderRadius.circular(20),
-              child: progressAsync.maybeWhen(
+              return progressAsync.maybeWhen(
                 data: (current) => _buildGoalContent(context, ref, goal, current),
                 orElse: () => const Center(child: CircularProgressIndicator()),
-              ),
-            );
-          },
+              );
+            },
+          ),
         );
       },
       orElse: () => const SizedBox.shrink(),
@@ -233,8 +240,14 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
     final titleCtrl = TextEditingController(text: existingGoal?.title);
     final targetCtrl = TextEditingController(text: existingGoal?.targetValue.toString());
     String type = existingGoal?.type ?? 'books';
+    int? selectedShelfId = existingGoal?.shelfId;
     DateTime start = existingGoal?.startDate ?? DateTime(DateTime.now().year, 1, 1);
     DateTime end = existingGoal?.endDate ?? DateTime(DateTime.now().year, 12, 31);
+
+    final shelvesAsync = ref.read(databaseProvider).watchAllShelves().first;
+    final shelves = await shelvesAsync;
+
+    if (!context.mounted) return;
 
     final result = await showDialog<bool>(
       context: context,
@@ -256,15 +269,24 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
                   items: [
                     DropdownMenuItem(value: 'books', child: Text(context.l10n.statsGoalTypeBooks)),
                     DropdownMenuItem(value: 'pages', child: Text(context.l10n.statsGoalTypePages)),
+                    DropdownMenuItem(value: 'shelf', child: Text(context.l10n.navShelves)),
                   ],
                   onChanged: (v) => setDialogState(() => type = v!),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: targetCtrl,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: context.l10n.statsGoalTargetLabel),
-                ),
+                if (type == 'shelf')
+                  DropdownButtonFormField<int>(
+                    initialValue: selectedShelfId,
+                    decoration: const InputDecoration(labelText: 'Estantería objetivo'),
+                    items: shelves.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
+                    onChanged: (v) => setDialogState(() => selectedShelfId = v),
+                  )
+                else
+                  TextField(
+                    controller: targetCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: context.l10n.statsGoalTargetLabel),
+                  ),
                 const SizedBox(height: 16),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
@@ -299,7 +321,9 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
             TextButton(onPressed: () => Navigator.pop(ctx), child: Text(context.l10n.cancel)),
             FilledButton(
               onPressed: () {
-                if (titleCtrl.text.isEmpty || targetCtrl.text.isEmpty) return;
+                if (titleCtrl.text.isEmpty) return;
+                if (type != 'shelf' && targetCtrl.text.isEmpty) return;
+                if (type == 'shelf' && selectedShelfId == null) return;
                 Navigator.pop(ctx, true);
               },
               child: Text(existingGoal == null ? context.l10n.create : context.l10n.save),
@@ -311,22 +335,41 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
 
     if (result == true) {
       final db = ref.read(databaseProvider);
+      
+      int targetValue = type == 'shelf' ? 0 : int.parse(targetCtrl.text);
+      if (type == 'shelf' && selectedShelfId != null) {
+        final shelf = shelves.firstWhere((s) => s.id == selectedShelfId);
+        final books = await db.watchBooksFiltered(
+          query: shelf.filterQuery,
+          author: shelf.filterAuthor,
+          publisher: shelf.filterPublisher,
+          isbn: shelf.filterIsbn,
+          collectionNames: shelf.filterCollection?.split(' | '),
+          tagIds: shelf.filterTagIds != null ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>() : null,
+          imprintIds: shelf.filterImprintIds != null ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>() : null,
+          noCover: shelf.filterNoCover,
+        ).first;
+        targetValue = books.length;
+      }
+
       if (existingGoal == null) {
         final goalId = await db.insertGoal(ReadingGoalsCompanion.insert(
           title: titleCtrl.text,
           type: type,
-          targetValue: int.parse(targetCtrl.text),
+          targetValue: targetValue,
           startDate: start,
           endDate: end,
+          shelfId: Value(selectedShelfId),
         ));
         ref.read(statsControllerProvider.notifier).resizeWidget(config.id, StatWidgetSize.values.firstWhere((e) => e.name == config.size), goalId: goalId);
       } else {
         await db.updateGoal(existingGoal.copyWith(
           title: titleCtrl.text,
           type: type,
-          targetValue: int.parse(targetCtrl.text),
+          targetValue: targetValue,
           startDate: start,
           endDate: end,
+          shelfId: Value(selectedShelfId),
         ));
       }
     }

@@ -12,6 +12,8 @@ class AppSettingsController extends Notifier<AppSettings> {
   static const _keyDbPath = 'app_db_path';
   static const _keySearchServers = 'app_search_servers';
   static const _keyGoogleApiKey = 'app_google_api_key';
+  static const _keyLibraryColumns = 'app_library_columns';
+  static const _keyAutoNoCoverShelf = 'app_auto_no_cover_shelf';
 
   @override
   AppSettings build() {
@@ -51,6 +53,8 @@ class AppSettingsController extends Notifier<AppSettings> {
     }
 
     final googleApiKey = prefs.getString(_keyGoogleApiKey);
+    final gridColumns = prefs.getInt(_keyLibraryColumns) ?? 3;
+    final autoNoCover = prefs.getBool(_keyAutoNoCoverShelf) ?? true;
 
     return AppSettings(
       themeMode: theme,
@@ -64,6 +68,8 @@ class AppSettingsController extends Notifier<AppSettings> {
         BookSearchServer.inventaire,
       ],
       googleBooksApiKey: googleApiKey,
+      libraryGridColumns: gridColumns,
+      autoNoCoverShelf: autoNoCover,
     );
   }
 
@@ -122,6 +128,16 @@ class AppSettingsController extends Notifier<AppSettings> {
     } else {
       ref.read(sharedPrefsProvider).setString(_keyGoogleApiKey, key);
     }
+  }
+
+  void setLibraryGridColumns(int columns) {
+    state = state.copyWith(libraryGridColumns: columns);
+    ref.read(sharedPrefsProvider).setInt(_keyLibraryColumns, columns);
+  }
+
+  void setAutoNoCoverShelf(bool enabled) {
+    state = state.copyWith(autoNoCoverShelf: enabled);
+    ref.read(sharedPrefsProvider).setBool(_keyAutoNoCoverShelf, enabled);
   }
 }
 

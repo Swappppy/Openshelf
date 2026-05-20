@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/database.dart';
 import '../models/display_preferences.dart';
+import '../controllers/app_settings_controller.dart';
 import 'status_chip.dart';
 import 'book_cover.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// A compact card displaying a book in the Library grid view.
 /// Features a large cover image with a centered-top focus and a discrete progress indicator.
@@ -25,6 +26,8 @@ class BookGridCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final gridColumns = ref.watch(appSettingsProvider.select((s) => s.libraryGridColumns));
+
     final percent = (book.totalPages != null && book.totalPages! > 0)
         ? (book.currentPage ?? 0) / book.totalPages!
         : 0.0;
@@ -90,41 +93,32 @@ class BookGridCard extends ConsumerWidget {
 
             // Text Info
             Padding(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(gridColumns >= 3 ? 8 : 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     book.title,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: (gridColumns >= 3 
+                      ? theme.textTheme.labelMedium 
+                      : theme.textTheme.labelLarge)?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (book.subtitle != null)
-                    Text(
-                      book.subtitle!,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        fontStyle: FontStyle.italic,
-                        fontSize: 9,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
                   const SizedBox(height: 2),
                   if (prefs.showAuthor)
                     Text(
                       book.author,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: colorScheme.outline,
-                        fontSize: 10,
+                        fontSize: gridColumns >= 3 ? 9 : 10,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  if (prefs.showStatusChip) ...[
+                  if (prefs.showStatusChip && gridColumns < 3) ...[
                     const SizedBox(height: 8),
                     StatusChip(status: book.status, isGrid: true),
                   ],

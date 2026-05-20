@@ -20,6 +20,8 @@ class Shelf extends DataClass implements Insertable<Shelf> {
   
   /// JSON-encoded list of imprint IDs to filter by.
   final String? filterImprintIds;
+  
+  final bool filterNoCover;
 
   const Shelf({
     required this.id,
@@ -35,6 +37,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
     this.filterStatus,
     this.filterTagIds,
     this.filterImprintIds,
+    this.filterNoCover = false,
   });
 
   @override
@@ -53,6 +56,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       'filter_status': Variable<String>(filterStatus),
       'filter_tag_ids': Variable<String>(filterTagIds),
       'filter_imprint_ids': Variable<String>(filterImprintIds),
+      'filter_no_cover': Variable<bool>(filterNoCover),
     }).toColumns(nullToAbsent);
   }
 
@@ -73,6 +77,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       'filterStatus': serializer.toJson<String?>(filterStatus),
       'filterTagIds': serializer.toJson<String?>(filterTagIds),
       'filterImprintIds': serializer.toJson<String?>(filterImprintIds),
+      'filterNoCover': serializer.toJson<bool>(filterNoCover),
     };
   }
 
@@ -90,6 +95,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
     String? filterStatus,
     String? filterTagIds,
     String? filterImprintIds,
+    bool? filterNoCover,
     bool clearStatus = false,
   }) {
     return Shelf(
@@ -106,6 +112,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       filterStatus: clearStatus ? null : (filterStatus ?? this.filterStatus),
       filterTagIds: filterTagIds ?? this.filterTagIds,
       filterImprintIds: filterImprintIds ?? this.filterImprintIds,
+      filterNoCover: filterNoCover ?? this.filterNoCover,
     );
   }
 }

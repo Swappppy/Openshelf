@@ -15,6 +15,8 @@ class AppSettings {
   final String? dbPath;
   final List<BookSearchServer> searchServers;
   final String? googleBooksApiKey;
+  final int libraryGridColumns;
+  final bool autoNoCoverShelf;
 
   const AppSettings({
     this.themeMode = ThemeMode.system,
@@ -28,6 +30,8 @@ class AppSettings {
       BookSearchServer.inventaire,
     ],
     this.googleBooksApiKey,
+    this.libraryGridColumns = 3,
+    this.autoNoCoverShelf = true,
   });
 
   AppSettings copyWith({
@@ -40,6 +44,8 @@ class AppSettings {
     List<BookSearchServer>? searchServers,
     String? googleBooksApiKey,
     bool clearGoogleBooksApiKey = false,
+    int? libraryGridColumns,
+    bool? autoNoCoverShelf,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -49,6 +55,8 @@ class AppSettings {
       dbPath: dbPath ?? this.dbPath,
       searchServers: searchServers ?? this.searchServers,
       googleBooksApiKey: clearGoogleBooksApiKey ? null : (googleBooksApiKey ?? this.googleBooksApiKey),
+      libraryGridColumns: libraryGridColumns ?? this.libraryGridColumns,
+      autoNoCoverShelf: autoNoCoverShelf ?? this.autoNoCoverShelf,
     );
   }
 }

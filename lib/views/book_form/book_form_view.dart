@@ -8,6 +8,7 @@ import '../../services/database.dart';
 import '../../services/cover_service.dart';
 import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
+import '../../controllers/shelf_automation_controller.dart';
 import '../../controllers/reading_log_controller.dart';
 import '../../widgets/entity_field_selector.dart';
 import '../../widgets/tag_grid_selector.dart';
@@ -133,7 +134,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
   /// Adjusts page count based on selected status.
   void _onStatusChanged(ReadingStatus s) {
-    setState(() => _status = s);
+    setState(() {
+      _status = s;
+      if (s == ReadingStatus.read) {
+        _finishedAt ??= DateTime.now();
+      } else if (s == ReadingStatus.reading || s == ReadingStatus.wantToRead) {
+        _finishedAt = null;
+      }
+    });
     final total = int.tryParse(_totalPagesCtrl.text);
     switch (s) {
       case ReadingStatus.wantToRead:
@@ -459,6 +467,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       await db.getOrCreateCollection(collectionName);
     }
 
+    // Trigger shelf automation check
+    ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
+
     if (mounted) Navigator.pop(context);
   }
 
@@ -502,7 +513,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     }
 
     if (newStatus != _status) {
-      setState(() => _status = newStatus);
+      setState(() {
+        _status = newStatus;
+        if (newStatus == ReadingStatus.read) {
+          _finishedAt ??= DateTime.now();
+        } else if (newStatus == ReadingStatus.reading || newStatus == ReadingStatus.wantToRead) {
+          _finishedAt = null;
+        }
+      });
     }
   }
 

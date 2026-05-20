@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../controllers/app_settings_controller.dart';
+import '../../controllers/shelf_automation_controller.dart';
 import '../../controllers/database_provider.dart';
 import '../../models/app_settings.dart';
 import '../../services/bookshelf_import_service.dart';
@@ -54,6 +55,8 @@ class _AppearanceSection extends ConsumerWidget {
     final localeCode = ref.watch(appSettingsProvider.select((s) => s.locale?.languageCode));
     final themeMode = ref.watch(appSettingsProvider.select((s) => s.themeMode));
     final seedColor = ref.watch(appSettingsProvider.select((s) => s.seedColor));
+    final gridColumns = ref.watch(appSettingsProvider.select((s) => s.libraryGridColumns));
+    final autoNoCover = ref.watch(appSettingsProvider.select((s) => s.autoNoCoverShelf));
     final controller = ref.read(appSettingsProvider.notifier);
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -165,6 +168,64 @@ class _AppearanceSection extends ConsumerWidget {
                   selectedColor: seedColor,
                   onColorSelected: (color) {
                     if (color != null) controller.setSeedColor(color);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Grid Density
+        Card(
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Columnas en la biblioteca",
+                    style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 4),
+                Text(
+                  "Ajusta el número de libros por fila en la vista de cuadrícula",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.outline,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Icon(Icons.grid_view, size: 20),
+                    Expanded(
+                      child: Slider(
+                        value: gridColumns.toDouble().clamp(1, 3),
+                        min: 1,
+                        max: 3,
+                        divisions: 2,
+                        label: gridColumns.toString(),
+                        onChanged: (val) => controller.setLibraryGridColumns(val.toInt()),
+                      ),
+                    ),
+                    Text(
+                      gridColumns.toString(),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(height: 32),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary: const Icon(Icons.no_photography_outlined, size: 20),
+                  title: const Text("Estantería de libros sin portada"),
+                  subtitle: const Text("Crea automáticamente una estantería si faltan portadas"),
+                  value: autoNoCover,
+                  onChanged: (val) {
+                    controller.setAutoNoCoverShelf(val);
+                    ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
                   },
                 ),
               ],
@@ -322,7 +383,7 @@ class _DataSection extends ConsumerWidget {
                   title: l10n.dataManagementOpenShelf,
                   importLabel: l10n.dataManagementRestoreBackup,
                   importHint: l10n.dataManagementRestoreBackupHint,
-                  onImport: () => _handleLibraryImport(context, db),
+                  onImport: () => _handleLibraryImport(context, ref, db),
                   exportLabel: l10n.dataManagementCreateBackup,
                   exportHint: l10n.dataManagementCreateBackupHint,
                   onExport: () => _handleLibraryExport(context, db),
@@ -338,7 +399,7 @@ class _DataSection extends ConsumerWidget {
                   title: l10n.dataManagementBookshelf,
                   importLabel: l10n.dataManagementImport,
                   importHint: l10n.dataManagementImportHint(l10n.dataManagementBookshelf),
-                  onImport: () => _handleBookshelfImport(context, db),
+                  onImport: () => _handleBookshelfImport(context, ref, db),
                   exportLabel: l10n.dataManagementExport,
                   exportHint: l10n.dataManagementExportHint(l10n.dataManagementBookshelf),
                   onExport: () => _handleBookshelfExport(context, db),
@@ -354,7 +415,7 @@ class _DataSection extends ConsumerWidget {
                   title: l10n.dataManagementGoodreads,
                   importLabel: l10n.dataManagementImport,
                   importHint: l10n.dataManagementImportHint(l10n.dataManagementGoodreads),
-                  onImport: () => _handleGoodreadsImport(context, db),
+                  onImport: () => _handleGoodreadsImport(context, ref, db),
                   exportLabel: l10n.dataManagementExport,
                   exportHint: l10n.dataManagementExportHint(l10n.dataManagementGoodreads),
                   onExport: () => _handleGoodreadsExport(context, db),
@@ -484,7 +545,7 @@ class _DataSection extends ConsumerWidget {
     }
   }
 
-  Future<void> _handleLibraryImport(BuildContext context, AppDatabase db) async {
+  Future<void> _handleLibraryImport(BuildContext context, WidgetRef ref, AppDatabase db) async {
     if (!await _checkAndRequestStorage(context)) return;
 
     try {
@@ -534,6 +595,9 @@ class _DataSection extends ConsumerWidget {
       final migration = DataMigrationService(db);
       final count = await migration.importFromBackup(backupFile, zipFile: zipFile);
 
+      // Trigger shelf automation check
+      ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.l10n.importSuccess(count))),
@@ -548,7 +612,7 @@ class _DataSection extends ConsumerWidget {
     }
   }
 
-  Future<void> _handleBookshelfImport(BuildContext context, AppDatabase db) async {
+  Future<void> _handleBookshelfImport(BuildContext context, WidgetRef ref, AppDatabase db) async {
     if (!await _checkAndRequestStorage(context)) return;
 
     try {
@@ -562,6 +626,9 @@ class _DataSection extends ConsumerWidget {
       final file = File(result.files.single.path!);
       final importService = BookshelfImportService(db);
       final importResult = await importService.importFromFile(file);
+
+      // Trigger shelf automation check
+      ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
 
       if (context.mounted) {
         final message = importResult.skipped == 0
@@ -610,7 +677,7 @@ class _DataSection extends ConsumerWidget {
     }
   }
 
-  Future<void> _handleGoodreadsImport(BuildContext context, AppDatabase db) async {
+  Future<void> _handleGoodreadsImport(BuildContext context, WidgetRef ref, AppDatabase db) async {
     if (!await _checkAndRequestStorage(context)) return;
 
     try {
@@ -624,6 +691,9 @@ class _DataSection extends ConsumerWidget {
       final file = File(result.files.single.path!);
       final importService = GoodreadsImportService(db);
       final importResult = await importService.importFromFile(file);
+
+      // Trigger shelf automation check
+      ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
 
       if (context.mounted) {
         final message = importResult.skipped == 0

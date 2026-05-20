@@ -73,18 +73,23 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     final oldPage = book.currentPage ?? 0;
     final total = book.totalPages ?? 0;
     ReadingStatus newStatus = book.status;
+    DateTime? newFinishedAt = book.finishedAt;
 
     if (newPage == 0) {
       newStatus = ReadingStatus.wantToRead;
+      newFinishedAt = null;
     } else if (total > 0 && newPage >= total) {
       newStatus = ReadingStatus.read;
+      newFinishedAt ??= DateTime.now();
     } else {
       newStatus = ReadingStatus.reading;
+      newFinishedAt = null;
     }
 
     final updated = book.copyWith(
       currentPage: Value(newPage),
       status: newStatus,
+      finishedAt: Value(newFinishedAt),
     );
     await ref.read(databaseProvider).updateBook(updated);
 

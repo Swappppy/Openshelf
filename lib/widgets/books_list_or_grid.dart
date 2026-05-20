@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/display_preferences.dart';
 import '../services/database.dart';
 import '../controllers/display_preferences_controller.dart';
+import '../controllers/app_settings_controller.dart';
 import '../controllers/books_controller.dart';
 import '../views/book_detail/book_detail_view.dart';
 import '../l10n/l10n_extension.dart';
@@ -30,6 +31,7 @@ class BooksListOrGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final prefs = ref.watch(displayPreferencesProvider);
+    final gridColumns = ref.watch(appSettingsProvider.select((s) => s.libraryGridColumns));
     final viewMode = prefs.viewMode;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -97,9 +99,9 @@ class BooksListOrGrid extends ConsumerWidget {
             : GridView.builder(
                 controller: scrollController,
                 padding: const EdgeInsets.all(12),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.65,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: gridColumns,
+                  childAspectRatio: gridColumns >= 3 ? 0.60 : 0.65,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                 ),

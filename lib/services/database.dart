@@ -70,6 +70,7 @@ class Shelves extends Table {
   /// JSON-encoded list of tag IDs for the shelf filter
   TextColumn get filterTagIds => text().nullable()();
   TextColumn get filterImprintIds => text().nullable()();
+  BoolColumn get filterNoCover => boolean().withDefault(const Constant(false))();
 }
 
 /// Reading Goals table
@@ -144,7 +145,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -200,6 +201,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 11) {
         try {
           await m.addColumn(books, books.description as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 12) {
+        try {
+          await m.addColumn(shelves, shelves.filterNoCover as GeneratedColumn);
         } catch (_) {}
       }
     },
@@ -279,6 +285,9 @@ class AppDatabase extends _$AppDatabase {
       await delete(books).go();
       await delete(shelves).go();
       await delete(tags).go(); // Clears Categories, Imprints, and Collections
+      await delete(readingGoals).go();
+      await delete(readingLog).go();
+      await delete(statWidgetConfigs).go();
     });
   }
 
@@ -502,6 +511,7 @@ class AppDatabase extends _$AppDatabase {
     String? language,
     List<String>? collectionNames,
     List<int>? imprintIds,
+    bool? noCover,
   }) {
     // If filtering by tags or imprints, use the complex join query
     if ((tagIds != null && tagIds.isNotEmpty) || (imprintIds != null && imprintIds.isNotEmpty)){
@@ -514,6 +524,7 @@ class AppDatabase extends _$AppDatabase {
         language: language,
         collectionNames: collectionNames,
         imprintIds: imprintIds,
+        noCover: noCover,
       );
     }
 
@@ -539,6 +550,9 @@ class AppDatabase extends _$AppDatabase {
         if (collectionNames != null && collectionNames.isNotEmpty) {
           expr = expr & b.collectionName.isIn(collectionNames);
         }
+        if (noCover == true) {
+          expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
+        }
         return expr;
       });
     return q.watch();
@@ -554,13 +568,24 @@ class AppDatabase extends _$AppDatabase {
     String? language,
     List<String>? collectionNames,
     List<int>? imprintIds,
+    bool? noCover,
   }) {
     final allRequiredTagIds = [
       ...?tagIds,
       ...?imprintIds,
     ].whereType<int>().toSet().toList();
 
-    if (allRequiredTagIds.isEmpty) return watchAllBooks();
+    if (allRequiredTagIds.isEmpty) {
+      return watchBooksFiltered(
+        query: query,
+        author: author,
+        publisher: publisher,
+        isbn: isbn,
+        language: language,
+        collectionNames: collectionNames,
+        noCover: noCover,
+      );
+    }
 
     return (select(bookTags)
       ..where((bt) => bt.tagId.isIn(allRequiredTagIds)))
@@ -599,6 +624,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (collectionNames != null && collectionNames.isNotEmpty) {
             expr = expr & b.collectionName.isIn(collectionNames);
+          }
+          if (noCover == true) {
+            expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
           }
           return expr;
         });
