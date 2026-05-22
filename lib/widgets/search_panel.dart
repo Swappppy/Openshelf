@@ -58,7 +58,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A2E),
+        color: colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
       ),
@@ -359,7 +359,7 @@ class _SearchFilterField extends StatelessWidget {
         hintStyle: const TextStyle(fontSize: 12, color: Colors.white38),
         isDense: true,
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.05),
+        fillColor: colorScheme.primary.withValues(alpha: 0.05),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
@@ -379,7 +379,8 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = color ?? Colors.white70;
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = color ?? colorScheme.primary;
     return Container(
       padding: const EdgeInsets.only(left: 10),
       decoration: BoxDecoration(

@@ -305,6 +305,12 @@ StreamProvider.family<int, int>((ref, imprintId) {
   return ref.watch(databaseProvider).watchBookCountByImprint(imprintId);
 });
 
+final collectionBookCountProvider =
+StreamProvider.family<int, String>((ref, collectionName) {
+  final db = ref.read(databaseProvider);
+  return db.watchBooksFiltered(collectionNames: [collectionName]).map((list) => list.length);
+});
+
 /// Provider that calculates stats (count, read count) for all shelves reactively.
 final allShelvesWithStatsProvider = Provider<AsyncValue<List<(Shelf, int, int)>>>((ref) {
   final shelvesAsync = ref.watch(allShelvesProvider);

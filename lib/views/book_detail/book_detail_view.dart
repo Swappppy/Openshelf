@@ -438,7 +438,14 @@ class _CompactTagsDisplay extends StatelessWidget {
           children: [
             ...visibleTags.map((tag) {
               final color = tag.color != null ? Color(int.parse('0xFF${tag.color!}')) : null;
-              return _SimpleTagChip(label: tag.name, color: color);
+              return TagChip(
+                label: tag.name,
+                colorHex: tag.color,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => TagBooksView(tag: tag)),
+                ),
+              );
             }),
             if (hiddenCount > 0)
               Container(
@@ -455,32 +462,6 @@ class _CompactTagsDisplay extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _SimpleTagChip extends StatelessWidget {
-  final String label;
-  final Color? color;
-  const _SimpleTagChip({required this.label, this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final baseColor = color ?? Theme.of(context).colorScheme.outline;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: baseColor.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          color: baseColor,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
     );
   }
 }
@@ -648,6 +629,10 @@ class _MainTab extends StatelessWidget {
               children: tagList.map((tag) => TagChip(
                 label: tag.name,
                 colorHex: tag.color,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => TagBooksView(tag: tag)),
+                ),
               )).toList(),
             ),
           );
@@ -771,17 +756,104 @@ class _DetailsTab extends StatelessWidget {
         _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
         const SizedBox(height: 20),
         _ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
-        const SizedBox(height: 20),
-        _ReadOnlyField(
-          label: context.l10n.fieldCollection,
-          value: book.collectionName ?? '—',
+        const SizedBox(height: 24),
+
+        // Collection section
+        Text(
+          context.l10n.fieldCollection.toUpperCase(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
         ),
-        const SizedBox(height: 20),
-        _ReadOnlyField(
-          label: context.l10n.fieldCollectionNumber,
-          value: book.collectionNumber?.toString() ?? '—',
-        ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
+        if (book.collectionName != null && book.collectionName!.isNotEmpty)
+          Consumer(builder: (context, ref, _) {
+            final tagsAsync = ref.watch(allCollectionsProvider);
+            return tagsAsync.maybeWhen(
+              data: (allCols) {
+                final collection = allCols.where((t) => t.name.toLowerCase() == book.collectionName!.toLowerCase()).firstOrNull;
+                if (collection == null) return Text(book.collectionName!, style: Theme.of(context).textTheme.bodyLarge);
+                
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TagBooksView(tag: collection),
+                    ),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        // Collection number placeholder
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(
+                              book.collectionNumber?.toString() ?? '#',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                collection.name,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Consumer(builder: (context, ref, _) {
+                                final countAsync = ref.watch(collectionBookCountProvider(collection.name));
+                                return countAsync.maybeWhen(
+                                  data: (count) => Text(
+                                    context.l10n.imprintBookCount(count),
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: colorScheme.outline,
+                                    ),
+                                  ),
+                                  orElse: () => const SizedBox.shrink(),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              orElse: () => Text(book.collectionName!, style: Theme.of(context).textTheme.bodyLarge),
+            );
+          })
+        else
+          Text('—', style: Theme.of(context).textTheme.bodyLarge),
+
+        const SizedBox(height: 24),
 
         // Imprint section
         Text(

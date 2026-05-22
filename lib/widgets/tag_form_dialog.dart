@@ -10,12 +10,12 @@ import '../controllers/database_provider.dart';
 import '../l10n/l10n_extension.dart';
 import 'app_color_picker.dart';
 
-void showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, String? initialName, required String title, required String type}) {
+Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, String? initialName, required String title, required String type}) {
   final ctrl = TextEditingController(text: existing?.name ?? initialName ?? '');
   String? selectedColor = existing?.color;
   String? imagePath = existing?.imagePath;
 
-  showDialog(
+  return showDialog<Tag?>(
     context: context,
     builder: (ctx) => StatefulBuilder(
       builder: (context, setState) {
@@ -150,23 +150,32 @@ void showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, Stri
             TextButton(onPressed: () => Navigator.pop(ctx), child: Text(context.l10n.cancel)),
             TextButton(
               onPressed: () async {
-                if (ctrl.text.trim().isNotEmpty) {
+                final name = ctrl.text.trim();
+                if (name.isNotEmpty) {
+                  Tag? result;
                   if (existing == null) {
-                    await ref.read(databaseProvider).insertTag(TagsCompanion(
-                      name: Value(ctrl.text.trim()), 
+                    final id = await ref.read(databaseProvider).insertTag(TagsCompanion(
+                      name: Value(name), 
                       type: Value(type),
                       color: Value(selectedColor),
                       imagePath: Value(imagePath),
                     ));
+                    result = Tag(
+                      id: id,
+                      name: name,
+                      type: type,
+                      color: selectedColor,
+                      imagePath: imagePath,
+                    );
                   } else {
-                    final updated = existing.copyWith(
-                      name: ctrl.text.trim(),
+                    result = existing.copyWith(
+                      name: name,
                       color: Value(selectedColor),
                       imagePath: Value(imagePath),
                     );
-                    await ref.read(databaseProvider).updateTag(updated);
+                    await ref.read(databaseProvider).updateTag(result);
                   }
-                  if (ctx.mounted) Navigator.pop(ctx);
+                  if (ctx.mounted) Navigator.pop(ctx, result);
                 }
               }, 
               child: Text(context.l10n.save)

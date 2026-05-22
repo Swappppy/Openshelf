@@ -86,6 +86,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _publishYearCtrl = TextEditingController(
         text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
         
+    _collectionNameCtrl.addListener(() {
+      if (mounted) setState(() {});
+    });
+
     if (b != null) {
       _status = b.status;
       _format = b.bookFormat;
@@ -909,39 +913,28 @@ class _DetailsTab extends ConsumerWidget {
 
         _SectionHeader(label: context.l10n.fieldCollection),
         const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: EntityFieldSelector(
-                selected: collectionNameCtrl.text.isNotEmpty 
-                    ? [Tag(id: -1, name: collectionNameCtrl.text, type: 'collection')] 
-                    : [],
-                onChanged: (list) {
-                  if (list.isNotEmpty) {
-                    collectionNameCtrl.text = list.first.name;
-                  } else {
-                    collectionNameCtrl.text = '';
-                  }
-                },
-                type: 'collection',
-                label: context.l10n.fieldCollection,
-                icon: Icons.collections_bookmark_outlined,
-                multiSelection: false,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 1,
-              child: _FormField(
-                controller: collectionNumberCtrl,
-                label: context.l10n.fieldCollectionNumber,
-                icon: Icons.tag,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
+        EntityFieldSelector(
+          selected: collectionNameCtrl.text.isNotEmpty 
+              ? [Tag(id: -1, name: collectionNameCtrl.text, type: 'collection')] 
+              : [],
+          onChanged: (list) {
+            if (list.isNotEmpty) {
+              collectionNameCtrl.text = list.first.name;
+            } else {
+              collectionNameCtrl.text = '';
+            }
+          },
+          type: 'collection',
+          label: context.l10n.fieldCollection,
+          icon: Icons.collections_bookmark_outlined,
+          multiSelection: false,
+        ),
+        const SizedBox(height: 12),
+        _FormField(
+          controller: collectionNumberCtrl,
+          label: context.l10n.fieldCollectionNumber,
+          icon: Icons.tag,
+          keyboardType: TextInputType.number,
         ),
         const SizedBox(height: 24),
 
