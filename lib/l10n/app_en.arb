@@ -979,6 +979,24 @@
   "statsOptAvgPagesTitle": "Average length",
   "statsOptAvgPagesSub": "Average pages per book",
 
+  "statsOptReadListTitle": "Read books list",
+  "statsOptReadListSub": "Books read in a period",
+
+  "statsOptAvgCompletionTitle": "Completion time",
+  "statsOptAvgCompletionSub": "Average time to finish a book",
+
+  "statsAvgCompletionValue": "{days} days",
+  "@statsAvgCompletionValue": {
+    "placeholders": { "days": { "type": "String" } }
+  },
+
+  "statsPeriodThisMonth": "Read this month",
+  "statsPeriodLast3Months": "Read last 3 months",
+  "statsPeriodThisYear": "Read this year",
+  "statsPeriodLast3Years": "Read last 3 years",
+
+  "tabMore": "more",
+
   "sortTitle": "Sort",
 
   "openSettings": "Open settings",

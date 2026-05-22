@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../controllers/shelf_automation_controller.dart';
 import '../../controllers/database_provider.dart';
+import '../../controllers/search_filters_controller.dart';
 import '../../models/app_settings.dart';
 import '../../services/bookshelf_import_service.dart';
 import '../../services/bookshelf_export_service.dart';
@@ -555,6 +556,7 @@ class _DataSection extends ConsumerWidget {
 
     if (includeCovers == null) return;
 
+    if (!context.mounted) return;
     onLoading(true, context.l10n.loadingExport);
     final migration = DataMigrationService(db);
     try {
@@ -617,6 +619,7 @@ class _DataSection extends ConsumerWidget {
         }
       }
 
+      if (!context.mounted) return;
       onLoading(true, context.l10n.loadingImport);
       final migration = DataMigrationService(db);
       final count = await migration.importFromBackup(backupFile, zipFile: zipFile);
@@ -651,6 +654,7 @@ class _DataSection extends ConsumerWidget {
 
       if (result == null || result.files.single.path == null) return;
 
+      if (!context.mounted) return;
       onLoading(true, context.l10n.loadingImport);
       final file = File(result.files.single.path!);
       final importService = BookshelfImportService(db);
@@ -690,6 +694,7 @@ class _DataSection extends ConsumerWidget {
     if (!await _checkAndRequestStorage(context)) return;
 
     try {
+      if (!context.mounted) return;
       onLoading(true, context.l10n.loadingExport);
       final exportService = BookshelfExportService(db);
       final result = await exportService.export();
@@ -722,6 +727,7 @@ class _DataSection extends ConsumerWidget {
 
       if (result == null || result.files.single.path == null) return;
 
+      if (!context.mounted) return;
       onLoading(true, context.l10n.loadingImport);
       final file = File(result.files.single.path!);
       final importService = GoodreadsImportService(db);
@@ -761,6 +767,7 @@ class _DataSection extends ConsumerWidget {
     if (!await _checkAndRequestStorage(context)) return;
 
     try {
+      if (!context.mounted) return;
       onLoading(true, context.l10n.loadingExport);
       final exportService = GoodreadsExportService(db);
       final result = await exportService.export();

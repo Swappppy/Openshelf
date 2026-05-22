@@ -16,6 +16,8 @@ import 'widgets/goal_tile.dart';
 import 'widgets/chart_tiles.dart';
 import 'widgets/last_added_tile.dart';
 import 'widgets/avg_pages_tile.dart';
+import 'widgets/read_list_tile.dart';
+import 'widgets/avg_completion_tile.dart';
 
 class StatsView extends ConsumerStatefulWidget {
   const StatsView({super.key});
@@ -306,9 +308,12 @@ class _StatTile extends ConsumerWidget {
         return [StatWidgetSize.s2x2, StatWidgetSize.s1x2];
       case StatWidgetType.publishYear:
         return [StatWidgetSize.s2x2, StatWidgetSize.s2x1, StatWidgetSize.s1x2];
+      case StatWidgetType.readList:
+        return [StatWidgetSize.s2x2, StatWidgetSize.s1x2];
       case StatWidgetType.lastAdded:
         return [StatWidgetSize.s2x1, StatWidgetSize.s1x2, StatWidgetSize.s1x1];
       case StatWidgetType.avgPages:
+      case StatWidgetType.avgCompletionTime:
         return [StatWidgetSize.s1x1];
     }
   }
@@ -327,6 +332,8 @@ class _StatTile extends ConsumerWidget {
       case StatWidgetType.collections: return CollectionsDistributionTile(size: size);
       case StatWidgetType.lastAdded: return LastAddedTile(size: size);
       case StatWidgetType.avgPages: return const AvgPagesTile();
+      case StatWidgetType.readList: return ReadListTile(config: config, size: size);
+      case StatWidgetType.avgCompletionTime: return const AvgCompletionTimeTile();
     }
   }
 }
@@ -359,6 +366,8 @@ class _AddWidgetSheet extends ConsumerWidget {
               _buildOption(context, ref, StatWidgetType.collections, context.l10n.statsOptCollectionsTitle, context.l10n.statsOptCollectionsSub, Icons.collections_bookmark, StatWidgetSize.s2x2),
               _buildOption(context, ref, StatWidgetType.lastAdded, context.l10n.statsOptLastAddedTitle, context.l10n.statsOptLastAddedSub, Icons.history, StatWidgetSize.s2x1),
               _buildOption(context, ref, StatWidgetType.avgPages, context.l10n.statsOptAvgPagesTitle, context.l10n.statsOptAvgPagesSub, Icons.analytics, StatWidgetSize.s1x1),
+              _buildOption(context, ref, StatWidgetType.readList, context.l10n.statsOptReadListTitle, context.l10n.statsOptReadListSub, Icons.checklist_rtl, StatWidgetSize.s2x2),
+              _buildOption(context, ref, StatWidgetType.avgCompletionTime, context.l10n.statsOptAvgCompletionTitle, context.l10n.statsOptAvgCompletionSub, Icons.timer_outlined, StatWidgetSize.s1x1),
             ],
           ),
         ),

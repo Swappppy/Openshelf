@@ -69,6 +69,10 @@ class StatsController extends Notifier<void> {
       }
     });
   }
+
+  Future<void> updateWidgetConfig(StatWidgetConfig config) async {
+    await ref.read(databaseProvider).updateWidgetConfig(config);
+  }
 }
 
 final statsControllerProvider = NotifierProvider<StatsController, void>(

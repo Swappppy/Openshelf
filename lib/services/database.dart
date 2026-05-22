@@ -98,12 +98,14 @@ class ReadingLog extends Table {
 /// Configuration for stats widgets layout
 class StatWidgetConfigs extends Table {
   IntColumn get id => integer().autoIncrement()();
-  /// Type: 'pages', 'streak', 'goal', 'status', 'currentBook', 'addedOverTime', 'categories', 'publishYear'
+  /// Type: 'pages', 'streak', 'goal', 'status', 'currentBook', 'addedOverTime', 'categories', 'publishYear', 'readList'
   TextColumn get type => text()();
   /// Size: 'half', 'full', 'fullTall'
   TextColumn get size => text()();
   IntColumn get sortOrder => integer()();
   IntColumn get goalId => integer().nullable().references(ReadingGoals, #id)();
+  /// JSON-encoded configuration for the widget (e.g. time period)
+  TextColumn get config => text().nullable()();
 }
 
 enum ReadingStatus {
@@ -145,7 +147,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -206,6 +208,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 12) {
         try {
           await m.addColumn(shelves, shelves.filterNoCover as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 13) {
+        try {
+          await m.addColumn(statWidgetConfigs, statWidgetConfigs.config as GeneratedColumn);
         } catch (_) {}
       }
     },

@@ -3270,8 +3270,24 @@ class $StatWidgetConfigsTable extends StatWidgetConfigs
       'REFERENCES reading_goals (id)',
     ),
   );
+  static const VerificationMeta _configMeta = const VerificationMeta('config');
   @override
-  List<GeneratedColumn> get $columns => [id, type, size, sortOrder, goalId];
+  late final GeneratedColumn<String> config = GeneratedColumn<String>(
+    'config',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    type,
+    size,
+    sortOrder,
+    goalId,
+    config,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3317,6 +3333,12 @@ class $StatWidgetConfigsTable extends StatWidgetConfigs
         goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta),
       );
     }
+    if (data.containsKey('config')) {
+      context.handle(
+        _configMeta,
+        config.isAcceptableOrUnknown(data['config']!, _configMeta),
+      );
+    }
     return context;
   }
 
@@ -3346,6 +3368,10 @@ class $StatWidgetConfigsTable extends StatWidgetConfigs
         DriftSqlType.int,
         data['${effectivePrefix}goal_id'],
       ),
+      config: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}config'],
+      ),
     );
   }
 
@@ -3359,19 +3385,23 @@ class StatWidgetConfig extends DataClass
     implements Insertable<StatWidgetConfig> {
   final int id;
 
-  /// Type: 'pages', 'streak', 'goal', 'status', 'currentBook', 'addedOverTime', 'categories', 'publishYear'
+  /// Type: 'pages', 'streak', 'goal', 'status', 'currentBook', 'addedOverTime', 'categories', 'publishYear', 'readList'
   final String type;
 
   /// Size: 'half', 'full', 'fullTall'
   final String size;
   final int sortOrder;
   final int? goalId;
+
+  /// JSON-encoded configuration for the widget (e.g. time period)
+  final String? config;
   const StatWidgetConfig({
     required this.id,
     required this.type,
     required this.size,
     required this.sortOrder,
     this.goalId,
+    this.config,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3382,6 +3412,9 @@ class StatWidgetConfig extends DataClass
     map['sort_order'] = Variable<int>(sortOrder);
     if (!nullToAbsent || goalId != null) {
       map['goal_id'] = Variable<int>(goalId);
+    }
+    if (!nullToAbsent || config != null) {
+      map['config'] = Variable<String>(config);
     }
     return map;
   }
@@ -3395,6 +3428,9 @@ class StatWidgetConfig extends DataClass
       goalId: goalId == null && nullToAbsent
           ? const Value.absent()
           : Value(goalId),
+      config: config == null && nullToAbsent
+          ? const Value.absent()
+          : Value(config),
     );
   }
 
@@ -3409,6 +3445,7 @@ class StatWidgetConfig extends DataClass
       size: serializer.fromJson<String>(json['size']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       goalId: serializer.fromJson<int?>(json['goalId']),
+      config: serializer.fromJson<String?>(json['config']),
     );
   }
   @override
@@ -3420,6 +3457,7 @@ class StatWidgetConfig extends DataClass
       'size': serializer.toJson<String>(size),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'goalId': serializer.toJson<int?>(goalId),
+      'config': serializer.toJson<String?>(config),
     };
   }
 
@@ -3429,12 +3467,14 @@ class StatWidgetConfig extends DataClass
     String? size,
     int? sortOrder,
     Value<int?> goalId = const Value.absent(),
+    Value<String?> config = const Value.absent(),
   }) => StatWidgetConfig(
     id: id ?? this.id,
     type: type ?? this.type,
     size: size ?? this.size,
     sortOrder: sortOrder ?? this.sortOrder,
     goalId: goalId.present ? goalId.value : this.goalId,
+    config: config.present ? config.value : this.config,
   );
   StatWidgetConfig copyWithCompanion(StatWidgetConfigsCompanion data) {
     return StatWidgetConfig(
@@ -3443,6 +3483,7 @@ class StatWidgetConfig extends DataClass
       size: data.size.present ? data.size.value : this.size,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       goalId: data.goalId.present ? data.goalId.value : this.goalId,
+      config: data.config.present ? data.config.value : this.config,
     );
   }
 
@@ -3453,13 +3494,14 @@ class StatWidgetConfig extends DataClass
           ..write('type: $type, ')
           ..write('size: $size, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('goalId: $goalId')
+          ..write('goalId: $goalId, ')
+          ..write('config: $config')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, type, size, sortOrder, goalId);
+  int get hashCode => Object.hash(id, type, size, sortOrder, goalId, config);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3468,7 +3510,8 @@ class StatWidgetConfig extends DataClass
           other.type == this.type &&
           other.size == this.size &&
           other.sortOrder == this.sortOrder &&
-          other.goalId == this.goalId);
+          other.goalId == this.goalId &&
+          other.config == this.config);
 }
 
 class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
@@ -3477,12 +3520,14 @@ class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
   final Value<String> size;
   final Value<int> sortOrder;
   final Value<int?> goalId;
+  final Value<String?> config;
   const StatWidgetConfigsCompanion({
     this.id = const Value.absent(),
     this.type = const Value.absent(),
     this.size = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.goalId = const Value.absent(),
+    this.config = const Value.absent(),
   });
   StatWidgetConfigsCompanion.insert({
     this.id = const Value.absent(),
@@ -3490,6 +3535,7 @@ class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
     required String size,
     required int sortOrder,
     this.goalId = const Value.absent(),
+    this.config = const Value.absent(),
   }) : type = Value(type),
        size = Value(size),
        sortOrder = Value(sortOrder);
@@ -3499,6 +3545,7 @@ class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
     Expression<String>? size,
     Expression<int>? sortOrder,
     Expression<int>? goalId,
+    Expression<String>? config,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3506,6 +3553,7 @@ class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
       if (size != null) 'size': size,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (goalId != null) 'goal_id': goalId,
+      if (config != null) 'config': config,
     });
   }
 
@@ -3515,6 +3563,7 @@ class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
     Value<String>? size,
     Value<int>? sortOrder,
     Value<int?>? goalId,
+    Value<String?>? config,
   }) {
     return StatWidgetConfigsCompanion(
       id: id ?? this.id,
@@ -3522,6 +3571,7 @@ class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
       size: size ?? this.size,
       sortOrder: sortOrder ?? this.sortOrder,
       goalId: goalId ?? this.goalId,
+      config: config ?? this.config,
     );
   }
 
@@ -3543,6 +3593,9 @@ class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
     if (goalId.present) {
       map['goal_id'] = Variable<int>(goalId.value);
     }
+    if (config.present) {
+      map['config'] = Variable<String>(config.value);
+    }
     return map;
   }
 
@@ -3553,7 +3606,8 @@ class StatWidgetConfigsCompanion extends UpdateCompanion<StatWidgetConfig> {
           ..write('type: $type, ')
           ..write('size: $size, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('goalId: $goalId')
+          ..write('goalId: $goalId, ')
+          ..write('config: $config')
           ..write(')'))
         .toString();
   }
@@ -6414,6 +6468,7 @@ typedef $$StatWidgetConfigsTableCreateCompanionBuilder =
       required String size,
       required int sortOrder,
       Value<int?> goalId,
+      Value<String?> config,
     });
 typedef $$StatWidgetConfigsTableUpdateCompanionBuilder =
     StatWidgetConfigsCompanion Function({
@@ -6422,6 +6477,7 @@ typedef $$StatWidgetConfigsTableUpdateCompanionBuilder =
       Value<String> size,
       Value<int> sortOrder,
       Value<int?> goalId,
+      Value<String?> config,
     });
 
 final class $$StatWidgetConfigsTableReferences
@@ -6486,6 +6542,11 @@ class $$StatWidgetConfigsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get config => $composableBuilder(
+    column: $table.config,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$ReadingGoalsTableFilterComposer get goalId {
     final $$ReadingGoalsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -6539,6 +6600,11 @@ class $$StatWidgetConfigsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get config => $composableBuilder(
+    column: $table.config,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ReadingGoalsTableOrderingComposer get goalId {
     final $$ReadingGoalsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -6583,6 +6649,9 @@ class $$StatWidgetConfigsTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get config =>
+      $composableBuilder(column: $table.config, builder: (column) => column);
 
   $$ReadingGoalsTableAnnotationComposer get goalId {
     final $$ReadingGoalsTableAnnotationComposer composer = $composerBuilder(
@@ -6646,12 +6715,14 @@ class $$StatWidgetConfigsTableTableManager
                 Value<String> size = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<int?> goalId = const Value.absent(),
+                Value<String?> config = const Value.absent(),
               }) => StatWidgetConfigsCompanion(
                 id: id,
                 type: type,
                 size: size,
                 sortOrder: sortOrder,
                 goalId: goalId,
+                config: config,
               ),
           createCompanionCallback:
               ({
@@ -6660,12 +6731,14 @@ class $$StatWidgetConfigsTableTableManager
                 required String size,
                 required int sortOrder,
                 Value<int?> goalId = const Value.absent(),
+                Value<String?> config = const Value.absent(),
               }) => StatWidgetConfigsCompanion.insert(
                 id: id,
                 type: type,
                 size: size,
                 sortOrder: sortOrder,
                 goalId: goalId,
+                config: config,
               ),
           withReferenceMapper: (p0) => p0
               .map(

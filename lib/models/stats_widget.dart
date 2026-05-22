@@ -11,6 +11,8 @@ enum StatWidgetType {
   collections,
   lastAdded,
   avgPages,
+  readList,
+  avgCompletionTime,
 }
 
 /// Grid-based sizes: WxH where 2 is full width and 1 is half width.

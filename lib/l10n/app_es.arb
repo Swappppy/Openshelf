@@ -979,6 +979,24 @@
   "statsOptAvgPagesTitle": "Extensión promedio",
   "statsOptAvgPagesSub": "Páginas promedio por libro",
 
+  "statsOptReadListTitle": "Lista de leídos",
+  "statsOptReadListSub": "Libros leídos en un periodo",
+
+  "statsOptAvgCompletionTitle": "Tiempo de lectura",
+  "statsOptAvgCompletionSub": "Tiempo promedio en terminar un libro",
+
+  "statsAvgCompletionValue": "{days} días",
+  "@statsAvgCompletionValue": {
+    "placeholders": { "days": { "type": "String" } }
+  },
+
+  "statsPeriodThisMonth": "Leídos este mes",
+  "statsPeriodLast3Months": "Últimos 3 meses",
+  "statsPeriodThisYear": "Leídos este año",
+  "statsPeriodLast3Years": "Últimos 3 años",
+
+  "tabMore": "más",
+
   "sortTitle": "Ordenar",
 
   "openSettings": "Abrir ajustes",

@@ -2162,6 +2162,66 @@ abstract class AppLocalizations {
   /// **'Páginas promedio por libro'**
   String get statsOptAvgPagesSub;
 
+  /// No description provided for @statsOptReadListTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lista de leídos'**
+  String get statsOptReadListTitle;
+
+  /// No description provided for @statsOptReadListSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Libros leídos en un periodo'**
+  String get statsOptReadListSub;
+
+  /// No description provided for @statsOptAvgCompletionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo de lectura'**
+  String get statsOptAvgCompletionTitle;
+
+  /// No description provided for @statsOptAvgCompletionSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo promedio en terminar un libro'**
+  String get statsOptAvgCompletionSub;
+
+  /// No description provided for @statsAvgCompletionValue.
+  ///
+  /// In es, this message translates to:
+  /// **'{days} días'**
+  String statsAvgCompletionValue(String days);
+
+  /// No description provided for @statsPeriodThisMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Leídos este mes'**
+  String get statsPeriodThisMonth;
+
+  /// No description provided for @statsPeriodLast3Months.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimos 3 meses'**
+  String get statsPeriodLast3Months;
+
+  /// No description provided for @statsPeriodThisYear.
+  ///
+  /// In es, this message translates to:
+  /// **'Leídos este año'**
+  String get statsPeriodThisYear;
+
+  /// No description provided for @statsPeriodLast3Years.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimos 3 años'**
+  String get statsPeriodLast3Years;
+
+  /// No description provided for @tabMore.
+  ///
+  /// In es, this message translates to:
+  /// **'más'**
+  String get tabMore;
+
   /// No description provided for @sortTitle.
   ///
   /// In es, this message translates to:

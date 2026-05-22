@@ -75,18 +75,22 @@ class TagBooksView extends ConsumerWidget {
 class StatusBooksView extends ConsumerWidget {
   final ReadingStatus? status;
   final String title;
+  final List<Book>? customBooks;
 
   const StatusBooksView({
     super.key,
     required this.status,
     required this.title,
+    this.customBooks,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final booksAsync = status == null
-        ? ref.watch(allBooksProvider)
-        : ref.watch(booksByStatusProvider(status!));
+    final booksAsync = customBooks != null
+        ? AsyncValue.data(customBooks!)
+        : (status == null
+            ? ref.watch(allBooksProvider)
+            : ref.watch(booksByStatusProvider(status!)));
 
     return Scaffold(
       appBar: AppBar(

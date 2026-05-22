@@ -1125,6 +1125,38 @@ class AppLocalizationsEs extends AppLocalizations {
   String get statsOptAvgPagesSub => 'Páginas promedio por libro';
 
   @override
+  String get statsOptReadListTitle => 'Lista de leídos';
+
+  @override
+  String get statsOptReadListSub => 'Libros leídos en un periodo';
+
+  @override
+  String get statsOptAvgCompletionTitle => 'Tiempo de lectura';
+
+  @override
+  String get statsOptAvgCompletionSub => 'Tiempo promedio en terminar un libro';
+
+  @override
+  String statsAvgCompletionValue(String days) {
+    return '$days días';
+  }
+
+  @override
+  String get statsPeriodThisMonth => 'Leídos este mes';
+
+  @override
+  String get statsPeriodLast3Months => 'Últimos 3 meses';
+
+  @override
+  String get statsPeriodThisYear => 'Leídos este año';
+
+  @override
+  String get statsPeriodLast3Years => 'Últimos 3 años';
+
+  @override
+  String get tabMore => 'más';
+
+  @override
   String get sortTitle => 'Ordenar';
 
   @override
