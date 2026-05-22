@@ -1,10 +1,11 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/shelf.dart';
+import '../models/display_preferences.dart';
 import '../services/database.dart';
 import 'database_provider.dart';
 import 'display_preferences_controller.dart';
+import 'search_filters_controller.dart';
 
 /// Stream of all books in the database
 final allBooksProvider = StreamProvider<List<Book>>((ref) {
@@ -126,10 +127,6 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
   final filters = ref.watch(searchFiltersProvider);
   final db = ref.watch(databaseProvider);
   
-  final sortOrder = ref.watch(displayPreferencesProvider.select((p) => p.sortOrder));
-  final sortDirections = ref.watch(displayPreferencesProvider.select((p) => p.sortDirections));
-  final emptyAtEnd = ref.watch(displayPreferencesProvider.select((p) => p.emptyAtEnd));
-  
   Stream<List<Book>> booksStream;
 
   final activeCollectionNames = {
@@ -155,65 +152,74 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
     );
   }
 
-  // Handle client-side hierarchical sorting
-  return booksStream.map((list) {
-    final sortedList = List<Book>.from(list);
-    sortedList.sort((a, b) {
-      for (final criteria in sortOrder) {
-        int comparison = 0;
-        final isAsc = sortDirections[criteria] ?? true;
-
-        // Push books with missing values to the end if preference is set
-        if (emptyAtEnd) {
-          final valA = _getSortValue(a, criteria);
-          final valB = _getSortValue(b, criteria);
-          final isEmptyA = valA == null || (valA is String && valA.isEmpty);
-          final isEmptyB = valB == null || (valB is String && valB.isEmpty);
-          
-          if (isEmptyA && !isEmptyB) return 1;
-          if (!isEmptyA && isEmptyB) return -1;
-          if (isEmptyA && isEmptyB) continue; 
-        }
-
-        switch (criteria) {
-          case 'title':
-            comparison = a.title.toLowerCase().compareTo(b.title.toLowerCase());
-            break;
-          case 'author':
-            comparison = a.author.toLowerCase().compareTo(b.author.toLowerCase());
-            break;
-          case 'publisher':
-            comparison = (a.publisher ?? '').toLowerCase().compareTo((b.publisher ?? '').toLowerCase());
-            break;
-          case 'collection':
-            comparison = (a.collectionName ?? '').toLowerCase().compareTo((b.collectionName ?? '').toLowerCase());
-            break;
-          case 'imprint':
-            comparison = (a.publisher ?? '').toLowerCase().compareTo((b.publisher ?? '').toLowerCase());
-            break;
-          case 'publishYear':
-            comparison = (a.publishYear ?? 0).compareTo(b.publishYear ?? 0);
-            break;
-          case 'createdAt':
-            comparison = a.createdAt.compareTo(b.createdAt);
-            break;
-          case 'rating':
-            comparison = (a.rating ?? 0.0).compareTo(b.rating ?? 0.0);
-            break;
-        }
-
-        if (comparison != 0) {
-          return isAsc ? comparison : -comparison;
-        }
-      }
-      return 0;
-    });
-    return sortedList;
-  });
+  return booksStream.map((list) => applyLibrarySorting(ref, list));
 });
 
+/// Reusable sorting logic based on global user preferences.
+List<Book> applyLibrarySorting(dynamic refOrWidgetRef, List<Book> list) {
+  final DisplayPreferences prefs = refOrWidgetRef is WidgetRef 
+      ? refOrWidgetRef.watch(displayPreferencesProvider)
+      : refOrWidgetRef.watch(displayPreferencesProvider);
+  final sortOrder = prefs.sortOrder;
+  final sortDirections = prefs.sortDirections;
+  final emptyAtEnd = prefs.emptyAtEnd;
+
+  final sortedList = List<Book>.from(list);
+  sortedList.sort((a, b) {
+    for (final criteria in sortOrder) {
+      int comparison = 0;
+      final isAsc = sortDirections[criteria] ?? true;
+
+      // Push books with missing values to the end if preference is set
+      if (emptyAtEnd) {
+        final valA = getBookSortValue(a, criteria);
+        final valB = getBookSortValue(b, criteria);
+        final isEmptyA = valA == null || (valA is String && valA.isEmpty);
+        final isEmptyB = valB == null || (valB is String && valB.isEmpty);
+        
+        if (isEmptyA && !isEmptyB) return 1;
+        if (!isEmptyA && isEmptyB) return -1;
+        if (isEmptyA && isEmptyB) continue; 
+      }
+
+      switch (criteria) {
+        case 'title':
+          comparison = a.title.toLowerCase().compareTo(b.title.toLowerCase());
+          break;
+        case 'author':
+          comparison = a.author.toLowerCase().compareTo(b.author.toLowerCase());
+          break;
+        case 'publisher':
+          comparison = (a.publisher ?? '').toLowerCase().compareTo((b.publisher ?? '').toLowerCase());
+          break;
+        case 'collection':
+          comparison = (a.collectionName ?? '').toLowerCase().compareTo((b.collectionName ?? '').toLowerCase());
+          break;
+        case 'imprint':
+          comparison = (a.publisher ?? '').toLowerCase().compareTo((b.publisher ?? '').toLowerCase());
+          break;
+        case 'publishYear':
+          comparison = (a.publishYear ?? 0).compareTo(b.publishYear ?? 0);
+          break;
+        case 'createdAt':
+          comparison = a.createdAt.compareTo(b.createdAt);
+          break;
+        case 'rating':
+          comparison = (a.rating ?? 0.0).compareTo(b.rating ?? 0.0);
+          break;
+      }
+
+      if (comparison != 0) {
+        return isAsc ? comparison : -comparison;
+      }
+    }
+    return 0;
+  });
+  return sortedList;
+}
+
 /// Helper to get the value of a specific field for sorting
-Object? _getSortValue(Book b, String criteria) {
+Object? getBookSortValue(Book b, String criteria) {
   switch (criteria) {
     case 'title': return b.title;
     case 'author': return b.author;
@@ -226,75 +232,6 @@ Object? _getSortValue(Book b, String criteria) {
     default: return null;
   }
 }
-
-/// Model representing the current search and category filters
-class SearchFilters {
-  final String query;
-  final List<Tag> tags;
-  final String author;
-  final String publisher;
-  final String isbn;
-  final String collection;
-  final String language;
-  final List<Tag> imprints;
-  final List<Tag> collections;
-  final ReadingStatus? status;
-
-  const SearchFilters({
-    this.query = '',
-    this.tags = const [],
-    this.author = '',
-    this.publisher = '',
-    this.isbn = '',
-    this.collection = '',
-    this.language = '',
-    this.imprints = const [],
-    this.collections = const [],
-    this.status,
-  });
-
-  bool get isEmpty =>
-      query.isEmpty &&
-          tags.isEmpty &&
-          author.isEmpty &&
-          publisher.isEmpty &&
-          isbn.isEmpty &&
-          collection.isEmpty &&
-          language.isEmpty &&
-          imprints.isEmpty &&
-          collections.isEmpty;
-
-  SearchFilters copyWith({
-    String? query,
-    List<Tag>? tags,
-    String? author,
-    String? publisher,
-    String? isbn,
-    String? collection,
-    String? language,
-    List<Tag>? imprints,
-    bool clearImprints = false,
-    List<Tag>? collections,
-    bool clearCollections = false,
-    ReadingStatus? status,
-    bool clearStatus = false,
-  }) =>
-      SearchFilters(
-        query: query ?? this.query,
-        tags: tags ?? this.tags,
-        author: author ?? this.author,
-        publisher: publisher ?? this.publisher,
-        isbn: isbn ?? this.isbn,
-        collection: collection ?? this.collection,
-        language: language ?? this.language,
-        imprints: clearImprints ? [] : (imprints ?? this.imprints),
-        collections: clearCollections ? [] : (collections ?? this.collections),
-        status: clearStatus ? null : (status ?? this.status),
-      );
-}
-
-final searchFiltersProvider =
-StateProvider<SearchFilters>((ref) => const SearchFilters());
 
 final allShelvesProvider = StreamProvider<List<Shelf>>((ref) {
   return ref.watch(databaseProvider).watchAllShelves();

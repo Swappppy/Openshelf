@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/display_preferences.dart';
+import '../models/search_filters.dart';
 import '../services/database.dart';
 import '../controllers/display_preferences_controller.dart';
 import '../controllers/app_settings_controller.dart';
@@ -74,6 +75,11 @@ class BooksListOrGrid extends ConsumerWidget {
         final items = List<Book>.from(bookList);
         if (isCollection) {
           items.sort((a, b) => (a.collectionNumber ?? 0).compareTo(b.collectionNumber ?? 0));
+        } else {
+          // Apply standard library sorting to all other views by default
+          final sorted = applyLibrarySorting(ref, items);
+          items.clear();
+          items.addAll(sorted);
         }
 
         return viewMode == LibraryViewMode.list

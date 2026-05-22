@@ -5,6 +5,7 @@ import '../../services/database.dart';
 import '../../controllers/display_preferences_controller.dart';
 import '../../controllers/fab_visibility_controller.dart';
 import '../../controllers/books_controller.dart';
+import '../../controllers/search_filters_controller.dart';
 import '../../widgets/sort_bottom_sheet.dart';
 import '../../widgets/scrollable_selection_bar.dart';
 import '../../widgets/books_list_or_grid.dart';
@@ -16,15 +17,15 @@ import '../../widgets/search_panel.dart';
 import '../stats/stats_view.dart';
 
 /// Main container for the library, featuring a navigation bar for the three main sections.
-class LibraryView extends StatefulWidget {
+class LibraryView extends ConsumerStatefulWidget {
   const LibraryView({super.key});
 
   @override
-  State<LibraryView> createState() => _LibraryViewState();
+  ConsumerState<LibraryView> createState() => _LibraryViewState();
 }
 
-class _LibraryViewState extends State<LibraryView> {
-  int _currentIndex = 0;
+class _LibraryViewState extends ConsumerState<LibraryView> {
+  late int _currentIndex;
 
   final List<Widget> _screens = const [
     _LibraryScreen(),
@@ -33,12 +34,21 @@ class _LibraryViewState extends State<LibraryView> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _currentIndex = ref.read(searchFiltersProvider.notifier).getActiveLibraryTabIndex();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
-        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        onDestinationSelected: (index) {
+          setState(() => _currentIndex = index);
+          ref.read(searchFiltersProvider.notifier).setActiveLibraryTabIndex(index);
+        },
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.menu_book_outlined),
@@ -103,7 +113,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
         onSearchToggle: () {
           setState(() => _searchVisible = !_searchVisible);
           if (!_searchVisible) {
-            ref.read(searchFiltersProvider.notifier).state = const SearchFilters();
+            ref.read(searchFiltersProvider.notifier).clearAll();
           }
         },
       ),
@@ -120,8 +130,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
             ],
             selectedValue: filters.status,
             onSelected: (status) {
-              ref.read(searchFiltersProvider.notifier).state =
-                  filters.copyWith(status: status, clearStatus: status == null);
+              ref.read(searchFiltersProvider.notifier).setStatus(status);
             },
             onSortTap: () {
               final controller = ref.read(displayPreferencesProvider.notifier);
@@ -156,7 +165,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
               child: SearchPanel(
                 filters: filters,
                 onChanged: (f) =>
-                    ref.read(searchFiltersProvider.notifier).state = f,
+                    ref.read(searchFiltersProvider.notifier).setFilters(f),
               ),
             ),
           Expanded(

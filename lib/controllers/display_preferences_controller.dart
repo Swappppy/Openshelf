@@ -1,35 +1,55 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
 import '../models/display_preferences.dart';
+import 'shared_prefs_provider.dart';
 
 /// Manages user preferences for the Library and Shelves views, including layout and sorting.
 class DisplayPreferencesController extends Notifier<DisplayPreferences> {
+  static const _key = 'display_preferences_json';
+
   @override
-  DisplayPreferences build() => const DisplayPreferences();
+  DisplayPreferences build() {
+    final prefs = ref.watch(sharedPrefsProvider);
+    final jsonStr = prefs.getString(_key);
+    if (jsonStr == null) return const DisplayPreferences();
+    
+    try {
+      return DisplayPreferences.fromJson(jsonDecode(jsonStr));
+    } catch (e) {
+      return const DisplayPreferences();
+    }
+  }
+
+  void _save(DisplayPreferences newState) {
+    state = newState;
+    final jsonStr = jsonEncode(state.toJson());
+    ref.read(sharedPrefsProvider).setString(_key, jsonStr);
+  }
 
   void toggleViewMode() {
-    state = state.copyWith(
+    _save(state.copyWith(
       viewMode: state.viewMode == LibraryViewMode.list
           ? LibraryViewMode.grid
           : LibraryViewMode.list,
-    );
+    ));
   }
 
   void toggleShowProgress() =>
-      state = state.copyWith(showProgress: !state.showProgress);
+      _save(state.copyWith(showProgress: !state.showProgress));
   void toggleShowTags() =>
-      state = state.copyWith(showTags: !state.showTags);
+      _save(state.copyWith(showTags: !state.showTags));
   void toggleShowRating() =>
-      state = state.copyWith(showRating: !state.showRating);
+      _save(state.copyWith(showRating: !state.showRating));
   void toggleShowAuthor() =>
-      state = state.copyWith(showAuthor: !state.showAuthor);
+      _save(state.copyWith(showAuthor: !state.showAuthor));
   void toggleShowStatusChip() =>
-      state = state.copyWith(showStatusChip: !state.showStatusChip);
+      _save(state.copyWith(showStatusChip: !state.showStatusChip));
   void toggleShowPublisher() =>
-      state = state.copyWith(showPublisher: !state.showPublisher);
+      _save(state.copyWith(showPublisher: !state.showPublisher));
   void toggleShowYear() =>
-      state = state.copyWith(showYear: !state.showYear);
+      _save(state.copyWith(showYear: !state.showYear));
   void toggleShowSpacer() =>
-      state = state.copyWith(showSpacer: !state.showSpacer);
+      _save(state.copyWith(showSpacer: !state.showSpacer));
 
   // --- Reordering Logic ---
 
@@ -38,7 +58,7 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
     if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
-    state = state.copyWith(fieldOrder: order);
+    _save(state.copyWith(fieldOrder: order));
   }
 
   void reorderSort(int oldIndex, int newIndex) {
@@ -46,7 +66,7 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
     if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
-    state = state.copyWith(sortOrder: order);
+    _save(state.copyWith(sortOrder: order));
   }
 
   void reorderShelfSort(int oldIndex, int newIndex) {
@@ -54,7 +74,7 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
     if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
-    state = state.copyWith(shelfSortOrder: order);
+    _save(state.copyWith(shelfSortOrder: order));
   }
 
   void reorderCategorySort(int oldIndex, int newIndex) {
@@ -62,7 +82,7 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
     if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
-    state = state.copyWith(categorySortOrder: order);
+    _save(state.copyWith(categorySortOrder: order));
   }
 
   void reorderImprintSort(int oldIndex, int newIndex) {
@@ -70,7 +90,7 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
     if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
-    state = state.copyWith(imprintSortOrder: order);
+    _save(state.copyWith(imprintSortOrder: order));
   }
 
   void reorderCollectionSort(int oldIndex, int newIndex) {
@@ -78,7 +98,7 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
     if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
-    state = state.copyWith(collectionSortOrder: order);
+    _save(state.copyWith(collectionSortOrder: order));
   }
 
   // --- Toggling Directions ---
@@ -86,38 +106,38 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
   void toggleFieldSortDirection(String field) {
     final newDirections = Map<String, bool>.from(state.sortDirections);
     newDirections[field] = !(newDirections[field] ?? true);
-    state = state.copyWith(sortDirections: newDirections);
+    _save(state.copyWith(sortDirections: newDirections));
   }
 
   void toggleShelfSortDirection(String field) {
     final newDirections = Map<String, bool>.from(state.shelfSortDirections);
     newDirections[field] = !(newDirections[field] ?? true);
-    state = state.copyWith(shelfSortDirections: newDirections);
+    _save(state.copyWith(shelfSortDirections: newDirections));
   }
 
   void toggleCategorySortDirection(String field) {
     final newDirections = Map<String, bool>.from(state.categorySortDirections);
     newDirections[field] = !(newDirections[field] ?? true);
-    state = state.copyWith(categorySortDirections: newDirections);
+    _save(state.copyWith(categorySortDirections: newDirections));
   }
 
   void toggleImprintSortDirection(String field) {
     final newDirections = Map<String, bool>.from(state.imprintSortDirections);
     newDirections[field] = !(newDirections[field] ?? true);
-    state = state.copyWith(imprintSortDirections: newDirections);
+    _save(state.copyWith(imprintSortDirections: newDirections));
   }
 
   void toggleCollectionSortDirection(String field) {
     final newDirections = Map<String, bool>.from(state.collectionSortDirections);
     newDirections[field] = !(newDirections[field] ?? true);
-    state = state.copyWith(collectionSortDirections: newDirections);
+    _save(state.copyWith(collectionSortDirections: newDirections));
   }
 
   void toggleEmptyAtEnd() =>
-      state = state.copyWith(emptyAtEnd: !state.emptyAtEnd);
+      _save(state.copyWith(emptyAtEnd: !state.emptyAtEnd));
 
   void setTagCloudMaxCount(int count) =>
-      state = state.copyWith(tagCloudMaxCount: count);
+      _save(state.copyWith(tagCloudMaxCount: count));
 }
 
 final displayPreferencesProvider =

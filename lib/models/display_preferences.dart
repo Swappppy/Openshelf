@@ -98,6 +98,64 @@ class DisplayPreferences {
     this.collectionSortDirections = const {'name': true, 'count': false},
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'viewMode': viewMode.name,
+      'showProgress': showProgress,
+      'showTags': showTags,
+      'showRating': showRating,
+      'showAuthor': showAuthor,
+      'showStatusChip': showStatusChip,
+      'showPublisher': showPublisher,
+      'fieldOrder': fieldOrder,
+      'showYear': showYear,
+      'showSpacer': showSpacer,
+      'sortOrder': sortOrder,
+      'sortDirections': sortDirections,
+      'emptyAtEnd': emptyAtEnd,
+      'shelfSortOrder': shelfSortOrder,
+      'shelfSortDirections': shelfSortDirections,
+      'categorySortOrder': categorySortOrder,
+      'categorySortDirections': categorySortDirections,
+      'tagCloudMaxCount': tagCloudMaxCount,
+      'imprintSortOrder': imprintSortOrder,
+      'imprintSortDirections': imprintSortDirections,
+      'collectionSortOrder': collectionSortOrder,
+      'collectionSortDirections': collectionSortDirections,
+    };
+  }
+
+  factory DisplayPreferences.fromJson(Map<String, dynamic> json) {
+    return DisplayPreferences(
+      viewMode: LibraryViewMode.values.byName(json['viewMode'] as String? ?? 'list'),
+      showProgress: json['showProgress'] as bool? ?? true,
+      showTags: json['showTags'] as bool? ?? true,
+      showRating: json['showRating'] as bool? ?? false,
+      showAuthor: json['showAuthor'] as bool? ?? true,
+      showStatusChip: json['showStatusChip'] as bool? ?? true,
+      showPublisher: json['showPublisher'] as bool? ?? true,
+      fieldOrder: (json['fieldOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultFieldOrder],
+      showYear: json['showYear'] as bool? ?? true,
+      showSpacer: json['showSpacer'] as bool? ?? true,
+      sortOrder: (json['sortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultSortOrder],
+      sortDirections: (json['sortDirections'] as Map<String, dynamic>?)?.cast<String, bool>() ?? const {
+        'title': true, 'author': true, 'publisher': true, 
+        'collection': true, 'imprint': true, 'publishYear': true, 
+        'createdAt': true, 'rating': false,
+      },
+      emptyAtEnd: json['emptyAtEnd'] as bool? ?? true,
+      shelfSortOrder: (json['shelfSortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultShelfSortOrder],
+      shelfSortDirections: (json['shelfSortDirections'] as Map<String, dynamic>?)?.cast<String, bool>() ?? const {'name': true, 'count': false, 'progress': false},
+      categorySortOrder: (json['categorySortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultCategorySortOrder],
+      categorySortDirections: (json['categorySortDirections'] as Map<String, dynamic>?)?.cast<String, bool>() ?? const {'name': true, 'usage': false, 'color': true},
+      tagCloudMaxCount: json['tagCloudMaxCount'] as int? ?? 50,
+      imprintSortOrder: (json['imprintSortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultImprintSortOrder],
+      imprintSortDirections: (json['imprintSortDirections'] as Map<String, dynamic>?)?.cast<String, bool>() ?? const {'name': true, 'count': false},
+      collectionSortOrder: (json['collectionSortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultCollectionSortOrder],
+      collectionSortDirections: (json['collectionSortDirections'] as Map<String, dynamic>?)?.cast<String, bool>() ?? const {'name': true, 'count': false},
+    );
+  }
+
   DisplayPreferences copyWith({
     LibraryViewMode? viewMode,
     bool? showProgress,

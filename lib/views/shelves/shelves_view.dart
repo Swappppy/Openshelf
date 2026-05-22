@@ -14,6 +14,7 @@ import '../../widgets/collections_list.dart';
 import '../../widgets/shelf_form_sheet.dart';
 import '../../widgets/tag_form_dialog.dart';
 import '../../widgets/library_app_bar.dart';
+import '../../controllers/search_filters_controller.dart';
 import '../settings/settings_view.dart';
 
 enum _ShelvesTab { shelves, categories, imprints, collections }
@@ -27,12 +28,14 @@ class ShelvesScreen extends ConsumerStatefulWidget {
 }
 
 class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
-  _ShelvesTab _activeTab = _ShelvesTab.shelves;
+  late _ShelvesTab _activeTab;
   late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
+    final savedIndex = ref.read(searchFiltersProvider.notifier).getActiveShelvesTab();
+    _activeTab = _ShelvesTab.values[savedIndex.clamp(0, _ShelvesTab.values.length - 1)];
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
   }
@@ -196,7 +199,10 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
               SelectionItem(value: _ShelvesTab.collections, label: context.l10n.managementCollections, color: Colors.teal),
             ],
             selectedValue: _activeTab,
-            onSelected: (tab) => setState(() => _activeTab = tab),
+            onSelected: (tab) {
+              setState(() => _activeTab = tab);
+              ref.read(searchFiltersProvider.notifier).setActiveShelvesTab(tab.index);
+            },
             onSortTap: () => _showSortOptions(context, ref),
           ),
           Expanded(

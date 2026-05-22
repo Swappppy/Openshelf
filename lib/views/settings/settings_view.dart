@@ -18,30 +18,50 @@ import '../../services/data_migration_service.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../services/permission_service.dart';
 import '../../widgets/app_color_picker.dart';
+import '../../widgets/loading_overlay.dart';
 
 /// Main settings view for global application configuration.
-class SettingsView extends StatelessWidget {
+class SettingsView extends ConsumerStatefulWidget {
   const SettingsView({super.key});
 
   @override
+  ConsumerState<SettingsView> createState() => _SettingsViewState();
+}
+
+class _SettingsViewState extends ConsumerState<SettingsView> {
+  bool _isLoading = false;
+  String? _loadingMessage;
+
+  void _setLoading(bool loading, [String? message]) {
+    setState(() {
+      _isLoading = loading;
+      _loadingMessage = message;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.settingsTitle),
-        toolbarHeight: 40,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: const [
-          _AppearanceSection(),
-          SizedBox(height: 24),
-          _StorageSection(),
-          SizedBox(height: 24),
-          _SearchSection(),
-          SizedBox(height: 24),
-          _DataSection(),
-          SizedBox(height: 32),
-        ],
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      message: _loadingMessage,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.settingsTitle),
+          toolbarHeight: 40,
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const _AppearanceSection(),
+            const SizedBox(height: 24),
+            const _StorageSection(),
+            const SizedBox(height: 24),
+            const _SearchSection(),
+            const SizedBox(height: 24),
+            _DataSection(onLoading: _setLoading),
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -358,7 +378,9 @@ class _SearchSection extends ConsumerWidget {
 }
 
 class _DataSection extends ConsumerWidget {
-  const _DataSection();
+  final void Function(bool, [String?]) onLoading;
+
+  const _DataSection({required this.onLoading});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -533,6 +555,7 @@ class _DataSection extends ConsumerWidget {
 
     if (includeCovers == null) return;
 
+    onLoading(true, context.l10n.loadingExport);
     final migration = DataMigrationService(db);
     try {
       await migration.shareBackup(includeCovers: includeCovers);
@@ -542,6 +565,8 @@ class _DataSection extends ConsumerWidget {
           SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
         );
       }
+    } finally {
+      onLoading(false);
     }
   }
 
@@ -592,6 +617,7 @@ class _DataSection extends ConsumerWidget {
         }
       }
 
+      onLoading(true, context.l10n.loadingImport);
       final migration = DataMigrationService(db);
       final count = await migration.importFromBackup(backupFile, zipFile: zipFile);
 
@@ -609,6 +635,8 @@ class _DataSection extends ConsumerWidget {
           SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
         );
       }
+    } finally {
+      onLoading(false);
     }
   }
 
@@ -623,6 +651,7 @@ class _DataSection extends ConsumerWidget {
 
       if (result == null || result.files.single.path == null) return;
 
+      onLoading(true, context.l10n.loadingImport);
       final file = File(result.files.single.path!);
       final importService = BookshelfImportService(db);
       final importResult = await importService.importFromFile(file);
@@ -652,6 +681,8 @@ class _DataSection extends ConsumerWidget {
           SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
         );
       }
+    } finally {
+      onLoading(false);
     }
   }
 
@@ -659,6 +690,7 @@ class _DataSection extends ConsumerWidget {
     if (!await _checkAndRequestStorage(context)) return;
 
     try {
+      onLoading(true, context.l10n.loadingExport);
       final exportService = BookshelfExportService(db);
       final result = await exportService.export();
       
@@ -674,6 +706,8 @@ class _DataSection extends ConsumerWidget {
           SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
         );
       }
+    } finally {
+      onLoading(false);
     }
   }
 
@@ -688,6 +722,7 @@ class _DataSection extends ConsumerWidget {
 
       if (result == null || result.files.single.path == null) return;
 
+      onLoading(true, context.l10n.loadingImport);
       final file = File(result.files.single.path!);
       final importService = GoodreadsImportService(db);
       final importResult = await importService.importFromFile(file);
@@ -717,6 +752,8 @@ class _DataSection extends ConsumerWidget {
           SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
         );
       }
+    } finally {
+      onLoading(false);
     }
   }
 
@@ -724,6 +761,7 @@ class _DataSection extends ConsumerWidget {
     if (!await _checkAndRequestStorage(context)) return;
 
     try {
+      onLoading(true, context.l10n.loadingExport);
       final exportService = GoodreadsExportService(db);
       final result = await exportService.export();
       
@@ -739,6 +777,8 @@ class _DataSection extends ConsumerWidget {
           SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
         );
       }
+    } finally {
+      onLoading(false);
     }
   }
 }

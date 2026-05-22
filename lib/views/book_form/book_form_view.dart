@@ -139,11 +139,16 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   /// Adjusts page count based on selected status.
   void _onStatusChanged(ReadingStatus s) {
     setState(() {
+      final oldStatus = _status;
       _status = s;
       if (s == ReadingStatus.read) {
         _finishedAt ??= DateTime.now();
       } else if (s == ReadingStatus.reading || s == ReadingStatus.wantToRead) {
         _finishedAt = null;
+      }
+
+      if (s == ReadingStatus.reading && oldStatus == ReadingStatus.wantToRead) {
+        _startedAt ??= DateTime.now();
       }
     });
     final total = int.tryParse(_totalPagesCtrl.text);
@@ -518,11 +523,16 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
     if (newStatus != _status) {
       setState(() {
+        final oldStatus = _status;
         _status = newStatus;
         if (newStatus == ReadingStatus.read) {
           _finishedAt ??= DateTime.now();
         } else if (newStatus == ReadingStatus.reading || newStatus == ReadingStatus.wantToRead) {
           _finishedAt = null;
+        }
+
+        if (newStatus == ReadingStatus.reading && oldStatus == ReadingStatus.wantToRead) {
+          _startedAt ??= DateTime.now();
         }
       });
     }

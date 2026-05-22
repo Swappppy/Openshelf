@@ -102,6 +102,15 @@
   "done": "Hecho",
   "@done": { "description": "Botón genérico de confirmación / cerrar" },
 
+  "loading": "Cargando...",
+  "@loading": { "description": "Mensaje genérico de carga" },
+
+  "loadingImport": "Importando libros, por favor espera...",
+  "@loadingImport": { "description": "Mensaje de carga durante la importación" },
+
+  "loadingExport": "Exportando libros, por favor espera...",
+  "@loadingExport": { "description": "Mensaje de carga durante la exportación" },
+
   "cancel": "Cancelar",
   "@cancel": { "description": "Botón genérico de cancelar" },
 

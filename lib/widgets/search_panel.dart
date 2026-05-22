@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/books_controller.dart';
+import '../models/search_filters.dart';
 import '../services/database.dart';
 import '../l10n/l10n_extension.dart';
 import 'entity_selector_grid.dart';

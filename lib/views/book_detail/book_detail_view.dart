@@ -74,6 +74,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     final total = book.totalPages ?? 0;
     ReadingStatus newStatus = book.status;
     DateTime? newFinishedAt = book.finishedAt;
+    DateTime? newStartedAt = book.startedAt;
 
     if (newPage == 0) {
       newStatus = ReadingStatus.wantToRead;
@@ -82,6 +83,9 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       newStatus = ReadingStatus.read;
       newFinishedAt ??= DateTime.now();
     } else {
+      if (book.status == ReadingStatus.wantToRead) {
+        newStartedAt ??= DateTime.now();
+      }
       newStatus = ReadingStatus.reading;
       newFinishedAt = null;
     }
@@ -90,6 +94,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       currentPage: Value(newPage),
       status: newStatus,
       finishedAt: Value(newFinishedAt),
+      startedAt: Value(newStartedAt),
     );
     await ref.read(databaseProvider).updateBook(updated);
 
@@ -437,7 +442,6 @@ class _CompactTagsDisplay extends StatelessWidget {
           runSpacing: 8,
           children: [
             ...visibleTags.map((tag) {
-              final color = tag.color != null ? Color(int.parse('0xFF${tag.color!}')) : null;
               return TagChip(
                 label: tag.name,
                 colorHex: tag.color,

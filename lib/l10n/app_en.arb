@@ -102,6 +102,15 @@
   "done": "Done",
   "@done": { "description": "Generic close button" },
 
+  "loading": "Loading...",
+  "@loading": { "description": "Generic loading message" },
+
+  "loadingImport": "Importing books, please wait...",
+  "@loadingImport": { "description": "Loading message during import" },
+
+  "loadingExport": "Exporting books, please wait...",
+  "@loadingExport": { "description": "Loading message during export" },
+
   "cancel": "Cancel",
   "@cancel": { "description": "Generic cancel button" },
 

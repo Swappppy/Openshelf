@@ -284,6 +284,24 @@ abstract class AppLocalizations {
   /// **'Hecho'**
   String get done;
 
+  /// Mensaje genérico de carga
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando...'**
+  String get loading;
+
+  /// Mensaje de carga durante la importación
+  ///
+  /// In es, this message translates to:
+  /// **'Importando libros, por favor espera...'**
+  String get loadingImport;
+
+  /// Mensaje de carga durante la exportación
+  ///
+  /// In es, this message translates to:
+  /// **'Exportando libros, por favor espera...'**
+  String get loadingExport;
+
   /// Botón genérico de cancelar
   ///
   /// In es, this message translates to:

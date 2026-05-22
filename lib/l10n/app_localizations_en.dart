@@ -108,6 +108,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
+  String get loading => 'Loading...';
+
+  @override
+  String get loadingImport => 'Importing books, please wait...';
+
+  @override
+  String get loadingExport => 'Exporting books, please wait...';
+
+  @override
   String get cancel => 'Cancel';
 
   @override
