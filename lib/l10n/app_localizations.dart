@@ -338,6 +338,12 @@ abstract class AppLocalizations {
   /// **'Editar'**
   String get edit;
 
+  /// Acción genérica de duplicar
+  ///
+  /// In es, this message translates to:
+  /// **'Duplicar'**
+  String get duplicate;
+
   /// Botón para tomar foto
   ///
   /// In es, this message translates to:
@@ -757,6 +763,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¿Eliminar \"{title}\"? Esta acción no se puede deshacer.'**
   String bookDetailDeleteConfirm(String title);
+
+  /// Título del diálogo de duplicar libro
+  ///
+  /// In es, this message translates to:
+  /// **'Duplicar libro'**
+  String get bookDetailDuplicateTitle;
+
+  /// Confirmación de duplicar libro
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres crear una copia exacta de \"{title}\"?'**
+  String bookDetailDuplicateConfirm(String title);
 
   /// Etiqueta de sección de páginas en detalle
   ///

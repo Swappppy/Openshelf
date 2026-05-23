@@ -132,6 +132,9 @@
   "edit": "Edit",
   "@edit": { "description": "Generic edit button" },
 
+  "duplicate": "Duplicate",
+  "@duplicate": { "description": "Generic duplicate action" },
+
   "photo": "Photo",
   "@photo": { "description": "Take photo button" },
 
@@ -342,6 +345,15 @@
   "bookDetailDeleteConfirm": "Delete \"{title}\"? This action cannot be undone.",
   "@bookDetailDeleteConfirm": {
     "description": "Delete book confirmation",
+    "placeholders": { "title": { "type": "String" } }
+  },
+
+  "bookDetailDuplicateTitle": "Duplicate book",
+  "@bookDetailDuplicateTitle": { "description": "Duplicate book dialog title" },
+
+  "bookDetailDuplicateConfirm": "Do you want to create an exact copy of \"{title}\"?",
+  "@bookDetailDuplicateConfirm": {
+    "description": "Duplicate book confirmation",
     "placeholders": { "title": { "type": "String" } }
   },
 
@@ -719,6 +731,9 @@
 
   "settingsFullBackup": "Restore library",
   "@settingsFullBackup": { "description": "Restore title" },
+
+  "settingsFullBackupHint": "Restore books from a CSV backup",
+  "@settingsFullBackupHint": { "description": "Restore hint" },
 
   "settingsAutoNoCoverTitle": "No cover shelf",
   "settingsAutoNoCoverSub": "Auto-create a shelf for books without covers",

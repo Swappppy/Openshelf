@@ -6,6 +6,7 @@ import '../../services/database.dart';
 import '../../controllers/database_provider.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/reading_log_controller.dart';
+import '../../controllers/book_operations_controller.dart';
 import '../book_form/book_form_view.dart';
 import '../../widgets/page_picker.dart';
 import '../../widgets/tag_chip.dart';
@@ -237,6 +238,11 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                 transitionDuration: const Duration(milliseconds: 350),
               ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.copy_outlined),
+            tooltip: context.l10n.duplicate,
+            onPressed: () => ref.read(bookOperationsProvider).confirmAndDuplicate(context, book),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),

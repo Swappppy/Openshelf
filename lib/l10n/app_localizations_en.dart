@@ -137,6 +137,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit => 'Edit';
 
   @override
+  String get duplicate => 'Duplicate';
+
+  @override
   String get photo => 'Photo';
 
   @override
@@ -347,6 +350,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String bookDetailDeleteConfirm(String title) {
     return 'Delete \"$title\"? This action cannot be undone.';
+  }
+
+  @override
+  String get bookDetailDuplicateTitle => 'Duplicate book';
+
+  @override
+  String bookDetailDuplicateConfirm(String title) {
+    return 'Do you want to create an exact copy of \"$title\"?';
   }
 
   @override
@@ -737,8 +748,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsFullBackup => 'Restore library';
 
   @override
-  String get settingsFullBackupHint =>
-      'Restaurar libros desde una copia de seguridad CSV';
+  String get settingsFullBackupHint => 'Restore books from a CSV backup';
 
   @override
   String get settingsAutoNoCoverTitle => 'No cover shelf';

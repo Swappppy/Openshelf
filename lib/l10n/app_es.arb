@@ -132,6 +132,9 @@
   "edit": "Editar",
   "@edit": { "description": "Acción genérica de editar" },
 
+  "duplicate": "Duplicar",
+  "@duplicate": { "description": "Acción genérica de duplicar" },
+
   "photo": "Foto",
   "@photo": { "description": "Botón para tomar foto" },
 
@@ -342,6 +345,15 @@
   "bookDetailDeleteConfirm": "¿Eliminar \"{title}\"? Esta acción no se puede deshacer.",
   "@bookDetailDeleteConfirm": {
     "description": "Confirmación de eliminar libro",
+    "placeholders": { "title": { "type": "String" } }
+  },
+
+  "bookDetailDuplicateTitle": "Duplicar libro",
+  "@bookDetailDuplicateTitle": { "description": "Título del diálogo de duplicar libro" },
+
+  "bookDetailDuplicateConfirm": "¿Quieres crear una copia exacta de \"{title}\"?",
+  "@bookDetailDuplicateConfirm": {
+    "description": "Confirmación de duplicar libro",
     "placeholders": { "title": { "type": "String" } }
   },
 

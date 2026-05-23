@@ -137,6 +137,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get edit => 'Editar';
 
   @override
+  String get duplicate => 'Duplicar';
+
+  @override
   String get photo => 'Foto';
 
   @override
@@ -347,6 +350,14 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String bookDetailDeleteConfirm(String title) {
     return '¿Eliminar \"$title\"? Esta acción no se puede deshacer.';
+  }
+
+  @override
+  String get bookDetailDuplicateTitle => 'Duplicar libro';
+
+  @override
+  String bookDetailDuplicateConfirm(String title) {
+    return '¿Quieres crear una copia exacta de \"$title\"?';
   }
 
   @override

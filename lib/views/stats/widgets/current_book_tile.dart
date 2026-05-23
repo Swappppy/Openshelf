@@ -113,52 +113,54 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
 
   Widget _buildWide(BuildContext context, Book book, double progress, double scale) {
     return Padding(
-      padding: EdgeInsets.all(16 * scale.clamp(1.0, 1.5)),
+      padding: EdgeInsets.all(12 * scale.clamp(1.0, 1.2)),
       child: Row(
         children: [
           if (book.coverPath != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8 * scale),
-              child: Image.file(File(book.coverPath!), width: 50 * scale, height: 75 * scale, fit: BoxFit.cover),
+              child: Image.file(File(book.coverPath!), width: 45 * scale, height: 68 * scale, fit: BoxFit.cover),
             )
           else
             Container(
-              width: 50 * scale, 
-              height: 75 * scale, 
+              width: 45 * scale, 
+              height: 68 * scale, 
               color: Colors.grey[800], 
               child: Icon(Icons.book, color: Colors.white24, size: 24 * scale)
             ),
-          SizedBox(width: 16 * scale),
+          SizedBox(width: 12 * scale),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 WidgetHeader(title: context.l10n.statsReadingNowTitle, icon: Icons.auto_stories),
-                SizedBox(height: 4 * scale),
+                SizedBox(height: 2 * scale),
                 Text(
                   book.title, 
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13 * scale), 
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 9 * scale), 
                   maxLines: 1, 
                   overflow: TextOverflow.ellipsis
                 ),
                 Text(
                   '${book.author}${book.publishYear != null ? " · ${book.publishYear}" : ""}', 
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10 * scale)
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 7.5 * scale),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 8 * scale),
+                const Spacer(),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4 * scale),
                   child: LinearProgressIndicator(
                     value: progress,
-                    minHeight: 5 * scale,
+                    minHeight: 2.5 * scale,
                     backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                 ),
-                SizedBox(height: 4 * scale),
+                SizedBox(height: 1 * scale),
                 Text(
                   '${book.currentPage} / ${book.totalPages} págs · ${(progress * 100).toInt()}%', 
-                  style: TextStyle(fontSize: 10 * scale)
+                  style: TextStyle(fontSize: 6.5 * scale)
                 ),
               ],
             ),

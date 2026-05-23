@@ -25,9 +25,12 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        ndk {
-            // Add x86 support for older emulators (Android 10 usually uses 32-bit x86)
-            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+        val isRelease = project.gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) }
+        if (!isRelease) {
+            ndk {
+                // Add x86 support ONLY for debug to support older emulators
+                abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+            }
         }
     }
 

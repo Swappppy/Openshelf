@@ -113,8 +113,8 @@ class _GoalTileState extends ConsumerState<GoalTile> {
             ? CoverMosaic(books: books, width: double.infinity, height: double.infinity, borderRadius: 0)
             : CoverStackFade(
                 books: books, 
-                height: 52 * scale,
-                maxBooks: 5,
+                height: 26 * scale,
+                maxBooks: 3,
               ),
           orElse: () => null,
         );
@@ -178,7 +178,7 @@ class _GoalTileState extends ConsumerState<GoalTile> {
     }
     
     return Padding(
-      padding: EdgeInsets.all(14 * scale.clamp(1.0, 1.5)),
+      padding: EdgeInsets.all(8 * scale.clamp(1.0, 1.1)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -188,26 +188,22 @@ class _GoalTileState extends ConsumerState<GoalTile> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (covers != null) ...[
-                  covers,
-                  SizedBox(width: 12 * scale),
-                ],
                 Material(
                   type: MaterialType.transparency,
                   child: IconButton(
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    icon: Icon(Icons.add, size: 14 * scale.clamp(1.0, 1.5)),
+                    icon: Icon(Icons.add, size: 14 * scale.clamp(1.0, 1.2)),
                     onPressed: () => showGoalConfig(context, ref, config: widget.config),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text('${(progress * 100).toInt()}%', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16 * scale)),
+                SizedBox(width: 4 * scale),
+                Text('${(progress * 100).toInt()}%', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 11 * scale)),
               ],
             ),
           ),
-          SizedBox(height: 8 * scale),
+          const Spacer(),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -215,12 +211,20 @@ class _GoalTileState extends ConsumerState<GoalTile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(goal.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14 * scale), maxLines: 2, overflow: TextOverflow.ellipsis),
-                    SizedBox(height: 2 * scale),
-                    Text('${DateFormat('d MMM').format(goal.startDate)} — ${DateFormat('d MMM').format(goal.endDate)}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 10 * scale)),
+                    Text(goal.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 9 * scale), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text('${DateFormat('d MMM').format(goal.startDate)} — ${DateFormat('d MMM').format(goal.endDate)}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 6.5 * scale)),
                   ],
                 ),
               ),
+              if (covers != null) ...[
+                SizedBox(width: 4 * scale),
+                SizedBox(
+                  width: 55 * scale, // Restricted width to push it left-wards
+                  height: 22 * scale, // Reduced from 26
+                  child: Center(child: covers),
+                ),
+                SizedBox(width: 8 * scale), // Margin safety on the right
+              ],
             ],
           ),
           const Spacer(),
@@ -228,19 +232,19 @@ class _GoalTileState extends ConsumerState<GoalTile> {
             borderRadius: BorderRadius.circular(4 * scale),
             child: LinearProgressIndicator(
               value: progress, 
-              minHeight: 5 * scale, 
+              minHeight: 2.5 * scale, // Reduced from 3
               backgroundColor: theme.colorScheme.surfaceContainerHighest,
             ),
           ),
-          SizedBox(height: 6 * scale),
+          // Removed SizedBox between bar and text to save final 2px
           Row(
             children: [
-              Text('$current/${goal.targetValue} $unit', style: TextStyle(fontSize: 9 * scale, fontWeight: FontWeight.bold)),
+              Text('$current/${goal.targetValue} $unit', style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold)),
               const Spacer(),
               if (current < goal.targetValue)
-                Text(context.l10n.statsGoalRemaining(goal.targetValue - current), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, fontSize: 9 * scale))
+                Text(context.l10n.statsGoalRemaining(goal.targetValue - current), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, fontSize: 6.5 * scale))
               else
-                Text(context.l10n.statsGoalCompleted, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 9 * scale)),
+                Text(context.l10n.statsGoalCompleted, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 6.5 * scale)),
             ],
           ),
         ],

@@ -239,6 +239,32 @@ class AppDatabase extends _$AppDatabase {
 
   Future<bool> updateBook(Book book) => update(books).replace(book);
 
+  /// Duplicates a book record and all its associated tags/imprints
+  Future<int> duplicateBook(int originalId) async {
+    return await transaction(() async {
+      final original = await (select(books)..where((b) => b.id.equals(originalId))).getSingle();
+      
+      // Create companion without ID to trigger auto-increment
+      final companion = original.toCompanion(false).copyWith(
+        id: const Value.absent(),
+        createdAt: Value(DateTime.now()),
+      );
+      
+      final newId = await into(books).insert(companion);
+
+      // Copy tag relationships
+      final tags = await (select(bookTags)..where((bt) => bt.bookId.equals(originalId))).get();
+      for (final tag in tags) {
+        await into(bookTags).insert(BookTagsCompanion.insert(
+          bookId: newId,
+          tagId: tag.tagId,
+        ));
+      }
+
+      return newId;
+    });
+  }
+
   /// Deletes a book and performs cleanup of orphan tags/collections
   Future<void> deleteBook(int id) async {
     await transaction(() async {
