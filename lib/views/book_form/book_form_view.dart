@@ -3,7 +3,6 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../../services/database.dart';
 import '../../services/cover_service.dart';
 import '../../services/permission_service.dart';
@@ -14,6 +13,7 @@ import '../../widgets/entity_field_selector.dart';
 import '../../widgets/tag_grid_selector.dart';
 import '../../models/book_search_result.dart';
 import '../../l10n/l10n_extension.dart';
+import '../../widgets/os_permission_dialog.dart';
 import 'cover_picker_sheet.dart';
 
 /// Form for adding a new book or editing an existing one.
@@ -186,27 +186,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   Future<void> _pickCover() async {
     final result = await PermissionService.requestGallery();
 
-    if (result == GalleryPermissionResult.permanentlyDenied) {
+    if (result == GalleryPermissionResult.permanentlyDenied || result == GalleryPermissionResult.denied) {
       if (!mounted) return;
-      await showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text(context.l10n.permissionRequired),
-          content: Text(context.l10n.storagePermissionExplanation),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(context.l10n.cancel),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                PermissionService.openSettings();
-              },
-              child: Text(context.l10n.openSettings),
-            ),
-          ],
-        ),
+      await OsPermissionDialog.show(
+        context,
+        title: context.l10n.permissionRequired,
+        content: context.l10n.storagePermissionExplanation,
       );
       return;
     }
@@ -237,32 +222,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
     if (!granted) {
       if (!mounted) return;
-      final permanentlyDenied = await PermissionService
-          .isPermanentlyDenied(Permission.camera);
-      if (!mounted) return;
-
-      if (permanentlyDenied) {
-        await showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: Text(context.l10n.permissionRequired),
-            content: Text(context.l10n.cameraPermissionExplanation),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(context.l10n.cancel),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  PermissionService.openSettings();
-                },
-                child: Text(context.l10n.openSettings),
-              ),
-            ],
-          ),
-        );
-      }
+      await OsPermissionDialog.show(
+        context,
+        title: context.l10n.permissionRequired,
+        content: context.l10n.cameraPermissionExplanation,
+      );
       return;
     }
 

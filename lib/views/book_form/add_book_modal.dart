@@ -10,132 +10,136 @@ class AddBookModal extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-
-          Text(
-            context.l10n.addBook,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            context.l10n.addBookModalSubtitle,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Opciones
-          _AddOption(
-            icon: Icons.edit_outlined,
-            title: context.l10n.addManually,
-            subtitle: context.l10n.addManuallySubtitle,
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (_, animation, _) => const BookFormView(),
-                  transitionsBuilder: (_, animation, _, child) {
-                    return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 1),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOutCubic,
-                      )),
-                      child: child,
-                    );
-                  },
-                  transitionDuration: const Duration(milliseconds: 350),
-                ),
-              );
-            },
-          ),
-          _AddOption(
-            icon: Icons.search,
-            title: context.l10n.searchBook,
-            subtitle: context.l10n.searchBookSubtitle,
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const BookSearchView(),
-                ),
-              );
-            },
-          ),
-          _AddOption(
-            icon: Icons.qr_code_scanner,
-            title: context.l10n.scanBarcode,
-            subtitle: context.l10n.scanBarcodeSubtitle,
-            onTap: () async {
-              // Captura el navigator del contexto raíz ANTES de cerrar el modal
-              final rootNav = Navigator.of(context, rootNavigator: true);
-
-              // Cierra el modal
-              Navigator.of(context).pop();
-
-              // Espera a que el modal termine de cerrar, luego abre el scanner
-              await Future.microtask(() {});
-
-              final String? code = await rootNav.push<String>(
-                MaterialPageRoute(
-                  builder: (_) => const BarcodeScannerView(),
-                ),
-              );
-
-              debugPrint('AddBookModal: Scanner returned code: $code');
-
-              if (code != null) {
-                rootNav.push(
-                  MaterialPageRoute(
-                    builder: (_) => BookSearchView(initialQuery: code),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                );
-              } else {
-                debugPrint('AddBookModal: Scanner cancelled by user');
-              }
-            },
-          ),
-          _AddOption(
-            icon: Icons.document_scanner_outlined,
-            title: context.l10n.scanBatch,
-            subtitle: context.l10n.scanBatchSubtitle,
-            onTap: () async {
-              final rootNav = Navigator.of(context, rootNavigator: true);
-              Navigator.of(context).pop();
-              await Future.microtask(() {});
-
-              await rootNav.push(
-                MaterialPageRoute(
-                  builder: (_) => const BarcodeScannerView(batchMode: true),
                 ),
-              );
-            },
+              ),
+
+              Text(
+                context.l10n.addBook,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                context.l10n.addBookModalSubtitle,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+              ),
+              const SizedBox(height: 24),
+
+              // Opciones
+              _AddOption(
+                icon: Icons.edit_outlined,
+                title: context.l10n.addManually,
+                subtitle: context.l10n.addManuallySubtitle,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (_, animation, _) => const BookFormView(),
+                      transitionsBuilder: (_, animation, _, child) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 1),
+                            end: Offset.zero,
+                          ).animate(CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.easeOutCubic,
+                          )),
+                          child: child,
+                        );
+                      },
+                      transitionDuration: const Duration(milliseconds: 350),
+                    ),
+                  );
+                },
+              ),
+              _AddOption(
+                icon: Icons.search,
+                title: context.l10n.searchBook,
+                subtitle: context.l10n.searchBookSubtitle,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BookSearchView(),
+                    ),
+                  );
+                },
+              ),
+              _AddOption(
+                icon: Icons.qr_code_scanner,
+                title: context.l10n.scanBarcode,
+                subtitle: context.l10n.scanBarcodeSubtitle,
+                onTap: () async {
+                  // Captura el navigator del contexto raíz ANTES de cerrar el modal
+                  final rootNav = Navigator.of(context, rootNavigator: true);
+
+                  // Cierra el modal
+                  Navigator.of(context).pop();
+
+                  // Espera a que el modal termine de cerrar, luego abre el scanner
+                  await Future.microtask(() {});
+
+                  final String? code = await rootNav.push<String>(
+                    MaterialPageRoute(
+                      builder: (_) => const BarcodeScannerView(),
+                    ),
+                  );
+
+                  debugPrint('AddBookModal: Scanner returned code: $code');
+
+                  if (code != null) {
+                    rootNav.push(
+                      MaterialPageRoute(
+                        builder: (_) => BookSearchView(initialQuery: code),
+                      ),
+                    );
+                  } else {
+                    debugPrint('AddBookModal: Scanner cancelled by user');
+                  }
+                },
+              ),
+              _AddOption(
+                icon: Icons.document_scanner_outlined,
+                title: context.l10n.scanBatch,
+                subtitle: context.l10n.scanBatchSubtitle,
+                onTap: () async {
+                  final rootNav = Navigator.of(context, rootNavigator: true);
+                  Navigator.of(context).pop();
+                  await Future.microtask(() {});
+
+                  await rootNav.push(
+                    MaterialPageRoute(
+                      builder: (_) => const BarcodeScannerView(batchMode: true),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

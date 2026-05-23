@@ -33,6 +33,7 @@ class AddEntityFab extends StatelessWidget {
   void _showAddBookModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

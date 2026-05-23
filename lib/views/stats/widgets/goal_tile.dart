@@ -13,6 +13,7 @@ import '../../../models/stats_widget.dart';
 import '../../../widgets/cover_mosaic.dart';
 import '../../../widgets/cover_stack_fade.dart';
 import 'widget_header.dart';
+import 'stats_scale_helper.dart';
 import '../../../l10n/l10n_extension.dart';
 
 class GoalTile extends ConsumerStatefulWidget {
@@ -41,27 +42,33 @@ class _GoalTileState extends ConsumerState<GoalTile> {
       data: (goals) {
         if (goals.isEmpty) return _buildEmptyState(context, ref);
 
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            final index = _pageController.page?.round() ?? 0;
-            if (index < goals.length) {
-              showGoalConfig(context, ref, config: widget.config, existingGoal: goals[index]);
-            }
-          },
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: goals.length,
-            itemBuilder: (context, index) {
-              final goal = goals[index];
-              final progressAsync = ref.watch(goalProgressProvider(goal.id));
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final scale = StatsScaleHelper.getScale(constraints);
+            
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                final index = _pageController.page?.round() ?? 0;
+                if (index < goals.length) {
+                  showGoalConfig(context, ref, config: widget.config, existingGoal: goals[index]);
+                }
+              },
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: goals.length,
+                itemBuilder: (context, index) {
+                  final goal = goals[index];
+                  final progressAsync = ref.watch(goalProgressProvider(goal.id));
 
-              return progressAsync.maybeWhen(
-                data: (current) => _buildGoalContent(context, ref, goal, current),
-                orElse: () => const Center(child: CircularProgressIndicator()),
-              );
-            },
-          ),
+                  return progressAsync.maybeWhen(
+                    data: (current) => _buildGoalContent(context, ref, goal, current, scale),
+                    orElse: () => const Center(child: CircularProgressIndicator()),
+                  );
+                },
+              ),
+            );
+          }
         );
       },
       orElse: () => const SizedBox.shrink(),
@@ -85,7 +92,7 @@ class _GoalTileState extends ConsumerState<GoalTile> {
     );
   }
 
-  Widget _buildGoalContent(BuildContext context, WidgetRef ref, ReadingGoal goal, int current) {
+  Widget _buildGoalContent(BuildContext context, WidgetRef ref, ReadingGoal goal, int current, double scale) {
     final theme = Theme.of(context);
     final progress = (current / goal.targetValue).clamp(0.0, 1.0);
     final isPages = goal.type == 'pages';
@@ -106,7 +113,7 @@ class _GoalTileState extends ConsumerState<GoalTile> {
             ? CoverMosaic(books: books, width: double.infinity, height: double.infinity, borderRadius: 0)
             : CoverStackFade(
                 books: books, 
-                height: 52,
+                height: 52 * scale,
                 maxBooks: 5,
               ),
           orElse: () => null,
@@ -125,23 +132,26 @@ class _GoalTileState extends ConsumerState<GoalTile> {
               ),
             ),
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12 * scale.clamp(1.0, 1.5)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 WidgetHeader(
                   title: context.l10n.statsGoalTitle, 
                   icon: Icons.track_changes,
-                  trailing: IconButton(
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: const Icon(Icons.add, size: 14),
-                    onPressed: () => showGoalConfig(context, ref, config: widget.config),
+                  trailing: Material(
+                    type: MaterialType.transparency,
+                    child: IconButton(
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: Icon(Icons.add, size: 14 * scale.clamp(1.0, 1.5)),
+                      onPressed: () => showGoalConfig(context, ref, config: widget.config),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(goal.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                SizedBox(height: 4 * scale),
+                Text(goal.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11 * scale), maxLines: 1, overflow: TextOverflow.ellipsis),
                 const Spacer(),
                 SizedBox(
                   child: Text(
@@ -149,17 +159,17 @@ class _GoalTileState extends ConsumerState<GoalTile> {
                     style: TextStyle(
                       color: theme.colorScheme.primary, 
                       fontWeight: FontWeight.bold, 
-                      fontSize: 26,
+                      fontSize: 26 * scale,
                     ),
                   ),
                 ),
                 const Spacer(),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(value: progress, minHeight: 4, backgroundColor: theme.colorScheme.surfaceContainerHighest),
+                  borderRadius: BorderRadius.circular(4 * scale),
+                  child: LinearProgressIndicator(value: progress, minHeight: 4 * scale, backgroundColor: theme.colorScheme.surfaceContainerHighest),
                 ),
-                const SizedBox(height: 4),
-                Text('$current/${goal.targetValue}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+                SizedBox(height: 4 * scale),
+                Text('$current/${goal.targetValue}', style: TextStyle(fontSize: 10 * scale, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -168,7 +178,7 @@ class _GoalTileState extends ConsumerState<GoalTile> {
     }
     
     return Padding(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14 * scale.clamp(1.0, 1.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -178,19 +188,26 @@ class _GoalTileState extends ConsumerState<GoalTile> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  icon: const Icon(Icons.add, size: 14),
-                  onPressed: () => showGoalConfig(context, ref, config: widget.config),
+                if (covers != null) ...[
+                  covers,
+                  SizedBox(width: 12 * scale),
+                ],
+                Material(
+                  type: MaterialType.transparency,
+                  child: IconButton(
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(Icons.add, size: 14 * scale.clamp(1.0, 1.5)),
+                    onPressed: () => showGoalConfig(context, ref, config: widget.config),
+                  ),
                 ),
                 const SizedBox(width: 8),
-                Text('${(progress * 100).toInt()}%', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text('${(progress * 100).toInt()}%', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16 * scale)),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8 * scale),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -198,36 +215,32 @@ class _GoalTileState extends ConsumerState<GoalTile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(goal.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 2, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 2),
-                    Text('${DateFormat('d MMM').format(goal.startDate)} — ${DateFormat('d MMM').format(goal.endDate)}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 10)),
+                    Text(goal.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14 * scale), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    SizedBox(height: 2 * scale),
+                    Text('${DateFormat('d MMM').format(goal.startDate)} — ${DateFormat('d MMM').format(goal.endDate)}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 10 * scale)),
                   ],
                 ),
               ),
-              if (covers != null) ...[
-                const SizedBox(width: 12),
-                covers,
-              ],
             ],
           ),
           const Spacer(),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(4 * scale),
             child: LinearProgressIndicator(
               value: progress, 
-              minHeight: 5, 
+              minHeight: 5 * scale, 
               backgroundColor: theme.colorScheme.surfaceContainerHighest,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6 * scale),
           Row(
             children: [
-              Text('$current/${goal.targetValue} $unit', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
+              Text('$current/${goal.targetValue} $unit', style: TextStyle(fontSize: 9 * scale, fontWeight: FontWeight.bold)),
               const Spacer(),
               if (current < goal.targetValue)
-                Text(context.l10n.statsGoalRemaining(goal.targetValue - current), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, fontSize: 9))
+                Text(context.l10n.statsGoalRemaining(goal.targetValue - current), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, fontSize: 9 * scale))
               else
-                Text(context.l10n.statsGoalCompleted, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 9)),
+                Text(context.l10n.statsGoalCompleted, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 9 * scale)),
             ],
           ),
         ],
@@ -277,7 +290,7 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
                 if (type == 'shelf')
                   DropdownButtonFormField<int>(
                     initialValue: selectedShelfId,
-                    decoration: const InputDecoration(labelText: 'Estantería objetivo'),
+                    decoration: InputDecoration(labelText: context.l10n.statsGoalTargetShelf),
                     items: shelves.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
                     onChanged: (v) => setDialogState(() => selectedShelfId = v),
                   )
@@ -373,4 +386,4 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
         ));
       }
     }
-  }
+}

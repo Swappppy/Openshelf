@@ -13,6 +13,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Lock the app to portrait mode as requested
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     
     final prefs = await _getSharedPreferences();
 

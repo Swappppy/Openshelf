@@ -150,10 +150,10 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     );
   }
 
-  String _label(BookSearchServer s) => switch (s) {
-    BookSearchServer.openLibrary => 'Open Library',
-    BookSearchServer.googleBooks => 'Google Books',
-    BookSearchServer.inventaire => 'Inventaire.io',
+  String _label(BookSearchServer s, BuildContext context) => switch (s) {
+    BookSearchServer.openLibrary => context.l10n.bookSearchServerOpenLibrary,
+    BookSearchServer.googleBooks => context.l10n.bookSearchServerGoogleBooks,
+    BookSearchServer.inventaire => context.l10n.bookSearchServerInventaire,
   };
 
   Widget _buildBody(ColorScheme colorScheme) {
@@ -214,7 +214,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
                   Icon(Icons.public, size: 13, color: colorScheme.outline),
                   const SizedBox(width: 4),
                   Text(
-                    _label(s),
+                    _label(s, context),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: colorScheme.outline,
                     ),
@@ -264,7 +264,7 @@ class _ResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final isRecommended = result.source == 'Recommended by Openshelf';
+    final isRecommended = result.source == context.l10n.bookSearchRecommendedSource;
 
     return InkWell(
       onTap: () => onTap(result),

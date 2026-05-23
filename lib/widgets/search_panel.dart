@@ -122,7 +122,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                     ),
                   if (widget.filters.author.isNotEmpty)
                     _FilterChip(
-                      label: '${context.l10n.fieldAuthor}: ${widget.filters.author}',
+                      label: context.l10n.searchFilterAuthorLabel(widget.filters.author),
                       onDelete: () {
                         _authorCtrl.clear();
                         widget.onChanged(widget.filters.copyWith(author: ''));
@@ -130,7 +130,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                     ),
                   if (widget.filters.publisher.isNotEmpty)
                     _FilterChip(
-                      label: '${context.l10n.fieldPublisher}: ${widget.filters.publisher}',
+                      label: context.l10n.searchFilterPublisherLabel(widget.filters.publisher),
                       onDelete: () {
                         _publisherCtrl.clear();
                         widget.onChanged(widget.filters.copyWith(publisher: ''));
@@ -138,7 +138,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                     ),
                   if (widget.filters.isbn.isNotEmpty)
                     _FilterChip(
-                      label: 'ISBN: ${widget.filters.isbn}',
+                      label: context.l10n.searchFilterIsbnLabel(widget.filters.isbn),
                       onDelete: () {
                         _isbnCtrl.clear();
                         widget.onChanged(widget.filters.copyWith(isbn: ''));
@@ -146,7 +146,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                     ),
                   if (widget.filters.language.isNotEmpty)
                     _FilterChip(
-                      label: '${context.l10n.fieldLanguage}: ${widget.filters.language}',
+                      label: context.l10n.searchFilterLanguageLabel(widget.filters.language),
                       onDelete: () {
                         _langCtrl.clear();
                         widget.onChanged(widget.filters.copyWith(language: ''));

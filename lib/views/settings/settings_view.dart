@@ -8,7 +8,6 @@ import 'package:share_plus/share_plus.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../controllers/shelf_automation_controller.dart';
 import '../../controllers/database_provider.dart';
-import '../../controllers/search_filters_controller.dart';
 import '../../models/app_settings.dart';
 import '../../services/bookshelf_import_service.dart';
 import '../../services/bookshelf_export_service.dart';
@@ -18,6 +17,7 @@ import '../../services/database.dart';
 import '../../services/data_migration_service.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../services/permission_service.dart';
+import '../../widgets/os_permission_dialog.dart';
 import '../../widgets/app_color_picker.dart';
 import '../../widgets/loading_overlay.dart';
 
@@ -109,13 +109,13 @@ class _AppearanceSection extends ConsumerWidget {
                       value: null,
                       child: Text(context.l10n.settingsLanguageSystem),
                     ),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                       value: 'es',
-                      child: Text('Español'),
+                      child: Text(context.l10n.settingsLanguageSpanish),
                     ),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                       value: 'en',
-                      child: Text('English'),
+                      child: Text(context.l10n.settingsLanguageEnglish),
                     ),
                   ],
                   onChanged: (code) {
@@ -241,8 +241,8 @@ class _AppearanceSection extends ConsumerWidget {
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   secondary: const Icon(Icons.no_photography_outlined, size: 20),
-                  title: const Text("Estantería de libros sin portada"),
-                  subtitle: const Text("Crea automáticamente una estantería si faltan portadas"),
+                  title: Text(context.l10n.settingsAutoNoCoverTitle),
+                  subtitle: Text(context.l10n.settingsAutoNoCoverSub),
                   value: autoNoCover,
                   onChanged: (val) {
                     controller.setAutoNoCoverShelf(val);
@@ -448,7 +448,7 @@ class _DataSection extends ConsumerWidget {
               ListTile(
                 leading: const Icon(Icons.bug_report_outlined, color: Colors.red),
                 title: Text(l10n.devDeleteAllBooks, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                subtitle: const Text('Developer tool: clear database'),
+                subtitle: Text(l10n.settingsDevClearDbSub),
                 onTap: () => _showDevDeleteConfirm(context, db),
               ),
             ],
@@ -521,7 +521,7 @@ class _DataSection extends ConsumerWidget {
               if (ctx.mounted) {
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Database cleared')),
+                  SnackBar(content: Text(context.l10n.settingsDevDbCleared)),
                 );
               }
             },
@@ -579,10 +579,11 @@ class _DataSection extends ConsumerWidget {
       final backupResult = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['zip', 'csv'],
-        dialogTitle: 'Select Openshelf Backup',
+        dialogTitle: context.l10n.settingsImportSelectBackup,
       );
 
       if (backupResult == null) return;
+      if (!context.mounted) return;
       final backupFile = File(backupResult.files.single.path!);
 
       File? zipFile;
@@ -611,7 +612,7 @@ class _DataSection extends ConsumerWidget {
           final zipResult = await FilePicker.pickFiles(
             type: FileType.custom,
             allowedExtensions: ['zip'],
-            dialogTitle: 'Select Openshelf Covers ZIP',
+            dialogTitle: context.l10n.settingsImportSelectCovers,
           );
           if (zipResult != null) {
             zipFile = File(zipResult.files.single.path!);
@@ -1173,14 +1174,10 @@ class _Step extends StatelessWidget {
 Future<bool> _checkAndRequestStorage(BuildContext context) async {
   if (!await PermissionService.requestStorage()) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.storagePermissionExplanation),
-          action: SnackBarAction(
-            label: context.l10n.openSettings,
-            onPressed: () => PermissionService.openSettings(),
-          ),
-        ),
+      await OsPermissionDialog.show(
+        context,
+        title: context.l10n.permissionRequired,
+        content: context.l10n.storagePermissionExplanation,
       );
     }
     return false;

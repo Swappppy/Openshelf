@@ -110,6 +110,12 @@ abstract class AppLocalizations {
   /// **'Error: {message}'**
   String errorPrefix(String message);
 
+  /// Mensaje genérico de error con parámetro
+  ///
+  /// In es, this message translates to:
+  /// **'Error: {error}'**
+  String errorGeneric(String error);
+
   /// Error crítico al arrancar la app
   ///
   /// In es, this message translates to:
@@ -1094,6 +1100,12 @@ abstract class AppLocalizations {
   /// **'Colecciones'**
   String get managementCollections;
 
+  /// No description provided for @managementCategoryCloudCurve.
+  ///
+  /// In es, this message translates to:
+  /// **'Curva algorítmica (Libros)'**
+  String get managementCategoryCloudCurve;
+
   /// Estado vacío de categorías
   ///
   /// In es, this message translates to:
@@ -1267,6 +1279,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sistema (automático)'**
   String get settingsLanguageSystem;
+
+  /// Opción de idioma: español
+  ///
+  /// In es, this message translates to:
+  /// **'Español'**
+  String get settingsLanguageSpanish;
+
+  /// Opción de idioma: inglés
+  ///
+  /// In es, this message translates to:
+  /// **'Inglés'**
+  String get settingsLanguageEnglish;
 
   /// Etiqueta de selector de modo de tema
   ///
@@ -1472,6 +1496,18 @@ abstract class AppLocalizations {
   /// **'Restaurar libros desde una copia de seguridad CSV'**
   String get settingsFullBackupHint;
 
+  /// No description provided for @settingsAutoNoCoverTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estantería sin portadas'**
+  String get settingsAutoNoCoverTitle;
+
+  /// No description provided for @settingsAutoNoCoverSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea automáticamente una estantería si faltan portadas'**
+  String get settingsAutoNoCoverSub;
+
   /// Título del diálogo de exportación
   ///
   /// In es, this message translates to:
@@ -1513,6 +1549,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'BORRAR TODOS LOS LIBROS (DEV)'**
   String get devDeleteAllBooks;
+
+  /// No description provided for @settingsDevClearDbSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Herramienta de desarrollador: limpiar base de datos'**
+  String get settingsDevClearDbSub;
+
+  /// No description provided for @settingsDevDbCleared.
+  ///
+  /// In es, this message translates to:
+  /// **'Base de datos limpiada'**
+  String get settingsDevDbCleared;
+
+  /// No description provided for @settingsImportSelectBackup.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar copia de seguridad de Openshelf'**
+  String get settingsImportSelectBackup;
+
+  /// No description provided for @settingsImportSelectCovers.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar ZIP de portadas de Openshelf'**
+  String get settingsImportSelectCovers;
 
   /// Título de confirmación de borrado dev
   ///
@@ -1676,6 +1736,30 @@ abstract class AppLocalizations {
   /// **'RECOMENDADO POR OPENSHELF'**
   String get bookSearchRecommended;
 
+  /// No description provided for @bookSearchRecommendedSource.
+  ///
+  /// In es, this message translates to:
+  /// **'Recomendado por Openshelf'**
+  String get bookSearchRecommendedSource;
+
+  /// No description provided for @bookSearchServerOpenLibrary.
+  ///
+  /// In es, this message translates to:
+  /// **'Open Library'**
+  String get bookSearchServerOpenLibrary;
+
+  /// No description provided for @bookSearchServerGoogleBooks.
+  ///
+  /// In es, this message translates to:
+  /// **'Google Books'**
+  String get bookSearchServerGoogleBooks;
+
+  /// No description provided for @bookSearchServerInventaire.
+  ///
+  /// In es, this message translates to:
+  /// **'Inventaire.io'**
+  String get bookSearchServerInventaire;
+
   /// Panel de búsqueda: pestaña Estado
   ///
   /// In es, this message translates to:
@@ -1819,6 +1903,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tus estadísticas aparecerán aquí'**
   String get statsPlaceholder;
+
+  /// No description provided for @statsAddFirstWidget.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir primer widget'**
+  String get statsAddFirstWidget;
+
+  /// No description provided for @statsAddWidgetTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir widget'**
+  String get statsAddWidgetTitle;
+
+  /// No description provided for @statsGoalTargetShelf.
+  ///
+  /// In es, this message translates to:
+  /// **'Estantería objetivo'**
+  String get statsGoalTargetShelf;
+
+  /// No description provided for @searchFilterIsbnLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'ISBN: {isbn}'**
+  String searchFilterIsbnLabel(String isbn);
+
+  /// No description provided for @searchFilterLanguageLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma: {language}'**
+  String searchFilterLanguageLabel(String language);
+
+  /// No description provided for @searchFilterAuthorLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Autor: {author}'**
+  String searchFilterAuthorLabel(String author);
+
+  /// No description provided for @searchFilterPublisherLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Editorial: {publisher}'**
+  String searchFilterPublisherLabel(String publisher);
 
   /// No description provided for @statsGoalTitle.
   ///

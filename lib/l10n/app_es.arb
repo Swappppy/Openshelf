@@ -10,6 +10,12 @@
     "placeholders": { "message": { "type": "String" } }
   },
 
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "description": "Mensaje genérico de error con parámetro",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
   "criticalStartError": "Error al iniciar la aplicación: {error}",
   "@criticalStartError": {
     "description": "Error crítico al arrancar la app",
@@ -526,6 +532,8 @@
   "managementCollections": "Colecciones",
   "@managementCollections": { "description": "Sección de gestión: colecciones" },
 
+  "managementCategoryCloudCurve": "Curva algorítmica (Libros)",
+
   "tagNone": "No hay categorías todavía",
   "@tagNone": { "description": "Estado vacío de categorías" },
 
@@ -622,6 +630,12 @@
   "settingsLanguageSystem": "Sistema (automático)",
   "@settingsLanguageSystem": { "description": "Opción de idioma: sistema" },
 
+  "settingsLanguageSpanish": "Español",
+  "@settingsLanguageSpanish": { "description": "Opción de idioma: español" },
+
+  "settingsLanguageEnglish": "Inglés",
+  "@settingsLanguageEnglish": { "description": "Opción de idioma: inglés" },
+
   "settingsThemeMode": "Modo de tema",
   "@settingsThemeMode": { "description": "Etiqueta de selector de modo de tema" },
 
@@ -709,6 +723,9 @@
   "settingsFullBackupHint": "Restaurar libros desde una copia de seguridad CSV",
   "@settingsFullBackupHint": { "description": "Pista de restauración" },
 
+  "settingsAutoNoCoverTitle": "Estantería sin portadas",
+  "settingsAutoNoCoverSub": "Crea automáticamente una estantería si faltan portadas",
+
   "exportTitle": "Exportar biblioteca",
   "@exportTitle": { "description": "Título del diálogo de exportación" },
 
@@ -729,6 +746,11 @@
 
   "devDeleteAllBooks": "BORRAR TODOS LOS LIBROS (DEV)",
   "@devDeleteAllBooks": { "description": "Opción de desarrollador para limpiar base de datos" },
+
+  "settingsDevClearDbSub": "Herramienta de desarrollador: limpiar base de datos",
+  "settingsDevDbCleared": "Base de datos limpiada",
+  "settingsImportSelectBackup": "Seleccionar copia de seguridad de Openshelf",
+  "settingsImportSelectCovers": "Seleccionar ZIP de portadas de Openshelf",
 
   "devDeleteConfirmTitle": "¿Vaciar Biblioteca?",
   "@devDeleteConfirmTitle": { "description": "Título de confirmación de borrado dev" },
@@ -824,6 +846,11 @@
   "bookSearchRecommended": "RECOMENDADO POR OPENSHELF",
   "@bookSearchRecommended": { "description": "Etiqueta para el resultado recomendado" },
 
+  "bookSearchRecommendedSource": "Recomendado por Openshelf",
+  "bookSearchServerOpenLibrary": "Open Library",
+  "bookSearchServerGoogleBooks": "Google Books",
+  "bookSearchServerInventaire": "Inventaire.io",
+
   "searchTabStatus": "Estado",
   "@searchTabStatus": { "description": "Panel de búsqueda: pestaña Estado" },
 
@@ -915,6 +942,26 @@
 
   "statsPlaceholder": "Tus estadísticas aparecerán aquí",
   "@statsPlaceholder": { "description": "Placeholder de estadísticas" },
+
+  "statsAddFirstWidget": "Añadir primer widget",
+  "statsAddWidgetTitle": "Añadir widget",
+  "statsGoalTargetShelf": "Estantería objetivo",
+  "searchFilterIsbnLabel": "ISBN: {isbn}",
+  "@searchFilterIsbnLabel": {
+    "placeholders": { "isbn": { "type": "String" } }
+  },
+  "searchFilterLanguageLabel": "Idioma: {language}",
+  "@searchFilterLanguageLabel": {
+    "placeholders": { "language": { "type": "String" } }
+  },
+  "searchFilterAuthorLabel": "Autor: {author}",
+  "@searchFilterAuthorLabel": {
+    "placeholders": { "author": { "type": "String" } }
+  },
+  "searchFilterPublisherLabel": "Editorial: {publisher}",
+  "@searchFilterPublisherLabel": {
+    "placeholders": { "publisher": { "type": "String" } }
+  },
 
   "statsGoalTitle": "META",
   "statsGoalFullTitle": "META DE LECTURA",

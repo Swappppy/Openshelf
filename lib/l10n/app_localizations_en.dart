@@ -17,6 +17,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String errorGeneric(String error) {
+    return 'Error: $error';
+  }
+
+  @override
   String criticalStartError(String error) {
     return 'Error starting application: $error';
   }
@@ -522,6 +527,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get managementCollections => 'Collections';
 
   @override
+  String get managementCategoryCloudCurve => 'Algorithmic curve (Books)';
+
+  @override
   String get tagNone => 'No categories yet';
 
   @override
@@ -615,6 +623,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'System (automatic)';
+
+  @override
+  String get settingsLanguageSpanish => 'Spanish';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
 
   @override
   String get settingsThemeMode => 'Theme mode';
@@ -724,7 +738,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsFullBackupHint =>
-      'Restore books from a previous CSV backup';
+      'Restaurar libros desde una copia de seguridad CSV';
+
+  @override
+  String get settingsAutoNoCoverTitle => 'No cover shelf';
+
+  @override
+  String get settingsAutoNoCoverSub =>
+      'Auto-create a shelf for books without covers';
 
   @override
   String get exportTitle => 'Export Library';
@@ -748,6 +769,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get devDeleteAllBooks => 'DELETE ALL BOOKS (DEV)';
+
+  @override
+  String get settingsDevClearDbSub => 'Developer tool: clear database';
+
+  @override
+  String get settingsDevDbCleared => 'Database cleared';
+
+  @override
+  String get settingsImportSelectBackup => 'Select Openshelf Backup';
+
+  @override
+  String get settingsImportSelectCovers => 'Select Openshelf Covers ZIP';
 
   @override
   String get devDeleteConfirmTitle => 'Clear Library?';
@@ -849,6 +882,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookSearchRecommended => 'RECOMMENDED BY OPENSHELF';
 
   @override
+  String get bookSearchRecommendedSource => 'Recommended by Openshelf';
+
+  @override
+  String get bookSearchServerOpenLibrary => 'Open Library';
+
+  @override
+  String get bookSearchServerGoogleBooks => 'Google Books';
+
+  @override
+  String get bookSearchServerInventaire => 'Inventaire.io';
+
+  @override
   String get searchTabStatus => 'Status';
 
   @override
@@ -945,6 +990,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsPlaceholder => 'Your statistics will appear here';
+
+  @override
+  String get statsAddFirstWidget => 'Add your first widget';
+
+  @override
+  String get statsAddWidgetTitle => 'Add widget';
+
+  @override
+  String get statsGoalTargetShelf => 'Target shelf';
+
+  @override
+  String searchFilterIsbnLabel(String isbn) {
+    return 'ISBN: $isbn';
+  }
+
+  @override
+  String searchFilterLanguageLabel(String language) {
+    return 'Language: $language';
+  }
+
+  @override
+  String searchFilterAuthorLabel(String author) {
+    return 'Author: $author';
+  }
+
+  @override
+  String searchFilterPublisherLabel(String publisher) {
+    return 'Publisher: $publisher';
+  }
 
   @override
   String get statsGoalTitle => 'GOAL';

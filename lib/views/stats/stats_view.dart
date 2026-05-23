@@ -100,7 +100,7 @@ class _StatsViewState extends ConsumerState<StatsView> {
       ),
       body: widgetsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(context.l10n.errorPrefix(e.toString()))),
         data: (configs) {
           _syncFromDb(configs);
 
@@ -132,7 +132,7 @@ class _StatsViewState extends ConsumerState<StatsView> {
           FilledButton.icon(
             onPressed: _showAddWidgetSheet,
             icon: const Icon(Icons.add),
-            label: const Text('Añadir primer widget'),
+            label: Text(context.l10n.statsAddFirstWidget),
           ),
         ],
       ),
@@ -348,7 +348,7 @@ class _AddWidgetSheet extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(16),
-          child: Text('Añadir widget', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+          child: Text(context.l10n.statsAddWidgetTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         ),
         Flexible(
           child: ListView(

@@ -121,33 +121,36 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              context.l10n.bookDetailPagePickerTitle,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.l10n.bookDetailPagePickerTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 12),
+                PagePicker(
+                  initialValue: selectedPage,
+                  maxValue: book.totalPages!,
+                  onChanged: (val) => selectedPage = val,
+                ),
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () async {
+                    await _updatePage(selectedPage);
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  },
+                  child: Text(context.l10n.save),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            PagePicker(
-              initialValue: selectedPage,
-              maxValue: book.totalPages!,
-              onChanged: (val) => selectedPage = val,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () async {
-                await _updatePage(selectedPage);
-                if (ctx.mounted) Navigator.pop(ctx);
-              },
-              child: Text(context.l10n.save),
-            ),
-            const SizedBox(height: 8),
-          ],
+          ),
         ),
       ),
     );

@@ -124,7 +124,7 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
           onReorder: controller.reorderCategorySort,
           onToggleDirection: controller.toggleCategorySortDirection,
           showNumericField: true,
-          numericLabel: 'Curva algorítmica (Libros)',
+          numericLabel: context.l10n.managementCategoryCloudCurve,
           numericValueSelector: (p) => p.tagCloudMaxCount,
           onNumericChanged: (val) => controller.setTagCloudMaxCount(val),
         );

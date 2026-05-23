@@ -7,6 +7,7 @@ import '../../../models/stats_widget.dart';
 import '../../book_detail/book_detail_view.dart';
 import '../../../l10n/l10n_extension.dart';
 import 'widget_header.dart';
+import 'stats_scale_helper.dart';
 
 class CurrentBookTile extends ConsumerStatefulWidget {
   final StatWidgetSize size;
@@ -28,44 +29,51 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
   @override
   Widget build(BuildContext context) {
     final booksAsync = ref.watch(allBooksProvider);
-    return booksAsync.maybeWhen(
-      data: (books) {
-        final readingBooks = books.where((b) => b.status == ReadingStatus.reading).toList();
-        if (readingBooks.isEmpty) {
-          return Center(
-            child: Text(
-              context.l10n.statsReadingNone,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          );
-        }
+    
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = StatsScaleHelper.getScale(constraints);
+        
+        return booksAsync.maybeWhen(
+          data: (books) {
+            final readingBooks = books.where((b) => b.status == ReadingStatus.reading).toList();
+            if (readingBooks.isEmpty) {
+              return Center(
+                child: Text(
+                  context.l10n.statsReadingNone,
+                  style: TextStyle(fontSize: 12 * scale, color: Colors.grey),
+                ),
+              );
+            }
 
-        return PageView.builder(
-          controller: _pageController,
-          itemCount: readingBooks.length,
-          itemBuilder: (context, index) {
-            final book = readingBooks[index];
-            final progress = (book.currentPage ?? 0) / (book.totalPages ?? 1);
+            return PageView.builder(
+              controller: _pageController,
+              itemCount: readingBooks.length,
+              itemBuilder: (context, index) {
+                final book = readingBooks[index];
+                final progress = (book.currentPage ?? 0) / (book.totalPages ?? 1);
 
-            return InkWell(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
-              ),
-              child: widget.size == StatWidgetSize.s1x1
-                  ? _buildCompact(context, book, progress)
-                  : _buildWide(context, book, progress),
+                return InkWell(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+                  ),
+                  child: widget.size == StatWidgetSize.s1x1
+                      ? _buildCompact(context, book, progress, scale)
+                      : _buildWide(context, book, progress, scale),
+                );
+              },
             );
           },
+          orElse: () => const SizedBox.shrink(),
         );
-      },
-      orElse: () => const SizedBox.shrink(),
+      }
     );
   }
 
-  Widget _buildCompact(BuildContext context, Book book, double progress) {
+  Widget _buildCompact(BuildContext context, Book book, double progress, double scale) {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12 * scale.clamp(1.0, 1.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -73,29 +81,29 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
           Expanded(
             child: Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: EdgeInsets.symmetric(vertical: 4 * scale),
                 child: book.coverPath != null
                     ? ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(4 * scale),
                         child: Image.file(File(book.coverPath!), fit: BoxFit.contain),
                       )
-                    : Icon(Icons.book, size: 32, color: Theme.of(context).colorScheme.outline),
+                    : Icon(Icons.book, size: 32 * scale, color: Theme.of(context).colorScheme.outline),
               ),
             ),
           ),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(4 * scale),
             child: LinearProgressIndicator(
               value: progress,
-              minHeight: 3,
+              minHeight: 3 * scale,
               backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2 * scale),
           Center(
             child: Text(
               '${(progress * 100).toInt()}%',
-              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 9 * scale, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -103,39 +111,55 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
     );
   }
 
-  Widget _buildWide(BuildContext context, Book book, double progress) {
+  Widget _buildWide(BuildContext context, Book book, double progress, double scale) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16 * scale.clamp(1.0, 1.5)),
       child: Row(
         children: [
           if (book.coverPath != null)
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(File(book.coverPath!), width: 50, height: 75, fit: BoxFit.cover),
+              borderRadius: BorderRadius.circular(8 * scale),
+              child: Image.file(File(book.coverPath!), width: 50 * scale, height: 75 * scale, fit: BoxFit.cover),
             )
           else
-            Container(width: 50, height: 75, color: Colors.grey[800], child: const Icon(Icons.book, color: Colors.white24)),
-          const SizedBox(width: 16),
+            Container(
+              width: 50 * scale, 
+              height: 75 * scale, 
+              color: Colors.grey[800], 
+              child: Icon(Icons.book, color: Colors.white24, size: 24 * scale)
+            ),
+          SizedBox(width: 16 * scale),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 WidgetHeader(title: context.l10n.statsReadingNowTitle, icon: Icons.auto_stories),
-                const SizedBox(height: 4),
-                Text(book.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text('${book.author} · ${book.publishYear ?? ""}', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10)),
-                const SizedBox(height: 8),
+                SizedBox(height: 4 * scale),
+                Text(
+                  book.title, 
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13 * scale), 
+                  maxLines: 1, 
+                  overflow: TextOverflow.ellipsis
+                ),
+                Text(
+                  '${book.author}${book.publishYear != null ? " · ${book.publishYear}" : ""}', 
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10 * scale)
+                ),
+                SizedBox(height: 8 * scale),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(4 * scale),
                   child: LinearProgressIndicator(
                     value: progress,
-                    minHeight: 5,
+                    minHeight: 5 * scale,
                     backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text('${book.currentPage} / ${book.totalPages} págs · ${(progress * 100).toInt()}%', style: const TextStyle(fontSize: 10)),
+                SizedBox(height: 4 * scale),
+                Text(
+                  '${book.currentPage} / ${book.totalPages} págs · ${(progress * 100).toInt()}%', 
+                  style: TextStyle(fontSize: 10 * scale)
+                ),
               ],
             ),
           ),

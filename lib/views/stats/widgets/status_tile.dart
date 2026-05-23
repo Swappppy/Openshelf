@@ -4,6 +4,7 @@ import '../../../controllers/books_controller.dart';
 import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import 'widget_header.dart';
+import 'stats_scale_helper.dart';
 
 class StatusDistributionTile extends ConsumerWidget {
   const StatusDistributionTile({super.key});
@@ -11,37 +12,58 @@ class StatusDistributionTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(allBooksProvider);
-    return booksAsync.maybeWhen(
-      data: (books) {
-        final counts = <ReadingStatus, int>{};
-        for (var b in books) {
-          counts[b.status] = (counts[b.status] ?? 0) + 1;
-        }
+    
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = StatsScaleHelper.getScale(constraints);
         
-        return Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              WidgetHeader(title: context.l10n.statsStatusTitle, icon: Icons.pie_chart_outline),
-              const Spacer(),
-              ...ReadingStatus.values.map((s) => Padding(
-                padding: const EdgeInsets.only(bottom: 2),
-                child: Row(
-                  children: [
-                    Container(width: 6, height: 6, decoration: BoxDecoration(color: _getStatusColor(s), shape: BoxShape.circle)),
-                    const SizedBox(width: 6),
-                    Expanded(child: Text(_getStatusLabel(context, s), style: const TextStyle(fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                    Text('${counts[s] ?? 0}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              )),
-              const Spacer(),
-            ],
-          ),
+        return booksAsync.maybeWhen(
+          data: (books) {
+            final counts = <ReadingStatus, int>{};
+            for (var b in books) {
+              counts[b.status] = (counts[b.status] ?? 0) + 1;
+            }
+            
+            return Padding(
+              padding: EdgeInsets.all(12 * scale.clamp(1.0, 1.5)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  WidgetHeader(title: context.l10n.statsStatusTitle, icon: Icons.pie_chart_outline),
+                  const Spacer(),
+                  ...ReadingStatus.values.map((s) => Padding(
+                    padding: EdgeInsets.only(bottom: 2 * scale),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 6 * scale, 
+                          height: 6 * scale, 
+                          decoration: BoxDecoration(color: _getStatusColor(s), shape: BoxShape.circle)
+                        ),
+                        SizedBox(width: 6 * scale),
+                        Expanded(
+                          child: Text(
+                            _getStatusLabel(context, s), 
+                            style: TextStyle(fontSize: 10 * scale), 
+                            maxLines: 1, 
+                            overflow: TextOverflow.ellipsis
+                          )
+                        ),
+                        Text(
+                          '${counts[s] ?? 0}', 
+                          style: TextStyle(fontSize: 10 * scale, fontWeight: FontWeight.bold)
+                        ),
+                      ],
+                    ),
+                  )),
+                  const Spacer(),
+                ],
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
         );
-      },
-      orElse: () => const SizedBox.shrink(),
+      }
     );
   }
 

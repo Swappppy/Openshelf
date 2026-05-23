@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../controllers/reading_log_controller.dart';
 import 'widget_header.dart';
+import 'stats_scale_helper.dart';
 import '../../../l10n/l10n_extension.dart';
 
 class PagesTile extends ConsumerWidget {
@@ -11,24 +12,37 @@ class PagesTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final pagesAsync = ref.watch(totalPagesReadProvider);
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          WidgetHeader(title: context.l10n.statsPagesTitle, icon: Icons.menu_book),
-          const Spacer(),
-          Text(
-            pagesAsync.maybeWhen(data: (v) => _formatNumber(v), orElse: () => '0'), 
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)
+    
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = StatsScaleHelper.getScale(constraints);
+        
+        return Padding(
+          padding: EdgeInsets.all(12 * scale.clamp(1.0, 1.5)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              WidgetHeader(title: context.l10n.statsPagesTitle, icon: Icons.menu_book),
+              const Spacer(),
+              Text(
+                pagesAsync.maybeWhen(data: (v) => _formatNumber(v), orElse: () => '0'), 
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28 * scale,
+                )
+              ),
+              Text(
+                context.l10n.statsPagesSub,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.outline, 
+                  fontSize: 10 * scale,
+                )
+              ),
+              const Spacer(),
+            ],
           ),
-          Text(
-            context.l10n.statsPagesSub,
-            style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontSize: 10)
-          ),
-          const Spacer(),
-        ],
-      ),
+        );
+      }
     );
   }
 

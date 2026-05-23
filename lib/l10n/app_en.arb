@@ -10,6 +10,12 @@
     "placeholders": { "message": { "type": "String" } }
   },
 
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "description": "Generic error message with parameter",
+    "placeholders": { "error": { "type": "String" } }
+  },
+
   "criticalStartError": "Error starting application: {error}",
   "@criticalStartError": {
     "description": "Critical app startup error",
@@ -526,6 +532,8 @@
   "managementCollections": "Collections",
   "@managementCollections": { "description": "Management: collections" },
 
+  "managementCategoryCloudCurve": "Algorithmic curve (Books)",
+
   "tagNone": "No categories yet",
   "@tagNone": { "description": "Empty categories state" },
 
@@ -622,6 +630,12 @@
   "settingsLanguageSystem": "System (automatic)",
   "@settingsLanguageSystem": { "description": "Language option: system" },
 
+  "settingsLanguageSpanish": "Spanish",
+  "@settingsLanguageSpanish": { "description": "Language option: spanish" },
+
+  "settingsLanguageEnglish": "English",
+  "@settingsLanguageEnglish": { "description": "Language option: english" },
+
   "settingsThemeMode": "Theme mode",
   "@settingsThemeMode": { "description": "Theme mode label" },
 
@@ -706,8 +720,8 @@
   "settingsFullBackup": "Restore library",
   "@settingsFullBackup": { "description": "Restore title" },
 
-  "settingsFullBackupHint": "Restore books from a previous CSV backup",
-  "@settingsFullBackupHint": { "description": "Restore hint" },
+  "settingsAutoNoCoverTitle": "No cover shelf",
+  "settingsAutoNoCoverSub": "Auto-create a shelf for books without covers",
 
   "exportTitle": "Export Library",
   "@exportTitle": { "description": "Export dialog title" },
@@ -729,6 +743,11 @@
 
   "devDeleteAllBooks": "DELETE ALL BOOKS (DEV)",
   "@devDeleteAllBooks": { "description": "Developer option to clear database" },
+
+  "settingsDevClearDbSub": "Developer tool: clear database",
+  "settingsDevDbCleared": "Database cleared",
+  "settingsImportSelectBackup": "Select Openshelf Backup",
+  "settingsImportSelectCovers": "Select Openshelf Covers ZIP",
 
   "devDeleteConfirmTitle": "Clear Library?",
   "@devDeleteConfirmTitle": { "description": "Dev delete confirmation title" },
@@ -824,6 +843,11 @@
   "bookSearchRecommended": "RECOMMENDED BY OPENSHELF",
   "@bookSearchRecommended": { "description": "Label for recommended result" },
 
+  "bookSearchRecommendedSource": "Recommended by Openshelf",
+  "bookSearchServerOpenLibrary": "Open Library",
+  "bookSearchServerGoogleBooks": "Google Books",
+  "bookSearchServerInventaire": "Inventaire.io",
+
   "searchTabStatus": "Status",
   "@searchTabStatus": { "description": "Search panel: Status tab" },
 
@@ -915,6 +939,26 @@
 
   "statsPlaceholder": "Your statistics will appear here",
   "@statsPlaceholder": { "description": "Stats placeholder" },
+
+  "statsAddFirstWidget": "Add your first widget",
+  "statsAddWidgetTitle": "Add widget",
+  "statsGoalTargetShelf": "Target shelf",
+  "searchFilterIsbnLabel": "ISBN: {isbn}",
+  "@searchFilterIsbnLabel": {
+    "placeholders": { "isbn": { "type": "String" } }
+  },
+  "searchFilterLanguageLabel": "Language: {language}",
+  "@searchFilterLanguageLabel": {
+    "placeholders": { "language": { "type": "String" } }
+  },
+  "searchFilterAuthorLabel": "Author: {author}",
+  "@searchFilterAuthorLabel": {
+    "placeholders": { "author": { "type": "String" } }
+  },
+  "searchFilterPublisherLabel": "Publisher: {publisher}",
+  "@searchFilterPublisherLabel": {
+    "placeholders": { "publisher": { "type": "String" } }
+  },
 
   "statsGoalTitle": "GOAL",
   "statsGoalFullTitle": "READING GOAL",
