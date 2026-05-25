@@ -266,18 +266,3 @@ void applyLibrarySorting(List<Book> books, DisplayPreferences prefs, {Map<int, S
     return 0;
   });
 }
-
-/// Dynamic helper for accessing book fields by string key
-dynamic getBookFieldValue(Book b, String key) {
-  switch (key) {
-    case 'title': return b.title;
-    case 'author': return b.author;
-    case 'publisher': return b.publisher;
-    case 'collection': return b.collectionName;
-    case 'imprint': return b.publisher;
-    case 'publishYear': return b.publishYear;
-    case 'createdAt': return b.createdAt;
-    case 'rating': return b.rating;
-    default: return null;
-  }
-}

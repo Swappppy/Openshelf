@@ -1,13 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/l10n_extension.dart';
 import 'theme/app_theme.dart';
 import 'views/library/library_view.dart';
 import 'controllers/app_settings_controller.dart';
-import 'controllers/shared_prefs_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
@@ -19,15 +19,19 @@ void main() async {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    
-    final prefs = await _getSharedPreferences();
 
     runApp(
-      ProviderScope(
-        overrides: [
-          sharedPrefsProvider.overrideWithValue(prefs),
-        ],
-        child: const OpenshelfApp(),
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Center(
+            child: Text(
+              'Critical error: $e\nPlease restart the app.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
       ),
     );
   } catch (e) {
@@ -49,42 +53,6 @@ void main() async {
       ),
     );
   }
-}
-
-/// Robustly retrieves SharedPreferences with a retry mechanism.
-/// This addresses common race conditions or 'channel-error' issues during fast hot restarts.
-Future<SharedPreferences> _getSharedPreferences() async {
-  int retries = 0;
-  const maxRetries = 10;
-  
-  // Give the Flutter engine a moment to settle after a hot restart.
-  await Future.delayed(const Duration(milliseconds: 300));
-
-  while (retries < maxRetries) {
-    try {
-      return await SharedPreferences.getInstance();
-    } on PlatformException catch (e) {
-      if (e.code == 'channel-error') {
-        retries++;
-        // Incremental delay to give the platform channel time to recover.
-        await Future.delayed(Duration(milliseconds: 100 * retries));
-        continue;
-      }
-      rethrow;
-    } catch (e) {
-      final errorStr = e.toString();
-      if (errorStr.contains('channel-error') || 
-          errorStr.contains('Unable to establish connection')) {
-        retries++;
-        await Future.delayed(Duration(milliseconds: 100 * retries));
-        continue;
-      }
-      rethrow;
-    }
-  }
-  
-  // Final desperate attempt.
-  return await SharedPreferences.getInstance();
 }
 
 class OpenshelfApp extends ConsumerWidget {
