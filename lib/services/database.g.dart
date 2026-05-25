@@ -574,6 +574,20 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
       'REFERENCES tags (id)',
     ),
   );
+  static const VerificationMeta _imprintIdMeta = const VerificationMeta(
+    'imprintId',
+  );
+  @override
+  late final GeneratedColumn<int> imprintId = GeneratedColumn<int>(
+    'imprint_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tags (id)',
+    ),
+  );
   static const VerificationMeta _startedAtMeta = const VerificationMeta(
     'startedAt',
   );
@@ -631,6 +645,7 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     description,
     publishYear,
     collectionId,
+    imprintId,
     startedAt,
     finishedAt,
     createdAt,
@@ -780,6 +795,12 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         ),
       );
     }
+    if (data.containsKey('imprint_id')) {
+      context.handle(
+        _imprintIdMeta,
+        imprintId.isAcceptableOrUnknown(data['imprint_id']!, _imprintIdMeta),
+      );
+    }
     if (data.containsKey('started_at')) {
       context.handle(
         _startedAtMeta,
@@ -895,6 +916,10 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         DriftSqlType.int,
         data['${effectivePrefix}collection_id'],
       ),
+      imprintId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}imprint_id'],
+      ),
       startedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}started_at'],
@@ -943,6 +968,7 @@ class Book extends DataClass implements Insertable<Book> {
   final String? description;
   final int? publishYear;
   final int? collectionId;
+  final int? imprintId;
   final DateTime? startedAt;
   final DateTime? finishedAt;
   final DateTime createdAt;
@@ -968,6 +994,7 @@ class Book extends DataClass implements Insertable<Book> {
     this.description,
     this.publishYear,
     this.collectionId,
+    this.imprintId,
     this.startedAt,
     this.finishedAt,
     required this.createdAt,
@@ -1036,6 +1063,9 @@ class Book extends DataClass implements Insertable<Book> {
     if (!nullToAbsent || collectionId != null) {
       map['collection_id'] = Variable<int>(collectionId);
     }
+    if (!nullToAbsent || imprintId != null) {
+      map['imprint_id'] = Variable<int>(imprintId);
+    }
     if (!nullToAbsent || startedAt != null) {
       map['started_at'] = Variable<DateTime>(startedAt);
     }
@@ -1101,6 +1131,9 @@ class Book extends DataClass implements Insertable<Book> {
       collectionId: collectionId == null && nullToAbsent
           ? const Value.absent()
           : Value(collectionId),
+      imprintId: imprintId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imprintId),
       startedAt: startedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(startedAt),
@@ -1140,6 +1173,7 @@ class Book extends DataClass implements Insertable<Book> {
       description: serializer.fromJson<String?>(json['description']),
       publishYear: serializer.fromJson<int?>(json['publishYear']),
       collectionId: serializer.fromJson<int?>(json['collectionId']),
+      imprintId: serializer.fromJson<int?>(json['imprintId']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
       finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -1172,6 +1206,7 @@ class Book extends DataClass implements Insertable<Book> {
       'description': serializer.toJson<String?>(description),
       'publishYear': serializer.toJson<int?>(publishYear),
       'collectionId': serializer.toJson<int?>(collectionId),
+      'imprintId': serializer.toJson<int?>(imprintId),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
       'finishedAt': serializer.toJson<DateTime?>(finishedAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -1200,6 +1235,7 @@ class Book extends DataClass implements Insertable<Book> {
     Value<String?> description = const Value.absent(),
     Value<int?> publishYear = const Value.absent(),
     Value<int?> collectionId = const Value.absent(),
+    Value<int?> imprintId = const Value.absent(),
     Value<DateTime?> startedAt = const Value.absent(),
     Value<DateTime?> finishedAt = const Value.absent(),
     DateTime? createdAt,
@@ -1229,6 +1265,7 @@ class Book extends DataClass implements Insertable<Book> {
     description: description.present ? description.value : this.description,
     publishYear: publishYear.present ? publishYear.value : this.publishYear,
     collectionId: collectionId.present ? collectionId.value : this.collectionId,
+    imprintId: imprintId.present ? imprintId.value : this.imprintId,
     startedAt: startedAt.present ? startedAt.value : this.startedAt,
     finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
     createdAt: createdAt ?? this.createdAt,
@@ -1274,6 +1311,7 @@ class Book extends DataClass implements Insertable<Book> {
       collectionId: data.collectionId.present
           ? data.collectionId.value
           : this.collectionId,
+      imprintId: data.imprintId.present ? data.imprintId.value : this.imprintId,
       startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
       finishedAt: data.finishedAt.present
           ? data.finishedAt.value
@@ -1306,6 +1344,7 @@ class Book extends DataClass implements Insertable<Book> {
           ..write('description: $description, ')
           ..write('publishYear: $publishYear, ')
           ..write('collectionId: $collectionId, ')
+          ..write('imprintId: $imprintId, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
           ..write('createdAt: $createdAt')
@@ -1336,6 +1375,7 @@ class Book extends DataClass implements Insertable<Book> {
     description,
     publishYear,
     collectionId,
+    imprintId,
     startedAt,
     finishedAt,
     createdAt,
@@ -1365,6 +1405,7 @@ class Book extends DataClass implements Insertable<Book> {
           other.description == this.description &&
           other.publishYear == this.publishYear &&
           other.collectionId == this.collectionId &&
+          other.imprintId == this.imprintId &&
           other.startedAt == this.startedAt &&
           other.finishedAt == this.finishedAt &&
           other.createdAt == this.createdAt);
@@ -1392,6 +1433,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
   final Value<String?> description;
   final Value<int?> publishYear;
   final Value<int?> collectionId;
+  final Value<int?> imprintId;
   final Value<DateTime?> startedAt;
   final Value<DateTime?> finishedAt;
   final Value<DateTime> createdAt;
@@ -1417,6 +1459,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.description = const Value.absent(),
     this.publishYear = const Value.absent(),
     this.collectionId = const Value.absent(),
+    this.imprintId = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1443,6 +1486,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.description = const Value.absent(),
     this.publishYear = const Value.absent(),
     this.collectionId = const Value.absent(),
+    this.imprintId = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1471,6 +1515,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Expression<String>? description,
     Expression<int>? publishYear,
     Expression<int>? collectionId,
+    Expression<int>? imprintId,
     Expression<DateTime>? startedAt,
     Expression<DateTime>? finishedAt,
     Expression<DateTime>? createdAt,
@@ -1497,6 +1542,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
       if (description != null) 'description': description,
       if (publishYear != null) 'publish_year': publishYear,
       if (collectionId != null) 'collection_id': collectionId,
+      if (imprintId != null) 'imprint_id': imprintId,
       if (startedAt != null) 'started_at': startedAt,
       if (finishedAt != null) 'finished_at': finishedAt,
       if (createdAt != null) 'created_at': createdAt,
@@ -1525,6 +1571,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Value<String?>? description,
     Value<int?>? publishYear,
     Value<int?>? collectionId,
+    Value<int?>? imprintId,
     Value<DateTime?>? startedAt,
     Value<DateTime?>? finishedAt,
     Value<DateTime>? createdAt,
@@ -1551,6 +1598,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
       description: description ?? this.description,
       publishYear: publishYear ?? this.publishYear,
       collectionId: collectionId ?? this.collectionId,
+      imprintId: imprintId ?? this.imprintId,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,
       createdAt: createdAt ?? this.createdAt,
@@ -1627,6 +1675,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
     if (collectionId.present) {
       map['collection_id'] = Variable<int>(collectionId.value);
     }
+    if (imprintId.present) {
+      map['imprint_id'] = Variable<int>(imprintId.value);
+    }
     if (startedAt.present) {
       map['started_at'] = Variable<DateTime>(startedAt.value);
     }
@@ -1663,6 +1714,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
           ..write('description: $description, ')
           ..write('publishYear: $publishYear, ')
           ..write('collectionId: $collectionId, ')
+          ..write('imprintId: $imprintId, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
           ..write('createdAt: $createdAt')
@@ -3723,25 +3775,6 @@ final class $$TagsTableReferences
     extends BaseReferences<_$AppDatabase, $TagsTable, Tag> {
   $$TagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$BooksTable, List<Book>> _booksRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.books,
-    aliasName: $_aliasNameGenerator(db.tags.id, db.books.collectionId),
-  );
-
-  $$BooksTableProcessedTableManager get booksRefs {
-    final manager = $$BooksTableTableManager(
-      $_db,
-      $_db.books,
-    ).filter((f) => f.collectionId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_booksRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
   static MultiTypedResultKey<$BookTagsTable, List<BookTag>> _bookTagsRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
@@ -3813,31 +3846,6 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
     column: $table.imagePath,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> booksRefs(
-    Expression<bool> Function($$BooksTableFilterComposer f) f,
-  ) {
-    final $$BooksTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.books,
-      getReferencedColumn: (t) => t.collectionId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BooksTableFilterComposer(
-            $db: $db,
-            $table: $db.books,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 
   Expression<bool> bookTagsRefs(
     Expression<bool> Function($$BookTagsTableFilterComposer f) f,
@@ -3948,31 +3956,6 @@ class $$TagsTableAnnotationComposer
   GeneratedColumn<String> get imagePath =>
       $composableBuilder(column: $table.imagePath, builder: (column) => column);
 
-  Expression<T> booksRefs<T extends Object>(
-    Expression<T> Function($$BooksTableAnnotationComposer a) f,
-  ) {
-    final $$BooksTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.books,
-      getReferencedColumn: (t) => t.collectionId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BooksTableAnnotationComposer(
-            $db: $db,
-            $table: $db.books,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> bookTagsRefs<T extends Object>(
     Expression<T> Function($$BookTagsTableAnnotationComposer a) f,
   ) {
@@ -4037,11 +4020,7 @@ class $$TagsTableTableManager
           $$TagsTableUpdateCompanionBuilder,
           (Tag, $$TagsTableReferences),
           Tag,
-          PrefetchHooks Function({
-            bool booksRefs,
-            bool bookTagsRefs,
-            bool readingGoalsRefs,
-          })
+          PrefetchHooks Function({bool bookTagsRefs, bool readingGoalsRefs})
         > {
   $$TagsTableTableManager(_$AppDatabase db, $TagsTable table)
     : super(
@@ -4089,34 +4068,16 @@ class $$TagsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({
-                booksRefs = false,
-                bookTagsRefs = false,
-                readingGoalsRefs = false,
-              }) {
+              ({bookTagsRefs = false, readingGoalsRefs = false}) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
-                    if (booksRefs) db.books,
                     if (bookTagsRefs) db.bookTags,
                     if (readingGoalsRefs) db.readingGoals,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
-                      if (booksRefs)
-                        await $_getPrefetchedData<Tag, $TagsTable, Book>(
-                          currentTable: table,
-                          referencedTable: $$TagsTableReferences
-                              ._booksRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$TagsTableReferences(db, table, p0).booksRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.collectionId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
                       if (bookTagsRefs)
                         await $_getPrefetchedData<Tag, $TagsTable, BookTag>(
                           currentTable: table,
@@ -4166,11 +4127,7 @@ typedef $$TagsTableProcessedTableManager =
       $$TagsTableUpdateCompanionBuilder,
       (Tag, $$TagsTableReferences),
       Tag,
-      PrefetchHooks Function({
-        bool booksRefs,
-        bool bookTagsRefs,
-        bool readingGoalsRefs,
-      })
+      PrefetchHooks Function({bool bookTagsRefs, bool readingGoalsRefs})
     >;
 typedef $$BooksTableCreateCompanionBuilder =
     BooksCompanion Function({
@@ -4195,6 +4152,7 @@ typedef $$BooksTableCreateCompanionBuilder =
       Value<String?> description,
       Value<int?> publishYear,
       Value<int?> collectionId,
+      Value<int?> imprintId,
       Value<DateTime?> startedAt,
       Value<DateTime?> finishedAt,
       Value<DateTime> createdAt,
@@ -4222,6 +4180,7 @@ typedef $$BooksTableUpdateCompanionBuilder =
       Value<String?> description,
       Value<int?> publishYear,
       Value<int?> collectionId,
+      Value<int?> imprintId,
       Value<DateTime?> startedAt,
       Value<DateTime?> finishedAt,
       Value<DateTime> createdAt,
@@ -4243,6 +4202,23 @@ final class $$BooksTableReferences
       $_db.tags,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_collectionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TagsTable _imprintIdTable(_$AppDatabase db) =>
+      db.tags.createAlias($_aliasNameGenerator(db.books.imprintId, db.tags.id));
+
+  $$TagsTableProcessedTableManager? get imprintId {
+    final $_column = $_itemColumn<int>('imprint_id');
+    if ($_column == null) return null;
+    final manager = $$TagsTableTableManager(
+      $_db,
+      $_db.tags,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_imprintIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -4416,6 +4392,29 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
     final $$TagsTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.collectionId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableFilterComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableFilterComposer get imprintId {
+    final $$TagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.imprintId,
       referencedTable: $db.tags,
       getReferencedColumn: (t) => t.id,
       builder:
@@ -4632,6 +4631,29 @@ class $$BooksTableOrderingComposer
     );
     return composer;
   }
+
+  $$TagsTableOrderingComposer get imprintId {
+    final $$TagsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.imprintId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableOrderingComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$BooksTableAnnotationComposer
@@ -4754,6 +4776,29 @@ class $$BooksTableAnnotationComposer
     return composer;
   }
 
+  $$TagsTableAnnotationComposer get imprintId {
+    final $$TagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.imprintId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> bookTagsRefs<T extends Object>(
     Expression<T> Function($$BookTagsTableAnnotationComposer a) f,
   ) {
@@ -4820,6 +4865,7 @@ class $$BooksTableTableManager
           Book,
           PrefetchHooks Function({
             bool collectionId,
+            bool imprintId,
             bool bookTagsRefs,
             bool readingLogRefs,
           })
@@ -4858,6 +4904,7 @@ class $$BooksTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<int?> publishYear = const Value.absent(),
                 Value<int?> collectionId = const Value.absent(),
+                Value<int?> imprintId = const Value.absent(),
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> finishedAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -4883,6 +4930,7 @@ class $$BooksTableTableManager
                 description: description,
                 publishYear: publishYear,
                 collectionId: collectionId,
+                imprintId: imprintId,
                 startedAt: startedAt,
                 finishedAt: finishedAt,
                 createdAt: createdAt,
@@ -4910,6 +4958,7 @@ class $$BooksTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<int?> publishYear = const Value.absent(),
                 Value<int?> collectionId = const Value.absent(),
+                Value<int?> imprintId = const Value.absent(),
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> finishedAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -4935,6 +4984,7 @@ class $$BooksTableTableManager
                 description: description,
                 publishYear: publishYear,
                 collectionId: collectionId,
+                imprintId: imprintId,
                 startedAt: startedAt,
                 finishedAt: finishedAt,
                 createdAt: createdAt,
@@ -4948,6 +4998,7 @@ class $$BooksTableTableManager
           prefetchHooksCallback:
               ({
                 collectionId = false,
+                imprintId = false,
                 bookTagsRefs = false,
                 readingLogRefs = false,
               }) {
@@ -4982,6 +5033,19 @@ class $$BooksTableTableManager
                                         ._collectionIdTable(db),
                                     referencedColumn: $$BooksTableReferences
                                         ._collectionIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (imprintId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.imprintId,
+                                    referencedTable: $$BooksTableReferences
+                                        ._imprintIdTable(db),
+                                    referencedColumn: $$BooksTableReferences
+                                        ._imprintIdTable(db)
                                         .id,
                                   )
                                   as T;
@@ -5051,6 +5115,7 @@ typedef $$BooksTableProcessedTableManager =
       Book,
       PrefetchHooks Function({
         bool collectionId,
+        bool imprintId,
         bool bookTagsRefs,
         bool readingLogRefs,
       })

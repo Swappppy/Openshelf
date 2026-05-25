@@ -78,7 +78,12 @@ class BooksListOrGrid extends ConsumerWidget {
         } else {
           // Apply standard library sorting to all other views by default
           final prefs = ref.watch(displayPreferencesProvider);
-          applyLibrarySorting(items, prefs);
+          final imprintsAsync = ref.watch(allImprintsProvider);
+          final imprintNames = imprintsAsync.maybeWhen(
+            data: (list) => {for (final t in list) t.id: t.name},
+            orElse: () => <int, String>{},
+          );
+          applyLibrarySorting(items, prefs, imprintNames: imprintNames);
         }
 
         return viewMode == LibraryViewMode.list

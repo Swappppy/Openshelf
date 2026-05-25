@@ -107,7 +107,7 @@ class BookshelfImportService {
       return const BookshelfImportResult(
         imported: 0,
         skipped: 0,
-        errors: ['El archivo CSV está vacío.'],
+        errors: ['Empty CSV file.'],
       );
     }
 
@@ -144,7 +144,7 @@ class BookshelfImportService {
         final isbn = _str(row, _colIsbn);
         final isDuplicate = isbn.isNotEmpty
             ? await _db.getBookByIsbn(isbn) != null
-            : await _existsByTitleAndAuthor(title, _primaryAuthor(row));
+            : await _db.existsByTitleAndAuthor(title, _primaryAuthor(row));
 
         if (isDuplicate) {
           skipped++;
@@ -156,7 +156,11 @@ class BookshelfImportService {
         // Handle Collections (as Tags)
         final collectionName = companion.collectionName.value;
         if (collectionName != null && collectionName.isNotEmpty) {
-          await _getOrCreateTag(collectionName, TagType.collection);
+          final colId = await _getOrCreateTag(collectionName, TagType.collection);
+          // Link via the new FK
+          await (_db.update(_db.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(
+            collectionId: Value(colId),
+          ));
         }
 
         // Handle Categories
@@ -357,17 +361,6 @@ class BookshelfImportService {
     final raw = _str(row, col);
     if (raw.isEmpty) return null;
     return int.tryParse(raw) ?? double.tryParse(raw)?.toInt();
-  }
-
-  // ── Duplicate detection ───────────────────────────────────────────────────
-
-  Future<bool> _existsByTitleAndAuthor(String title, String author) async {
-    final all = await _db.watchAllBooks().first;
-    return all.any(
-          (b) =>
-      b.title.toLowerCase() == title.toLowerCase() &&
-          b.author.toLowerCase() == author.toLowerCase(),
-    );
   }
 }
 

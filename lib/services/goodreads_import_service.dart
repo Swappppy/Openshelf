@@ -107,7 +107,7 @@ class GoodreadsImportService {
       return const GoodreadsImportResult(
         imported: 0,
         skipped: 0,
-        errors: ['El archivo CSV está vacío.'],
+        errors: ['Empty CSV file.'],
       );
     }
 
@@ -144,7 +144,7 @@ class GoodreadsImportService {
             ? await _db.getBookByIsbn(isbn13) != null
             : isbn10.isNotEmpty
             ? await _db.getBookByIsbn(isbn10) != null
-            : await _existsByTitleAndAuthor(title, _str(row, _colAuthor));
+            : await _db.existsByTitleAndAuthor(title, _str(row, _colAuthor));
 
         if (isDuplicate) {
           skipped++;
@@ -352,15 +352,6 @@ class GoodreadsImportService {
       name: name,
       type: Value(type),
     ));
-  }
-
-  Future<bool> _existsByTitleAndAuthor(String title, String author) async {
-    final all = await _db.watchAllBooks().first;
-    return all.any(
-          (b) =>
-      b.title.toLowerCase()  == title.toLowerCase() &&
-          b.author.toLowerCase() == author.toLowerCase(),
-    );
   }
 }
 

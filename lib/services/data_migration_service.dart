@@ -15,6 +15,7 @@ import 'cover_service.dart';
 /// Service for exporting and importing the entire library database via CSV and ZIP.
 class DataMigrationService {
   final AppDatabase _db;
+  final Map<String, int> _tagCache = {};
 
   DataMigrationService(this._db);
 
@@ -31,7 +32,8 @@ class DataMigrationService {
       'publisher', 'publishYear', 'totalPages', 'currentPage', 'status',
       'rating', 'bookFormat', 'collectionName', 'collectionNumber',
       'notes', 'startedAt', 'finishedAt', 'createdAt', 'coverUrl', 'coverPath',
-      'categories', 'categoryColors', 'imprintName', 'imprintColor', 'imprintImage'
+      'categories', 'categoryColors', 'imprintName', 'imprintColor', 'imprintImage',
+      'collectionId', 'imprintId'
     ]);
 
     for (final b in books) {
@@ -49,7 +51,8 @@ class DataMigrationService {
         b.rating, b.bookFormat?.name, b.collectionName, b.collectionNumber,
         b.notes, b.startedAt?.toIso8601String(), b.finishedAt?.toIso8601String(),
         b.createdAt.toIso8601String(), b.coverUrl, b.coverPath,
-        cats, colors, imprint?.name, imprint?.color, imprint?.imagePath
+        cats, colors, imprint?.name, imprint?.color, imprint?.imagePath,
+        b.collectionId, b.imprintId
       ]);
     }
 
@@ -425,6 +428,11 @@ class DataMigrationService {
   // --- Helpers ---
 
   Future<int> _getOrCreateTag(String name, TagType type, {String? color, String? imagePath}) async {
+    final cacheKey = '${type.name}_${name.toLowerCase()}';
+    if (_tagCache.containsKey(cacheKey)) {
+      return _tagCache[cacheKey]!;
+    }
+
     final existing = await _db.searchTags(name, type);
     final exact = existing.firstWhereOrNull((t) => t.name.toLowerCase() == name.toLowerCase());
     
@@ -436,15 +444,19 @@ class DataMigrationService {
         );
         await _db.updateTag(updated);
       }
+      _tagCache[cacheKey] = exact.id;
       return exact.id;
     }
 
-    return await _db.insertTag(TagsCompanion.insert(
+    final id = await _db.insertTag(TagsCompanion.insert(
       name: name,
       type: Value(type),
       color: Value(color),
       imagePath: Value(imagePath),
     ));
+    
+    _tagCache[cacheKey] = id;
+    return id;
   }
 
   String? _getRaw(List<String> header, List<dynamic> row, String col) {
@@ -463,7 +475,10 @@ class DataMigrationService {
     final originalCoverPath = s('coverPath');
     String? relinkedCoverPath;
     if (originalCoverPath != null) {
-      relinkedCoverPath = p.join(localBaseDir, p.basename(originalCoverPath));
+      final potentialPath = p.join(localBaseDir, p.basename(originalCoverPath));
+      if (File(potentialPath).existsSync()) {
+        relinkedCoverPath = potentialPath;
+      }
     }
 
     return BooksCompanion.insert(
@@ -488,6 +503,8 @@ class DataMigrationService {
       createdAt: s('createdAt') != null ? Value(DateTime.parse(s('createdAt')!)) : const Value.absent(),
       coverUrl: Value(s('coverUrl')),
       coverPath: Value(relinkedCoverPath),
+      collectionId: Value(i('collectionId')),
+      imprintId: Value(i('imprintId')),
     );
   }
 

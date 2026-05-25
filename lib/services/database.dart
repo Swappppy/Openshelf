@@ -32,6 +32,7 @@ class Books extends Table {
   TextColumn get description => text().nullable()();
   IntColumn get publishYear => integer().nullable()();
   IntColumn get collectionId => integer().nullable().references(Tags, #id)();
+  IntColumn get imprintId => integer().nullable().references(Tags, #id)();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -220,6 +221,7 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 14) {
         await m.addColumn(books, books.collectionId as GeneratedColumn);
+        await m.addColumn(books, books.imprintId as GeneratedColumn);
         await m.addColumn(shelves, shelves.filterCollectionIds as GeneratedColumn);
         // Migration logic for collectionId will be handled via transactional update after schema change
         // Drift migrations support post-schema-change actions
@@ -233,12 +235,29 @@ class AppDatabase extends _$AppDatabase {
         // 1. Books: Map collectionName to collectionId
         final allBooks = await select(books).get();
         for (final book in allBooks) {
+          // Collection migration
           if (book.collectionName != null && book.collectionId == null) {
             final col = await (select(tags)
               ..where((t) => t.name.equals(book.collectionName!) & t.type.equalsValue(TagType.collection))).getSingleOrNull();
             if (col != null) {
               await (update(books)..where((b) => b.id.equals(book.id))).write(BooksCompanion(
                 collectionId: Value(col.id),
+              ));
+            }
+          }
+
+          // Imprint migration from BookTags
+          if (book.imprintId == null) {
+            final imprintLink = await (select(bookTags).join([
+              innerJoin(tags, tags.id.equalsExp(bookTags.tagId)),
+            ])
+              ..where(bookTags.bookId.equals(book.id))
+              ..where(tags.type.equalsValue(TagType.imprint))).getSingleOrNull();
+            
+            if (imprintLink != null) {
+              final tagId = imprintLink.readTable(bookTags).tagId;
+              await (update(books)..where((b) => b.id.equals(book.id))).write(BooksCompanion(
+                imprintId: Value(tagId),
               ));
             }
           }
@@ -340,6 +359,15 @@ class AppDatabase extends _$AppDatabase {
 
   Future<Book?> getBookByIsbn(String isbn) =>
       (select(books)..where((b) => b.isbn.equals(isbn))).getSingleOrNull();
+
+  Future<bool> existsByTitleAndAuthor(String title, String author) async {
+    final query = select(books)
+      ..where((b) =>
+          b.title.lower().equals(title.toLowerCase()) &
+          b.author.lower().equals(author.toLowerCase()));
+    final match = await query.getSingleOrNull();
+    return match != null;
+  }
 
   Future<void> clearAllData() async {
     await transaction(() async {
@@ -460,6 +488,24 @@ class AppDatabase extends _$AppDatabase {
       (select(tags)..where((t) => t.type.equalsValue(type))).watch();
 
   Stream<List<(Tag, int)>> watchTagsByTypeWithCounts(TagType type) {
+    if (type == TagType.imprint) {
+      final countExp = books.id.count();
+      final query = select(tags).join([
+        leftOuterJoin(books, books.imprintId.equalsExp(tags.id)),
+      ])
+        ..where(tags.type.equalsValue(type))
+        ..addColumns([countExp])
+        ..groupBy([tags.id]);
+
+      return query.watch().map((rows) {
+        return rows.map((row) {
+          final tag = row.readTable(tags);
+          final tagCount = row.read(countExp) ?? 0;
+          return (tag, tagCount);
+        }).toList();
+      });
+    }
+
     final countExp = bookTags.bookId.count();
     final query = select(tags).join([
       leftOuterJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
@@ -524,31 +570,9 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> setBookImprint(int bookId, int? imprintId) async {
-    await transaction(() async {
-      // Delete old imprint links for this book
-      final oldLinks = await (select(bookTags).join([
-        innerJoin(tags, tags.id.equalsExp(bookTags.tagId)),
-      ])
-            ..where(bookTags.bookId.equals(bookId))
-            ..where(tags.type.equalsValue(TagType.imprint)))
-          .get();
-
-      for (final link in oldLinks) {
-        final tagId = link.readTable(bookTags).tagId;
-        await (delete(bookTags)
-              ..where((bt) => bt.bookId.equals(bookId) & bt.tagId.equals(tagId)))
-            .go();
-      }
-      // Insert new imprint link if provided
-      if (imprintId != null) {
-        await into(bookTags).insert(
-          BookTagsCompanion(
-            bookId: Value(bookId),
-            tagId: Value(imprintId),
-          ),
-        );
-      }
-    });
+    await (update(books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(
+      imprintId: Value(imprintId),
+    ));
   }
 
   Future<void> pruneCollectionIfOrphan(int collectionId) async {
@@ -613,6 +637,9 @@ class AppDatabase extends _$AppDatabase {
         if (noCover == true) {
           expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
         }
+        if (imprintIds != null && imprintIds.isNotEmpty) {
+          expr = expr & b.imprintId.isIn(imprintIds);
+        }
         return expr;
       });
     return q.watch();
@@ -647,24 +674,19 @@ class AppDatabase extends _$AppDatabase {
       );
     }
 
-    // Optimization: Use a real SQL JOIN to find books matching ANY of the tags,
-    // then group by bookId and ensure the count matches the required tags (Intersection).
+    // Optimization: Use custom SQL to find books matching ALL required tags (Intersection)
+    // Drift's DSL doesn't fully support HAVING with COUNT(DISTINCT) in all environments.
     final amountOfTags = allRequiredTagIds.length;
-    final bookIdsWithTagsQuery = selectOnly(bookTags)
-      ..addColumns([bookTags.bookId])
-      ..where(bookTags.tagId.isIn(allRequiredTagIds))
-      ..groupBy([bookTags.bookId]);
+    final placeholders = allRequiredTagIds.join(',');
+    final sql = '''
+      SELECT book_id FROM book_tags
+      WHERE tag_id IN ($placeholders)
+      GROUP BY book_id
+      HAVING COUNT(DISTINCT tag_id) >= $amountOfTags
+    ''';
 
-    return bookIdsWithTagsQuery.watch().asyncMap((rows) async {
-      final validBookIds = rows
-          .where((r) {
-            final count = rows.where((r2) => r2.read(bookTags.bookId) == r.read(bookTags.bookId)).length;
-            return count >= amountOfTags;
-          })
-          .map((r) => r.read(bookTags.bookId)!)
-          .toSet()
-          .toList();
-
+    return customSelect(sql).watch().asyncMap((rows) async {
+      final validBookIds = rows.map((r) => r.read<int>('book_id')).toList();
       if (validBookIds.isEmpty) return <Book>[];
 
       final q = select(books)
@@ -690,6 +712,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (noCover == true) {
             expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
+          }
+          if (imprintIds != null && imprintIds.isNotEmpty) {
+            expr = expr & b.imprintId.isIn(imprintIds);
           }
           return expr;
         });

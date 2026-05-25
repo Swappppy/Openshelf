@@ -171,6 +171,13 @@ final filteredBooksProvider = Provider<AsyncValue<List<Book>>>((ref) {
   final booksAsync = ref.watch(allBooksProvider);
   final filters = ref.watch(searchFiltersProvider);
   final prefs = ref.watch(displayPreferencesProvider);
+  
+  // Watch all imprints to get names for sorting
+  final imprintsAsync = ref.watch(allImprintsProvider);
+  final imprintNames = imprintsAsync.maybeWhen(
+    data: (list) => {for (final t in list) t.id: t.name},
+    orElse: () => <int, String>{},
+  );
 
   return booksAsync.whenData((allBooks) {
     var filtered = allBooks.where((book) {
@@ -212,14 +219,14 @@ final filteredBooksProvider = Provider<AsyncValue<List<Book>>>((ref) {
     }).toList();
 
     // 7. Sort
-    applyLibrarySorting(filtered, prefs);
+    applyLibrarySorting(filtered, prefs, imprintNames: imprintNames);
 
     return filtered;
   });
 });
 
 /// Global utility to sort any list of books based on user preferences.
-void applyLibrarySorting(List<Book> books, DisplayPreferences prefs) {
+void applyLibrarySorting(List<Book> books, DisplayPreferences prefs, {Map<int, String>? imprintNames}) {
   books.sort((a, b) {
     for (final criteria in prefs.sortOrder) {
       final isAsc = prefs.sortDirections[criteria] ?? true;
@@ -239,7 +246,9 @@ void applyLibrarySorting(List<Book> books, DisplayPreferences prefs) {
           comparison = (a.collectionName ?? '').toLowerCase().compareTo((b.collectionName ?? '').toLowerCase());
           break;
         case 'imprint':
-          comparison = (a.publisher ?? '').toLowerCase().compareTo((b.publisher ?? '').toLowerCase());
+          final nameA = (imprintNames != null && a.imprintId != null) ? (imprintNames[a.imprintId] ?? '') : (a.publisher ?? '');
+          final nameB = (imprintNames != null && b.imprintId != null) ? (imprintNames[b.imprintId] ?? '') : (b.publisher ?? '');
+          comparison = nameA.toLowerCase().compareTo(nameB.toLowerCase());
           break;
         case 'publishYear':
           comparison = (a.publishYear ?? 0).compareTo(b.publishYear ?? 0);
