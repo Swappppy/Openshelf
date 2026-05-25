@@ -14,6 +14,9 @@ class AppSettingsController extends Notifier<AppSettings> {
   static const _keyGoogleApiKey = 'app_google_api_key';
   static const _keyLibraryColumns = 'app_library_columns';
   static const _keyAutoNoCoverShelf = 'app_auto_no_cover_shelf';
+  static const _keyCompressImages = 'app_compress_images';
+  static const _keyDynamicIconEnabled = 'app_dynamic_icon_enabled';
+  static const _keyActiveIconName = 'app_active_icon_name';
 
   @override
   AppSettings build() {
@@ -55,6 +58,9 @@ class AppSettingsController extends Notifier<AppSettings> {
     final googleApiKey = prefs.getString(_keyGoogleApiKey);
     final gridColumns = prefs.getInt(_keyLibraryColumns) ?? 3;
     final autoNoCover = prefs.getBool(_keyAutoNoCoverShelf) ?? true;
+    final compressImages = prefs.getBool(_keyCompressImages) ?? true;
+    final dynamicIcon = prefs.getBool(_keyDynamicIconEnabled) ?? false;
+    final activeIcon = prefs.getString(_keyActiveIconName);
 
     return AppSettings(
       themeMode: theme,
@@ -70,6 +76,9 @@ class AppSettingsController extends Notifier<AppSettings> {
       googleBooksApiKey: googleApiKey,
       libraryGridColumns: gridColumns,
       autoNoCoverShelf: autoNoCover,
+      compressImages: compressImages,
+      dynamicIconEnabled: dynamicIcon,
+      activeIconName: activeIcon,
     );
   }
 
@@ -138,6 +147,25 @@ class AppSettingsController extends Notifier<AppSettings> {
   void setAutoNoCoverShelf(bool enabled) {
     state = state.copyWith(autoNoCoverShelf: enabled);
     ref.read(sharedPrefsProvider).setBool(_keyAutoNoCoverShelf, enabled);
+  }
+
+  void setCompressImages(bool enabled) {
+    state = state.copyWith(compressImages: enabled);
+    ref.read(sharedPrefsProvider).setBool(_keyCompressImages, enabled);
+  }
+
+  void setDynamicIconEnabled(bool enabled) {
+    state = state.copyWith(dynamicIconEnabled: enabled);
+    ref.read(sharedPrefsProvider).setBool(_keyDynamicIconEnabled, enabled);
+  }
+
+  void setActiveIconName(String? name) {
+    state = state.copyWith(activeIconName: name, clearActiveIconName: name == null);
+    if (name == null) {
+      ref.read(sharedPrefsProvider).remove(_keyActiveIconName);
+    } else {
+      ref.read(sharedPrefsProvider).setString(_keyActiveIconName, name);
+    }
   }
 }
 

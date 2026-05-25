@@ -17,6 +17,9 @@ class AppSettings {
   final String? googleBooksApiKey;
   final int libraryGridColumns;
   final bool autoNoCoverShelf;
+  final bool compressImages;
+  final bool dynamicIconEnabled;
+  final String? activeIconName;
 
   const AppSettings({
     this.themeMode = ThemeMode.system,
@@ -32,6 +35,9 @@ class AppSettings {
     this.googleBooksApiKey,
     this.libraryGridColumns = 3,
     this.autoNoCoverShelf = true,
+    this.compressImages = true,
+    this.dynamicIconEnabled = false,
+    this.activeIconName,
   });
 
   AppSettings copyWith({
@@ -46,6 +52,10 @@ class AppSettings {
     bool clearGoogleBooksApiKey = false,
     int? libraryGridColumns,
     bool? autoNoCoverShelf,
+    bool? compressImages,
+    bool? dynamicIconEnabled,
+    String? activeIconName,
+    bool clearActiveIconName = false,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -57,6 +67,9 @@ class AppSettings {
       googleBooksApiKey: clearGoogleBooksApiKey ? null : (googleBooksApiKey ?? this.googleBooksApiKey),
       libraryGridColumns: libraryGridColumns ?? this.libraryGridColumns,
       autoNoCoverShelf: autoNoCoverShelf ?? this.autoNoCoverShelf,
+      compressImages: compressImages ?? this.compressImages,
+      dynamicIconEnabled: dynamicIconEnabled ?? this.dynamicIconEnabled,
+      activeIconName: clearActiveIconName ? null : (activeIconName ?? this.activeIconName),
     );
   }
 }

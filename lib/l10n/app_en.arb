@@ -738,6 +738,16 @@
   "settingsAutoNoCoverTitle": "No cover shelf",
   "settingsAutoNoCoverSub": "Auto-create a shelf for books without covers",
 
+  "settingsCompressImagesTitle": "Compress covers automatically",
+  "settingsCompressImagesSub": "Reduces image size when saving or importing",
+
+  "settingsBatchCompressTitle": "Optimize library now",
+  "settingsBatchCompressSub": "Compresses all existing covers that are not yet optimized",
+  "settingsBatchCompressSuccess": "Optimized {count} covers.",
+  "@settingsBatchCompressSuccess": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
   "exportTitle": "Export Library",
   "@exportTitle": { "description": "Export dialog title" },
 

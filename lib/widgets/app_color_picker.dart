@@ -32,7 +32,6 @@ class AppColorPicker extends StatelessWidget {
     Color(0xFFFB8C00), // Orange
     Color(0xFF6D4C41), // Brown
     Color(0xFF757575), // Grey
-    // Added 12 more professional colors for a total of 24
     Color(0xFFF4511E), // Deep Orange
     Color(0xFF5E35B1), // Deep Purple
     Color(0xFF039BE5), // Light Blue

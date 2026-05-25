@@ -101,7 +101,7 @@ Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existi
                             context: context,
                             builder: (urlCtx) => AlertDialog(
                               title: Text(context.l10n.imprintUrlDialogTitle),
-                              content: TextField(controller: urlCtrl, autofocus: true, keyboardType: TextInputType.url, decoration: InputDecoration(hintText: context.l10n.imprintUrlHint, border: const OutlineInputBorder())),
+                              content: TextField(controller: urlCtrl, keyboardType: TextInputType.url, decoration: InputDecoration(hintText: context.l10n.imprintUrlHint, border: const OutlineInputBorder())),
                               actions: [
                                 TextButton(onPressed: () => Navigator.pop(urlCtx), child: Text(context.l10n.cancel)),
                                 FilledButton(onPressed: () => Navigator.pop(urlCtx, urlCtrl.text.trim()), child: Text(context.l10n.download)),
@@ -126,7 +126,6 @@ Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existi
                 ],
                 TextField(
                   controller: ctrl, 
-                  autofocus: true, 
                   decoration: InputDecoration(hintText: hint)
                 ),
                 if (type == 'tag') ...[

@@ -758,6 +758,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Auto-create a shelf for books without covers';
 
   @override
+  String get settingsCompressImagesTitle => 'Compress covers automatically';
+
+  @override
+  String get settingsCompressImagesSub =>
+      'Reduces image size when saving or importing';
+
+  @override
+  String get settingsBatchCompressTitle => 'Optimize library now';
+
+  @override
+  String get settingsBatchCompressSub =>
+      'Compresses all existing covers that are not yet optimized';
+
+  @override
+  String settingsBatchCompressSuccess(int count) {
+    return 'Optimized $count covers.';
+  }
+
+  @override
   String get exportTitle => 'Export Library';
 
   @override

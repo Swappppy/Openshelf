@@ -762,6 +762,26 @@ class AppLocalizationsEs extends AppLocalizations {
       'Crea automáticamente una estantería si faltan portadas';
 
   @override
+  String get settingsCompressImagesTitle =>
+      'Comprimir portadas automáticamente';
+
+  @override
+  String get settingsCompressImagesSub =>
+      'Reduce el peso de las imágenes al guardarlas o importarlas';
+
+  @override
+  String get settingsBatchCompressTitle => 'Optimizar biblioteca ahora';
+
+  @override
+  String get settingsBatchCompressSub =>
+      'Comprime todas las portadas existentes que no estén optimizadas';
+
+  @override
+  String settingsBatchCompressSuccess(int count) {
+    return 'Se han optimizado $count portadas.';
+  }
+
+  @override
   String get exportTitle => 'Exportar biblioteca';
 
   @override

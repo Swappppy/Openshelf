@@ -188,7 +188,6 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
             TextField(
               controller: controller,
               maxLines: 6,
-              autofocus: true,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 hintText: context.l10n.bookDetailNotesHint,

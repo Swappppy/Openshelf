@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'database.dart';
+import 'cover_service.dart';
 
 /// Service for exporting and importing the entire library database via CSV and ZIP.
 class DataMigrationService {
@@ -175,7 +176,7 @@ class DataMigrationService {
   // --- Import ---
 
   /// Imports from an Openshelf backup (ZIP or CSV).
-  Future<int> importFromBackup(File sourceFile, {File? zipFile}) async {
+  Future<int> importFromBackup(File sourceFile, {File? zipFile, bool compress = true}) async {
     // Compatibility: if sourceFile is CSV and zipFile is provided, handle as legacy
     if (p.extension(sourceFile.path).toLowerCase() == '.csv' && zipFile != null) {
       return _importLegacy(sourceFile, zipFile);
@@ -183,7 +184,7 @@ class DataMigrationService {
 
     // If it's a ZIP, extract and process
     if (p.extension(sourceFile.path).toLowerCase() == '.zip') {
-      return _importFromZip(sourceFile);
+      return _importFromZip(sourceFile, compress: compress);
     }
 
     // If it's just a CSV, import books only
@@ -194,10 +195,11 @@ class DataMigrationService {
     throw Exception('Unsupported file format');
   }
 
-  Future<int> _importFromZip(File zipFile) async {
+  Future<int> _importFromZip(File zipFile, {bool compress = true}) async {
     final bytes = await zipFile.readAsBytes();
     final archive = ZipDecoder().decodeBytes(bytes);
     final docDir = await getApplicationDocumentsDirectory();
+    final tempDir = await getTemporaryDirectory();
 
     ArchiveFile? booksFile;
     ArchiveFile? shelvesFile;
@@ -214,12 +216,24 @@ class DataMigrationService {
       } else if (file.name == 'tags.csv') {
         tagsFile = file;
       } else {
-        // Extract media
+        // Extract media with optional compression
         final data = file.content as List<int>;
-        final fullPath = p.join(docDir.path, file.name);
-        File(fullPath)
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(data);
+        final fileName = file.name;
+        final targetPath = p.join(docDir.path, fileName);
+        
+        final isImage = fileName.toLowerCase().endsWith('.jpg') || 
+                        fileName.toLowerCase().endsWith('.png') || 
+                        fileName.toLowerCase().endsWith('.jpeg');
+        
+        if (compress && isImage) {
+          final tempFile = File(p.join(tempDir.path, 'import_$fileName'))..createSync(recursive: true)..writeAsBytesSync(data);
+          await CoverService.compressImage(tempFile.path, targetPath);
+          tempFile.deleteSync();
+        } else {
+          File(targetPath)
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(data);
+        }
       }
     }
 

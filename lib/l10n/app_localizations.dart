@@ -1526,6 +1526,36 @@ abstract class AppLocalizations {
   /// **'Crea automáticamente una estantería si faltan portadas'**
   String get settingsAutoNoCoverSub;
 
+  /// No description provided for @settingsCompressImagesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Comprimir portadas automáticamente'**
+  String get settingsCompressImagesTitle;
+
+  /// No description provided for @settingsCompressImagesSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Reduce el peso de las imágenes al guardarlas o importarlas'**
+  String get settingsCompressImagesSub;
+
+  /// No description provided for @settingsBatchCompressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Optimizar biblioteca ahora'**
+  String get settingsBatchCompressTitle;
+
+  /// No description provided for @settingsBatchCompressSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Comprime todas las portadas existentes que no estén optimizadas'**
+  String get settingsBatchCompressSub;
+
+  /// No description provided for @settingsBatchCompressSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Se han optimizado {count} portadas.'**
+  String settingsBatchCompressSuccess(int count);
+
   /// Título del diálogo de exportación
   ///
   /// In es, this message translates to:

@@ -258,7 +258,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         title: Text(context.l10n.coverUrlDialogTitle),
         content: TextField(
           controller: ctrl,
-          autofocus: true,
           keyboardType: TextInputType.url,
           decoration: InputDecoration(
             hintText: context.l10n.coverUrlHint,

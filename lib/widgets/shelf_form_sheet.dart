@@ -158,7 +158,6 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
             
             TextField(
               controller: _nameCtrl, 
-              autofocus: true, 
               decoration: InputDecoration(
                 labelText: context.l10n.shelfFormNameLabel, 
                 border: const OutlineInputBorder(),

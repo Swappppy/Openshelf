@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image/image.dart' as img;
+import 'database.dart';
 
 /// Service for managing book covers and imprint images locally.
 class CoverService {
@@ -94,13 +95,105 @@ class CoverService {
     }
   }
 
-  /// Saves a cover image to the permanent storage.
-  static Future<String> saveCover(String path) async {
+  /// Saves a cover image to the permanent storage with automatic compression if enabled.
+  static Future<String> saveCover(String path, {bool forceCompress = false}) async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'cover_${DateTime.now().millisecondsSinceEpoch}${p.extension(path)}';
+    final fileName = 'cover_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final finalPath = p.join(directory.path, fileName);
-    await File(path).copy(finalPath);
+    
+    // Apply compression if forced or if would benefit from it
+    if (forceCompress || await shouldCompress(path)) {
+      await compressImage(path, finalPath);
+    } else {
+      await File(path).copy(finalPath);
+    }
+    
     return finalPath;
+  }
+
+  /// Iterates over all books and imprints and compresses images that benefit from it.
+  static Future<int> batchCompressAll(AppDatabase db) async {
+    int optimized = 0;
+
+    // 1. Books
+    final allBooks = await db.select(db.books).get();
+    for (final book in allBooks) {
+      if (book.coverPath != null) {
+        if (await shouldCompress(book.coverPath!)) {
+          // We compress in-place by using a temp file
+          final tempPath = '${book.coverPath!}.tmp';
+          await compressImage(book.coverPath!, tempPath);
+          await File(tempPath).rename(book.coverPath!);
+          optimized++;
+        }
+      }
+    }
+
+    // 2. Imprints
+    final allImprints = await db.getTagsByType('imprint');
+    for (final imp in allImprints) {
+      if (imp.imagePath != null) {
+        if (await shouldCompress(imp.imagePath!)) {
+          final tempPath = '${imp.imagePath!}.tmp';
+          await compressImage(imp.imagePath!, tempPath);
+          await File(tempPath).rename(imp.imagePath!);
+          optimized++;
+        }
+      }
+    }
+
+    return optimized;
+  }
+
+  /// Checks if an image should be compressed based on its size and dimensions.
+  static Future<bool> shouldCompress(String path) async {
+    try {
+      final file = File(path);
+      if (!await file.exists()) return false;
+      
+      // If file is very small (< 150KB), don't bother compressing again
+      final size = await file.length();
+      if (size < 150 * 1024) return false;
+
+      final bytes = await file.readAsBytes();
+      final image = img.decodeImage(bytes);
+      if (image == null) return false;
+
+      // If height is large (> 1000px), it should be compressed/resized
+      if (image.height > 1000) return true;
+      
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Compresses an image to a maximum height and reduced JPEG quality.
+  static Future<void> compressImage(String sourcePath, String targetPath, {int maxHeight = 1000, int quality = 75}) async {
+    try {
+      final bytes = await File(sourcePath).readAsBytes();
+      img.Image? image = img.decodeImage(bytes);
+      
+      if (image == null) {
+        // Fallback to simple copy if decoding fails
+        await File(sourcePath).copy(targetPath);
+        return;
+      }
+
+      // Resize if height exceeds limit
+      if (image.height > maxHeight) {
+        image = img.copyResize(image, height: maxHeight, interpolation: img.Interpolation.linear);
+      }
+
+      // Encode as compressed JPEG
+      final compressedBytes = img.encodeJpg(image, quality: quality);
+      await File(targetPath).writeAsBytes(compressedBytes);
+      debugPrint('CoverService: Compressed image saved to $targetPath (Quality: $quality, Height: ${image.height})');
+    } catch (e) {
+      debugPrint('Error compressing image: $e');
+      // Final fallback
+      await File(sourcePath).copy(targetPath);
+    }
   }
 
   /// Provides a standard UI for cropping book covers (usually 2:3 ratio).
@@ -129,14 +222,14 @@ class CoverService {
     return croppedFile?.path;
   }
 
-  /// Copies a local file to the app's permanent storage directory.
+  /// Copies a local file to the app's permanent storage directory with compression.
   static Future<String?> saveLocalCover(String tempPath) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}${p.extension(tempPath)}';
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final filePath = p.join(directory.path, fileName);
-      final file = File(tempPath);
-      await file.copy(filePath);
+      
+      await compressImage(tempPath, filePath);
       return filePath;
     } catch (e) {
       debugPrint('Error saving local cover: $e');

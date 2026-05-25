@@ -738,6 +738,16 @@
   "settingsAutoNoCoverTitle": "Estantería sin portadas",
   "settingsAutoNoCoverSub": "Crea automáticamente una estantería si faltan portadas",
 
+  "settingsCompressImagesTitle": "Comprimir portadas automáticamente",
+  "settingsCompressImagesSub": "Reduce el peso de las imágenes al guardarlas o importarlas",
+
+  "settingsBatchCompressTitle": "Optimizar biblioteca ahora",
+  "settingsBatchCompressSub": "Comprime todas las portadas existentes que no estén optimizadas",
+  "settingsBatchCompressSuccess": "Se han optimizado {count} portadas.",
+  "@settingsBatchCompressSuccess": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
   "exportTitle": "Exportar biblioteca",
   "@exportTitle": { "description": "Título del diálogo de exportación" },
 

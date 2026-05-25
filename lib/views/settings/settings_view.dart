@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../controllers/shelf_automation_controller.dart';
@@ -20,6 +21,10 @@ import '../../services/permission_service.dart';
 import '../../widgets/os_permission_dialog.dart';
 import '../../widgets/app_color_picker.dart';
 import '../../widgets/loading_overlay.dart';
+import '../../widgets/bookshelf_icon.dart';
+import '../../services/cover_service.dart';
+import '../../models/app_icon_config.dart';
+import 'widgets/icon_apply_button.dart';
 
 /// Main settings view for global application configuration.
 class SettingsView extends ConsumerStatefulWidget {
@@ -38,6 +43,38 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
       _isLoading = loading;
       _loadingMessage = message;
     });
+  }
+
+  Future<void> _batchOptimizeImages(BuildContext context, WidgetRef ref) async {
+    _setLoading(true, context.l10n.loading);
+    try {
+      final db = ref.read(databaseProvider);
+      final count = await CoverService.batchCompressAll(db);
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.settingsBatchCompressSuccess(count))),
+        );
+      }
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> _updateAppIcon(Color color) async {
+    try {
+      final config = AppIconConfig.getByColor(color);
+      if (config != null) {
+        final platform = const MethodChannel('org.ftena.openshelf/icon');
+        await platform.invokeMethod('setAlternateIcon', {
+          'iconName': config.name == 'default' ? null : config.name,
+        });
+        // Persist the change
+        ref.read(appSettingsProvider.notifier).setActiveIconName(config.name);
+      }
+    } catch (e) {
+      debugPrint('Error updating app icon: $e');
+    }
   }
 
   @override
@@ -76,6 +113,8 @@ class _AppearanceSection extends ConsumerWidget {
     final localeCode = ref.watch(appSettingsProvider.select((s) => s.locale?.languageCode));
     final themeMode = ref.watch(appSettingsProvider.select((s) => s.themeMode));
     final seedColor = ref.watch(appSettingsProvider.select((s) => s.seedColor));
+    final dynamicIconEnabled = ref.watch(appSettingsProvider.select((s) => s.dynamicIconEnabled));
+    final activeIconName = ref.watch(appSettingsProvider.select((s) => s.activeIconName));
     final gridColumns = ref.watch(appSettingsProvider.select((s) => s.libraryGridColumns));
     final autoNoCover = ref.watch(appSettingsProvider.select((s) => s.autoNoCoverShelf));
     final controller = ref.read(appSettingsProvider.notifier);
@@ -175,21 +214,52 @@ class _AppearanceSection extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.l10n.settingsAccentColor,
-                    style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(height: 4),
-                Text(
-                  context.l10n.settingsAccentColorHint,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.outline,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(context.l10n.settingsAccentColor,
+                              style: Theme.of(context).textTheme.titleSmall),
+                          const SizedBox(height: 4),
+                          Text(
+                            context.l10n.settingsAccentColorHint,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: colorScheme.outline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    BookshelfIcon(size: 48, accentColor: seedColor),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 AppColorPicker(
                   selectedColor: seedColor,
                   onColorSelected: (color) {
-                    if (color != null) controller.setSeedColor(color);
+                    if (color != null) {
+                      controller.setSeedColor(color);
+                    }
                   },
+                ),
+                if (dynamicIconEnabled) ...[
+                  const SizedBox(height: 16),
+                  IconApplyButton(
+                    currentColor: seedColor,
+                    activeIconName: activeIconName,
+                    onApply: () => (context.findAncestorStateOfType<_SettingsViewState>() as _SettingsViewState)._updateAppIcon(seedColor),
+                  ),
+                ],
+                const Divider(height: 32),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary: const Icon(Icons.star_outline),
+                  title: const Text("Icono de la app dinámico"),
+                  subtitle: const Text("Cambia el icono de la pantalla de inicio para que coincida con el color elegido (La app se reiniciará)"),
+                  value: dynamicIconEnabled,
+                  onChanged: (val) => controller.setDynamicIconEnabled(val),
                 ),
               ],
             ),
@@ -248,6 +318,22 @@ class _AppearanceSection extends ConsumerWidget {
                     controller.setAutoNoCoverShelf(val);
                     ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
                   },
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary: const Icon(Icons.photo_size_select_small, size: 20),
+                  title: Text(context.l10n.settingsCompressImagesTitle),
+                  subtitle: Text(context.l10n.settingsCompressImagesSub),
+                  value: ref.watch(appSettingsProvider.select((s) => s.compressImages)),
+                  onChanged: (val) => controller.setCompressImages(val),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.high_quality_outlined, size: 20),
+                  title: Text(context.l10n.settingsBatchCompressTitle),
+                  subtitle: Text(context.l10n.settingsBatchCompressSub),
+                  trailing: const Icon(Icons.chevron_right, size: 18),
+                  onTap: () => (context.findAncestorStateOfType<_SettingsViewState>() as _SettingsViewState)._batchOptimizeImages(context, ref),
                 ),
               ],
             ),
@@ -623,7 +709,11 @@ class _DataSection extends ConsumerWidget {
       if (!context.mounted) return;
       onLoading(true, context.l10n.loadingImport);
       final migration = DataMigrationService(db);
-      final count = await migration.importFromBackup(backupFile, zipFile: zipFile);
+      final count = await migration.importFromBackup(
+        backupFile, 
+        zipFile: zipFile,
+        compress: ref.read(appSettingsProvider).compressImages,
+      );
 
       // Trigger shelf automation check
       ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
