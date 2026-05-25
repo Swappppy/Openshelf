@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:csv/csv.dart';
 
+import '../models/tag_type.dart';
 import '../services/database.dart';
 
 /// Result of a GoodReads CSV import operation.
@@ -158,7 +159,7 @@ class GoodreadsImportService {
         if (shelfTags.isNotEmpty) {
           final tagIds = <int>[];
           for (final name in shelfTags) {
-            tagIds.add(await _getOrCreateTag(name, 'tag'));
+            tagIds.add(await _getOrCreateTag(name, TagType.tag));
           }
           await _db.setBookTags(bookId, tagIds);
         }
@@ -340,7 +341,7 @@ class GoodreadsImportService {
     return int.tryParse(raw) ?? double.tryParse(raw)?.toInt();
   }
 
-  Future<int> _getOrCreateTag(String name, String type) async {
+  Future<int> _getOrCreateTag(String name, TagType type) async {
     final existing = await _db.searchTags(name, type);
     final exact = existing.cast<Tag?>().firstWhere(
           (t) => t?.name.toLowerCase() == name.toLowerCase(),

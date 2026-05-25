@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image/image.dart' as img;
+import '../models/tag_type.dart';
 import 'database.dart';
 
 /// Service for managing book covers and imprint images locally.
@@ -130,7 +131,7 @@ class CoverService {
     }
 
     // 2. Imprints
-    final allImprints = await db.getTagsByType('imprint');
+    final allImprints = await db.getTagsByType(TagType.imprint);
     for (final imp in allImprints) {
       if (imp.imagePath != null) {
         if (await shouldCompress(imp.imagePath!)) {

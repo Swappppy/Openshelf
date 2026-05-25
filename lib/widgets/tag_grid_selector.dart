@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/tag_type.dart';
 import '../services/database.dart';
 import '../controllers/books_controller.dart';
 import '../l10n/l10n_extension.dart';
@@ -7,7 +8,7 @@ import 'tag_chip.dart';
 
 class TagGridSelector extends ConsumerWidget {
   final List<Tag> selected;
-  final String type;
+  final TagType type;
   final ValueChanged<List<Tag>> onChanged;
 
   const TagGridSelector({
@@ -53,7 +54,7 @@ class TagGridSelector extends ConsumerWidget {
 }
 
 class _TagPickerSheet extends ConsumerStatefulWidget {
-  final String type;
+  final TagType type;
   final List<Tag> selected;
   final ValueChanged<List<Tag>> onChanged;
 
@@ -78,9 +79,9 @@ class _TagPickerSheetState extends ConsumerState<_TagPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final tagsAsync = widget.type == 'tag' 
+    final tagsAsync = widget.type == TagType.tag 
         ? ref.watch(allTagsProvider)
-        : widget.type == 'imprint'
+        : widget.type == TagType.imprint
             ? ref.watch(allImprintsProvider)
             : ref.watch(allCollectionsProvider);
 

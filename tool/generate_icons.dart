@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:image/image.dart' as img;
 
 void main() async {
-  print('--- Generating 24 App Icon Variants (Fixing Types & Transparency) ---');
 
   final variants = {
     'color0': 0xFFE53935, 'color1': 0xFFD81B60, 'color2': 0xFF8E24AA,
@@ -46,7 +45,6 @@ void main() async {
       
       await File(fullPath).writeAsBytes(img.encodePng(image));
     }
-    print('Generated: $name');
   }
 
   // Ensure default icon (Classic)
@@ -59,8 +57,6 @@ void main() async {
     final fullPath = '$resPath/$dirName/ic_launcher.png';
     await File(fullPath).writeAsBytes(img.encodePng(image));
   }
-
-  print('--- ALL ICONS REGENERATED SUCCESSFULLY ---');
 }
 
 void drawIconToImage(img.Image image, int accentColorValue) {

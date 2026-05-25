@@ -12,7 +12,9 @@ class Shelf extends DataClass implements Insertable<Shelf> {
   final String? filterIsbn;
   final String? filterLanguage;
   final String? filterTranslator;
+  @Deprecated('Use filterCollectionIds instead')
   final String? filterCollection;
+  final String? filterCollectionIds;
   final String? filterStatus;
   
   /// JSON-encoded list of tag IDs to filter by.
@@ -34,6 +36,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
     this.filterLanguage,
     this.filterTranslator,
     this.filterCollection,
+    this.filterCollectionIds,
     this.filterStatus,
     this.filterTagIds,
     this.filterImprintIds,
@@ -53,6 +56,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       'filter_language': Variable<String>(filterLanguage),
       'filter_translator': Variable<String>(filterTranslator),
       'filter_collection': Variable<String>(filterCollection),
+      'filter_collection_ids': Variable<String>(filterCollectionIds),
       'filter_status': Variable<String>(filterStatus),
       'filter_tag_ids': Variable<String>(filterTagIds),
       'filter_imprint_ids': Variable<String>(filterImprintIds),
@@ -74,6 +78,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       'filterLanguage': serializer.toJson<String?>(filterLanguage),
       'filterTranslator': serializer.toJson<String?>(filterTranslator),
       'filterCollection': serializer.toJson<String?>(filterCollection),
+      'filterCollectionIds': serializer.toJson<String?>(filterCollectionIds),
       'filterStatus': serializer.toJson<String?>(filterStatus),
       'filterTagIds': serializer.toJson<String?>(filterTagIds),
       'filterImprintIds': serializer.toJson<String?>(filterImprintIds),
@@ -92,6 +97,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
     String? filterLanguage,
     String? filterTranslator,
     String? filterCollection,
+    String? filterCollectionIds,
     String? filterStatus,
     String? filterTagIds,
     String? filterImprintIds,
@@ -109,6 +115,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       filterLanguage: filterLanguage ?? this.filterLanguage,
       filterTranslator: filterTranslator ?? this.filterTranslator,
       filterCollection: filterCollection ?? this.filterCollection,
+      filterCollectionIds: filterCollectionIds ?? this.filterCollectionIds,
       filterStatus: clearStatus ? null : (filterStatus ?? this.filterStatus),
       filterTagIds: filterTagIds ?? this.filterTagIds,
       filterImprintIds: filterImprintIds ?? this.filterImprintIds,

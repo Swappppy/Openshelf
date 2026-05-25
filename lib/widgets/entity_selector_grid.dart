@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/tag_type.dart';
 import '../services/database.dart';
 import 'filter_grid_box.dart';
 import 'tag_form_dialog.dart';
@@ -11,7 +12,7 @@ class EntitySelectorGrid extends ConsumerWidget {
   final ValueChanged<List<Tag>> onChanged;
   final StreamProvider<List<Tag>> provider;
   final bool isImprint;
-  final String type;
+  final TagType type;
 
   const EntitySelectorGrid({
     super.key,

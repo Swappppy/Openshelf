@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/tag_type.dart';
 import '../services/database.dart';
 import '../controllers/database_provider.dart';
 import '../l10n/l10n_extension.dart';
@@ -10,7 +11,7 @@ import 'tag_form_dialog.dart';
 class EntityFieldSelector extends ConsumerStatefulWidget {
   final List<Tag> selected;
   final ValueChanged<List<Tag>> onChanged;
-  final String type;
+  final TagType type;
   final String label;
   final IconData icon;
   final bool multiSelection;

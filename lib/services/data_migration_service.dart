@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../models/tag_type.dart';
 import 'database.dart';
 import 'cover_service.dart';
 
@@ -62,7 +63,7 @@ class DataMigrationService {
     
     rows.add([
       'name', 'filterQuery', 'filterAuthor', 'filterPublisher', 'filterIsbn',
-      'filterSubtitle', 'filterLanguage', 'filterTranslator', 'filterCollection',
+      'filterSubtitle', 'filterLanguage', 'filterTranslator', 'filterCollectionIds',
       'filterStatus', 'filterTagNames', 'filterImprintNames'
     ]);
 
@@ -72,7 +73,7 @@ class DataMigrationService {
 
       rows.add([
         s.name, s.filterQuery, s.filterAuthor, s.filterPublisher, s.filterIsbn,
-        s.filterSubtitle, s.filterLanguage, s.filterTranslator, s.filterCollection,
+        s.filterSubtitle, s.filterLanguage, s.filterTranslator, s.filterCollectionIds,
         s.filterStatus, tagNames.join('|'), imprintNames.join('|')
       ]);
     }
@@ -89,7 +90,7 @@ class DataMigrationService {
 
     for (final t in tags) {
       rows.add([
-        t.name, t.type, t.color, 
+        t.name, t.type.name, t.color, 
         t.imagePath != null ? p.basename(t.imagePath!) : null
       ]);
     }
@@ -286,7 +287,8 @@ class DataMigrationService {
     
     for (final row in rows.skip(1)) {
       final name = _getRaw(header, row, 'name');
-      final type = _getRaw(header, row, 'type') ?? 'tag';
+      final typeStr = _getRaw(header, row, 'type') ?? 'tag';
+      final type = TagType.values.firstWhere((e) => e.name == typeStr, orElse: () => TagType.tag);
       final color = _getRaw(header, row, 'color');
       final img = _getRaw(header, row, 'imagePath');
       
@@ -334,7 +336,7 @@ class DataMigrationService {
           final colorRaw = j < clrs.length ? clrs[j].trim() : null;
           final color = (colorRaw == null || colorRaw.isEmpty || colorRaw.toLowerCase() == 'null') ? null : colorRaw;
 
-          final tid = await _getOrCreateTag(name, 'tag', color: color);
+          final tid = await _getOrCreateTag(name, TagType.tag, color: color);
           tagIds.add(tid);
         }
         if (tagIds.isNotEmpty) await _db.setBookTags(bookId, tagIds);
@@ -348,7 +350,7 @@ class DataMigrationService {
           if (impImg != null && impImg.isNotEmpty) {
             localImpPath = p.join(localBaseDir, 'imprints', p.basename(impImg));
           }
-          final tid = await _getOrCreateTag(impName, 'imprint', color: impColor, imagePath: localImpPath);
+          final tid = await _getOrCreateTag(impName, TagType.imprint, color: impColor, imagePath: localImpPath);
           await _db.setBookImprint(bookId, tid);
         }
       }
@@ -372,14 +374,14 @@ class DataMigrationService {
       final List<int> tagIds = [];
       for (final tn in tagNames) {
         if (tn.isEmpty) continue;
-        final t = await _getOrCreateTag(tn, 'tag');
+        final t = await _getOrCreateTag(tn, TagType.tag);
         tagIds.add(t);
       }
 
       final List<int> imprintIds = [];
       for (final iname in imprintNames) {
         if (iname.isEmpty) continue;
-        final i = await _getOrCreateTag(iname, 'imprint');
+        final i = await _getOrCreateTag(iname, TagType.imprint);
         imprintIds.add(i);
       }
 
@@ -392,7 +394,7 @@ class DataMigrationService {
         filterSubtitle: Value(_getRaw(header, row, 'filterSubtitle')),
         filterLanguage: Value(_getRaw(header, row, 'filterLanguage')),
         filterTranslator: Value(_getRaw(header, row, 'filterTranslator')),
-        filterCollection: Value(_getRaw(header, row, 'filterCollection')),
+        filterCollectionIds: Value(_getRaw(header, row, 'filterCollectionIds')),
         filterStatus: Value(_getRaw(header, row, 'filterStatus')),
         filterTagIds: Value(tagIds.isEmpty ? null : jsonEncode(tagIds)),
         filterImprintIds: Value(imprintIds.isEmpty ? null : jsonEncode(imprintIds)),
@@ -411,7 +413,7 @@ class DataMigrationService {
           filterSubtitle: companion.filterSubtitle.value,
           filterLanguage: companion.filterLanguage.value,
           filterTranslator: companion.filterTranslator.value,
-          filterCollection: companion.filterCollection.value,
+          filterCollectionIds: companion.filterCollectionIds.value,
           filterStatus: companion.filterStatus.value,
           filterTagIds: companion.filterTagIds.value,
           filterImprintIds: companion.filterImprintIds.value,
@@ -422,7 +424,7 @@ class DataMigrationService {
 
   // --- Helpers ---
 
-  Future<int> _getOrCreateTag(String name, String type, {String? color, String? imagePath}) async {
+  Future<int> _getOrCreateTag(String name, TagType type, {String? color, String? imagePath}) async {
     final existing = await _db.searchTags(name, type);
     final exact = existing.firstWhereOrNull((t) => t.name.toLowerCase() == name.toLowerCase());
     

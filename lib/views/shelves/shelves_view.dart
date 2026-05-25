@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../models/tag_type.dart';
 import '../../controllers/database_provider.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../widgets/scrollable_selection_bar.dart';
@@ -69,20 +70,20 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
 
   void _showAddEntityDialog() {
     String title = '';
-    String type = '';
+    TagType type = TagType.tag;
 
     switch (_activeTab) {
       case _ShelvesTab.categories:
         title = context.l10n.tagNewDialogTitle;
-        type = 'tag';
+        type = TagType.tag;
         break;
       case _ShelvesTab.imprints:
         title = context.l10n.imprintNewDialogTitle;
-        type = 'imprint';
+        type = TagType.imprint;
         break;
       case _ShelvesTab.collections:
         title = context.l10n.managementCollections;
-        type = 'collection';
+        type = TagType.collection;
         break;
       default: return;
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_palette.dart';
 
 /// A reusable color picker widget with a predefined palette.
@@ -29,13 +30,19 @@ class AppColorPicker extends StatelessWidget {
             color: null,
             isSelected: selectedColor == null,
             size: circleSize,
-            onTap: () => onColorSelected(null),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onColorSelected(null);
+            },
           ),
         ...AppPalette.colors.map((color) => _ColorCircle(
               color: color,
               isSelected: selectedColor?.toARGB32() == color.toARGB32(),
               size: circleSize,
-              onTap: () => onColorSelected(color),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                onColorSelected(color);
+              },
             )),
       ],
     );

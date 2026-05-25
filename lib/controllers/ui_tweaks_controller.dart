@@ -11,7 +11,7 @@ class UiTweaksController {
 
   static Future<void> clearDatabase(WidgetRef ref) async {
     final db = ref.read(databaseProvider);
-    await db.deleteAllBooks();
+    await db.clearAllData();
     // Also clear covers directory
     final dir = await CoverService.getCoverDirectory();
     if (await dir.exists()) {

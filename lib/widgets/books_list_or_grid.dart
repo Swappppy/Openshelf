@@ -77,9 +77,8 @@ class BooksListOrGrid extends ConsumerWidget {
           items.sort((a, b) => (a.collectionNumber ?? 0).compareTo(b.collectionNumber ?? 0));
         } else {
           // Apply standard library sorting to all other views by default
-          final sorted = applyLibrarySorting(ref, items);
-          items.clear();
-          items.addAll(sorted);
+          final prefs = ref.watch(displayPreferencesProvider);
+          applyLibrarySorting(items, prefs);
         }
 
         return viewMode == LibraryViewMode.list

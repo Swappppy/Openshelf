@@ -6,6 +6,7 @@ import '../services/database.dart';
 import '../l10n/l10n_extension.dart';
 import 'entity_selector_grid.dart';
 import 'filter_grid_box.dart';
+import '../models/tag_type.dart';
 
 class SearchPanel extends ConsumerStatefulWidget {
   final SearchFilters filters;
@@ -245,7 +246,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                         selected: widget.filters.imprints,
                         onChanged: (list) => widget.onChanged(widget.filters.copyWith(imprints: list)),
                         provider: allImprintsProvider,
-                        type: 'imprint',
+                        type: TagType.imprint,
                         isImprint: true,
                       ),
                     ),
@@ -255,7 +256,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                         selected: widget.filters.tags,
                         onChanged: (list) => widget.onChanged(widget.filters.copyWith(tags: list)),
                         provider: allTagsProvider,
-                        type: 'tag',
+                        type: TagType.tag,
                       ),
                     ),
                     SingleChildScrollView(
@@ -264,7 +265,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                         selected: widget.filters.collections,
                         onChanged: (list) => widget.onChanged(widget.filters.copyWith(collections: list)),
                         provider: allCollectionsProvider,
-                        type: 'collection',
+                        type: TagType.collection,
                       ),
                     ),
                   ],

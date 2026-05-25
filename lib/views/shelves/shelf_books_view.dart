@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/shelf.dart';
+import '../../models/tag_type.dart';
 import '../../services/database.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/display_preferences_controller.dart';
@@ -45,8 +46,8 @@ class TagBooksView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Dynamic filtering based on tag type.
     final booksAsync = switch (tag.type) {
-      'collection' => ref.watch(booksByCollectionProvider(tag.name)),
-      'imprint' => ref.watch(booksByImprintProvider(tag.id)),
+      TagType.collection => ref.watch(booksByCollectionProvider(tag.id)),
+      TagType.imprint => ref.watch(booksByImprintProvider(tag.id)),
       _ => ref.watch(booksByTagProvider(tag.id)),
     };
 
@@ -66,7 +67,7 @@ class TagBooksView extends ConsumerWidget {
       ),
       body: BooksListOrGrid(
         booksAsync: booksAsync,
-        isCollection: tag.type == 'collection',
+        isCollection: tag.type == TagType.collection,
       ),
     );
   }

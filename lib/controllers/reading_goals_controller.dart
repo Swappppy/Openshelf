@@ -38,7 +38,7 @@ final goalProgressProvider = StreamProvider.family<int, int>((ref, goalId) {
         author: shelf.filterAuthor,
         publisher: shelf.filterPublisher,
         isbn: shelf.filterIsbn,
-        collectionNames: shelf.filterCollection?.split(' | '),
+        collectionIds: shelf.filterCollectionIds != null ? (jsonDecode(shelf.filterCollectionIds!) as List).cast<int>() : null,
         tagIds: shelf.filterTagIds != null ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>() : null,
         imprintIds: shelf.filterImprintIds != null ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>() : null,
       ).first;

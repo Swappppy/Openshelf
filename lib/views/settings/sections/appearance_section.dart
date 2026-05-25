@@ -45,7 +45,7 @@ class AppearanceSection extends ConsumerWidget {
                     style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: localeCode,
+                  initialValue: localeCode,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     isDense: true,

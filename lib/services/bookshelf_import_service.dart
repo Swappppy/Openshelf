@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:csv/csv.dart';
 
+import '../models/tag_type.dart';
 import '../services/database.dart';
 
 /// Result of a Bookshelf CSV import operation.
@@ -155,7 +156,7 @@ class BookshelfImportService {
         // Handle Collections (as Tags)
         final collectionName = companion.collectionName.value;
         if (collectionName != null && collectionName.isNotEmpty) {
-          await _getOrCreateTag(collectionName, 'collection');
+          await _getOrCreateTag(collectionName, TagType.collection);
         }
 
         // Handle Categories
@@ -164,7 +165,7 @@ class BookshelfImportService {
           final categoryNames = categoriesRaw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
           final List<int> tagIds = [];
           for (final name in categoryNames) {
-            final tagId = await _getOrCreateTag(name, 'tag');
+            final tagId = await _getOrCreateTag(name, TagType.tag);
             tagIds.add(tagId);
           }
           if (tagIds.isNotEmpty) {
@@ -186,7 +187,7 @@ class BookshelfImportService {
     );
   }
 
-  Future<int> _getOrCreateTag(String name, String type) async {
+  Future<int> _getOrCreateTag(String name, TagType type) async {
     final existing = await _db.searchTags(name, type);
     // searchTags uses .contains, so we check for exact match
     final exact = existing.cast<Tag?>().firstWhere(

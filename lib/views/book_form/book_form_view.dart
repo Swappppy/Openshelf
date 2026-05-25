@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ import '../../controllers/reading_log_controller.dart';
 import '../../widgets/entity_field_selector.dart';
 import '../../widgets/tag_grid_selector.dart';
 import '../../models/book_search_result.dart';
+import '../../models/tag_type.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../widgets/os_permission_dialog.dart';
 import 'cover_picker_sheet.dart';
@@ -56,6 +58,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   DateTime? _startedAt;
   DateTime? _finishedAt;
   List<Tag> _selectedTags = [];        
+  List<Tag> _selectedCollections = [];
   Tag? _selectedImprint;
   bool _isInitializing = true;
 
@@ -100,6 +103,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
       _loadExistingTags(b.id);
       _loadExistingImprint(b.id);
+      _loadExistingCollection(b.id, b.collectionId, b.collectionName);
     } else if (pre?.coverUrl != null) {
       // Auto-prefill cover from provided URL in the background
       _prefillCoverFromUrl(pre!.coverUrl!);
@@ -360,84 +364,77 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
     setState(() => _isSaving = true);
 
-    if (widget.existingBook != null) {
-      // Update existing record
-      final oldPage = widget.existingBook!.currentPage ?? 0;
-      final newPage = int.tryParse(_currentPageCtrl.text) ?? 0;
+    final newPage = int.tryParse(_currentPageCtrl.text) ?? 0;
+    final collectionId = _selectedCollections.firstOrNull?.id;
+    final collectionName = _selectedCollections.firstOrNull?.name;
 
+    final companion = BooksCompanion(
+      title: Value(_titleCtrl.text.trim()),
+      subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
+      author: Value(_authorCtrl.text.trim().isEmpty ? 'Desconocido' : _authorCtrl.text.trim()),
+      isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
+      language: Value(_languageCtrl.text.trim().isEmpty ? null : _languageCtrl.text.trim()),
+      translator: Value(_translatorCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
+      publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
+      totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
+      currentPage: Value(newPage),
+      status: Value(_status),
+      bookFormat: Value(_format),
+      rating: Value(_rating),
+      notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
+      description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
+      coverPath: Value(_coverPath),
+      collectionName: Value(collectionName),
+      collectionId: Value(collectionId),
+      collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
+      publishYear: Value(int.tryParse(_publishYearCtrl.text)),
+      startedAt: Value(_startedAt),
+      finishedAt: Value(_finishedAt),
+    );
+
+    int bookId;
+    if (widget.existingBook != null) {
+      final oldPage = widget.existingBook!.currentPage ?? 0;
+      bookId = widget.existingBook!.id;
       final updated = widget.existingBook!.copyWith(
-        title: _titleCtrl.text.trim(),
-        subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
-        author: _authorCtrl.text.trim(),
-        isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
-        language: Value(_languageCtrl.text.trim().isEmpty ? null : _languageCtrl.text.trim()),
-        translator: Value(_translatorCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
-        publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
-        totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
-        currentPage: Value(newPage),
-        status: _status,
-        bookFormat: Value(_format),
-        rating: Value(_rating),
-        notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
-        description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
-        coverPath: Value(_coverPath),
-        collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
-        collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
-        publishYear: Value(int.tryParse(_publishYearCtrl.text)),
-        startedAt: Value(_startedAt),
-        finishedAt: Value(_finishedAt),
+        title: companion.title.value,
+        subtitle: companion.subtitle,
+        author: companion.author.value,
+        isbn: companion.isbn,
+        language: companion.language,
+        translator: companion.translator,
+        publisher: companion.publisher,
+        totalPages: companion.totalPages,
+        currentPage: companion.currentPage,
+        status: companion.status.value,
+        rating: companion.rating,
+        bookFormat: companion.bookFormat,
+        notes: companion.notes,
+        description: companion.description,
+        coverPath: companion.coverPath,
+        collectionName: companion.collectionName,
+        collectionId: companion.collectionId,
+        collectionNumber: companion.collectionNumber,
+        publishYear: companion.publishYear,
+        startedAt: companion.startedAt,
+        finishedAt: companion.finishedAt,
       );
       await db.updateBook(updated);
 
       if (newPage > oldPage) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(widget.existingBook!.id, newPage - oldPage);
+        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage - oldPage);
       }
-      
-      final existingIds = _selectedTags.map((t) => t.id).toList();
-      await db.setBookTags(widget.existingBook!.id, existingIds);
-      await db.setBookImprint(widget.existingBook!.id, _selectedImprint?.id);
-      await db.pruneOrphanTags();
     } else {
-      // Insert new record
-      final newPage = int.tryParse(_currentPageCtrl.text) ?? 0;
-      final companion = BooksCompanion.insert(
-        title: _titleCtrl.text.trim(),
-        subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
-        author: _authorCtrl.text.trim(),
-        isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
-        language: Value(_languageCtrl.text.trim().isEmpty ? null : _languageCtrl.text.trim()),
-        translator: Value(_languageCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
-        publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
-        totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
-        currentPage: Value(newPage),
-        status: _status,
-        bookFormat: Value<BookFormat?>(_format),
-        rating: Value(_rating),
-        notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
-        description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
-        coverPath: Value(_coverPath),
-        collectionName: Value(_collectionNameCtrl.text.trim().isEmpty ? null : _collectionNameCtrl.text.trim()),
-        collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
-        publishYear: Value(int.tryParse(_publishYearCtrl.text)),
-        startedAt: Value(_startedAt),
-        finishedAt: Value(_finishedAt),
-      );
-      final newId = await db.insertBook(companion);
-
+      bookId = await db.insertBook(companion);
       if (newPage > 0) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(newId, newPage);
+        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage);
       }
-      
-      final existingIds = _selectedTags.map((t) => t.id).toList();
-      await db.setBookTags(newId, existingIds);
-      await db.setBookImprint(newId, _selectedImprint?.id);
     }
 
-    // Auto-create collection tag if name provided
-    final collectionName = _collectionNameCtrl.text.trim();
-    if (collectionName.isNotEmpty) {
-      await db.getOrCreateCollection(collectionName);
-    }
+    final tagIds = _selectedTags.map((t) => t.id).toList();
+    await db.setBookTags(bookId, tagIds);
+    await db.setBookImprint(bookId, _selectedImprint?.id);
+    await db.pruneOrphanTags();
 
     // Trigger shelf automation check
     ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
@@ -455,6 +452,21 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final db = ref.read(databaseProvider);
     final existing = await db.watchImprintForBook(bookId).first;
     setState(() => _selectedImprint = existing);
+  }
+
+  Future<void> _loadExistingCollection(int bookId, int? collectionId, String? collectionName) async {
+    if (collectionId != null) {
+      final db = ref.read(databaseProvider);
+      final allCols = await db.getTagsByType(TagType.collection);
+      final col = allCols.firstWhereOrNull((c) => c.id == collectionId);
+      if (col != null) {
+        setState(() => _selectedCollections = [col]);
+        return;
+      }
+    }
+    if (collectionName != null && collectionName.isNotEmpty) {
+      setState(() => _selectedCollections = [Tag(id: -1, name: collectionName, type: TagType.collection)]);
+    }
   }
 
   /// Automatically updates reading status based on page progress.
@@ -551,14 +563,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onPickCover: _pickCover,
               onTakePhoto: _takePhoto,
               selectedTags: _selectedTags,
-              onAddTag: (tag) => setState(() {
-                if (!_selectedTags.any((t) => t.id == tag.id)) {
-                  _selectedTags = [..._selectedTags, tag];
-                }
-              }),
-              onRemoveTag: (tag) => setState(() {
-                _selectedTags = _selectedTags.where((t) => t.id != tag.id).toList();
-              }),
+              onTagsChanged: (list) => setState(() => _selectedTags = list),
               onPickCoverFromUrl: _pickCoverFromUrl,
               onSearchCovers: _searchCovers,
             ),
@@ -570,13 +575,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               translatorCtrl: _translatorCtrl,
               collectionNameCtrl: _collectionNameCtrl,
               collectionNumberCtrl: _collectionNumberCtrl,
+              selectedCollections: _selectedCollections,
               selectedImprint: _selectedImprint,
               startedAt: _startedAt,
               finishedAt: _finishedAt,
               onStartedAtChanged: (d) => setState(() => _startedAt = d),
               onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
-              onSelectImprint: (tag) => setState(() => _selectedImprint = tag),
-              onClearImprint: () => setState(() => _selectedImprint = null),
+              onCollectionsChanged: (list) => setState(() => _selectedCollections = list),
+              onImprintChanged: (tag) => setState(() => _selectedImprint = tag),
             ),
           ],
         ),
@@ -606,8 +612,7 @@ class _MainTab extends ConsumerWidget {
   final VoidCallback onPickCover;
   final VoidCallback onTakePhoto;
   final List<Tag> selectedTags;
-  final ValueChanged<Tag> onAddTag;
-  final ValueChanged<Tag> onRemoveTag;
+  final ValueChanged<List<Tag>> onTagsChanged;
   final VoidCallback onPickCoverFromUrl;
   final VoidCallback onSearchCovers;
 
@@ -629,8 +634,7 @@ class _MainTab extends ConsumerWidget {
     required this.onPickCover,
     required this.onTakePhoto,
     required this.selectedTags,
-    required this.onAddTag,
-    required this.onRemoveTag,
+    required this.onTagsChanged,
     required this.onPickCoverFromUrl,
     required this.onSearchCovers,
   });
@@ -736,41 +740,14 @@ class _MainTab extends ConsumerWidget {
 
         EntityFieldSelector(
           selected: selectedTags,
-          onChanged: (list) {
-            // Update selected tags
-            final current = List<Tag>.from(selectedTags);
-            for (final tag in list) {
-              if (!current.any((t) => t.id == tag.id)) {
-                onAddTag(tag);
-              }
-            }
-            // Handle removal
-            for (final tag in current) {
-              if (!list.any((t) => t.id == tag.id)) {
-                onRemoveTag(tag);
-              }
-            }
-          },
-          type: 'tag',
+          onChanged: onTagsChanged,
+          type: TagType.tag,
           label: context.l10n.tagSearchOrCreate,
           icon: Icons.label_outline,
           trailing: TagGridSelector(
             selected: selectedTags,
-            type: 'tag',
-            onChanged: (list) {
-               // Sync back
-               final current = List<Tag>.from(selectedTags);
-               for (final tag in list) {
-                 if (!current.any((t) => t.id == tag.id)) {
-                   onAddTag(tag);
-                 }
-               }
-               for (final tag in current) {
-                 if (!list.any((t) => t.id == tag.id)) {
-                   onRemoveTag(tag);
-                 }
-               }
-            },
+            type: TagType.tag,
+            onChanged: onTagsChanged,
           ),
         ),
 
@@ -833,13 +810,14 @@ class _DetailsTab extends ConsumerWidget {
   final TextEditingController translatorCtrl;
   final TextEditingController collectionNameCtrl;
   final TextEditingController collectionNumberCtrl;
+  final List<Tag> selectedCollections;
   final Tag? selectedImprint;
   final DateTime? startedAt;
   final DateTime? finishedAt;
   final ValueChanged<DateTime?> onStartedAtChanged;
   final ValueChanged<DateTime?> onFinishedAtChanged;
-  final ValueChanged<Tag> onSelectImprint;
-  final VoidCallback onClearImprint;
+  final ValueChanged<List<Tag>> onCollectionsChanged;
+  final ValueChanged<Tag?> onImprintChanged;
 
   const _DetailsTab({
     required this.notesCtrl,
@@ -849,13 +827,14 @@ class _DetailsTab extends ConsumerWidget {
     required this.translatorCtrl,
     required this.collectionNameCtrl,
     required this.collectionNumberCtrl,
+    required this.selectedCollections,
     required this.selectedImprint,
     this.startedAt,
     this.finishedAt,
     required this.onStartedAtChanged,
     required this.onFinishedAtChanged,
-    required this.onSelectImprint,
-    required this.onClearImprint,
+    required this.onCollectionsChanged,
+    required this.onImprintChanged,
   });
 
   @override
@@ -887,17 +866,9 @@ class _DetailsTab extends ConsumerWidget {
         _SectionHeader(label: context.l10n.fieldCollection),
         const SizedBox(height: 12),
         EntityFieldSelector(
-          selected: collectionNameCtrl.text.isNotEmpty 
-              ? [Tag(id: -1, name: collectionNameCtrl.text, type: 'collection')] 
-              : [],
-          onChanged: (list) {
-            if (list.isNotEmpty) {
-              collectionNameCtrl.text = list.first.name;
-            } else {
-              collectionNameCtrl.text = '';
-            }
-          },
-          type: 'collection',
+          selected: selectedCollections,
+          onChanged: onCollectionsChanged,
+          type: TagType.collection,
           label: context.l10n.fieldCollection,
           icon: Icons.collections_bookmark_outlined,
           multiSelection: false,
@@ -916,13 +887,9 @@ class _DetailsTab extends ConsumerWidget {
         EntityFieldSelector(
           selected: selectedImprint != null ? [selectedImprint!] : [],
           onChanged: (list) {
-            if (list.isNotEmpty) {
-              onSelectImprint(list.first);
-            } else {
-              onClearImprint();
-            }
+            onImprintChanged(list.firstOrNull);
           },
-          type: 'imprint',
+          type: TagType.imprint,
           label: context.l10n.imprintSearch,
           icon: Icons.business_outlined,
           multiSelection: false,

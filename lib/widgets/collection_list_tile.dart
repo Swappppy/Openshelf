@@ -20,7 +20,7 @@ class CollectionListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final booksAsync = ref.watch(booksByCollectionProvider(collection.name));
+    final booksAsync = ref.watch(booksByCollectionProvider(collection.id));
 
     return booksAsync.maybeWhen(
       data: (bookList) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:drift/drift.dart' show Value;
+import '../models/tag_type.dart';
 import '../services/database.dart';
 import '../services/cover_service.dart';
 import '../services/permission_service.dart';
@@ -10,7 +11,7 @@ import '../controllers/database_provider.dart';
 import '../l10n/l10n_extension.dart';
 import 'app_color_picker.dart';
 
-Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, String? initialName, required String title, required String type}) {
+Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existing, String? initialName, required String title, required TagType type}) {
   final ctrl = TextEditingController(text: existing?.name ?? initialName ?? '');
   String? selectedColor = existing?.color;
   String? imagePath = existing?.imagePath;
@@ -20,8 +21,8 @@ Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existi
     builder: (ctx) => StatefulBuilder(
       builder: (context, setState) {
         String hint = context.l10n.tagNameLabel;
-        if (type == 'imprint') hint = context.l10n.imprintNameLabel;
-        if (type == 'collection') hint = context.l10n.collectionNameLabel;
+        if (type == TagType.imprint) hint = context.l10n.imprintNameLabel;
+        if (type == TagType.collection) hint = context.l10n.collectionNameLabel;
 
         return AlertDialog(
           title: Text(title),
@@ -30,7 +31,7 @@ Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existi
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (type == 'imprint') ...[
+                if (type == TagType.imprint) ...[
                   Center(
                     child: Stack(
                       children: [
@@ -128,7 +129,7 @@ Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existi
                   controller: ctrl, 
                   decoration: InputDecoration(hintText: hint)
                 ),
-                if (type == 'tag') ...[
+                if (type == TagType.tag) ...[
                   const SizedBox(height: 20),
                   Text(context.l10n.tagColorLabel, style: Theme.of(context).textTheme.labelLarge),
                   const SizedBox(height: 12),

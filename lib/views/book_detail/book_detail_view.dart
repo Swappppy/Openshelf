@@ -785,8 +785,8 @@ class _DetailsTab extends StatelessWidget {
             final tagsAsync = ref.watch(allCollectionsProvider);
             return tagsAsync.maybeWhen(
               data: (allCols) {
-                final collection = allCols.where((t) => t.name.toLowerCase() == book.collectionName!.toLowerCase()).firstOrNull;
-                if (collection == null) return Text(book.collectionName!, style: Theme.of(context).textTheme.bodyLarge);
+                final collection = allCols.where((t) => t.id == book.collectionId).firstOrNull;
+                if (collection == null) return Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge);
                 
                 return GestureDetector(
                   onTap: () => Navigator.push(
@@ -839,10 +839,10 @@ class _DetailsTab extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Consumer(builder: (context, ref, _) {
-                                final countAsync = ref.watch(collectionBookCountProvider(collection.name));
+                                final countAsync = ref.watch(booksByCollectionProvider(collection.id));
                                 return countAsync.maybeWhen(
-                                  data: (count) => Text(
-                                    context.l10n.imprintBookCount(count),
+                                  data: (list) => Text(
+                                    context.l10n.imprintBookCount(list.length),
                                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                       color: colorScheme.outline,
                                     ),
@@ -859,7 +859,7 @@ class _DetailsTab extends StatelessWidget {
                   ),
                 );
               },
-              orElse: () => Text(book.collectionName!, style: Theme.of(context).textTheme.bodyLarge),
+              orElse: () => Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge),
             );
           })
         else

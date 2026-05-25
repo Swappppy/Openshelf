@@ -37,6 +37,7 @@ class ExportController {
       final file = File(p.join(tempDir.path, 'bookshelf_export_${DateTime.now().millisecondsSinceEpoch}.csv'));
       await exportService.writeToFile(result, file);
 
+      // ignore: deprecated_member_use
       await Share.shareXFiles([XFile(file.path)], subject: 'Bookshelf Export');
     } catch (e) {
       if (context.mounted) {
@@ -57,6 +58,7 @@ class ExportController {
       final file = File(p.join(tempDir.path, 'goodreads_export_${DateTime.now().millisecondsSinceEpoch}.csv'));
       await exportService.writeToFile(result, file);
 
+      // ignore: deprecated_member_use
       await Share.shareXFiles([XFile(file.path)], subject: 'Goodreads Export');
     } catch (e) {
       if (context.mounted) {

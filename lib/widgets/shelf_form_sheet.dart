@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show Value;
 import '../models/shelf.dart';
+import '../models/tag_type.dart';
 import '../services/database.dart';
 import '../controllers/books_controller.dart';
 import '../controllers/database_provider.dart';
@@ -62,31 +63,31 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
     if (filterImprintIds != null) {
       _loadImprints(filterImprintIds);
     }
-    final filterCollection = s?.filterCollection;
-    if (filterCollection != null && filterCollection.isNotEmpty) {
-      _loadCollections(filterCollection);
+    final filterCollectionIds = s?.filterCollectionIds;
+    if (filterCollectionIds != null) {
+      _loadCollections(filterCollectionIds);
     }
   }
 
   Future<void> _loadTags(String json) async {
     final ids = (jsonDecode(json) as List).cast<int>();
     final db = ref.read(databaseProvider);
-    final allTags = await db.getTagsByType('tag');
+    final allTags = await db.getTagsByType(TagType.tag);
     setState(() => _selectedTags = allTags.where((t) => ids.contains(t.id)).toList());
   }
 
   Future<void> _loadImprints(String json) async {
     final ids = (jsonDecode(json) as List).cast<int>();
     final db = ref.read(databaseProvider);
-    final allImprints = await db.getTagsByType('imprint');
+    final allImprints = await db.getTagsByType(TagType.imprint);
     setState(() => _selectedImprints = allImprints.where((t) => ids.contains(t.id)).toList());
   }
 
-  Future<void> _loadCollections(String filterString) async {
-    final names = filterString.split(' | ');
+  Future<void> _loadCollections(String json) async {
+    final ids = (jsonDecode(json) as List).cast<int>();
     final db = ref.read(databaseProvider);
-    final allCols = await db.getTagsByType('collection');
-    setState(() => _selectedCollections = allCols.where((c) => names.contains(c.name)).toList());
+    final allCols = await db.getTagsByType(TagType.collection);
+    setState(() => _selectedCollections = allCols.where((c) => ids.contains(c.id)).toList());
   }
 
   @override
@@ -103,7 +104,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
     setState(() => _isSaving = true);
     final tagIds = _selectedTags.map((t) => t.id).toList();
     final imprintIds = _selectedImprints.map((t) => t.id).toList();
-    final collectionNames = _selectedCollections.map((c) => c.name).toList();
+    final collectionIds = _selectedCollections.map((c) => c.id).toList();
     
     final companion = ShelvesCompanion(
       name: Value(_nameCtrl.text.trim()),
@@ -113,7 +114,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
       filterPublisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
       filterIsbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
       filterLanguage: Value(_langCtrl.text.trim().isEmpty ? null : _langCtrl.text.trim()),
-      filterCollection: Value(collectionNames.isEmpty ? null : collectionNames.join(' | ')),
+      filterCollectionIds: Value(collectionIds.isEmpty ? null : jsonEncode(collectionIds)),
       filterStatus: Value(_status?.name),
       filterTagIds: Value(tagIds.isEmpty ? null : jsonEncode(tagIds)),
       filterImprintIds: Value(imprintIds.isEmpty ? null : jsonEncode(imprintIds)),
@@ -264,7 +265,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                       selected: _selectedTags,
                                       onChanged: (list) => setState(() => _selectedTags = list),
                                       provider: allTagsProvider,
-                                      type: 'tag',
+                                      type: TagType.tag,
                                     ),
                                   ),
                                 ),
@@ -275,7 +276,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                       selected: _selectedCollections,
                                       onChanged: (list) => setState(() => _selectedCollections = list),
                                       provider: allCollectionsProvider,
-                                      type: 'collection',
+                                      type: TagType.collection,
                                     ),
                                   ),
                                 ),
@@ -286,7 +287,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                       selected: _selectedImprints,
                                       onChanged: (list) => setState(() => _selectedImprints = list),
                                       provider: allImprintsProvider,
-                                      type: 'imprint',
+                                      type: TagType.imprint,
                                       isImprint: true,
                                     ),
                                   ),
