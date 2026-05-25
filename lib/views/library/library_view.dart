@@ -170,7 +170,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
             ),
           Expanded(
             child: Container(
-              color: Colors.black,
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: BooksListOrGrid(
                 booksAsync: booksAsync,
                 scrollController: _scrollController,

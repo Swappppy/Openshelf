@@ -4,11 +4,18 @@ import 'package:flutter/material.dart';
 /// Generates both light and dark themes based on a user-selected seed color.
 class AppTheme {
   static ThemeData light(Color seedColor) {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: seedColor,
+      brightness: Brightness.light,
+    );
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: Brightness.light,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: scheme.surface,
+      appBarTheme: AppBarTheme(
+        backgroundColor: scheme.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
       ),
     );
   }

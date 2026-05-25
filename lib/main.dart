@@ -36,23 +36,16 @@ void main() async {
     debugPrint('Critical initialization error: $e');
     runApp(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Center(
-            child: Builder(
-              builder: (context) => Text(context.l10n.criticalStartError(e.toString())),
+            child: Text(
+              'Critical error: $e\nPlease restart the app.',
+              textAlign: TextAlign.center,
             ),
           ),
         ),
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('es'),
-          Locale('en'),
-        ],
       ),
     );
   }
