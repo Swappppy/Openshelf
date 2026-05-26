@@ -36,7 +36,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navStats => 'Stats';
 
   @override
-  String get libraryTitle => 'My Library';
+  String get libraryTitle => 'Library';
 
   @override
   String get libraryEmpty => 'Your library is empty';
@@ -120,6 +120,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadingExport => 'Exporting books, please wait...';
+
+  @override
+  String get exportProgressData => 'Exporting data...';
+
+  @override
+  String get exportProgressMedia => 'Bundling media...';
+
+  @override
+  String get exportProgressCompress => 'Compressing backup...';
+
+  @override
+  String get exportProgressFinalize => 'Opening share menu...';
 
   @override
   String get cancel => 'Cancel';
@@ -756,6 +768,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsAutoNoCoverSub =>
       'Auto-create a shelf for books without covers';
+
+  @override
+  String get noCoverShelfTitle => 'Books without cover';
 
   @override
   String get settingsCompressImagesTitle => 'Compress covers automatically';

@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// Título de la pantalla de biblioteca
   ///
   /// In es, this message translates to:
-  /// **'Mi Biblioteca'**
+  /// **'Biblioteca'**
   String get libraryTitle;
 
   /// Estado vacío de la biblioteca sin filtros
@@ -307,6 +307,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Exportando libros, por favor espera...'**
   String get loadingExport;
+
+  /// No description provided for @exportProgressData.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportando datos...'**
+  String get exportProgressData;
+
+  /// No description provided for @exportProgressMedia.
+  ///
+  /// In es, this message translates to:
+  /// **'Preparando archivos multimedia...'**
+  String get exportProgressMedia;
+
+  /// No description provided for @exportProgressCompress.
+  ///
+  /// In es, this message translates to:
+  /// **'Comprimiendo copia de seguridad...'**
+  String get exportProgressCompress;
+
+  /// No description provided for @exportProgressFinalize.
+  ///
+  /// In es, this message translates to:
+  /// **'Abriendo menú de compartir...'**
+  String get exportProgressFinalize;
 
   /// Botón genérico de cancelar
   ///
@@ -1525,6 +1549,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Crea automáticamente una estantería si faltan portadas'**
   String get settingsAutoNoCoverSub;
+
+  /// No description provided for @noCoverShelfTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Libros sin portada'**
+  String get noCoverShelfTitle;
 
   /// No description provided for @settingsCompressImagesTitle.
   ///

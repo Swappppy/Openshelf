@@ -59,19 +59,22 @@ class ImprintsList extends ConsumerWidget {
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            SizedBox(
-                              width: 60, height: 60,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: imp.imagePath != null && File(imp.imagePath!).existsSync()
-                                    ? Image.file(File(imp.imagePath!), width: 60, height: 60, fit: BoxFit.cover)
-                                    : Container(
-                                  width: 60, height: 60,
-                                  color: imp.color != null ? Color(int.parse('0xFF${imp.color!}')) : Theme.of(context).colorScheme.surfaceContainerHighest,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    _getInitials(imp.name),
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: imp.color != null ? Colors.white : Theme.of(context).colorScheme.primary, fontSize: 14),
+                            Hero(
+                              tag: 'imprint_stack_${imp.id}',
+                              child: SizedBox(
+                                width: 60, height: 60,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: imp.imagePath != null && File(imp.imagePath!).existsSync()
+                                      ? Image.file(File(imp.imagePath!), width: 60, height: 60, fit: BoxFit.cover)
+                                      : Container(
+                                    width: 60, height: 60,
+                                    color: imp.color != null ? Color(int.parse('0xFF${imp.color!}')) : Theme.of(context).colorScheme.surfaceContainerHighest,
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      _getInitials(imp.name),
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: imp.color != null ? Colors.white : Theme.of(context).colorScheme.primary, fontSize: 14),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -81,7 +84,16 @@ class ImprintsList extends ConsumerWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(imp.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                  Hero(
+                                    tag: 'imprint_title_${imp.id}',
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: Text(
+                                        imp.name, 
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                      ),
+                                    ),
+                                  ),
                                   const SizedBox(height: 8),
                                   StandardProgressRow(readCount: readCount, totalCount: count, progress: progress),
                                 ],

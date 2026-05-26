@@ -86,51 +86,71 @@ class BooksListOrGrid extends ConsumerWidget {
           applyLibrarySorting(items, prefs, imprintNames: imprintNames);
         }
 
-        return viewMode == LibraryViewMode.list
-            ? ListView.builder(
-                controller: scrollController,
-                padding: EdgeInsets.zero,
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final book = items[index];
-                  return BookListTile(
-                    book: book,
-                    prefs: prefs,
-                    collectionNumber: isCollection ? book.collectionNumber : null,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BookDetailView(book: book),
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+            return Stack(
+              alignment: Alignment.topCenter,
+              children: <Widget>[
+                ...previousChildren,
+                currentChild ?? const SizedBox.shrink(),
+              ],
+            );
+          },
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          child: viewMode == LibraryViewMode.list
+              ? ListView.builder(
+                  key: const ValueKey('list_view'),
+                  controller: scrollController,
+                  padding: EdgeInsets.zero,
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final book = items[index];
+                    return BookListTile(
+                      book: book,
+                      prefs: prefs,
+                      collectionNumber: isCollection ? book.collectionNumber : null,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BookDetailView(book: book),
+                        ),
                       ),
-                    ),
-                  );
-                },
-              )
-            : GridView.builder(
-                controller: scrollController,
-                padding: const EdgeInsets.all(12),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: gridColumns,
-                  childAspectRatio: gridColumns >= 3 ? 0.60 : 0.65,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                    );
+                  },
+                )
+              : GridView.builder(
+                  key: const ValueKey('grid_view'),
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: gridColumns,
+                    childAspectRatio: gridColumns >= 3 ? 0.60 : 0.65,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final book = items[index];
+                    return BookGridCard(
+                      book: book,
+                      prefs: prefs,
+                      overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BookDetailView(book: book),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final book = items[index];
-                  return BookGridCard(
-                    book: book,
-                    prefs: prefs,
-                    overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BookDetailView(book: book),
-                      ),
-                    ),
-                  );
-                },
-              );
+        );
       },
     );
   }

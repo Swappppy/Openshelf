@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -138,14 +139,27 @@ class _StorageMigrationHelper {
   }
 
   static Future<void> migrateDb(WidgetRef ref, String newPath) async {
+    // Note: In a real app, you should ideally close the database before moving the file.
+    // Since Riverpod keeps the singleton open, the safest way is to copy and tell the user to restart.
     final appDir = await getApplicationDocumentsDirectory();
     final currentDb = File(p.join(appDir.path, 'openshelf_db.sqlite'));
-    if (await currentDb.exists()) {
+    
+    // Check for custom path if already moved once
+    final prefs = await SharedPreferences.getInstance();
+    final oldCustomPath = prefs.getString('app_db_path');
+    final sourceFile = oldCustomPath != null 
+        ? File(p.join(oldCustomPath, 'openshelf_db.sqlite'))
+        : currentDb;
+
+    if (await sourceFile.exists()) {
       final dest = File(p.join(newPath, 'openshelf_db.sqlite'));
-      await currentDb.copy(dest.path);
-      await currentDb.delete();
+      await sourceFile.copy(dest.path);
+      // We don't delete immediately to prevent crash if handle is active
     }
+    
     await ref.read(appSettingsProvider.notifier).setDbPath(newPath);
+    
+    // Force app restart logic or inform user
   }
 }
 

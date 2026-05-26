@@ -160,17 +160,11 @@ final imprintBookCountProvider = StreamProvider.family<int, int>((ref, imprintId
   return ref.watch(databaseProvider).watchBookCountByImprint(imprintId);
 });
 
-final collectionBookCountProvider = StreamProvider.family<int, String>((ref, collectionName) {
-  final db = ref.watch(databaseProvider);
-  // Still useful for some UI parts that only have the name string
-  return db.watchBooksFiltered().map((list) => list.where((b) => b.collectionName == collectionName).length);
-});
-
 /// Main filtered provider used by the Library view
-final filteredBooksProvider = Provider<AsyncValue<List<Book>>>((ref) {
-  final booksAsync = ref.watch(allBooksProvider);
+final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
   final filters = ref.watch(searchFiltersProvider);
   final prefs = ref.watch(displayPreferencesProvider);
+  final db = ref.watch(databaseProvider);
   
   // Watch all imprints to get names for sorting
   final imprintsAsync = ref.watch(allImprintsProvider);
@@ -179,46 +173,26 @@ final filteredBooksProvider = Provider<AsyncValue<List<Book>>>((ref) {
     orElse: () => <int, String>{},
   );
 
-  return booksAsync.whenData((allBooks) {
-    var filtered = allBooks.where((book) {
-      // 1. Search Query (Title only)
-      if (filters.query.isNotEmpty &&
-          !book.title.toLowerCase().contains(filters.query.toLowerCase())) {
-        return false;
-      }
-      
-      // 2. Status Filter
-      if (filters.status != null && book.status != filters.status) {
-        return false;
-      }
+  final stream = db.watchBooksFiltered(
+    query: filters.query,
+    author: filters.author,
+    publisher: filters.publisher,
+    isbn: filters.isbn,
+    language: filters.language,
+    collectionIds: filters.collections.isEmpty ? null : filters.collections.map((t) => t.id).toList(),
+    tagIds: filters.tags.isEmpty ? null : filters.tags.map((t) => t.id).toList(),
+    imprintIds: filters.imprints.isEmpty ? null : filters.imprints.map((t) => t.id).toList(),
+  );
 
-      // 3. ISBN Filter
-      if (filters.isbn.isNotEmpty && book.isbn != filters.isbn) {
-        return false;
-      }
+  return stream.map((allBooks) {
+    var filtered = allBooks.toList();
 
-      // 4. Author Filter
-      if (filters.author.isNotEmpty && 
-          !book.author.toLowerCase().contains(filters.author.toLowerCase())) {
-        return false;
-      }
+    // Secondary filtering for Status (not yet in watchBooksFiltered)
+    if (filters.status != null) {
+      filtered = filtered.where((b) => b.status == filters.status).toList();
+    }
 
-      // 5. Publisher Filter
-      if (filters.publisher.isNotEmpty && 
-          !(book.publisher ?? '').toLowerCase().contains(filters.publisher.toLowerCase())) {
-        return false;
-      }
-
-      // 6. Language Filter
-      if (filters.language.isNotEmpty && 
-          !(book.language ?? '').toLowerCase().contains(filters.language.toLowerCase())) {
-        return false;
-      }
-
-      return true;
-    }).toList();
-
-    // 7. Sort
+    // Sort
     applyLibrarySorting(filtered, prefs, imprintNames: imprintNames);
 
     return filtered;

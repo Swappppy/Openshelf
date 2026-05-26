@@ -81,10 +81,10 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                     controller: _queryCtrl,
                     onChanged: _updateQuery,
                     textAlignVertical: TextAlignVertical.center,
-                    style: textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 11),
+                    style: textTheme.bodySmall?.copyWith(fontSize: 11),
                     decoration: InputDecoration(
                       hintText: context.l10n.bookSearchHint,
-                      hintStyle: textTheme.bodySmall?.copyWith(color: Colors.white38, fontSize: 11),
+                      hintStyle: textTheme.bodySmall?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 11),
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
@@ -99,7 +99,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                     child: Icon(
                       _isExpanded ? Icons.expand_less : Icons.expand_more,
                       size: 20,
-                      color: Colors.white38,
+                      color: colorScheme.onSurface.withValues(alpha: 0.38),
                     ),
                   ),
                 ),
@@ -180,7 +180,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
             ),
 
           if (_isExpanded) ...[
-            const Divider(height: 1, color: Colors.white10),
+            Divider(height: 1, color: colorScheme.onSurface.withValues(alpha: 0.1)),
             TabBar(
               controller: _tabController,
               isScrollable: true,
@@ -188,7 +188,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
               labelStyle: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
               unselectedLabelStyle: textTheme.labelSmall,
               labelColor: colorScheme.primary,
-              unselectedLabelColor: Colors.white38,
+              unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.38),
               indicatorColor: colorScheme.primary,
               dividerColor: Colors.transparent,
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -281,7 +281,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                 children: [
                   Text(
                     context.l10n.searchActiveFilters(_activeFiltersCount()),
-                    style: textTheme.labelSmall?.copyWith(color: Colors.white24, fontSize: 10),
+                    style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 10),
                   ),
                   const Spacer(),
                   TextButton(
@@ -355,10 +355,10 @@ class _SearchFilterField extends StatelessWidget {
     return TextField(
       controller: controller,
       onChanged: onChanged,
-      style: const TextStyle(fontSize: 12, color: Colors.white),
+      style: const TextStyle(fontSize: 12),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(fontSize: 12, color: Colors.white38),
+        hintStyle: TextStyle(fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.38)),
         isDense: true,
         filled: true,
         fillColor: colorScheme.primary.withValues(alpha: 0.05),

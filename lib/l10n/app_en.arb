@@ -31,7 +31,7 @@
   "navStats": "Stats",
   "@navStats": { "description": "Nav tab: stats" },
 
-  "libraryTitle": "My Library",
+  "libraryTitle": "Library",
   "@libraryTitle": { "description": "Library screen title" },
 
   "libraryEmpty": "Your library is empty",
@@ -116,6 +116,11 @@
 
   "loadingExport": "Exporting books, please wait...",
   "@loadingExport": { "description": "Loading message during export" },
+
+  "exportProgressData": "Exporting data...",
+  "exportProgressMedia": "Bundling media...",
+  "exportProgressCompress": "Compressing backup...",
+  "exportProgressFinalize": "Opening share menu...",
 
   "cancel": "Cancel",
   "@cancel": { "description": "Generic cancel button" },
@@ -737,6 +742,7 @@
 
   "settingsAutoNoCoverTitle": "No cover shelf",
   "settingsAutoNoCoverSub": "Auto-create a shelf for books without covers",
+  "noCoverShelfTitle": "Books without cover",
 
   "settingsCompressImagesTitle": "Compress covers automatically",
   "settingsCompressImagesSub": "Reduces image size when saving or importing",

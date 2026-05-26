@@ -53,7 +53,7 @@ class DataSection extends ConsumerWidget {
                   onImport: () => ImportController.importBookshelf(context, ref, onLoading),
                   exportLabel: l10n.dataManagementExport,
                   exportHint: l10n.dataManagementExportHint(l10n.dataManagementBookshelf),
-                  onExport: () => ExportController.exportToBookshelf(context, ref),
+                  onExport: () => ExportController.exportToBookshelf(context, ref, onLoading),
                 ),
               ),
               const Divider(height: 1, indent: 56),
@@ -69,7 +69,7 @@ class DataSection extends ConsumerWidget {
                   onImport: () => ImportController.importGoodreads(context, ref, onLoading),
                   exportLabel: l10n.dataManagementExport,
                   exportHint: l10n.dataManagementExportHint(l10n.dataManagementGoodreads),
-                  onExport: () => ExportController.exportToGoodreads(context, ref),
+                  onExport: () => ExportController.exportToGoodreads(context, ref, onLoading),
                 ),
               ),
               const Divider(height: 1, indent: 56),
@@ -173,7 +173,7 @@ class DataSection extends ConsumerWidget {
       ),
     );
     if (includeCovers != null && context.mounted) {
-      ExportController.exportToNative(context, ref, includeCovers: includeCovers);
+      ExportController.exportToNative(context, ref, onLoading, includeCovers: includeCovers);
     }
   }
 

@@ -36,7 +36,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navStats => 'Estadísticas';
 
   @override
-  String get libraryTitle => 'Mi Biblioteca';
+  String get libraryTitle => 'Biblioteca';
 
   @override
   String get libraryEmpty => 'Tu biblioteca está vacía';
@@ -120,6 +120,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get loadingExport => 'Exportando libros, por favor espera...';
+
+  @override
+  String get exportProgressData => 'Exportando datos...';
+
+  @override
+  String get exportProgressMedia => 'Preparando archivos multimedia...';
+
+  @override
+  String get exportProgressCompress => 'Comprimiendo copia de seguridad...';
+
+  @override
+  String get exportProgressFinalize => 'Abriendo menú de compartir...';
 
   @override
   String get cancel => 'Cancelar';
@@ -760,6 +772,9 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get settingsAutoNoCoverSub =>
       'Crea automáticamente una estantería si faltan portadas';
+
+  @override
+  String get noCoverShelfTitle => 'Libros sin portada';
 
   @override
   String get settingsCompressImagesTitle =>

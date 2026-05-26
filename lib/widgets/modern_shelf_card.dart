@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/shelf.dart';
 import '../services/database.dart';
@@ -43,7 +44,10 @@ class ModernShelfCard extends ConsumerWidget {
             context,
             MaterialPageRoute(builder: (_) => ShelfBooksView(shelf: shelf)),
           ),
-          onLongPress: onLongPress,
+          onLongPress: () {
+            HapticFeedback.mediumImpact();
+            onLongPress();
+          },
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(12),
@@ -55,23 +59,26 @@ class ModernShelfCard extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Stack(
-                  children: [
-                    CoverMosaic(books: books),
-                    Positioned(
-                      bottom: 4, left: 4, right: 4,
-                      child: Text(
-                        '$count ${context.l10n.imprintBookCount(count).split(' ').last.toUpperCase()}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 7, 
-                          color: Colors.white, 
-                          fontWeight: FontWeight.bold,
-                          shadows: [Shadow(blurRadius: 4, color: Colors.black)],
+                Hero(
+                  tag: 'shelf_mosaic_${shelf.id}',
+                  child: Stack(
+                    children: [
+                      CoverMosaic(books: books),
+                      Positioned(
+                        bottom: 4, left: 4, right: 4,
+                        child: Text(
+                          '$count ${context.l10n.imprintBookCount(count).split(' ').last.toUpperCase()}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 7, 
+                            color: Colors.white, 
+                            fontWeight: FontWeight.bold,
+                            shadows: [Shadow(blurRadius: 4, color: Colors.black)],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 16),
                 
@@ -83,9 +90,15 @@ class ModernShelfCard extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(
-                              shelf.name,
-                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            child: Hero(
+                              tag: 'shelf_title_${shelf.id}',
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Text(
+                                  shelf.name,
+                                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ),
                             ),
                           ),
                           if (activeStatus != null)

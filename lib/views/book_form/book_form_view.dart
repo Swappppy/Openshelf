@@ -390,36 +390,16 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       startedAt: Value(_startedAt),
       finishedAt: Value(_finishedAt),
+      imprintId: Value(_selectedImprint?.id),
     );
 
     int bookId;
     if (widget.existingBook != null) {
       final oldPage = widget.existingBook!.currentPage ?? 0;
       bookId = widget.existingBook!.id;
-      final updated = widget.existingBook!.copyWith(
-        title: companion.title.value,
-        subtitle: companion.subtitle,
-        author: companion.author.value,
-        isbn: companion.isbn,
-        language: companion.language,
-        translator: companion.translator,
-        publisher: companion.publisher,
-        totalPages: companion.totalPages,
-        currentPage: companion.currentPage,
-        status: companion.status.value,
-        rating: companion.rating,
-        bookFormat: companion.bookFormat,
-        notes: companion.notes,
-        description: companion.description,
-        coverPath: companion.coverPath,
-        collectionName: companion.collectionName,
-        collectionId: companion.collectionId,
-        collectionNumber: companion.collectionNumber,
-        publishYear: companion.publishYear,
-        startedAt: companion.startedAt,
-        finishedAt: companion.finishedAt,
-      );
-      await db.updateBook(updated);
+      
+      // Update the main book record INCLUDING imprintId
+      await (db.update(db.books)..where((b) => b.id.equals(bookId))).write(companion);
 
       if (newPage > oldPage) {
         await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage - oldPage);
@@ -433,7 +413,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
     final tagIds = _selectedTags.map((t) => t.id).toList();
     await db.setBookTags(bookId, tagIds);
-    await db.setBookImprint(bookId, _selectedImprint?.id);
+    // REMOVED redundant setBookImprint call as it's now handled directly in the companion
     await db.pruneOrphanTags();
 
     // Trigger shelf automation check
@@ -455,17 +435,29 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _loadExistingCollection(int bookId, int? collectionId, String? collectionName) async {
+    final db = ref.read(databaseProvider);
+    
+    // First, try to load by ID (source of truth)
     if (collectionId != null) {
-      final db = ref.read(databaseProvider);
-      final allCols = await db.getTagsByType(TagType.collection);
-      final col = allCols.firstWhereOrNull((c) => c.id == collectionId);
+      final col = await (db.select(db.tags)..where((t) => t.id.equals(collectionId))).getSingleOrNull();
       if (col != null) {
         setState(() => _selectedCollections = [col]);
         return;
       }
     }
+
+    // Fallback: search by name if ID was null or missing
     if (collectionName != null && collectionName.isNotEmpty) {
-      setState(() => _selectedCollections = [Tag(id: -1, name: collectionName, type: TagType.collection)]);
+      final col = await (db.select(db.tags)
+        ..where((t) => t.name.equals(collectionName) & t.type.equalsValue(TagType.collection))
+      ).getSingleOrNull();
+      
+      if (col != null) {
+        setState(() => _selectedCollections = [col]);
+      } else {
+        // Handle legacy case where the tag might have been deleted but the name remains
+        setState(() => _selectedCollections = [Tag(id: -1, name: collectionName, type: TagType.collection)]);
+      }
     }
   }
 

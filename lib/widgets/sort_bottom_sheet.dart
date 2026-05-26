@@ -148,7 +148,10 @@ class _SortBottomSheetState extends ConsumerState<SortBottomSheet> {
               if (widget.showEmptyToggle && widget.onToggleEmpty != null)
                 _SortOptionButton(
                   label: emptyAtEnd ? 'V-↓' : 'V-↑',
-                  onPressed: widget.onToggleEmpty!,
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    widget.onToggleEmpty!();
+                  },
                 ),
             ],
           ),
@@ -161,6 +164,7 @@ class _SortBottomSheetState extends ConsumerState<SortBottomSheet> {
           ),
           const SizedBox(height: 12),
           ReorderableListView(
+            onReorderStart: (index) => HapticFeedback.mediumImpact(),
             onReorderItem: widget.onReorder,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

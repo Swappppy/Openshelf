@@ -22,13 +22,11 @@ class LibraryAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     return AppBar(
       scrolledUnderElevation: 0,
-      backgroundColor: Colors.black,
       title: Text(
         context.l10n.libraryTitle,
         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
           fontWeight: FontWeight.bold,
           fontFamily: 'Serif',
-          color: Colors.white,
         ),
       ),
       toolbarHeight: 64,
@@ -86,7 +84,7 @@ class BoxedIconButton extends StatelessWidget {
       child: IconButton(
         icon: Icon(icon, size: 20),
         onPressed: onPressed,
-        color: isActive ? colorScheme.primary : Colors.white,
+        color: isActive ? colorScheme.primary : colorScheme.onSurface,
         padding: EdgeInsets.zero,
       ),
     );

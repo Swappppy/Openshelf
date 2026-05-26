@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reorderable_staggered_grid_view/reorderable_staggered_grid_view.dart';
 import 'package:collection/collection.dart';
@@ -83,17 +84,14 @@ class _StatsViewState extends ConsumerState<StatsView> {
           style: theme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             fontFamily: 'Serif',
-            color: Colors.white,
           ),
         ),
         toolbarHeight: 64,
-        backgroundColor: Colors.black,
         scrolledUnderElevation: 0,
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.check : Icons.edit_outlined),
             onPressed: () => setState(() => _isEditing = !_isEditing),
-            color: Colors.white,
           ),
           const SizedBox(width: 8),
         ],
@@ -163,12 +161,17 @@ class _StatsViewState extends ConsumerState<StatsView> {
         animationKey: _animationKey(c.id),
         crossAxisCellCount: cross,
         mainAxisCellCount: main,
-        child: _StatTile(
-        config: c,
-        isEditing: _isEditing,
-        onRemove: () => _handleRemove(c.id),
-        onResize: (newSize) => _handleResize(c, newSize),
-      ),
+        child: GestureDetector(
+          onLongPressStart: (_) {
+            if (_isEditing) HapticFeedback.mediumImpact();
+          },
+          child: _StatTile(
+            config: c,
+            isEditing: _isEditing,
+            onRemove: () => _handleRemove(c.id),
+            onResize: (newSize) => _handleResize(c, newSize),
+          ),
+        ),
       );
     }).toList();
 

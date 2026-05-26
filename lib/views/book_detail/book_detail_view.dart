@@ -241,7 +241,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           IconButton(
             icon: const Icon(Icons.copy_outlined),
             tooltip: context.l10n.duplicate,
-            onPressed: () => ref.read(bookOperationsProvider).confirmAndDuplicate(context, book),
+            onPressed: () => _confirmDuplicate(context),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -307,6 +307,34 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       ),
     );
   }
+
+  void _confirmDuplicate(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.l10n.bookDetailDuplicateTitle),
+        content: Text(context.l10n.bookDetailDuplicateConfirm(widget.book.title)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () async {
+              await ref.read(bookOperationsProvider).duplicate(widget.book.id);
+              if (ctx.mounted) Navigator.pop(ctx);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(context.l10n.addedToLibrary)),
+                );
+              }
+            },
+            child: Text(context.l10n.duplicate),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Header section displaying the large cover and a summary column (Title, Author, Rating, Tags).
@@ -326,17 +354,20 @@ class _BookHeader extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cover image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: book.coverPath != null
-                ? Image.file(
-              File(book.coverPath!),
-              width: 100,
-              height: 150,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => const _CoverPlaceholder(width: 100, height: 150),
-            )
-                : const _CoverPlaceholder(width: 100, height: 150),
+          Hero(
+            tag: 'book_cover_${book.id}',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: book.coverPath != null
+                  ? Image.file(
+                File(book.coverPath!),
+                width: 100,
+                height: 150,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const _CoverPlaceholder(width: 100, height: 150),
+              )
+                  : const _CoverPlaceholder(width: 100, height: 150),
+            ),
           ),
           const SizedBox(width: 20),
 
@@ -453,6 +484,7 @@ class _CompactTagsDisplay extends StatelessWidget {
               return TagChip(
                 label: tag.name,
                 colorHex: tag.color,
+                heroTag: 'tag_title_${tag.id}',
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => TagBooksView(tag: tag)),

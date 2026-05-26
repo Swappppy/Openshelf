@@ -45,18 +45,30 @@ class CollectionListTile extends ConsumerWidget {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  CoverStackFade(
-                    books: sortedBooks,
-                    height: 50,
+                  Hero(
+                    tag: 'collection_stack_${collection.id}',
+                    child: CoverStackFade(
+                      books: sortedBooks,
+                      height: 50,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          collection.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        Hero(
+                          tag: 'collection_title_${collection.id}',
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Text(
+                              collection.name,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 8),
                         StandardProgressRow(readCount: readCount, totalCount: totalCount, progress: progress),

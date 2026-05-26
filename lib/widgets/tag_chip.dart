@@ -7,6 +7,7 @@ class TagChip extends StatelessWidget {
   final VoidCallback? onDeleted;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final String? heroTag;
 
   const TagChip({
     super.key,
@@ -15,6 +16,7 @@ class TagChip extends StatelessWidget {
     this.onDeleted,
     this.onTap,
     this.onLongPress,
+    this.heroTag,
   });
 
   @override
@@ -30,39 +32,70 @@ class TagChip extends StatelessWidget {
         ? color 
         : theme.colorScheme.onSecondaryContainer;
 
+    Widget content = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (onDeleted != null) ...[
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: onDeleted,
+              child: Icon(
+                Icons.close,
+                size: 14,
+                color: textColor.withValues(alpha: 0.7),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    if (heroTag != null) {
+      content = Hero(
+        tag: heroTag!,
+        // To prevent text from being weird during transition
+        flightShuttleBuilder: (
+          BuildContext flightContext,
+          Animation<double> animation,
+          HeroFlightDirection flightDirection,
+          BuildContext fromHeroContext,
+          BuildContext toHeroContext,
+        ) {
+          final Hero fromHero = fromHeroContext.widget as Hero;
+          final Hero toHero = toHeroContext.widget as Hero;
+          
+          return Material(
+            color: Colors.transparent,
+            child: flightDirection == HeroFlightDirection.push 
+              ? toHero.child 
+              : fromHero.child,
+          );
+        },
+        child: Material(
+          color: Colors.transparent,
+          child: content,
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: textColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (onDeleted != null) ...[
-              const SizedBox(width: 4),
-              GestureDetector(
-                onTap: onDeleted,
-                child: Icon(
-                  Icons.close,
-                  size: 14,
-                  color: textColor.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+      behavior: HitTestBehavior.opaque,
+      child: content,
     );
   }
 }

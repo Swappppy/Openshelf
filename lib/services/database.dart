@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
+import 'package:drift/native.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 import '../models/shelf.dart';
 import '../models/tag_type.dart';
@@ -284,7 +288,25 @@ class AppDatabase extends _$AppDatabase {
   );
 
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'openshelf_db');
+    return LazyDatabase(() async {
+      final prefs = await SharedPreferences.getInstance();
+      final customPath = prefs.getString('app_db_path');
+      
+      final File dbFile;
+      if (customPath != null && customPath.isNotEmpty) {
+        dbFile = File(p.join(customPath, 'openshelf_db.sqlite'));
+      } else {
+        final dbFolder = await getApplicationDocumentsDirectory();
+        dbFile = File(p.join(dbFolder.path, 'openshelf_db.sqlite'));
+      }
+
+      // Ensure the directory exists and is writable
+      if (!await dbFile.parent.exists()) {
+        await dbFile.parent.create(recursive: true);
+      }
+
+      return NativeDatabase.createInBackground(dbFile);
+    });
   }
 
   // --- Book Operations ---
@@ -473,15 +495,12 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Stream<Tag?> watchImprintForBook(int bookId) {
-    final query = select(tags).join([
-      innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
+    return (select(books).join([
+      innerJoin(tags, tags.id.equalsExp(books.imprintId)),
     ])
-      ..where(bookTags.bookId.equals(bookId))
-      ..where(tags.type.equalsValue(TagType.imprint));
-
-    return query.watch().map(
-          (rows) => rows.isEmpty ? null : rows.first.readTable(tags),
-    );
+      ..where(books.id.equals(bookId)))
+        .watchSingleOrNull()
+        .map((row) => row?.readTable(tags));
   }
 
   Stream<List<Tag>> watchTagsByType(TagType type) =>
@@ -542,17 +561,14 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<int> getBookCountByImprint(int imprintId) async {
-    final rows = await (select(bookTags)
-      ..where((bt) => bt.tagId.equals(imprintId)))
-        .get();
+    final query = select(books)..where((b) => b.imprintId.equals(imprintId));
+    final rows = await query.get();
     return rows.length;
   }
 
   Stream<int> watchBookCountByImprint(int imprintId) {
-    return (select(bookTags)
-      ..where((bt) => bt.tagId.equals(imprintId)))
-        .watch()
-        .map((rows) => rows.length);
+    final query = select(books)..where((b) => b.imprintId.equals(imprintId));
+    return query.watch().map((rows) => rows.length);
   }
 
   Future<int> getBookCountByTag(int tagId) async {
@@ -597,8 +613,9 @@ class AppDatabase extends _$AppDatabase {
     List<int>? imprintIds,
     bool? noCover,
   }) {
-    // If filtering by tags or imprints, use the complex join query
-    if ((tagIds != null && tagIds.isNotEmpty) || (imprintIds != null && imprintIds.isNotEmpty)){
+    // If filtering by general tags, use the complex M:M join query.
+    // Imprints and Collections now live in dedicated columns, so they are handled in the standard query below.
+    if (tagIds != null && tagIds.isNotEmpty) {
       return _watchBooksWithTags(
         query: query,
         tagIds: tagIds,
@@ -612,7 +629,7 @@ class AppDatabase extends _$AppDatabase {
       );
     }
 
-    // Standard column filtering
+    // Standard column filtering (handles titles, authors, collections, and now imprints)
     final q = select(books)
       ..where((b) {
         Expression<bool> expr = const Constant(true);
@@ -634,18 +651,18 @@ class AppDatabase extends _$AppDatabase {
         if (collectionIds != null && collectionIds.isNotEmpty) {
           expr = expr & b.collectionId.isIn(collectionIds);
         }
-        if (noCover == true) {
-          expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
-        }
         if (imprintIds != null && imprintIds.isNotEmpty) {
           expr = expr & b.imprintId.isIn(imprintIds);
+        }
+        if (noCover == true) {
+          expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
         }
         return expr;
       });
     return q.watch();
   }
 
-  /// Complex filtering using the M:M relationship with Tags
+  /// Complex filtering using the M:M relationship with Tags (only for TagType.tag)
   Stream<List<Book>> _watchBooksWithTags({
     String? query,
     List<int>? tagIds,
@@ -657,12 +674,7 @@ class AppDatabase extends _$AppDatabase {
     List<int>? imprintIds,
     bool? noCover,
   }) {
-    final allRequiredTagIds = [
-      ...?tagIds,
-      ...?imprintIds,
-    ].whereType<int>().toSet().toList();
-
-    if (allRequiredTagIds.isEmpty) {
+    if (tagIds == null || tagIds.isEmpty) {
       return watchBooksFiltered(
         query: query,
         author: author,
@@ -670,22 +682,28 @@ class AppDatabase extends _$AppDatabase {
         isbn: isbn,
         language: language,
         collectionIds: collectionIds,
+        imprintIds: imprintIds,
         noCover: noCover,
       );
     }
 
     // Optimization: Use custom SQL to find books matching ALL required tags (Intersection)
-    // Drift's DSL doesn't fully support HAVING with COUNT(DISTINCT) in all environments.
-    final amountOfTags = allRequiredTagIds.length;
-    final placeholders = allRequiredTagIds.join(',');
+    final amountOfTags = tagIds.length;
+    final placeholders = tagIds.map((_) => '?').join(',');
     final sql = '''
       SELECT book_id FROM book_tags
       WHERE tag_id IN ($placeholders)
       GROUP BY book_id
-      HAVING COUNT(DISTINCT tag_id) >= $amountOfTags
+      HAVING COUNT(DISTINCT tag_id) >= ?
     ''';
 
-    return customSelect(sql).watch().asyncMap((rows) async {
+    return customSelect(
+      sql, 
+      variables: [
+        ...tagIds.map((id) => Variable<int>(id)),
+        Variable<int>(amountOfTags),
+      ]
+    ).watch().asyncMap((rows) async {
       final validBookIds = rows.map((r) => r.read<int>('book_id')).toList();
       if (validBookIds.isEmpty) return <Book>[];
 
@@ -710,11 +728,11 @@ class AppDatabase extends _$AppDatabase {
           if (collectionIds != null && collectionIds.isNotEmpty) {
             expr = expr & b.collectionId.isIn(collectionIds);
           }
-          if (noCover == true) {
-            expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
-          }
           if (imprintIds != null && imprintIds.isNotEmpty) {
             expr = expr & b.imprintId.isIn(imprintIds);
+          }
+          if (noCover == true) {
+            expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
           }
           return expr;
         });

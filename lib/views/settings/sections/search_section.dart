@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../controllers/app_settings_controller.dart';
 import '../../../models/app_settings.dart';
@@ -41,6 +42,7 @@ class SearchSection extends ConsumerWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   onReorderItem: (oldIndex, newIndex) {
+                    HapticFeedback.lightImpact();
                     final list = List<BookSearchServer>.from(searchServers);
                     if (newIndex > oldIndex) newIndex -= 1;
                     final item = list.removeAt(oldIndex);

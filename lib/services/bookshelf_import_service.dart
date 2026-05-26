@@ -1,47 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:drift/drift.dart';
 import 'package:csv/csv.dart';
 
 import '../models/tag_type.dart';
-import '../services/database.dart';
-
-/// Result of a Bookshelf CSV import operation.
-class BookshelfImportResult {
-  final int imported;
-  final int skipped;
-  final List<String> errors;
-
-  const BookshelfImportResult({
-    required this.imported,
-    required this.skipped,
-    required this.errors,
-  });
-
-  @override
-  String toString() =>
-      'BookshelfImportResult(imported: $imported, skipped: $skipped, errors: ${errors.length})';
-}
+import 'database.dart';
+import 'import_export_base.dart';
 
 /// Parses and imports a Bookshelf CSV export into the app database.
-///
-/// Usage:
-/// ```dart
-/// final service = BookshelfImportService(database);
-/// final result = await service.importFromFile(File('/path/to/export.csv'));
-/// ```
 class BookshelfImportService {
   final AppDatabase _db;
-
   BookshelfImportService(this._db);
 
-  // ── Column indices (based on Bookshelf 2026 export format) ───────────────
-
   static const int _colIsbn = 1;
-  // 2: Bookshelf   — ignored
-  // 3: Tags        — ignored
-  // 4: Wishlist    — ignored
   static const int _colStartedAt = 5;
   static const int _colEndedAt = 6;
   static const int _colPagesRead = 7;
@@ -49,323 +20,160 @@ class BookshelfImportService {
   static const int _colRating = 9;
   static const int _colReview = 10;
   static const int _colShortNote = 11;
-  // 12: Advanced note — ignored
-  // 13: Signed        — ignored
-  // 14: Condition     — ignored
-  // 15: Number of copies — ignored
-  // 16: Quotes        — ignored
-  // 17: Flashcards    — ignored
   static const int _colTitle = 18;
   static const int _colSubtitle = 19;
   static const int _colLanguage = 20;
   static const int _colCategories = 21;
   static const int _colAuthors = 22;
-  // 23: Illustrators  — ignored
   static const int _colTranslator = 24;
-  // 25: Editors       — ignored
-  // 26: Narrators     — ignored
-  // 27: Photographers — ignored
   static const int _colPublisher = 28;
   static const int _colPageCount = 29;
   static const int _colPublishedAt = 30;
   static const int _colFormat = 31;
-  // 32: Edition       — ignored
   static const int _colSeries = 33;
   static const int _colVolume = 34;
   static const int _colDescription = 47;
   static const int _colDateAdded = 48;
-
   static const int _minColumns = 35;
 
-  // ── Public API ────────────────────────────────────────────────────────────
-
-  /// Imports books from a [File] containing a Bookshelf CSV export.
-  Future<BookshelfImportResult> importFromFile(File file) async {
+  Future<ImportResult> importFromFile(File file) async {
     final contents = await file.readAsString(encoding: utf8);
-    return _processContents(contents);
+    return importFromString(contents);
   }
 
-  /// Imports books from a raw CSV [String] (useful when reading from a picker
-  /// that already gives you the bytes/string).
-  Future<BookshelfImportResult> importFromString(String csvContent) {
-    return _processContents(csvContent);
-  }
-
-  // ── Core logic ────────────────────────────────────────────────────────────
-
-  Future<BookshelfImportResult> _processContents(String contents) async {
-    // Detect the line ending used by this file. On Android, file_picker
-    // typically gives \n-only files. CsvToListConverter defaults to \r\n,
-    // which would treat the entire file as one row on \n-only files.
-    // We detect explicitly so the parser splits rows correctly while still
-    // respecting quoted multiline cells (e.g. multi-paragraph descriptions).
+  Future<ImportResult> importFromString(String contents) async {
     final eol = contents.contains('\r\n') ? '\r\n' : '\n';
-    final rows = Csv(lineDelimiter: eol, dynamicTyping: false, autoDetect: false)
-        .decode(contents);
+    final rows = Csv(lineDelimiter: eol, dynamicTyping: false, autoDetect: false).decode(contents);
 
-    if (rows.isEmpty) {
-      return const BookshelfImportResult(
-        imported: 0,
-        skipped: 0,
-        errors: ['Empty CSV file.'],
-      );
-    }
-
-    // Skip the header row (index 0).
+    if (rows.isEmpty) return const ImportResult(imported: 0, skipped: 0, errors: ['Empty CSV']);
+    
     final dataRows = rows.skip(1).toList();
-
     int imported = 0;
     int skipped = 0;
     final errors = <String>[];
 
     for (int i = 0; i < dataRows.length; i++) {
       final row = dataRows[i].map((e) => e.toString().trim()).toList();
-      final rowNumber = i + 2; // 1-based + header offset
+      final rowNum = i + 2;
 
-      // Guard: minimum column count.
       if (row.length < _minColumns) {
-        errors.add('Fila $rowNumber: columnas insuficientes (${row.length}).');
+        errors.add('Row $rowNum: Insufficient columns (${row.length})');
         skipped++;
         continue;
       }
 
-      // Guard: title must be present.
       final title = _str(row, _colTitle);
       if (title.isEmpty) {
-        errors.add('Fila $rowNumber: título vacío, se omite.');
+        errors.add('Row $rowNum: Missing title');
         skipped++;
         continue;
       }
 
       try {
-        final companion = _rowToCompanion(row);
-
-        // Avoid duplicates: check by ISBN when available, otherwise by title+author.
-        final isbn = _str(row, _colIsbn);
-        final isDuplicate = isbn.isNotEmpty
-            ? await _db.getBookByIsbn(isbn) != null
-            : await _db.existsByTitleAndAuthor(title, _primaryAuthor(row));
+        final author = _primaryAuthor(row);
+        final isbn = _str(row, _colIsbn).nullIfEmpty();
+        
+        final isDuplicate = isbn != null 
+          ? await _db.getBookByIsbn(isbn) != null
+          : await _db.existsByTitleAndAuthor(title, author);
 
         if (isDuplicate) {
           skipped++;
           continue;
         }
 
+        final ratingRaw = ImportExportUtils.parseRating(_str(row, _colRating));
+        final rating = (ratingRaw != null && ratingRaw > 5) ? (ratingRaw / 2) : ratingRaw;
+
+        final companion = _rowToCompanion(row, rating: rating);
         final bookId = await _db.insertBook(companion);
-        
-        // Handle Collections (as Tags)
-        final collectionName = companion.collectionName.value;
-        if (collectionName != null && collectionName.isNotEmpty) {
-          final colId = await _getOrCreateTag(collectionName, TagType.collection);
-          // Link via the new FK
-          await (_db.update(_db.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(
-            collectionId: Value(colId),
-          ));
+
+        // Link Collection
+        final collName = _str(row, _colSeries).nullIfEmpty();
+        if (collName != null) {
+          final id = await ImportExportUtils.getOrCreateTag(_db, collName, TagType.collection);
+          await (_db.update(_db.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(collectionId: Value(id)));
         }
 
-        // Handle Categories
-        final categoriesRaw = _str(row, _colCategories);
-        if (categoriesRaw.isNotEmpty) {
-          final categoryNames = categoriesRaw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
-          final List<int> tagIds = [];
-          for (final name in categoryNames) {
-            final tagId = await _getOrCreateTag(name, TagType.tag);
-            tagIds.add(tagId);
+        // Link Categories
+        final catsRaw = _str(row, _colCategories).nullIfEmpty();
+        if (catsRaw != null) {
+          final names = catsRaw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+          final ids = <int>[];
+          for (final name in names) {
+            ids.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
           }
-          if (tagIds.isNotEmpty) {
-            await _db.setBookTags(bookId, tagIds);
-          }
+          if (ids.isNotEmpty) await _db.setBookTags(bookId, ids);
         }
-        
+
         imported++;
       } catch (e) {
-        errors.add('Fila $rowNumber ("$title"): $e');
+        errors.add('Row $rowNum ("$title"): $e');
         skipped++;
       }
     }
 
-    return BookshelfImportResult(
-      imported: imported,
-      skipped: skipped,
-      errors: errors,
-    );
+    return ImportResult(imported: imported, skipped: skipped, errors: errors);
   }
 
-  Future<int> _getOrCreateTag(String name, TagType type) async {
-    final existing = await _db.searchTags(name, type);
-    // searchTags uses .contains, so we check for exact match
-    final exact = existing.cast<Tag?>().firstWhere(
-      (t) => t?.name.toLowerCase() == name.toLowerCase(),
-      orElse: () => null,
-    );
-    
-    if (exact != null) return exact.id;
-
-    return await _db.insertTag(TagsCompanion.insert(
-      name: name,
-      type: Value(type),
-    ));
-  }
-
-  // ── Row → BooksCompanion ─────────────────────────────────────────────────
-
-  BooksCompanion _rowToCompanion(List<String> row) {
+  BooksCompanion _rowToCompanion(List<String> row, {double? rating}) {
     final title = _str(row, _colTitle);
-    final subtitle = _str(row, _colSubtitle);
-    final author = _primaryAuthor(row);
-    final isbn = _str(row, _colIsbn);
-    final language = _str(row, _colLanguage);
-    final translator = _str(row, _colTranslator);
-    final publisher = _str(row, _colPublisher);
-    final totalPages = _parseInt(row, _colPageCount);
-    final currentPage = _parseInt(row, _colPagesRead);
-    final rating = _parseRating(row);
-    final bookFormat = _parseFormat(row);
-    final collectionName = _str(row, _colSeries).nullIfEmpty();
-    final collectionNumber = _parseInt(row, _colVolume);
-    final notes = _buildNotes(row);
-    final description = _str(row, _colDescription).nullIfEmpty();
-    final publishYear = _parseYear(row);
-    final startedAt = _parseDate(row, _colStartedAt);
-    final finishedAt = _parseDate(row, _colEndedAt);
-    final status = _parseStatus(row, currentPage, totalPages);
-    final createdAt = _parseDate(row, _colDateAdded) ?? DateTime.now();
+    final totalPages = ImportExportUtils.parseInt(_str(row, _colPageCount));
+    final currentPage = ImportExportUtils.parseInt(_str(row, _colPagesRead));
+    final endedAt = ImportExportUtils.parseDate(_str(row, _colEndedAt));
 
     return BooksCompanion.insert(
       title: title,
-      subtitle: Value(subtitle.nullIfEmpty()),
-      author: author,
-      isbn: Value(isbn.nullIfEmpty()),
-      language: Value(language.nullIfEmpty()),
-      translator: Value(translator.nullIfEmpty()),
-      publisher: Value(publisher.nullIfEmpty()),
+      subtitle: Value(_str(row, _colSubtitle).nullIfEmpty()),
+      author: _primaryAuthor(row),
+      isbn: Value(_str(row, _colIsbn).nullIfEmpty()),
+      language: Value(_str(row, _colLanguage).nullIfEmpty()),
+      translator: Value(_str(row, _colTranslator).nullIfEmpty()),
+      publisher: Value(_str(row, _colPublisher).nullIfEmpty()),
       totalPages: Value(totalPages),
       currentPage: Value(currentPage),
-      status: status,
+      status: _parseStatus(row, currentPage, totalPages, endedAt != null),
       rating: Value(rating),
-      bookFormat: Value(bookFormat),
-      collectionName: Value(collectionName),
-      collectionNumber: Value(collectionNumber),
-      notes: Value(notes.nullIfEmpty()),
-      description: Value(description),
-      publishYear: Value(publishYear),
-      startedAt: Value(startedAt),
-      finishedAt: Value(finishedAt),
-      createdAt: Value(createdAt),
+      bookFormat: Value(_parseFormat(_str(row, _colFormat))),
+      collectionName: Value(_str(row, _colSeries).nullIfEmpty()),
+      collectionNumber: Value(ImportExportUtils.parseInt(_str(row, _colVolume))),
+      notes: Value(_buildNotes(row).nullIfEmpty()),
+      description: Value(_str(row, _colDescription).nullIfEmpty()),
+      publishYear: Value(_parseYear(_str(row, _colPublishedAt))),
+      startedAt: Value(ImportExportUtils.parseDate(_str(row, _colStartedAt))),
+      finishedAt: Value(endedAt),
+      createdAt: Value(ImportExportUtils.parseDate(_str(row, _colDateAdded)) ?? DateTime.now()),
     );
   }
 
-  // ── Field parsers ─────────────────────────────────────────────────────────
-
-  /// Returns the first author from a comma-separated authors field.
   String _primaryAuthor(List<String> row) {
     final raw = _str(row, _colAuthors);
-    if (raw.isEmpty) return 'Desconocido';
-    // Bookshelf separates multiple authors with commas.
-    return raw.split(',').first.trim();
+    return raw.isEmpty ? 'Unknown' : raw.split(',').first.trim();
   }
 
-  /// Merges Short note and Review into a single notes string.
   String _buildNotes(List<String> row) {
-    final parts = [
-      _str(row, _colShortNote),
-      _str(row, _colReview),
-    ].where((s) => s.isNotEmpty).toList();
-    return parts.join('\n\n');
+    return [_str(row, _colShortNote), _str(row, _colReview)].where((s) => s.isNotEmpty).join('\n\n');
   }
 
-  /// Maps Bookshelf's "Format" string to [BookFormat].
-  BookFormat? _parseFormat(List<String> row) {
-    return switch (_str(row, _colFormat).toLowerCase()) {
+  BookFormat? _parseFormat(String raw) {
+    return switch (raw.toLowerCase()) {
       'paperback' => BookFormat.paperback,
       'hardcover' => BookFormat.hardcover,
       'leatherbound' => BookFormat.leatherbound,
       'digital' || 'ebook' || 'e-book' => BookFormat.digital,
-      '' => null,
-      _ => BookFormat.other,
+      _ => raw.isEmpty ? null : BookFormat.other,
     };
   }
 
-  /// Derives [ReadingStatus] from the Read, Wishlist, page progress and date fields.
-  ReadingStatus _parseStatus(List<String> row, int? currentPage, int? totalPages) {
-    final isRead = _str(row, _colRead) == '1';
-    final hasFinished = _str(row, _colEndedAt).isNotEmpty;
-
-    if (isRead || hasFinished) return ReadingStatus.read;
-
-    final cur = currentPage ?? 0;
-    if (cur == 0) return ReadingStatus.wantToRead;
-
-    final tot = totalPages ?? 0;
-    if (tot > 0 && cur >= tot) return ReadingStatus.read;
-
-    return ReadingStatus.reading;
-  }
-
-  /// Parses a rating value (0–5 or 0–10 in Bookshelf) as a nullable double.
-  double? _parseRating(List<String> row) {
-    final raw = _str(row, _colRating);
-    if (raw.isEmpty || raw == '0') return null;
-    return double.tryParse(raw);
-  }
-
-  /// Extracts the year from a "yyyy-MM-dd" or "yyyy" date string.
-  int? _parseYear(List<String> row) {
-    final raw = _str(row, _colPublishedAt);
-    if (raw.isEmpty) return null;
-    return int.tryParse(raw.split('-').first);
-  }
-
-  /// Parses an optional DateTime from a "yyyy-MM-dd", "dd/MM/yyyy" or similar column.
-  DateTime? _parseDate(List<String> row, int col) {
-    final raw = _str(row, col).trim();
-    if (raw.isEmpty) return null;
-
-    // 1. Try standard ISO/Dart parsing (works for yyyy-MM-dd)
-    final parsed = DateTime.tryParse(raw);
-    if (parsed != null) return parsed;
-
-    // 2. Manual split fallback for common formats (yyyy-MM-dd or dd/MM/yyyy)
-    final parts = raw.split(RegExp(r'[/ \-.]'));
-    if (parts.length >= 3) {
-      try {
-        if (parts[0].length == 4) {
-          // Likely YYYY MM DD
-          return DateTime(
-            int.parse(parts[0]),
-            int.parse(parts[1]),
-            int.parse(parts[2]),
-          );
-        } else if (parts[2].length == 4) {
-          // Likely DD MM YYYY
-          return DateTime(
-            int.parse(parts[2]),
-            int.parse(parts[1]),
-            int.parse(parts[0]),
-          );
-        }
-      } catch (_) {
-        return null;
-      }
+  ReadingStatus _parseStatus(List<String> row, int? cur, int? tot, bool hasFinished) {
+    if (_str(row, _colRead) == '1' || hasFinished) return ReadingStatus.read;
+    if (cur != null && cur > 0) {
+       if (tot != null && cur >= tot) return ReadingStatus.read;
+       return ReadingStatus.reading;
     }
-    return null;
+    return ReadingStatus.wantToRead;
   }
 
-  /// Safely reads a string cell, returning '' on out-of-bounds.
-  String _str(List<String> row, int col) =>
-      col < row.length ? row[col] : '';
-
-  /// Safely parses an integer cell.
-  /// Handles both "518" and "518.0" (Bookshelf sometimes exports decimals).
-  int? _parseInt(List<String> row, int col) {
-    final raw = _str(row, col);
-    if (raw.isEmpty) return null;
-    return int.tryParse(raw) ?? double.tryParse(raw)?.toInt();
-  }
-}
-
-// ── Extension helpers ────────────────────────────────────────────────────────
-
-extension _StringNullable on String {
-  String? nullIfEmpty() => isEmpty ? null : this;
+  int? _parseYear(String raw) => int.tryParse(raw.split('-').first);
+  String _str(List<String> row, int col) => col < row.length ? row[col] : '';
 }

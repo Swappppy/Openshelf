@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../l10n/l10n_extension.dart';
 
 /// A wheel-based number picker for selecting page numbers.
@@ -84,6 +85,7 @@ class _PagePickerState extends State<PagePicker> {
   }
 
   void _onDigitChanged(int column, int value) {
+    HapticFeedback.selectionClick();
     setState(() => _digits[column] = value);
     final result = _toValue().clamp(0, widget.maxValue);
     widget.onChanged(result);

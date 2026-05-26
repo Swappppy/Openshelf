@@ -11,8 +11,23 @@ import '../l10n/l10n_extension.dart';
 import 'database_provider.dart';
 import 'app_settings_controller.dart';
 import 'shelf_automation_controller.dart';
+import 'books_controller.dart';
 
 class ImportController {
+  static void _refreshAllProviders(WidgetRef ref) {
+    ref.invalidate(allBooksProvider);
+    ref.invalidate(allShelvesProvider);
+    ref.invalidate(allShelvesWithStatsProvider);
+    ref.invalidate(allTagsProvider);
+    ref.invalidate(allTagsWithCountsProvider);
+    ref.invalidate(allImprintsProvider);
+    ref.invalidate(allImprintsWithCountsProvider);
+    ref.invalidate(allCollectionsProvider);
+    ref.invalidate(allCollectionsWithCountsProvider);
+    ref.invalidate(filteredBooksProvider);
+    ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
+  }
+
   static Future<void> importNative(BuildContext context, WidgetRef ref, Function(bool, [String?]) setLoading) async {
     try {
       final backupResult = await FilePicker.pickFiles(
@@ -63,7 +78,7 @@ class ImportController {
         compress: ref.read(appSettingsProvider).compressImages,
       );
 
-      ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
+      _refreshAllProviders(ref);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -97,7 +112,7 @@ class ImportController {
       final importService = BookshelfImportService(db);
       final importResult = await importService.importFromFile(file);
 
-      ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
+      _refreshAllProviders(ref);
 
       if (context.mounted) {
         final message = importResult.skipped == 0
@@ -135,7 +150,7 @@ class ImportController {
       final importService = GoodreadsImportService(db);
       final importResult = await importService.importFromFile(file);
 
-      ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
+      _refreshAllProviders(ref);
 
       if (context.mounted) {
         final message = importResult.skipped == 0

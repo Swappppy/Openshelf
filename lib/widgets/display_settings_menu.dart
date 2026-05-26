@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/display_preferences_controller.dart';
 import '../l10n/l10n_extension.dart';
@@ -79,12 +80,7 @@ class DisplaySettingsMenu extends ConsumerWidget {
                 icon: const Icon(Icons.settings_outlined, size: 18),
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const SettingsView(),
-                    ),
-                  );
+                  SettingsView.show(context);
                 },
                 tooltip: l10n.settingsButton,
               ),
@@ -104,7 +100,10 @@ class DisplaySettingsMenu extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ReorderableListView(
-                    onReorderItem: controller.reorderFields,
+                    onReorderItem: (oldIndex, newIndex) {
+                      HapticFeedback.lightImpact();
+                      controller.reorderFields(oldIndex, newIndex);
+                    },
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: p.fieldOrder.map((field) {

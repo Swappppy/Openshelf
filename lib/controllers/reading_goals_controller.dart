@@ -10,10 +10,7 @@ final allGoalsProvider = StreamProvider<List<ReadingGoal>>((ref) {
 final goalProgressProvider = StreamProvider.family<int, int>((ref, goalId) {
   final db = ref.watch(databaseProvider);
   
-  return db.watchAllGoals().asyncMap((goals) async {
-    final goal = goals.where((g) => g.id == goalId).firstOrNull;
-    if (goal == null) return 0;
-
+  return (db.select(db.readingGoals)..where((t) => t.id.equals(goalId))).watchSingle().asyncMap((goal) async {
     if (goal.type == 'books') {
       final books = await db.watchAllBooks().first;
       return books.where((b) => 

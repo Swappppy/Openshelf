@@ -182,10 +182,7 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
         actions: [
           BoxedIconButton(
             icon: Icons.settings_outlined,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SettingsView()),
-            ),
+            onPressed: () => SettingsView.show(context),
           ),
           const SizedBox(width: 16),
         ],

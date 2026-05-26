@@ -31,7 +31,7 @@
   "navStats": "Estadísticas",
   "@navStats": { "description": "Pestaña de navegación: estadísticas" },
 
-  "libraryTitle": "Mi Biblioteca",
+  "libraryTitle": "Biblioteca",
   "@libraryTitle": { "description": "Título de la pantalla de biblioteca" },
 
   "libraryEmpty": "Tu biblioteca está vacía",
@@ -116,6 +116,11 @@
 
   "loadingExport": "Exportando libros, por favor espera...",
   "@loadingExport": { "description": "Mensaje de carga durante la exportación" },
+
+  "exportProgressData": "Exportando datos...",
+  "exportProgressMedia": "Preparando archivos multimedia...",
+  "exportProgressCompress": "Comprimiendo copia de seguridad...",
+  "exportProgressFinalize": "Abriendo menú de compartir...",
 
   "cancel": "Cancelar",
   "@cancel": { "description": "Botón genérico de cancelar" },
@@ -737,6 +742,7 @@
 
   "settingsAutoNoCoverTitle": "Estantería sin portadas",
   "settingsAutoNoCoverSub": "Crea automáticamente una estantería si faltan portadas",
+  "noCoverShelfTitle": "Libros sin portada",
 
   "settingsCompressImagesTitle": "Comprimir portadas automáticamente",
   "settingsCompressImagesSub": "Reduce el peso de las imágenes al guardarlas o importarlas",
