@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../book_form/book_form_view.dart';
 import '../shelves/shelves_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../models/search_filters.dart';
 import '../../services/database.dart';
 import '../../controllers/display_preferences_controller.dart';
 import '../../controllers/fab_visibility_controller.dart';
@@ -14,6 +16,8 @@ import '../../widgets/add_entity_fab.dart';
 import '../../widgets/library_app_bar.dart';
 import '../../widgets/search_panel.dart';
 
+import '../../controllers/library_navigation_controller.dart';
+import '../../controllers/shelf_creation_buffer_controller.dart';
 import '../stats/stats_view.dart';
 
 /// Main container for the library, featuring a navigation bar for the three main sections.
@@ -25,8 +29,6 @@ class LibraryView extends ConsumerStatefulWidget {
 }
 
 class _LibraryViewState extends ConsumerState<LibraryView> {
-  late int _currentIndex;
-
   final List<Widget> _screens = const [
     _LibraryScreen(),
     ShelvesScreen(),
@@ -34,20 +36,15 @@ class _LibraryViewState extends ConsumerState<LibraryView> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _currentIndex = ref.read(searchFiltersProvider.notifier).getActiveLibraryTabIndex();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final currentIndex = ref.watch(libraryNavigationProvider);
+
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: _screens[currentIndex],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
+        selectedIndex: currentIndex,
         onDestinationSelected: (index) {
-          setState(() => _currentIndex = index);
-          ref.read(searchFiltersProvider.notifier).setActiveLibraryTabIndex(index);
+          ref.read(libraryNavigationProvider.notifier).setIndex(index);
         },
         destinations: [
           NavigationDestination(
@@ -90,6 +87,12 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
     _scrollController.addListener(_scrollListener);
   }
 
+  void _openShelfCreation(SearchFilters filters) {
+    setState(() => _searchVisible = false);
+    ref.read(shelfCreationBufferProvider.notifier).set(filters);
+    ref.read(libraryNavigationProvider.notifier).setIndex(1);
+  }
+
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
@@ -106,6 +109,11 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
     final isFabVisible = ref.watch(fabVisibilityProvider);
     final filters = ref.watch(searchFiltersProvider);
     final booksAsync = ref.watch(filteredBooksProvider);
+
+    final isEmpty = booksAsync.maybeWhen(
+      data: (list) => list.isEmpty && filters.isEmpty && filters.status == null,
+      orElse: () => false,
+    );
 
     return Scaffold(
       appBar: LibraryAppBar(
@@ -166,6 +174,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                 filters: filters,
                 onChanged: (f) =>
                     ref.read(searchFiltersProvider.notifier).setFilters(f),
+                onSaveAsShelf: () => _openShelfCreation(filters),
               ),
             ),
           Expanded(
@@ -175,12 +184,16 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                 booksAsync: booksAsync,
                 scrollController: _scrollController,
                 filters: filters,
+                onAddPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BookFormView()),
+                ),
               ),
             ),
           ),
         ],
       ),
-      floatingActionButton: AddEntityFab(visible: isFabVisible),
+      floatingActionButton: isEmpty ? null : AddEntityFab(visible: isFabVisible),
     );
   }
 }

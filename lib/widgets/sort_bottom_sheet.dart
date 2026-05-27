@@ -164,7 +164,7 @@ class _SortBottomSheetState extends ConsumerState<SortBottomSheet> {
           ),
           const SizedBox(height: 12),
           ReorderableListView(
-            onReorderStart: (index) => HapticFeedback.mediumImpact(),
+            onReorderStart: (index) => HapticFeedback.heavyImpact(),
             onReorderItem: widget.onReorder,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -180,7 +180,10 @@ class _SortBottomSheetState extends ConsumerState<SortBottomSheet> {
                 ),
                 title: Text(widget.labels[criteria] ?? criteria),
                 trailing: TextButton.icon(
-                  onPressed: () => widget.onToggleDirection(criteria),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    widget.onToggleDirection(criteria);
+                  },
                   label: Text(
                     isAsc
                         ? (isAlphabetical ? 'A-Z' : '0-9')

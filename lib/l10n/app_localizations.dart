@@ -155,8 +155,14 @@ abstract class AppLocalizations {
   /// Pista cuando la biblioteca está vacía
   ///
   /// In es, this message translates to:
-  /// **'Pulsa + para añadir tu primer libro'**
+  /// **'¿Cuál será tu primer libro?'**
   String get libraryEmptyHint;
+
+  /// Texto del botón de acción en el estado vacío de la biblioteca
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir primer libro'**
+  String get libraryAddFirstBook;
 
   /// Sin resultados con filtros activos
   ///
@@ -893,7 +899,7 @@ abstract class AppLocalizations {
   /// Encabezado de sección de estanterías personalizadas
   ///
   /// In es, this message translates to:
-  /// **'Mis estanterías'**
+  /// **'Estanterías'**
   String get shelvesSectionMine;
 
   /// Encabezado de sección de gestión
@@ -953,8 +959,14 @@ abstract class AppLocalizations {
   /// Subtítulo del estado vacío de estanterías
   ///
   /// In es, this message translates to:
-  /// **'Pulsa + para añadir tu primera estantería'**
+  /// **'Organiza tus lecturas como quieras'**
   String get shelfEmptySubtitle;
+
+  /// Texto del botón de acción en el estado vacío de las estanterías
+  ///
+  /// In es, this message translates to:
+  /// **'Crear estantería'**
+  String get shelvesAddFirstShelf;
 
   /// Estado vacío de libros en una estantería
   ///
@@ -1157,8 +1169,14 @@ abstract class AppLocalizations {
   /// Subtítulo del estado vacío de categorías
   ///
   /// In es, this message translates to:
-  /// **'Pulsa + para añadir tu primera categoría \n O edita un libro para crearla'**
+  /// **'Las categorías te ayudan a encontrar libros y a construir un mapa mental de tu biblioteca'**
   String get tagNoneSubtitle;
+
+  /// Texto del botón de acción en el estado vacío de las categorías
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva categoría'**
+  String get categoriesAddFirst;
 
   /// Botón de nueva categoría
   ///
@@ -1205,8 +1223,14 @@ abstract class AppLocalizations {
   /// Subtítulo del estado vacío de sellos
   ///
   /// In es, this message translates to:
-  /// **'Pulsa + para añadir tu primer sello'**
+  /// **'Agrupa tus libros por editoriales o sus sellos'**
   String get imprintNoneSubtitle;
+
+  /// Texto del botón de acción en el estado vacío de los sellos
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir sello'**
+  String get imprintsAddFirst;
 
   /// Botón de nuevo sello
   ///
@@ -1283,8 +1307,14 @@ abstract class AppLocalizations {
   /// Subtítulo del estado vacío de colecciones
   ///
   /// In es, this message translates to:
-  /// **'Pulsa + para añadir tu primera colección \n O edita un libro para crearla'**
+  /// **'Crea colecciones y organiza tus libros'**
   String get collectionNoneSubtitle;
+
+  /// Texto del botón de acción en el estado vacío de las colecciones
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva colección'**
+  String get collectionsAddFirst;
 
   /// Título del diálogo de eliminar colección
   ///
@@ -1891,6 +1921,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{count, plural, =1{1 filtro activo} other{{count} filtros activos}}'**
   String searchActiveFilters(int count);
+
+  /// No description provided for @searchSaveAsShelf.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar como estantería'**
+  String get searchSaveAsShelf;
+
+  /// No description provided for @shelfShowInLibrary.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar en biblioteca'**
+  String get shelfShowInLibrary;
 
   /// Botón para limpiar todos los filtros de búsqueda
   ///

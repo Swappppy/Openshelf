@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/database.dart';
+import '../models/tag_type.dart';
 import '../controllers/books_controller.dart';
 import '../controllers/database_provider.dart';
 import '../controllers/display_preferences_controller.dart';
@@ -27,6 +28,14 @@ class ImprintsList extends ConsumerWidget {
             icon: Icons.business_outlined,
             message: context.l10n.imprintNone,
             subtitle: context.l10n.imprintNoneSubtitle,
+            actionLabel: context.l10n.imprintsAddFirst,
+            onActionPressed: () => showTagFormDialog(
+              context, 
+              ref, 
+              title: context.l10n.imprintNewDialogTitle, 
+              type: TagType.imprint,
+            ),
+            accentColor: Colors.deepPurple,
           );
         }
         final p = ref.watch(displayPreferencesProvider);

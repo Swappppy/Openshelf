@@ -1,54 +1,204 @@
 import 'package:flutter/material.dart';
+import 'bookshelf_icon.dart';
 
-/// A reusable widget for displaying empty states across the app.
-class OsEmptyState extends StatelessWidget {
-  final IconData icon;
+/// A redesigned reusable widget for displaying empty states across the app,
+/// matching the v1.0 premium aesthetic with glowing containers, breathing animations,
+/// and integrated actions.
+class OsEmptyState extends StatefulWidget {
+  final Widget? iconWidget; // Custom widget for icon (like the app logo)
+  final IconData? icon;
   final String message;
   final String? subtitle;
+  final String? actionLabel;
+  final VoidCallback? onActionPressed;
+  final Color? accentColor;
 
   const OsEmptyState({
     super.key,
-    required this.icon,
+    this.iconWidget,
+    this.icon,
     required this.message,
     this.subtitle,
+    this.actionLabel,
+    this.onActionPressed,
+    this.accentColor,
+  });
+
+  @override
+  State<OsEmptyState> createState() => _OsEmptyStateState();
+}
+
+class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _floatingAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800), // Faster breathing
+    )..repeat(reverse: true);
+
+    _floatingAnimation = Tween<double>(begin: 0, end: 8).animate( // Less space (8px instead of 15px)
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final effectiveAccentColor = widget.accentColor ?? colorScheme.primary;
+
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        children: [
+          const Spacer(flex: 3), // Slightly higher position
+          
+          AnimatedBuilder(
+            animation: _floatingAnimation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(0, -_floatingAnimation.value),
+                child: child,
+              );
+            },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Larger soft glow behind (The Aura)
+                Container(
+                  width: 260,
+                  height: 260,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        effectiveAccentColor.withValues(alpha: 0.25),
+                        effectiveAccentColor.withValues(alpha: 0.1),
+                        effectiveAccentColor.withValues(alpha: 0.02),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.3, 0.6, 1.0],
+                    ),
+                  ),
+                ),
+                
+                // Main Icon Container
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    color: theme.brightness == Brightness.dark 
+                        ? Colors.black.withValues(alpha: 0.4) 
+                        : Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(
+                      color: effectiveAccentColor.withValues(alpha: 0.4), // Slightly more visible border
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: effectiveAccentColor.withValues(alpha: 0.15),
+                        blurRadius: 25,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: widget.iconWidget ?? Icon(
+                      widget.icon,
+                      size: 48,
+                      color: effectiveAccentColor, // Raw accent color
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 32), // Reduced spacing to keep text higher
+          
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              children: [
+                // Title
+                Text(
+                  widget.message,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Serif',
+                  ),
+                ),
+                
+                if (widget.subtitle != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.subtitle!,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      height: 1.4,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+                
+                if (widget.actionLabel != null && widget.onActionPressed != null) ...[
+                  const SizedBox(height: 40), // Slightly reduced spacing
+                  FilledButton.icon(
+                    onPressed: widget.onActionPressed,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(widget.actionLabel!),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: effectiveAccentColor, // Raw accent color
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 10,
+                      shadowColor: effectiveAccentColor.withValues(alpha: 0.4),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const Spacer(flex: 5), // More bottom weight to lift everything up
+        ],
+      ),
+    );
+  }
+}
+
+/// A custom widget that draws the Openshelf logo using the [BookshelfIcon] painter style.
+/// This ensures it's an exact match of the app's visual identity.
+class OpenshelfLogoIcon extends StatelessWidget {
+  final double size;
+  final Color color;
+
+  const OpenshelfLogoIcon({
+    super.key,
+    required this.size,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Center(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 80,
-                color: colorScheme.outline,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  subtitle!,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.outline,
-                      ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
+    return BookshelfIcon(
+      size: size,
+      accentColor: color, // Ensure raw color is passed
     );
   }
 }

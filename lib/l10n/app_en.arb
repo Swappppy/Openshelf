@@ -37,8 +37,13 @@
   "libraryEmpty": "Your library is empty",
   "@libraryEmpty": { "description": "Empty library state" },
 
-  "libraryEmptyHint": "Tap + to add your first book",
+  "libraryEmptyHint": "Every great reader started with a first book. What will yours be?",
   "@libraryEmptyHint": { "description": "Hint when library is empty" },
+
+  "libraryAddFirstBook": "Add first book",
+  "@libraryAddFirstBook": {
+    "description": "Texto del botón de acción en el estado vacío de la biblioteca"
+  },
 
   "libraryNoResults": "No results",
   "@libraryNoResults": { "description": "No search results" },
@@ -423,7 +428,7 @@
   "shelvesSectionByStatus": "By status",
   "@shelvesSectionByStatus": { "description": "Status section header" },
 
-  "shelvesSectionMine": "My shelves",
+  "shelvesSectionMine": "Shelves",
   "@shelvesSectionMine": { "description": "Custom shelves section header" },
 
   "shelvesSectionManagement": "Management",
@@ -453,8 +458,12 @@
   "shelfEmpty": "You don't have any custom shelves",
   "@shelfEmpty": { "description": "Empty custom shelves state" },
 
-  "shelfEmptySubtitle": "Tap + to add your first shelf",
+  "shelfEmptySubtitle": "Organize your reads however you like: by genre, mood, or whatever comes to mind.",
   "@shelfEmptySubtitle": { "description": "Empty shelves state subtitle" },
+  "shelvesAddFirstShelf": "Create shelf",
+  "@shelvesAddFirstShelf": {
+    "description": "Action button text for empty shelves state"
+  },
 
   "shelfBooksEmpty": "No books in this shelf",
   "@shelfBooksEmpty": { "description": "Empty shelf books state" },
@@ -554,8 +563,12 @@
   "tagNone": "No categories yet",
   "@tagNone": { "description": "Empty categories state" },
 
-  "tagNoneSubtitle": "Tap + to add your first category \n Or edit a book to create it",
+  "tagNoneSubtitle": "Categories help you find the perfect book based on how you feel.",
   "@tagNoneSubtitle": { "description": "Empty categories state subtitle" },
+  "categoriesAddFirst": "New category",
+  "@categoriesAddFirst": {
+    "description": "Action button text for empty categories state"
+  },
 
   "tagNew": "New category",
   "@tagNew": { "description": "New category button" },
@@ -581,8 +594,12 @@
   "imprintNone": "No imprints yet",
   "@imprintNone": { "description": "Empty imprints state" },
 
-  "imprintNoneSubtitle": "Tap + to add your first imprint",
+  "imprintNoneSubtitle": "Group your books by publisher to discover your favorites.",
   "@imprintNoneSubtitle": { "description": "Empty imprints state subtitle" },
+  "imprintsAddFirst": "Add imprint",
+  "@imprintsAddFirst": {
+    "description": "Action button text for empty imprints state"
+  },
 
   "imprintNew": "New imprint",
   "@imprintNew": { "description": "New imprint button" },
@@ -623,8 +640,12 @@
   "collectionNone": "No collections yet",
   "@collectionNone": { "description": "Empty collections state" },
 
-  "collectionNoneSubtitle": "Tap + to add your first collection \n Or edit a book to create it",
+  "collectionNoneSubtitle": "Create themed collections: sagas, reading challenges, wishlists...",
   "@collectionNoneSubtitle": { "description": "Empty collections state subtitle" },
+  "collectionsAddFirst": "New collection",
+  "@collectionsAddFirst": {
+    "description": "Action button text for empty collections state"
+  },
 
   "collectionDeleteTitle": "Delete collection",
   "@collectionDeleteTitle": { "description": "Delete collection title" },
@@ -913,6 +934,9 @@
   "@searchActiveFilters": {
     "placeholders": { "count": { "type": "int" } }
   },
+
+  "searchSaveAsShelf": "Save as shelf",
+  "shelfShowInLibrary": "Show in library",
 
   "searchClearAll": "Clear all",
   "@searchClearAll": { "description": "Button to clear all search filters" },

@@ -100,8 +100,8 @@ class DisplaySettingsMenu extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ReorderableListView(
+                    onReorderStart: (index) => HapticFeedback.mediumImpact(),
                     onReorderItem: (oldIndex, newIndex) {
-                      HapticFeedback.lightImpact();
                       controller.reorderFields(oldIndex, newIndex);
                     },
                     shrinkWrap: true,

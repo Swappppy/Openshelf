@@ -37,8 +37,13 @@
   "libraryEmpty": "Tu biblioteca está vacía",
   "@libraryEmpty": { "description": "Estado vacío de la biblioteca sin filtros" },
 
-  "libraryEmptyHint": "Pulsa + para añadir tu primer libro",
+  "libraryEmptyHint": "¿Cuál será tu primer libro?",
   "@libraryEmptyHint": { "description": "Pista cuando la biblioteca está vacía" },
+
+  "libraryAddFirstBook": "Añadir primer libro",
+  "@libraryAddFirstBook": {
+    "description": "Texto del botón de acción en el estado vacío de la biblioteca"
+  },
 
   "libraryNoResults": "Sin resultados",
   "@libraryNoResults": { "description": "Sin resultados con filtros activos" },
@@ -423,7 +428,7 @@
   "shelvesSectionByStatus": "Por estado",
   "@shelvesSectionByStatus": { "description": "Encabezado de sección por estado" },
 
-  "shelvesSectionMine": "Mis estanterías",
+  "shelvesSectionMine": "Estanterías",
   "@shelvesSectionMine": { "description": "Encabezado de sección de estanterías personalizadas" },
 
   "shelvesSectionManagement": "Gestión",
@@ -453,8 +458,12 @@
   "shelfEmpty": "No tienes estanterías personalizadas",
   "@shelfEmpty": { "description": "Estado vacío de estanterías personalizadas" },
 
-  "shelfEmptySubtitle": "Pulsa + para añadir tu primera estantería",
+  "shelfEmptySubtitle": "Organiza tus lecturas como quieras",
   "@shelfEmptySubtitle": { "description": "Subtítulo del estado vacío de estanterías" },
+  "shelvesAddFirstShelf": "Crear estantería",
+  "@shelvesAddFirstShelf": {
+    "description": "Texto del botón de acción en el estado vacío de las estanterías"
+  },
 
   "shelfBooksEmpty": "Sin libros en esta estantería",
   "@shelfBooksEmpty": { "description": "Estado vacío de libros en una estantería" },
@@ -554,8 +563,12 @@
   "tagNone": "No hay categorías todavía",
   "@tagNone": { "description": "Estado vacío de categorías" },
 
-  "tagNoneSubtitle": "Pulsa + para añadir tu primera categoría \n O edita un libro para crearla",
+  "tagNoneSubtitle": "Las categorías te ayudan a encontrar libros y a construir un mapa mental de tu biblioteca",
   "@tagNoneSubtitle": { "description": "Subtítulo del estado vacío de categorías" },
+  "categoriesAddFirst": "Nueva categoría",
+  "@categoriesAddFirst": {
+    "description": "Texto del botón de acción en el estado vacío de las categorías"
+  },
 
   "tagNew": "Nueva categoría",
   "@tagNew": { "description": "Botón de nueva categoría" },
@@ -581,8 +594,12 @@
   "imprintNone": "No hay sellos todavía",
   "@imprintNone": { "description": "Estado vacío de sellos editoriales" },
 
-  "imprintNoneSubtitle": "Pulsa + para añadir tu primer sello",
+  "imprintNoneSubtitle": "Agrupa tus libros por editoriales o sus sellos",
   "@imprintNoneSubtitle": { "description": "Subtítulo del estado vacío de sellos" },
+  "imprintsAddFirst": "Añadir sello",
+  "@imprintsAddFirst": {
+    "description": "Texto del botón de acción en el estado vacío de los sellos"
+  },
 
   "imprintNew": "Nuevo sello",
   "@imprintNew": { "description": "Botón de nuevo sello" },
@@ -623,8 +640,12 @@
   "collectionNone": "No hay colecciones todavía",
   "@collectionNone": { "description": "Estado vacío de colecciones" },
 
-  "collectionNoneSubtitle": "Pulsa + para añadir tu primera colección \n O edita un libro para crearla",
+  "collectionNoneSubtitle": "Crea colecciones y organiza tus libros",
   "@collectionNoneSubtitle": { "description": "Subtítulo del estado vacío de colecciones" },
+  "collectionsAddFirst": "Nueva colección",
+  "@collectionsAddFirst": {
+    "description": "Texto del botón de acción en el estado vacío de las colecciones"
+  },
 
   "collectionDeleteTitle": "Eliminar colección",
   "@collectionDeleteTitle": { "description": "Título del diálogo de eliminar colección" },
@@ -913,6 +934,9 @@
   "@searchActiveFilters": {
     "placeholders": { "count": { "type": "int" } }
   },
+
+  "searchSaveAsShelf": "Guardar como estantería",
+  "shelfShowInLibrary": "Mostrar en biblioteca",
 
   "searchClearAll": "Limpiar todo",
   "@searchClearAll": { "description": "Botón para limpiar todos los filtros de búsqueda" },

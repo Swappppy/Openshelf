@@ -10,6 +10,7 @@ import '../views/book_detail/book_detail_view.dart';
 import '../l10n/l10n_extension.dart';
 import 'book_list_tile.dart';
 import 'book_grid_card.dart';
+import 'os_empty_state.dart';
 
 /// A reusable widget that displays a list or grid of books based on user preferences.
 /// Handles empty states, loading, and sorting internally or via provided providers.
@@ -19,6 +20,7 @@ class BooksListOrGrid extends ConsumerWidget {
   final SearchFilters? filters;
   final bool isCollection;
   final String? emptyMessage;
+  final VoidCallback? onAddPressed;
 
   const BooksListOrGrid({
     super.key,
@@ -27,6 +29,7 @@ class BooksListOrGrid extends ConsumerWidget {
     this.filters,
     this.isCollection = false,
     this.emptyMessage,
+    this.onAddPressed,
   });
 
   @override
@@ -42,33 +45,36 @@ class BooksListOrGrid extends ConsumerWidget {
       data: (bookList) {
         if (bookList.isEmpty) {
           final isSearching = filters != null && (!filters!.isEmpty || filters!.status != null);
-          return Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isSearching ? Icons.search_off : Icons.menu_book,
-                    size: 80,
-                    color: colorScheme.outline,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    emptyMessage ?? (isSearching ? context.l10n.libraryNoResults : context.l10n.libraryEmpty),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  if (!isSearching) ...[
-                    const SizedBox(height: 8),
+          
+          if (isSearching) {
+            return Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.search_off,
+                      size: 80,
+                      color: colorScheme.outline,
+                    ),
+                    const SizedBox(height: 16),
                     Text(
-                      context.l10n.libraryEmptyHint,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.outline,
-                      ),
+                      context.l10n.libraryNoResults,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
+            );
+          }
+
+          return OsEmptyState(
+            iconWidget: OpenshelfLogoIcon(size: 70, color: colorScheme.primary), // Larger to fit the custom paint well
+            message: emptyMessage ?? context.l10n.libraryEmpty,
+            subtitle: context.l10n.libraryEmptyHint,
+            actionLabel: context.l10n.libraryAddFirstBook,
+            onActionPressed: onAddPressed,
+            accentColor: colorScheme.primary,
           );
         }
 

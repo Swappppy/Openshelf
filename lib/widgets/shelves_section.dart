@@ -28,6 +28,21 @@ class ShelvesSection extends ConsumerWidget {
             icon: Icons.bookmarks_outlined,
             message: context.l10n.shelfEmpty,
             subtitle: context.l10n.shelfEmptySubtitle,
+            actionLabel: context.l10n.shelvesAddFirstShelf,
+            accentColor: Theme.of(context).colorScheme.primary,
+            onActionPressed: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              builder: (ctx) => ShelfFormSheet(
+                onSave: (shelf) async {
+                  await ref.read(databaseProvider).insertShelf(shelf);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+              ),
+            ),
           );
         }
 

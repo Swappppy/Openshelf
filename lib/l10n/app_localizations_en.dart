@@ -42,7 +42,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get libraryEmpty => 'Your library is empty';
 
   @override
-  String get libraryEmptyHint => 'Tap + to add your first book';
+  String get libraryEmptyHint =>
+      'Every great reader started with a first book. What will yours be?';
+
+  @override
+  String get libraryAddFirstBook => 'Add first book';
 
   @override
   String get libraryNoResults => 'No results';
@@ -424,7 +428,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelvesSectionByStatus => 'By status';
 
   @override
-  String get shelvesSectionMine => 'My shelves';
+  String get shelvesSectionMine => 'Shelves';
 
   @override
   String get shelvesSectionManagement => 'Management';
@@ -454,7 +458,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelfEmpty => 'You don\'t have any custom shelves';
 
   @override
-  String get shelfEmptySubtitle => 'Tap + to add your first shelf';
+  String get shelfEmptySubtitle =>
+      'Organize your reads however you like: by genre, mood, or whatever comes to mind.';
+
+  @override
+  String get shelvesAddFirstShelf => 'Create shelf';
 
   @override
   String get shelfBooksEmpty => 'No books in this shelf';
@@ -557,7 +565,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tagNoneSubtitle =>
-      'Tap + to add your first category \n Or edit a book to create it';
+      'Categories help you find the perfect book based on how you feel.';
+
+  @override
+  String get categoriesAddFirst => 'New category';
 
   @override
   String get tagNew => 'New category';
@@ -583,7 +594,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imprintNone => 'No imprints yet';
 
   @override
-  String get imprintNoneSubtitle => 'Tap + to add your first imprint';
+  String get imprintNoneSubtitle =>
+      'Group your books by publisher to discover your favorites.';
+
+  @override
+  String get imprintsAddFirst => 'Add imprint';
 
   @override
   String get imprintNew => 'New imprint';
@@ -625,7 +640,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get collectionNoneSubtitle =>
-      'Tap + to add your first collection \n Or edit a book to create it';
+      'Create themed collections: sagas, reading challenges, wishlists...';
+
+  @override
+  String get collectionsAddFirst => 'New collection';
 
   @override
   String get collectionDeleteTitle => 'Delete collection';
@@ -979,6 +997,12 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get searchSaveAsShelf => 'Save as shelf';
+
+  @override
+  String get shelfShowInLibrary => 'Show in library';
 
   @override
   String get searchClearAll => 'Clear all';

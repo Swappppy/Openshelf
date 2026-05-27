@@ -11,8 +11,9 @@ import '../models/tag_type.dart';
 class SearchPanel extends ConsumerStatefulWidget {
   final SearchFilters filters;
   final ValueChanged<SearchFilters> onChanged;
+  final VoidCallback? onSaveAsShelf;
 
-  const SearchPanel({super.key, required this.filters, required this.onChanged});
+  const SearchPanel({super.key, required this.filters, required this.onChanged, this.onSaveAsShelf});
 
   @override
   ConsumerState<SearchPanel> createState() => _SearchPanelState();
@@ -278,26 +279,48 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    context.l10n.searchActiveFilters(_activeFiltersCount()),
-                    style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 10),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () {
-                      _authorCtrl.clear();
-                      _publisherCtrl.clear();
-                      _isbnCtrl.clear();
-                      _langCtrl.clear();
-                      widget.onChanged(const SearchFilters());
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero, 
-                      minimumSize: const Size(50, 30),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  Expanded(
+                    child: Text(
+                      context.l10n.searchActiveFilters(_activeFiltersCount()),
+                      style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 10),
                     ),
-                    child: Text(context.l10n.searchClearAll, style: const TextStyle(fontSize: 11, color: Colors.redAccent)),
+                  ),
+                  if (widget.onSaveAsShelf != null)
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: TextButton(
+                          onPressed: widget.onSaveAsShelf,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            minimumSize: const Size(50, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(context.l10n.searchSaveAsShelf, style: const TextStyle(fontSize: 11)),
+                        ),
+                      ),
+                    ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          _authorCtrl.clear();
+                          _publisherCtrl.clear();
+                          _isbnCtrl.clear();
+                          _langCtrl.clear();
+                          widget.onChanged(const SearchFilters());
+                        },
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero, 
+                          minimumSize: const Size(50, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(context.l10n.searchClearAll, style: const TextStyle(fontSize: 11, color: Colors.redAccent)),
+                      ),
+                    ),
                   ),
                 ],
               ),

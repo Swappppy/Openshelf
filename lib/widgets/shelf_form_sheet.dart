@@ -4,9 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show Value;
 import '../models/shelf.dart';
 import '../models/tag_type.dart';
+import '../models/search_filters.dart';
 import '../services/database.dart';
 import '../controllers/books_controller.dart';
 import '../controllers/database_provider.dart';
+import '../controllers/search_filters_controller.dart';
+import '../controllers/library_navigation_controller.dart';
 import '../l10n/l10n_extension.dart';
 import 'tag_chip.dart';
 import 'filter_grid_box.dart';
@@ -14,9 +17,10 @@ import 'entity_selector_grid.dart';
 
 class ShelfFormSheet extends ConsumerStatefulWidget {
   final Shelf? existing;
+  final SearchFilters? initialFilters;
   final Future<void> Function(ShelvesCompanion) onSave;
   
-  const ShelfFormSheet({super.key, this.existing, required this.onSave});
+  const ShelfFormSheet({super.key, this.existing, this.initialFilters, required this.onSave});
   
   @override
   ConsumerState<ShelfFormSheet> createState() => _ShelfFormSheetState();
@@ -42,31 +46,60 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
   void initState() {
     super.initState();
     final s = widget.existing;
+    final f = widget.initialFilters;
+
     _nameCtrl = TextEditingController(text: s?.name ?? '');
-    _queryCtrl = TextEditingController(text: s?.filterQuery ?? '');
+    _queryCtrl = TextEditingController(text: s?.filterQuery ?? f?.query ?? '');
     _subtitleCtrl = TextEditingController(text: s?.filterSubtitle ?? '');
-    _authorCtrl = TextEditingController(text: s?.filterAuthor ?? '');
-    _publisherCtrl = TextEditingController(text: s?.filterPublisher ?? '');
-    _isbnCtrl = TextEditingController(text: s?.filterIsbn ?? '');
-    _langCtrl = TextEditingController(text: s?.filterLanguage ?? '');
-    _collectionCtrl = TextEditingController(text: s?.filterCollection ?? '');
+    _authorCtrl = TextEditingController(text: s?.filterAuthor ?? f?.author ?? '');
+    _publisherCtrl = TextEditingController(text: s?.filterPublisher ?? f?.publisher ?? '');
+    _isbnCtrl = TextEditingController(text: s?.filterIsbn ?? f?.isbn ?? '');
+    _langCtrl = TextEditingController(text: s?.filterLanguage ?? f?.language ?? '');
+    _collectionCtrl = TextEditingController(text: s?.filterCollection ?? f?.collection ?? '');
     _tabController = TabController(length: 5, vsync: this);
     
     if (s?.filterStatus != null) {
       _status = ReadingStatus.values.where((r) => r.name == s!.filterStatus).firstOrNull;
+    } else if (f?.status != null) {
+      _status = f!.status;
     }
-    final filterTagIds = s?.filterTagIds;
-    if (filterTagIds != null) {
-      _loadTags(filterTagIds);
+
+    if (s?.filterTagIds != null) {
+      _loadTags(s!.filterTagIds!);
+    } else if (f?.tags != null && f!.tags.isNotEmpty) {
+      _selectedTags = List.from(f.tags);
     }
-    final filterImprintIds = s?.filterImprintIds;
-    if (filterImprintIds != null) {
-      _loadImprints(filterImprintIds);
+
+    if (s?.filterImprintIds != null) {
+      _loadImprints(s!.filterImprintIds!);
+    } else if (f?.imprints != null && f!.imprints.isNotEmpty) {
+      _selectedImprints = List.from(f.imprints);
     }
-    final filterCollectionIds = s?.filterCollectionIds;
-    if (filterCollectionIds != null) {
-      _loadCollections(filterCollectionIds);
+
+    if (s?.filterCollectionIds != null) {
+      _loadCollections(s!.filterCollectionIds!);
+    } else if (f?.collections != null && f!.collections.isNotEmpty) {
+      _selectedCollections = List.from(f.collections);
     }
+  }
+
+  void _showInLibrary() {
+    final filters = SearchFilters(
+      query: _queryCtrl.text.trim(),
+      author: _authorCtrl.text.trim(),
+      publisher: _publisherCtrl.text.trim(),
+      isbn: _isbnCtrl.text.trim(),
+      language: _langCtrl.text.trim(),
+      collection: _collectionCtrl.text.trim(),
+      status: _status,
+      tags: _selectedTags,
+      imprints: _selectedImprints,
+      collections: _selectedCollections,
+    );
+
+    ref.read(searchFiltersProvider.notifier).setFilters(filters);
+    ref.read(libraryNavigationProvider.notifier).setIndex(0);
+    Navigator.pop(context);
   }
 
   Future<void> _loadTags(String json) async {
@@ -296,6 +329,14 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: _showInLibrary,
+                        icon: const Icon(Icons.search, size: 18),
+                        label: Text(context.l10n.shelfShowInLibrary),
                       ),
                     ),
                     const SizedBox(height: 32),

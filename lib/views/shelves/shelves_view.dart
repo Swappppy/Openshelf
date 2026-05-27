@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/tag_type.dart';
+import '../../controllers/books_controller.dart';
 import '../../controllers/database_provider.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../widgets/scrollable_selection_bar.dart';
@@ -16,6 +17,7 @@ import '../../widgets/shelf_form_sheet.dart';
 import '../../widgets/tag_form_dialog.dart';
 import '../../widgets/library_app_bar.dart';
 import '../../controllers/search_filters_controller.dart';
+import '../../controllers/shelf_creation_buffer_controller.dart';
 import '../settings/settings_view.dart';
 
 enum _ShelvesTab { shelves, categories, imprints, collections }
@@ -39,6 +41,15 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
     _activeTab = _ShelvesTab.values[savedIndex.clamp(0, _ShelvesTab.values.length - 1)];
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+
+    // Handle buffered filters from Search
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final buffered = ref.read(shelfCreationBufferProvider);
+      if (buffered != null) {
+        setState(() => _activeTab = _ShelvesTab.shelves);
+        _showCreateShelfDialog();
+      }
+    });
   }
 
   @override
@@ -53,6 +64,8 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
   }
 
   void _showCreateShelfDialog() {
+    final buffered = ref.read(shelfCreationBufferProvider);
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -60,12 +73,19 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => ShelfFormSheet(
+        initialFilters: buffered,
         onSave: (shelf) async {
           await ref.read(databaseProvider).insertShelf(shelf);
-          if (ctx.mounted) Navigator.pop(ctx);
+          if (ctx.mounted) {
+            ref.read(shelfCreationBufferProvider.notifier).clear();
+            Navigator.pop(ctx);
+          }
         },
       ),
-    );
+    ).then((_) {
+      // Clear buffer if dismissed without saving
+      ref.read(shelfCreationBufferProvider.notifier).clear();
+    });
   }
 
   void _showAddEntityDialog() {
@@ -166,6 +186,27 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final isFabVisible = ref.watch(fabVisibilityProvider);
 
+    final shelvesAsync = ref.watch(allShelvesWithStatsProvider);
+    final tagsAsync = ref.watch(allTagsWithCountsProvider);
+    final imprintsAsync = ref.watch(allImprintsWithCountsProvider);
+    final collectionsAsync = ref.watch(allCollectionsWithCountsProvider);
+
+    bool isEmpty = false;
+    switch (_activeTab) {
+      case _ShelvesTab.shelves:
+        isEmpty = shelvesAsync.maybeWhen(data: (l) => l.isEmpty, orElse: () => false);
+        break;
+      case _ShelvesTab.categories:
+        isEmpty = tagsAsync.maybeWhen(data: (l) => l.isEmpty, orElse: () => false);
+        break;
+      case _ShelvesTab.imprints:
+        isEmpty = imprintsAsync.maybeWhen(data: (l) => l.isEmpty, orElse: () => false);
+        break;
+      case _ShelvesTab.collections:
+        isEmpty = collectionsAsync.maybeWhen(data: (l) => l.isEmpty, orElse: () => false);
+        break;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -211,7 +252,7 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
           ),
         ],
       ),
-      floatingActionButton: AddEntityFab(
+      floatingActionButton: isEmpty ? null : AddEntityFab(
         visible: isFabVisible,
         onPressed: _activeTab == _ShelvesTab.shelves ? _showCreateShelfDialog : _showAddEntityDialog,
       ),

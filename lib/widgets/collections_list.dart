@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/database.dart';
+import '../models/tag_type.dart';
 import '../controllers/books_controller.dart';
 import '../controllers/database_provider.dart';
 import '../controllers/display_preferences_controller.dart';
@@ -25,6 +26,14 @@ class CollectionsList extends ConsumerWidget {
             icon: Icons.collections_bookmark_outlined,
             message: context.l10n.collectionNone,
             subtitle: context.l10n.collectionNoneSubtitle,
+            actionLabel: context.l10n.collectionsAddFirst,
+            onActionPressed: () => showTagFormDialog(
+              context, 
+              ref, 
+              title: context.l10n.managementCollections, 
+              type: TagType.collection,
+            ),
+            accentColor: Colors.teal,
           );
         }
         final p = ref.watch(displayPreferencesProvider);

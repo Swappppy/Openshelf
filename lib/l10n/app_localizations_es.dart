@@ -42,7 +42,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get libraryEmpty => 'Tu biblioteca está vacía';
 
   @override
-  String get libraryEmptyHint => 'Pulsa + para añadir tu primer libro';
+  String get libraryEmptyHint => '¿Cuál será tu primer libro?';
+
+  @override
+  String get libraryAddFirstBook => 'Añadir primer libro';
 
   @override
   String get libraryNoResults => 'Sin resultados';
@@ -424,7 +427,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shelvesSectionByStatus => 'Por estado';
 
   @override
-  String get shelvesSectionMine => 'Mis estanterías';
+  String get shelvesSectionMine => 'Estanterías';
 
   @override
   String get shelvesSectionManagement => 'Gestión';
@@ -454,7 +457,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shelfEmpty => 'No tienes estanterías personalizadas';
 
   @override
-  String get shelfEmptySubtitle => 'Pulsa + para añadir tu primera estantería';
+  String get shelfEmptySubtitle => 'Organiza tus lecturas como quieras';
+
+  @override
+  String get shelvesAddFirstShelf => 'Crear estantería';
 
   @override
   String get shelfBooksEmpty => 'Sin libros en esta estantería';
@@ -557,7 +563,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get tagNoneSubtitle =>
-      'Pulsa + para añadir tu primera categoría \n O edita un libro para crearla';
+      'Las categorías te ayudan a encontrar libros y a construir un mapa mental de tu biblioteca';
+
+  @override
+  String get categoriesAddFirst => 'Nueva categoría';
 
   @override
   String get tagNew => 'Nueva categoría';
@@ -583,7 +592,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get imprintNone => 'No hay sellos todavía';
 
   @override
-  String get imprintNoneSubtitle => 'Pulsa + para añadir tu primer sello';
+  String get imprintNoneSubtitle =>
+      'Agrupa tus libros por editoriales o sus sellos';
+
+  @override
+  String get imprintsAddFirst => 'Añadir sello';
 
   @override
   String get imprintNew => 'Nuevo sello';
@@ -624,8 +637,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get collectionNone => 'No hay colecciones todavía';
 
   @override
-  String get collectionNoneSubtitle =>
-      'Pulsa + para añadir tu primera colección \n O edita un libro para crearla';
+  String get collectionNoneSubtitle => 'Crea colecciones y organiza tus libros';
+
+  @override
+  String get collectionsAddFirst => 'Nueva colección';
 
   @override
   String get collectionDeleteTitle => 'Eliminar colección';
@@ -988,6 +1003,12 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get searchSaveAsShelf => 'Guardar como estantería';
+
+  @override
+  String get shelfShowInLibrary => 'Mostrar en biblioteca';
 
   @override
   String get searchClearAll => 'Limpiar todo';
