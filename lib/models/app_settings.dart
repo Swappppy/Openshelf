@@ -20,6 +20,7 @@ class AppSettings {
   final bool compressImages;
   final bool dynamicIconEnabled;
   final String? activeIconName;
+  final bool hasSeenOnboarding;
 
   const AppSettings({
     this.themeMode = ThemeMode.system,
@@ -38,6 +39,7 @@ class AppSettings {
     this.compressImages = true,
     this.dynamicIconEnabled = false,
     this.activeIconName,
+    this.hasSeenOnboarding = false,
   });
 
   AppSettings copyWith({
@@ -56,6 +58,7 @@ class AppSettings {
     bool? dynamicIconEnabled,
     String? activeIconName,
     bool clearActiveIconName = false,
+    bool? hasSeenOnboarding,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -70,6 +73,7 @@ class AppSettings {
       compressImages: compressImages ?? this.compressImages,
       dynamicIconEnabled: dynamicIconEnabled ?? this.dynamicIconEnabled,
       activeIconName: clearActiveIconName ? null : (activeIconName ?? this.activeIconName),
+      hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
     );
   }
 }

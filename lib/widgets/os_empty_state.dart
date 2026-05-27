@@ -10,6 +10,7 @@ class OsEmptyState extends StatefulWidget {
   final String message;
   final String? subtitle;
   final String? actionLabel;
+  final IconData? actionIcon; // Customizable action icon
   final VoidCallback? onActionPressed;
   final Color? accentColor;
 
@@ -20,6 +21,7 @@ class OsEmptyState extends StatefulWidget {
     required this.message,
     this.subtitle,
     this.actionLabel,
+    this.actionIcon,
     this.onActionPressed,
     this.accentColor,
   });
@@ -37,10 +39,10 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800), // Faster breathing
+      duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
 
-    _floatingAnimation = Tween<double>(begin: 0, end: 8).animate( // Less space (8px instead of 15px)
+    _floatingAnimation = Tween<double>(begin: 0, end: 8).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -61,7 +63,7 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
       width: double.infinity,
       child: Column(
         children: [
-          const Spacer(flex: 3), // Slightly higher position
+          const Spacer(flex: 3), 
           
           AnimatedBuilder(
             animation: _floatingAnimation,
@@ -74,7 +76,7 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Larger soft glow behind (The Aura)
+                // Aura
                 Container(
                   width: 260,
                   height: 260,
@@ -92,7 +94,7 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
                   ),
                 ),
                 
-                // Main Icon Container
+                // Icon Container
                 Container(
                   width: 110,
                   height: 110,
@@ -102,7 +104,7 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
                         : Colors.white.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(28),
                     border: Border.all(
-                      color: effectiveAccentColor.withValues(alpha: 0.4), // Slightly more visible border
+                      color: effectiveAccentColor.withValues(alpha: 0.4),
                       width: 1.5,
                     ),
                     boxShadow: [
@@ -117,7 +119,7 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
                     child: widget.iconWidget ?? Icon(
                       widget.icon,
                       size: 48,
-                      color: effectiveAccentColor, // Raw accent color
+                      color: effectiveAccentColor,
                     ),
                   ),
                 ),
@@ -125,13 +127,12 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
             ),
           ),
           
-          const SizedBox(height: 32), // Reduced spacing to keep text higher
+          const SizedBox(height: 32),
           
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
               children: [
-                // Title
                 Text(
                   widget.message,
                   textAlign: TextAlign.center,
@@ -155,13 +156,13 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
                 ],
                 
                 if (widget.actionLabel != null && widget.onActionPressed != null) ...[
-                  const SizedBox(height: 40), // Slightly reduced spacing
+                  const SizedBox(height: 40),
                   FilledButton.icon(
                     onPressed: widget.onActionPressed,
-                    icon: const Icon(Icons.add, size: 18),
+                    icon: Icon(widget.actionIcon ?? Icons.add, size: 18),
                     label: Text(widget.actionLabel!),
                     style: FilledButton.styleFrom(
-                      backgroundColor: effectiveAccentColor, // Raw accent color
+                      backgroundColor: effectiveAccentColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -175,7 +176,7 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
               ],
             ),
           ),
-          const Spacer(flex: 5), // More bottom weight to lift everything up
+          const Spacer(flex: 5),
         ],
       ),
     );
@@ -183,7 +184,6 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
 }
 
 /// A custom widget that draws the Openshelf logo using the [BookshelfIcon] painter style.
-/// This ensures it's an exact match of the app's visual identity.
 class OpenshelfLogoIcon extends StatelessWidget {
   final double size;
   final Color color;
@@ -198,7 +198,7 @@ class OpenshelfLogoIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return BookshelfIcon(
       size: size,
-      accentColor: color, // Ensure raw color is passed
+      accentColor: color,
     );
   }
 }

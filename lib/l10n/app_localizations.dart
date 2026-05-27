@@ -1328,6 +1328,96 @@ abstract class AppLocalizations {
   /// **'¿Eliminar \"{name}\"?'**
   String collectionDeleteConfirm(String name);
 
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Bienvenido a Openshelf'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu biblioteca personal, reimaginada'**
+  String get onboardingWelcomeSub;
+
+  /// No description provided for @onboardingOrganizeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Organiza tu mundo'**
+  String get onboardingOrganizeTitle;
+
+  /// No description provided for @onboardingOrganizeSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea estanterías inteligentes y colecciones temáticas'**
+  String get onboardingOrganizeSub;
+
+  /// No description provided for @onboardingProgressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sigue tu progreso'**
+  String get onboardingProgressTitle;
+
+  /// No description provided for @onboardingProgressSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Metas de lectura y estadísticas detalladas'**
+  String get onboardingProgressSub;
+
+  /// No description provided for @onboardingAddTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Añade al instante'**
+  String get onboardingAddTitle;
+
+  /// No description provided for @onboardingAddSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Escanea códigos de barras o busca en la nube'**
+  String get onboardingAddSub;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar ahora'**
+  String get onboardingStart;
+
+  /// No description provided for @settingsApplyIcon.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplicar cambio de icono'**
+  String get settingsApplyIcon;
+
+  /// No description provided for @settingsDynamicIcon.
+  ///
+  /// In es, this message translates to:
+  /// **'Icono de la app dinámico'**
+  String get settingsDynamicIcon;
+
+  /// No description provided for @settingsDynamicIconSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambia el icono de la pantalla de inicio para que coincida con el color elegido (La app se reiniciará)'**
+  String get settingsDynamicIconSub;
+
+  /// No description provided for @settingsLibraryColumns.
+  ///
+  /// In es, this message translates to:
+  /// **'Columnas en la biblioteca'**
+  String get settingsLibraryColumns;
+
+  /// No description provided for @settingsLibraryColumnsSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajusta el número de libros por fila en la vista de cuadrícula'**
+  String get settingsLibraryColumnsSub;
+
   /// Título de la pantalla de ajustes
   ///
   /// In es, this message translates to:

@@ -654,6 +654,54 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get onboardingWelcomeTitle => 'Welcome to Openshelf';
+
+  @override
+  String get onboardingWelcomeSub => 'Your personal library, reimagined';
+
+  @override
+  String get onboardingOrganizeTitle => 'Organize your world';
+
+  @override
+  String get onboardingOrganizeSub =>
+      'Create smart shelves and themed collections';
+
+  @override
+  String get onboardingProgressTitle => 'Track your progress';
+
+  @override
+  String get onboardingProgressSub => 'Reading goals and detailed statistics';
+
+  @override
+  String get onboardingAddTitle => 'Add instantly';
+
+  @override
+  String get onboardingAddSub => 'Scan barcodes or search in the cloud';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Start now';
+
+  @override
+  String get settingsApplyIcon => 'Apply icon change';
+
+  @override
+  String get settingsDynamicIcon => 'Dynamic app icon';
+
+  @override
+  String get settingsDynamicIconSub =>
+      'Changes the home screen icon to match the chosen color (App will restart)';
+
+  @override
+  String get settingsLibraryColumns => 'Library columns';
+
+  @override
+  String get settingsLibraryColumnsSub =>
+      'Adjust the number of books per row in grid view';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

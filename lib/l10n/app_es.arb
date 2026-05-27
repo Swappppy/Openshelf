@@ -656,6 +656,22 @@
     "placeholders": { "name": { "type": "String" } }
   },
 
+  "onboardingWelcomeTitle": "Bienvenido a Openshelf",
+  "onboardingWelcomeSub": "Tu biblioteca personal, reimaginada",
+  "onboardingOrganizeTitle": "Organiza tu mundo",
+  "onboardingOrganizeSub": "Crea estanterías inteligentes y colecciones temáticas",
+  "onboardingProgressTitle": "Sigue tu progreso",
+  "onboardingProgressSub": "Metas de lectura y estadísticas detalladas",
+  "onboardingAddTitle": "Añade al instante",
+  "onboardingAddSub": "Escanea códigos de barras o busca en la nube",
+  "onboardingNext": "Siguiente",
+  "onboardingStart": "Empezar ahora",
+
+  "settingsApplyIcon": "Aplicar cambio de icono",
+  "settingsDynamicIcon": "Icono de la app dinámico",
+  "settingsDynamicIconSub": "Cambia el icono de la pantalla de inicio para que coincida con el color elegido (La app se reiniciará)",
+  "settingsLibraryColumns": "Columnas en la biblioteca",
+  "settingsLibraryColumnsSub": "Ajusta el número de libros por fila en la vista de cuadrícula",
   "settingsTitle": "Ajustes",
   "@settingsTitle": { "description": "Título de la pantalla de ajustes" },
 

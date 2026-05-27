@@ -164,8 +164,8 @@ class AppearanceSection extends ConsumerWidget {
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   secondary: const Icon(Icons.star_outline),
-                  title: const Text("Icono de la app dinámico"),
-                  subtitle: const Text("Cambia el icono de la pantalla de inicio para que coincida con el color elegido (La app se reiniciará)"),
+                  title: Text(context.l10n.settingsDynamicIcon),
+                  subtitle: Text(context.l10n.settingsDynamicIconSub),
                   value: dynamicIconEnabled,
                   onChanged: (val) => controller.setDynamicIconEnabled(val),
                 ),
@@ -183,11 +183,11 @@ class AppearanceSection extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Columnas en la biblioteca",
+                Text(context.l10n.settingsLibraryColumns,
                     style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 4),
                 Text(
-                  "Ajusta el número de libros por fila en la vista de cuadrícula",
+                  context.l10n.settingsLibraryColumnsSub,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colorScheme.outline,
                   ),

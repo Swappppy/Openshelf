@@ -656,6 +656,22 @@
     "placeholders": { "name": { "type": "String" } }
   },
 
+  "onboardingWelcomeTitle": "Welcome to Openshelf",
+  "onboardingWelcomeSub": "Your personal library, reimagined",
+  "onboardingOrganizeTitle": "Organize your world",
+  "onboardingOrganizeSub": "Create smart shelves and themed collections",
+  "onboardingProgressTitle": "Track your progress",
+  "onboardingProgressSub": "Reading goals and detailed statistics",
+  "onboardingAddTitle": "Add instantly",
+  "onboardingAddSub": "Scan barcodes or search in the cloud",
+  "onboardingNext": "Next",
+  "onboardingStart": "Start now",
+
+  "settingsApplyIcon": "Apply icon change",
+  "settingsDynamicIcon": "Dynamic app icon",
+  "settingsDynamicIconSub": "Changes the home screen icon to match the chosen color (App will restart)",
+  "settingsLibraryColumns": "Library columns",
+  "settingsLibraryColumnsSub": "Adjust the number of books per row in grid view",
   "settingsTitle": "Settings",
   "@settingsTitle": { "description": "Settings screen title" },
 

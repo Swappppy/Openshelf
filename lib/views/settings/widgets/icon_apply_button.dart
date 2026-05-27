@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../models/app_icon_config.dart';
+import '../../../l10n/l10n_extension.dart';
 
 class IconApplyButton extends StatelessWidget {
   final Color currentColor;
@@ -25,7 +26,7 @@ class IconApplyButton extends StatelessWidget {
       child: FilledButton.icon(
         onPressed: onApply,
         icon: const Icon(Icons.published_with_changes),
-        label: const Text("Aplicar cambio de icono"),
+        label: Text(context.l10n.settingsApplyIcon),
         style: FilledButton.styleFrom(
           backgroundColor: currentColor,
           foregroundColor: currentColor.computeLuminance() > 0.5 ? Colors.black : Colors.white,

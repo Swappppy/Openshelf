@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/l10n_extension.dart';
 import 'theme/app_theme.dart';
+import 'views/onboarding/onboarding_view.dart';
 import 'views/library/library_view.dart';
 import 'controllers/app_settings_controller.dart';
 import 'controllers/shared_prefs_provider.dart';
@@ -100,7 +101,7 @@ class OpenshelfApp extends ConsumerWidget {
       locale: settings.locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const LibraryView(),
+      home: settings.hasSeenOnboarding ? const LibraryView() : const OnboardingView(),
     );
   }
 }

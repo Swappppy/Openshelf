@@ -17,6 +17,7 @@ class AppSettingsController extends Notifier<AppSettings> {
   static const _keyCompressImages = 'app_compress_images';
   static const _keyDynamicIconEnabled = 'app_dynamic_icon_enabled';
   static const _keyActiveIconName = 'app_active_icon_name';
+  static const _keyHasSeenOnboarding = 'app_has_seen_onboarding';
 
   @override
   AppSettings build() {
@@ -61,6 +62,7 @@ class AppSettingsController extends Notifier<AppSettings> {
     final compressImages = prefs.getBool(_keyCompressImages) ?? true;
     final dynamicIcon = prefs.getBool(_keyDynamicIconEnabled) ?? false;
     final activeIcon = prefs.getString(_keyActiveIconName);
+    final hasSeenOnboarding = prefs.getBool(_keyHasSeenOnboarding) ?? false;
 
     return AppSettings(
       themeMode: theme,
@@ -79,6 +81,7 @@ class AppSettingsController extends Notifier<AppSettings> {
       compressImages: compressImages,
       dynamicIconEnabled: dynamicIcon,
       activeIconName: activeIcon,
+      hasSeenOnboarding: hasSeenOnboarding,
     );
   }
 
@@ -166,6 +169,11 @@ class AppSettingsController extends Notifier<AppSettings> {
     } else {
       ref.read(sharedPrefsProvider).setString(_keyActiveIconName, name);
     }
+  }
+
+  void setHasSeenOnboarding(bool seen) {
+    state = state.copyWith(hasSeenOnboarding: seen);
+    ref.read(sharedPrefsProvider).setBool(_keyHasSeenOnboarding, seen);
   }
 }
 
