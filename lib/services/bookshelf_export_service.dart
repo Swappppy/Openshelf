@@ -19,16 +19,16 @@ class BookshelfExportService {
   ];
 
   Future<ExportResult> export() async {
-    final books = await _db.watchAllBooks().first;
+    final books = await _db.bookDao.watchAllBooks().first;
     final errors = <String>[];
     final rows = <List<String>>[_headers];
 
     for (final book in books) {
       try {
-        final tags = await _db.watchTagsForBook(book.id).first;
+        final tags = await _db.tagDao.watchTagsForBook(book.id).first;
         String? collectionName = book.collectionName;
         if (collectionName == null && book.collectionId != null) {
-          final collTag = await (_db.select(_db.tags)
+          final collTag = await (_db.tagDao.select(_db.tagDao.tags)
             ..where((t) => t.id.equals(book.collectionId!))).getSingleOrNull();
           collectionName = collTag?.name;
         }

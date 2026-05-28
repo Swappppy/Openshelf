@@ -8,6 +8,7 @@ import '../controllers/app_settings_controller.dart';
 import '../controllers/books_controller.dart';
 import '../views/book_detail/book_detail_view.dart';
 import '../l10n/l10n_extension.dart';
+import '../utils/book_sorting.dart';
 import 'book_list_tile.dart';
 import 'book_grid_card.dart';
 import 'os_empty_state.dart';
@@ -89,7 +90,7 @@ class BooksListOrGrid extends ConsumerWidget {
             data: (list) => {for (final t in list) t.id: t.name},
             orElse: () => <int, String>{},
           );
-          applyLibrarySorting(items, prefs, imprintNames: imprintNames);
+          items.applyLibrarySorting(prefs, imprintNames: imprintNames);
         }
 
         return AnimatedSwitcher(

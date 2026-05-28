@@ -40,7 +40,7 @@ class ExportResult {
 class ImportExportUtils {
   /// Heuristically finds or creates a tag/collection/imprint by name and type.
   static Future<int> getOrCreateTag(AppDatabase db, String name, TagType type, {String? color, String? imagePath}) async {
-    final existing = await db.searchTags(name, type);
+    final existing = await db.tagDao.searchTags(name, type);
     final exact = existing.firstWhereOrNull((t) => t.name.toLowerCase() == name.toLowerCase());
     
     if (exact != null) {
@@ -50,12 +50,12 @@ class ImportExportUtils {
           color: Value(exact.color ?? color),
           imagePath: Value(exact.imagePath ?? imagePath),
         );
-        await db.updateTag(updated);
+        await db.tagDao.updateTag(updated);
       }
       return exact.id;
     }
 
-    return await db.insertTag(TagsCompanion.insert(
+    return await db.tagDao.insertTag(TagsCompanion.insert(
       name: name,
       type: Value(type),
       color: Value(color),

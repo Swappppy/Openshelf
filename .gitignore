@@ -46,6 +46,7 @@ app.*.map.json
 
 # Generado localmente, contiene rutas absolutas de la máquina
 android/local.properties
+android/key.properties
 
 # Generado por flutter pub get
 .flutter-plugins

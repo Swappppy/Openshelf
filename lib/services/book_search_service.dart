@@ -30,11 +30,11 @@ class CoverSearchService {
       BookSearchServer.openLibrary,
       BookSearchServer.inventaire,
     ],
-    bool cancelled = false,
   }) {
+    bool isCancelled = false;
     final controller = StreamController<CoverCandidate>(
       onCancel: () {
-        cancelled = true;
+        isCancelled = true;
       },
     );
     final seenUrls = <String>{};
@@ -53,10 +53,10 @@ class CoverSearchService {
       try {
         // 1. ISBN Search (Specific high-confidence lookup as primary)
         if (isbn != null) {
-          if (cancelled) return;
+          if (isCancelled) return;
           debugPrint('CoverSearch: Step 1 (ISBN) - ISBN: "$isbn"');
           for (final server in servers) {
-            if (cancelled) return;
+            if (isCancelled) return;
             try {
               switch (server) {
                 case BookSearchServer.googleBooks:
@@ -86,12 +86,12 @@ class CoverSearchService {
 
         // 2. Precise Text Search (Title + Publisher)
         if (title != null && publisher != null && publisher.isNotEmpty) {
-          if (cancelled) return;
+          if (isCancelled) return;
           final query = '"$title" $publisher';
           debugPrint('CoverSearch: Step 2 (Precise Title+Publisher) - Query: "$query"');
           
           for (final server in servers) {
-            if (cancelled) return;
+            if (isCancelled) return;
             try {
               List<BookSearchResult> results = [];
               switch (server) {
@@ -112,7 +112,7 @@ class CoverSearchService {
                   break;
               }
               for (final res in results) {
-                if (cancelled) return;
+                if (isCancelled) return;
                 if (res.coverUrl != null && _isRelevant(res.title, title)) {
                   addCandidate(res.coverUrl!, server.name);
                 }
@@ -125,7 +125,7 @@ class CoverSearchService {
 
         // 3. Specific Text Search (Title + Author) - Primary or Fallback
         if (title != null) {
-          if (cancelled) return;
+          if (isCancelled) return;
           final queryParts = [
             '"$title"',
             if (author != null && author.isNotEmpty) author,
@@ -134,7 +134,7 @@ class CoverSearchService {
           debugPrint('CoverSearch: Step 3 (Specific Title+Author) - Query: "$query"');
           
           for (final server in servers) {
-            if (cancelled) return;
+            if (isCancelled) return;
             try {
               List<BookSearchResult> results = [];
               switch (server) {
@@ -155,7 +155,7 @@ class CoverSearchService {
                   break;
               }
               for (final res in results) {
-                if (cancelled) return;
+                if (isCancelled) return;
                 if (res.coverUrl != null && _isRelevant(res.title, title)) {
                   addCandidate(res.coverUrl!, server.name);
                 }
@@ -168,7 +168,7 @@ class CoverSearchService {
 
         // 4. Inventaire editions fallback — always execute if provider active
         if (title != null && servers.contains(BookSearchServer.inventaire)) {
-          if (cancelled) return;
+          if (isCancelled) return;
           debugPrint('CoverSearch: Step 4 (Inventaire Deep Dive)');
           try {
             final works = await InventaireService.search(title, preferredLanguage: preferredLanguage, limit: 10);
@@ -198,14 +198,14 @@ class CoverSearchService {
             if (bestScore < 20) {
               debugPrint('CoverSearch: Step 4 skipped - best score $bestScore too low for "${bestWork?.title}"');
             } else if (workUri != null) {
-              if (cancelled) return;
+              if (isCancelled) return;
               debugPrint('CoverSearch: Step 4 - Using work "$workUri" (${bestWork!.title}) with score $bestScore');
               final editions = await InventaireService.getEditionsByWork(
                 workUri,
                 preferredLanguage: preferredLanguage,
               );
               for (final ed in editions) {
-                if (cancelled) return;
+                if (isCancelled) return;
                 if (ed.coverUrl != null) {
                   addCandidate(ed.coverUrl!, 'Inventaire (Ed.)');
                 }

@@ -16,13 +16,13 @@ class GoodreadsExportService {
   ];
 
   Future<ExportResult> export() async {
-    final books = await _db.watchAllBooks().first;
+    final books = await _db.bookDao.watchAllBooks().first;
     final errors = <String>[];
     final rows = <List<String>>[_headers];
 
     for (final book in books) {
       try {
-        final tags = await _db.watchTagsForBook(book.id).first;
+        final tags = await _db.tagDao.watchTagsForBook(book.id).first;
         rows.add(_bookToRow(book, tags));
       } catch (e) {
         errors.add('Book "${book.title}" (id ${book.id}): $e');

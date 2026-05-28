@@ -144,7 +144,7 @@ class ImprintsList extends ConsumerWidget {
               leading: const Icon(Icons.delete_outline, color: Colors.red),
               title: Text(context.l10n.delete, style: const TextStyle(color: Colors.red)),
               onTap: () async {
-                await ref.read(databaseProvider).deleteTag(tag.id);
+                await ref.read(databaseProvider).tagDao.deleteTag(tag.id);
                 if (ctx.mounted) Navigator.pop(ctx);
               },
             ),

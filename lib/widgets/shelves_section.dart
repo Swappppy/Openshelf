@@ -38,8 +38,9 @@ class ShelvesSection extends ConsumerWidget {
               ),
               builder: (ctx) => ShelfFormSheet(
                 onSave: (shelf) async {
-                  await ref.read(databaseProvider).insertShelf(shelf);
+                  final id = await ref.read(databaseProvider).shelfDao.insertShelf(shelf);
                   if (ctx.mounted) Navigator.pop(ctx);
+                  return id;
                 },
               ),
             ),
@@ -93,8 +94,9 @@ class ShelvesSection extends ConsumerWidget {
                     onSave: (companion) async {
                       final db = ref.read(databaseProvider);
                       final updated = companion.copyWith(id: Value(shelf.id));
-                      await db.update(db.shelves).replace(updated);
+                      await db.shelfDao.update(db.shelfDao.shelves).replace(updated);
                       if (ctx2.mounted) Navigator.pop(ctx2);
+                      return shelf.id;
                     },
                   ),
                 );
@@ -105,7 +107,7 @@ class ShelvesSection extends ConsumerWidget {
               title: Text(context.l10n.shelfOptionDelete, style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onTap: () async {
                 Navigator.pop(ctx);
-                await ref.read(databaseProvider).deleteShelf(shelf.id);
+                await ref.read(databaseProvider).shelfDao.deleteShelf(shelf.id);
               },
             ),
           ],

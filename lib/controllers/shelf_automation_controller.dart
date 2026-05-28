@@ -22,7 +22,7 @@ class ShelfAutomationController extends Notifier<void> {
     final noCoverShelfName = l10n.noCoverShelfTitle;
     
     // 1. Get count of books without cover
-    final noCoverBooks = await db.watchBooksFiltered(noCover: true).first;
+    final noCoverBooks = await db.bookDao.watchBooksFiltered(noCover: true).first;
     final hasNoCover = noCoverBooks.isNotEmpty;
 
     // 2. Find the shelf if it exists
@@ -31,13 +31,13 @@ class ShelfAutomationController extends Notifier<void> {
 
     if (settings.autoNoCoverShelf && hasNoCover) {
       if (existingShelf == null) {
-        await db.insertShelf(ShelvesCompanion.insert(
+        await db.shelfDao.insertShelf(ShelvesCompanion.insert(
           name: noCoverShelfName,
           filterNoCover: const Value(true),
         ));
       }
     } else if (existingShelf != null) {
-      await db.deleteShelf(existingShelf.id);
+      await db.shelfDao.deleteShelf(existingShelf.id);
     }
   }
 }

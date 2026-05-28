@@ -75,11 +75,12 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
       builder: (ctx) => ShelfFormSheet(
         initialFilters: buffered,
         onSave: (shelf) async {
-          await ref.read(databaseProvider).insertShelf(shelf);
+          final id = await ref.read(databaseProvider).shelfDao.insertShelf(shelf);
           if (ctx.mounted) {
             ref.read(shelfCreationBufferProvider.notifier).clear();
             Navigator.pop(ctx);
           }
+          return id;
         },
       ),
     ).then((_) {

@@ -82,7 +82,7 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
                 optionsBuilder: (textEditingValue) async {
                   final input = textEditingValue.text.trim();
                   if (input.isEmpty) return [];
-                  final results = await ref.read(databaseProvider).searchTags(input, widget.type);
+                  final results = await ref.read(databaseProvider).tagDao.searchTags(input, widget.type);
                   return results.where((t) => !widget.selected.any((s) => s.id == t.id)).toList();
                 },
                 onSelected: (tag) {
@@ -152,7 +152,7 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
 
   Future<void> _handleNewTag(BuildContext context, WidgetRef ref, String name, TextEditingController controller) async {
     final db = ref.read(databaseProvider);
-    final results = await db.searchTags(name, widget.type);
+    final results = await db.tagDao.searchTags(name, widget.type);
     final existing = results.where((t) => t.name.toLowerCase() == name.toLowerCase()).firstOrNull;
     
     if (existing != null) {

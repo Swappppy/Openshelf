@@ -23,7 +23,7 @@ class DataMigrationService {
   // --- Export ---
 
   Future<String> exportBooksToCsv() async {
-    final books = await _db.select(_db.books).get();
+    final books = await _db.bookDao.select(_db.bookDao.books).get();
     final rows = <List<dynamic>>[[
       'id', 'title', 'subtitle', 'author', 'isbn', 'language', 'translator',
       'publisher', 'publishYear', 'totalPages', 'currentPage', 'status',
@@ -34,14 +34,14 @@ class DataMigrationService {
     ]];
 
     for (final b in books) {
-      final tags = await _db.watchTagsForBook(b.id).first;
-      final imprint = await _db.watchImprintForBook(b.id).first;
+      final tags = await _db.tagDao.watchTagsForBook(b.id).first;
+      final imprint = await _db.tagDao.watchImprintForBook(b.id).first;
 
       // Resolve collection name from tag when collectionName field is null
       // (books created after v14 only store collectionId, not the text name)
       String? resolvedCollectionName = b.collectionName;
       if (resolvedCollectionName == null && b.collectionId != null) {
-        final collTag = await (_db.select(_db.tags)
+        final collTag = await (_db.tagDao.select(_db.tagDao.tags)
           ..where((t) => t.id.equals(b.collectionId!))).getSingleOrNull();
         resolvedCollectionName = collTag?.name;
       }
@@ -62,7 +62,7 @@ class DataMigrationService {
   }
 
   Future<String> exportShelvesToCsv() async {
-    final shelves = await _db.select(_db.shelves).get();
+    final shelves = await _db.shelfDao.select(_db.shelfDao.shelves).get();
     final rows = <List<dynamic>>[[
       'name', 'filterQuery', 'filterAuthor', 'filterPublisher', 'filterIsbn',
       'filterSubtitle', 'filterLanguage', 'filterTranslator', 'filterCollectionIds',
@@ -82,7 +82,7 @@ class DataMigrationService {
   }
 
   Future<String> exportTagsToCsv() async {
-    final tags = await _db.select(_db.tags).get();
+    final tags = await _db.tagDao.select(_db.tagDao.tags).get();
     final rows = <List<dynamic>>[['name', 'type', 'color', 'imagePath']];
 
     for (final t in tags) {
@@ -95,7 +95,7 @@ class DataMigrationService {
     if (jsonIds == null) return [];
     try {
       final ids = (jsonDecode(jsonIds) as List).cast<int>();
-      final tags = await _db.getTagsByIds(ids);
+      final tags = await _db.tagDao.getTagsByIds(ids);
       return tags.map((t) => t.name).toList();
     } catch (_) { return []; }
   }
@@ -130,11 +130,11 @@ class DataMigrationService {
   }
 
   Future<void> _bundleMedia(Archive archive) async {
-    final books = await _db.select(_db.books).get();
+    final books = await _db.bookDao.select(_db.bookDao.books).get();
     for (final b in books) {
       if (b.coverPath != null) await _addFileToArchive(archive, b.coverPath!);
     }
-    final tags = await _db.select(_db.tags).get();
+    final tags = await _db.tagDao.select(_db.tagDao.tags).get();
     for (final t in tags) {
       if (t.imagePath != null) await _addFileToArchive(archive, t.imagePath!, subDir: 'imprints');
     }
@@ -243,9 +243,9 @@ class DataMigrationService {
     await _db.transaction(() async {
       for (final row in rows.skip(1)) {
         final comp = _mapRow(head, row, localBaseDir: localBaseDir);
-        final exist = await (_db.select(_db.books)..where((t) => t.title.equals(comp.title.value) & t.author.equals(comp.author.value))).getSingleOrNull();
+        final exist = await (_db.bookDao.select(_db.bookDao.books)..where((t) => t.title.equals(comp.title.value) & t.author.equals(comp.author.value))).getSingleOrNull();
           
-        int bookId = exist?.id ?? await _db.into(_db.books).insert(comp);
+        int bookId = exist?.id ?? await _db.bookDao.into(_db.bookDao.books).insert(comp);
         if (exist == null) imported++;
 
         // Tags
@@ -259,7 +259,7 @@ class DataMigrationService {
             ids.add(await _getOrCreateTag(name, TagType.tag, color: color));
           }
         }
-        if (ids.isNotEmpty) await _db.setBookTags(bookId, ids);
+        if (ids.isNotEmpty) await _db.tagDao.setBookTags(bookId, ids);
 
         // Imprint
         final impName = _get(head, row, 'imprintName')?.trim();
@@ -271,10 +271,10 @@ class DataMigrationService {
             color: _get(head, row, 'imprintColor'), 
             imagePath: img != null ? p.join(localBaseDir, 'imprints', p.basename(img)) : null
           );
-          await _db.setBookImprint(bookId, tid);
+          await _db.bookDao.setBookImprint(bookId, tid);
         } else {
           // If no imprint name in CSV, ensure we don't keep a stale one if updating
-          if (exist != null) await _db.setBookImprint(bookId, null);
+          if (exist != null) await _db.bookDao.setBookImprint(bookId, null);
         }
 
         // Collection: always resolve by name so IDs are correct even when the
@@ -284,11 +284,11 @@ class DataMigrationService {
         final collName = _get(head, row, 'collectionName')?.trim();
         if (collName != null && collName.isNotEmpty) {
           final tid = await _getOrCreateTag(collName, TagType.collection);
-          await (_db.update(_db.books)..where((b) => b.id.equals(bookId)))
+          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId)))
               .write(BooksCompanion(collectionId: Value(tid)));
         } else {
           if (exist != null) {
-            await (_db.update(_db.books)..where((b) => b.id.equals(bookId)))
+            await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId)))
                 .write(const BooksCompanion(collectionId: Value(null)));
           }
         }
@@ -353,11 +353,11 @@ class DataMigrationService {
         filterImprintIds: Value(iIds.isEmpty ? null : jsonEncode(iIds)),
       );
 
-      final exist = await (_db.select(_db.shelves)..where((t) => t.name.equals(name))).getSingleOrNull();
+      final exist = await (_db.shelfDao.select(_db.shelfDao.shelves)..where((t) => t.name.equals(name))).getSingleOrNull();
       if (exist == null) {
-        await _db.into(_db.shelves).insert(comp);
+        await _db.shelfDao.into(_db.shelfDao.shelves).insert(comp);
       } else {
-        await _db.updateShelf(exist.copyWith(
+        await _db.shelfDao.updateShelf(exist.copyWith(
           filterQuery: comp.filterQuery.value,
           filterAuthor: comp.filterAuthor.value,
           filterPublisher: comp.filterPublisher.value,

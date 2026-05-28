@@ -154,7 +154,7 @@ Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existi
                 if (name.isNotEmpty) {
                   Tag? result;
                   if (existing == null) {
-                    final id = await ref.read(databaseProvider).insertTag(TagsCompanion(
+                    final id = await ref.read(databaseProvider).tagDao.insertTag(TagsCompanion(
                       name: Value(name), 
                       type: Value(type),
                       color: Value(selectedColor),
@@ -173,7 +173,7 @@ Future<Tag?> showTagFormDialog(BuildContext context, WidgetRef ref, {Tag? existi
                       color: Value(selectedColor),
                       imagePath: Value(imagePath),
                     );
-                    await ref.read(databaseProvider).updateTag(result);
+                    await ref.read(databaseProvider).tagDao.updateTag(result);
                   }
                   if (ctx.mounted) Navigator.pop(ctx, result);
                 }

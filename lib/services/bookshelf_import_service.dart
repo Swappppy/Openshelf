@@ -74,8 +74,8 @@ class BookshelfImportService {
         final isbn = _str(row, _colIsbn).nullIfEmpty();
         
         final isDuplicate = isbn != null 
-          ? await _db.getBookByIsbn(isbn) != null
-          : await _db.existsByTitleAndAuthor(title, author);
+          ? await _db.bookDao.getBookByIsbn(isbn) != null
+          : await _db.bookDao.existsByTitleAndAuthor(title, author);
 
         if (isDuplicate) {
           skipped++;
@@ -86,13 +86,13 @@ class BookshelfImportService {
         final rating = (ratingRaw != null && ratingRaw > 5) ? (ratingRaw / 2) : ratingRaw;
 
         final companion = _rowToCompanion(row, rating: rating);
-        final bookId = await _db.insertBook(companion);
+        final bookId = await _db.bookDao.insertBook(companion);
 
         // Link Collection
         final collName = _str(row, _colSeries).nullIfEmpty();
         if (collName != null) {
           final id = await ImportExportUtils.getOrCreateTag(_db, collName, TagType.collection);
-          await (_db.update(_db.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(collectionId: Value(id)));
+          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(collectionId: Value(id)));
         }
 
         // Link Categories
@@ -103,7 +103,7 @@ class BookshelfImportService {
           for (final name in names) {
             ids.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
           }
-          if (ids.isNotEmpty) await _db.setBookTags(bookId, ids);
+          if (ids.isNotEmpty) await _db.tagDao.setBookTags(bookId, ids);
         }
 
         imported++;

@@ -70,10 +70,10 @@ class GoodreadsImportService {
         final author = _str(row, _colAuthor).split(',').first.trim();
 
         final isDuplicate = isbn13.isNotEmpty
-            ? await _db.getBookByIsbn(isbn13) != null
+            ? await _db.bookDao.getBookByIsbn(isbn13) != null
             : isbn10.isNotEmpty
-            ? await _db.getBookByIsbn(isbn10) != null
-            : await _db.existsByTitleAndAuthor(title, author);
+            ? await _db.bookDao.getBookByIsbn(isbn10) != null
+            : await _db.bookDao.existsByTitleAndAuthor(title, author);
 
         if (isDuplicate) {
           skipped++;
@@ -81,7 +81,7 @@ class GoodreadsImportService {
         }
 
         final companion = _rowToCompanion(row, isbn13: isbn13, isbn10: isbn10);
-        final bookId = await _db.insertBook(companion);
+        final bookId = await _db.bookDao.insertBook(companion);
 
         // Shelves as tags
         final shelfNames = _str(row, _colBookshelves).nullIfEmpty()?.split(',').map((s) => s.trim()) ?? [];
@@ -91,7 +91,7 @@ class GoodreadsImportService {
             ids.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
           }
         }
-        if (ids.isNotEmpty) await _db.setBookTags(bookId, ids);
+        if (ids.isNotEmpty) await _db.tagDao.setBookTags(bookId, ids);
 
         imported++;
       } catch (e) {

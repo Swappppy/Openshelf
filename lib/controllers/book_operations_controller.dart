@@ -11,6 +11,6 @@ class BookOperationsController {
   /// Performs the duplication logic in a transaction.
   Future<void> duplicate(int bookId) async {
     final db = ref.read(databaseProvider);
-    await db.duplicateBook(bookId);
+    await db.bookDao.duplicateBook(bookId);
   }
 }

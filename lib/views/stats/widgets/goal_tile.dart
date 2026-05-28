@@ -261,7 +261,7 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
     DateTime start = existingGoal?.startDate ?? DateTime(DateTime.now().year, 1, 1);
     DateTime end = existingGoal?.endDate ?? DateTime(DateTime.now().year, 12, 31);
 
-    final shelvesAsync = ref.read(databaseProvider).watchAllShelves().first;
+    final shelvesAsync = ref.read(databaseProvider).shelfDao.watchAllShelves().first;
     final shelves = await shelvesAsync;
 
     if (!context.mounted) return;
@@ -356,7 +356,7 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
       int targetValue = type == 'shelf' ? 0 : int.parse(targetCtrl.text);
       if (type == 'shelf' && selectedShelfId != null) {
         final shelf = shelves.firstWhere((s) => s.id == selectedShelfId);
-        final books = await db.watchBooksFiltered(
+        final books = await db.bookDao.watchBooksFiltered(
           query: shelf.filterQuery,
           author: shelf.filterAuthor,
           publisher: shelf.filterPublisher,
@@ -365,12 +365,13 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
           tagIds: shelf.filterTagIds != null ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>() : null,
           imprintIds: shelf.filterImprintIds != null ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>() : null,
           noCover: shelf.filterNoCover,
+          status: ReadingStatus.read,
         ).first;
         targetValue = books.length;
       }
 
       if (existingGoal == null) {
-        final goalId = await db.insertGoal(ReadingGoalsCompanion.insert(
+        final goalId = await db.goalDao.insertGoal(ReadingGoalsCompanion.insert(
           title: titleCtrl.text,
           type: type,
           targetValue: targetValue,
@@ -380,7 +381,7 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
         ));
         ref.read(statsControllerProvider.notifier).resizeWidget(config.id, StatWidgetSize.values.firstWhere((e) => e.name == config.size), goalId: goalId);
       } else {
-        await db.updateGoal(existingGoal.copyWith(
+        await db.goalDao.updateGoal(existingGoal.copyWith(
           title: titleCtrl.text,
           type: type,
           targetValue: targetValue,

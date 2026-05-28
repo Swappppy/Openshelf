@@ -97,7 +97,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       finishedAt: Value(newFinishedAt),
       startedAt: Value(newStartedAt),
     );
-    await ref.read(databaseProvider).updateBook(updated);
+    await ref.read(databaseProvider).bookDao.updateBook(updated);
 
     if (newPage > oldPage) {
       await ref.read(readingLogControllerProvider.notifier).logPages(book.id, newPage - oldPage);
@@ -108,7 +108,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     final updated = widget.book.copyWith(
       notes: Value(notes.trim().isEmpty ? null : notes.trim()),
     );
-    await ref.read(databaseProvider).updateBook(updated);
+    await ref.read(databaseProvider).bookDao.updateBook(updated);
   }
 
   /// Opens the ergonomic wheel-based page picker.
@@ -297,7 +297,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
             onPressed: () async {
               await ref
                   .read(databaseProvider)
-                  .deleteBook(widget.book.id);
+                  .bookDao.deleteBook(widget.book.id);
               if (ctx.mounted) Navigator.pop(ctx);
               if (context.mounted) Navigator.pop(context);
             },

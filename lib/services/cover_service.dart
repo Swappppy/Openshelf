@@ -131,7 +131,7 @@ class CoverService {
     }
 
     // 2. Imprints
-    final allImprints = await db.getTagsByType(TagType.imprint);
+    final allImprints = await db.tagDao.getTagsByType(TagType.imprint);
     for (final imp in allImprints) {
       if (imp.imagePath != null) {
         if (await shouldCompress(imp.imagePath!)) {

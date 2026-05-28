@@ -6,7 +6,7 @@ import 'database_provider.dart';
 
 final statsWidgetsProvider = StreamProvider<List<StatWidgetConfig>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.watchWidgetConfigs().asyncMap((configs) async {
+  return db.statDao.watchWidgetConfigs().asyncMap((configs) async {
     if (configs.isEmpty) {
       // Initialize default layout if empty
       final defaults = [
@@ -20,13 +20,13 @@ final statsWidgetsProvider = StreamProvider<List<StatWidgetConfig>>((ref) {
       ];
       
       for (int i = 0; i < defaults.length; i++) {
-        await db.insertWidgetConfig(StatWidgetConfigsCompanion.insert(
+        await db.statDao.insertWidgetConfig(StatWidgetConfigsCompanion.insert(
           type: defaults[i].$1,
           size: defaults[i].$2,
           sortOrder: i,
         ));
       }
-      return db.watchWidgetConfigs().first;
+      return db.statDao.watchWidgetConfigs().first;
     }
     return configs;
   });
@@ -38,8 +38,8 @@ class StatsController extends Notifier<void> {
 
   Future<void> addWidget(StatWidgetType type, StatWidgetSize size, {int? goalId}) async {
     final db = ref.read(databaseProvider);
-    final current = await db.watchWidgetConfigs().first;
-    await db.insertWidgetConfig(StatWidgetConfigsCompanion.insert(
+    final current = await db.statDao.watchWidgetConfigs().first;
+    await db.statDao.insertWidgetConfig(StatWidgetConfigsCompanion.insert(
       type: type.name,
       size: size.name,
       sortOrder: current.length,
@@ -49,29 +49,29 @@ class StatsController extends Notifier<void> {
 
   Future<void> resizeWidget(int id, StatWidgetSize newSize, {int? goalId}) async {
     final db = ref.read(databaseProvider);
-    final current = await db.watchWidgetConfigs().first;
+    final current = await db.statDao.watchWidgetConfigs().first;
     final widget = current.firstWhere((c) => c.id == id);
-    await db.updateWidgetConfig(widget.copyWith(
+    await db.statDao.updateWidgetConfig(widget.copyWith(
       size: newSize.name,
       goalId: goalId != null ? Value(goalId) : widget.goalId == null ? const Value.absent() : Value(widget.goalId),
     ));
   }
 
   Future<void> removeWidget(int id) async {
-    await ref.read(databaseProvider).deleteWidgetConfig(id);
+    await ref.read(databaseProvider).statDao.deleteWidgetConfig(id);
   }
 
   Future<void> reorderWidgets(List<StatWidgetConfig> newOrder) async {
     final db = ref.read(databaseProvider);
     await db.transaction(() async {
       for (int i = 0; i < newOrder.length; i++) {
-        await db.updateWidgetConfig(newOrder[i].copyWith(sortOrder: i));
+        await db.statDao.updateWidgetConfig(newOrder[i].copyWith(sortOrder: i));
       }
     });
   }
 
   Future<void> updateWidgetConfig(StatWidgetConfig config) async {
-    await ref.read(databaseProvider).updateWidgetConfig(config);
+    await ref.read(databaseProvider).statDao.updateWidgetConfig(config);
   }
 }
 

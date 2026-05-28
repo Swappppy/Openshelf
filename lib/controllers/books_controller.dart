@@ -1,10 +1,10 @@
-import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:collection/collection.dart';
 import '../models/shelf.dart';
-import '../models/display_preferences.dart';
 import '../models/tag_type.dart';
 import '../services/database.dart';
+import '../utils/book_sorting.dart';
 import 'database_provider.dart';
 import 'display_preferences_controller.dart';
 import 'search_filters_controller.dart';
@@ -12,34 +12,41 @@ import 'search_filters_controller.dart';
 /// Stream of all books in the database
 final allBooksProvider = StreamProvider<List<Book>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.watchAllBooks();
+  return db.bookDao.watchAllBooks();
 });
 
 final allShelvesProvider = StreamProvider<List<Shelf>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.watchAllShelves();
+  return db.shelfDao.watchAllShelves();
 });
 
 /// Provider for shelves with calculated book counts
 final allShelvesWithStatsProvider = StreamProvider<List<(Shelf, int, int)>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.watchAllShelves().switchMap((list) {
+  return db.shelfDao.watchAllShelves().switchMap((list) {
     if (list.isEmpty) return Stream.value([]);
     
     final streams = list.map((shelf) {
-      return db.watchBooksFiltered(
-        query: shelf.filterQuery,
-        author: shelf.filterAuthor,
-        publisher: shelf.filterPublisher,
-        isbn: shelf.filterIsbn,
-        language: shelf.filterLanguage,
-        collectionIds: shelf.filterCollectionIds != null ? (json.decode(shelf.filterCollectionIds!) as List).cast<int>() : null,
-        tagIds: shelf.filterTagIds != null ? (json.decode(shelf.filterTagIds!) as List).cast<int>() : null,
-        imprintIds: shelf.filterImprintIds != null ? (json.decode(shelf.filterImprintIds!) as List).cast<int>() : null,
-        noCover: shelf.filterNoCover,
-      ).map((books) {
-        final readCount = books.where((b) => b.status == ReadingStatus.read).length;
-        return (shelf, books.length, readCount);
+      return db.shelfDao.watchTagsForShelf(shelf.id).switchMap((shelfTags) {
+        return db.bookDao.watchBooksFiltered(
+          query: shelf.filterQuery,
+          author: shelf.filterAuthor,
+          publisher: shelf.filterPublisher,
+          isbn: shelf.filterIsbn,
+          language: shelf.filterLanguage,
+          // Note: collectionId and imprintId are now just Tags in the shelfTags list
+          // We need to filter them by type here or store them separately.
+          // For now, let's pass all tagIds to watchBooksFiltered and let it handle the types if it can,
+          // or we filter them here.
+          collectionIds: shelfTags.where((t) => t.type == TagType.collection).map((t) => t.id).toList().nullIfEmpty(),
+          tagIds: shelfTags.where((t) => t.type == TagType.tag).map((t) => t.id).toList().nullIfEmpty(),
+          imprintIds: shelfTags.where((t) => t.type == TagType.imprint).map((t) => t.id).toList().nullIfEmpty(),
+          noCover: shelf.filterNoCover,
+          status: shelf.filterStatus != null ? ReadingStatus.values.firstWhereOrNull((s) => s.name == shelf.filterStatus) : null,
+        ).map((books) {
+          final readCount = books.where((b) => b.status == ReadingStatus.read).length;
+          return (shelf, books.length, readCount);
+        });
       });
     }).toList();
     
@@ -51,50 +58,46 @@ final allShelvesWithStatsProvider = StreamProvider<List<(Shelf, int, int)>>((ref
 final shelfBooksProvider =
 StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
   final db = ref.watch(databaseProvider);
-  final tagIds = shelf.filterTagIds != null
-      ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>()
-      : <int>[];
-      
-  final imprintIds = shelf.filterImprintIds != null
-      ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>()
-      : <int>[];
+  
+  return db.shelfDao.watchTagsForShelf(shelf.id).switchMap((shelfTags) {
+    final tagIds = shelfTags.where((t) => t.type == TagType.tag).map((t) => t.id).toList();
+    final imprintIds = shelfTags.where((t) => t.type == TagType.imprint).map((t) => t.id).toList();
+    final collectionIds = shelfTags.where((t) => t.type == TagType.collection).map((t) => t.id).toList();
 
-  final collectionIds = shelf.filterCollectionIds != null
-      ? (jsonDecode(shelf.filterCollectionIds!) as List).cast<int>()
-      : <int>[];
+    // If only a status filter is set, use the faster status-only query
+    if (shelf.filterStatus != null &&
+        tagIds.isEmpty &&
+        imprintIds.isEmpty &&
+        shelf.filterQuery == null &&
+        shelf.filterAuthor == null &&
+        shelf.filterPublisher == null &&
+        shelf.filterIsbn == null &&
+        collectionIds.isEmpty) {
+      final status = ReadingStatus.values.firstWhere(
+            (s) => s.name == shelf.filterStatus,
+      );
+      return db.bookDao.watchBooksByStatus(status);
+    }
 
-  // If only a status filter is set, use the faster status-only query
-  if (shelf.filterStatus != null &&
-      tagIds.isEmpty &&
-      imprintIds.isEmpty &&
-      shelf.filterQuery == null &&
-      shelf.filterAuthor == null &&
-      shelf.filterPublisher == null &&
-      shelf.filterIsbn == null &&
-      collectionIds.isEmpty) {
-    final status = ReadingStatus.values.firstWhere(
-          (s) => s.name == shelf.filterStatus,
+    return db.bookDao.watchBooksFiltered(
+      query: shelf.filterQuery,
+      tagIds: tagIds.isEmpty ? null : tagIds,
+      author: shelf.filterAuthor,
+      publisher: shelf.filterPublisher,
+      isbn: shelf.filterIsbn,
+      collectionIds: collectionIds.isEmpty ? null : collectionIds,
+      imprintIds: imprintIds.isEmpty ? null : imprintIds,
+      noCover: shelf.filterNoCover,
+      status: shelf.filterStatus != null ? ReadingStatus.values.firstWhereOrNull((s) => s.name == shelf.filterStatus) : null,
     );
-    return db.watchBooksByStatus(status);
-  }
-
-  return db.watchBooksFiltered(
-    query: shelf.filterQuery,
-    tagIds: tagIds.isEmpty ? null : tagIds,
-    author: shelf.filterAuthor,
-    publisher: shelf.filterPublisher,
-    isbn: shelf.filterIsbn,
-    collectionIds: collectionIds.isEmpty ? null : collectionIds,
-    imprintIds: imprintIds.isEmpty ? null : imprintIds,
-    noCover: shelf.filterNoCover,
-  );
+  });
 });
 
 /// Stream of books filtered by reading status
 final booksByStatusProvider =
 StreamProvider.family<List<Book>, ReadingStatus>((ref, status) {
   final db = ref.watch(databaseProvider);
-  return db.watchBooksByStatus(status);
+  return db.bookDao.watchBooksByStatus(status);
 });
 
 /// Reactive count of books for a specific status
@@ -105,59 +108,59 @@ Provider.family<AsyncValue<int>, ReadingStatus>((ref, status) {
 
 final bookByIdProvider = StreamProvider.family<Book?, int>((ref, id) {
   final db = ref.watch(databaseProvider);
-  return db.watchBookById(id);
+  return db.bookDao.watchBookById(id);
 });
 
 final bookTagsProvider = StreamProvider.family<List<Tag>, int>((ref, bookId) {
-  return ref.watch(databaseProvider).watchTagsForBook(bookId);
+  return ref.watch(databaseProvider).tagDao.watchTagsForBook(bookId);
 });
 
 final allTagsProvider = StreamProvider<List<Tag>>((ref) {
-  return ref.watch(databaseProvider).watchTagsByType(TagType.tag);
+  return ref.watch(databaseProvider).tagDao.watchTagsByType(TagType.tag);
 });
 
 /// Provider for tags including their usage count for visual scaling (cloud).
 final allTagsWithCountsProvider = StreamProvider<List<(Tag, int)>>((ref) {
-  return ref.watch(databaseProvider).watchTagsByTypeWithCounts(TagType.tag);
+  return ref.watch(databaseProvider).tagDao.watchTagsByTypeWithCounts(TagType.tag);
 });
 
 final allImprintsProvider = StreamProvider<List<Tag>>((ref) {
-  return ref.watch(databaseProvider).watchTagsByType(TagType.imprint);
+  return ref.watch(databaseProvider).tagDao.watchTagsByType(TagType.imprint);
 });
 
 final allImprintsWithCountsProvider = StreamProvider<List<(Tag, int)>>((ref) {
-  return ref.watch(databaseProvider).watchTagsByTypeWithCounts(TagType.imprint);
+  return ref.watch(databaseProvider).tagDao.watchTagsByTypeWithCounts(TagType.imprint);
 });
 
 final allCollectionsProvider = StreamProvider<List<Tag>>((ref) {
-  return ref.watch(databaseProvider).watchTagsByType(TagType.collection);
+  return ref.watch(databaseProvider).tagDao.watchTagsByType(TagType.collection);
 });
 
 final allCollectionsWithCountsProvider = StreamProvider<List<(Tag, int)>>((ref) {
-  return ref.watch(databaseProvider).watchCollectionsWithCounts();
+  return ref.watch(databaseProvider).tagDao.watchCollectionsWithCounts();
 });
 
 final bookImprintProvider = StreamProvider.family<Tag?, int>((ref, bookId) {
-  return ref.watch(databaseProvider).watchImprintForBook(bookId);
+  return ref.watch(databaseProvider).tagDao.watchImprintForBook(bookId);
 });
 
 final booksByImprintProvider = StreamProvider.family<List<Book>, int>((ref, imprintId) {
   final db = ref.watch(databaseProvider);
-  return db.watchBooksFiltered(imprintIds: [imprintId]);
+  return db.bookDao.watchBooksFiltered(imprintIds: [imprintId]);
 });
 
 final booksByTagProvider = StreamProvider.family<List<Book>, int>((ref, tagId) {
   final db = ref.watch(databaseProvider);
-  return db.watchBooksFiltered(tagIds: [tagId]);
+  return db.bookDao.watchBooksFiltered(tagIds: [tagId]);
 });
 
 final booksByCollectionProvider = StreamProvider.family<List<Book>, int>((ref, collectionId) {
   final db = ref.watch(databaseProvider);
-  return db.watchBooksFiltered(collectionIds: [collectionId]);
+  return db.bookDao.watchBooksFiltered(collectionIds: [collectionId]);
 });
 
 final imprintBookCountProvider = StreamProvider.family<int, int>((ref, imprintId) {
-  return ref.watch(databaseProvider).watchBookCountByImprint(imprintId);
+  return ref.watch(databaseProvider).tagDao.watchBookCountByImprint(imprintId);
 });
 
 /// Main filtered provider used by the Library view
@@ -173,7 +176,7 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
     orElse: () => <int, String>{},
   );
 
-  final stream = db.watchBooksFiltered(
+  final stream = db.bookDao.watchBooksFiltered(
     query: filters.query,
     author: filters.author,
     publisher: filters.publisher,
@@ -182,61 +185,19 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
     collectionIds: filters.collections.isEmpty ? null : filters.collections.map((t) => t.id).toList(),
     tagIds: filters.tags.isEmpty ? null : filters.tags.map((t) => t.id).toList(),
     imprintIds: filters.imprints.isEmpty ? null : filters.imprints.map((t) => t.id).toList(),
+    status: filters.status,
   );
 
   return stream.map((allBooks) {
     var filtered = allBooks.toList();
 
-    // Secondary filtering for Status (not yet in watchBooksFiltered)
-    if (filters.status != null) {
-      filtered = filtered.where((b) => b.status == filters.status).toList();
-    }
-
     // Sort
-    applyLibrarySorting(filtered, prefs, imprintNames: imprintNames);
+    filtered.applyLibrarySorting(prefs, imprintNames: imprintNames);
 
     return filtered;
   });
 });
 
-/// Global utility to sort any list of books based on user preferences.
-void applyLibrarySorting(List<Book> books, DisplayPreferences prefs, {Map<int, String>? imprintNames}) {
-  books.sort((a, b) {
-    for (final criteria in prefs.sortOrder) {
-      final isAsc = prefs.sortDirections[criteria] ?? true;
-      int comparison = 0;
-      
-      switch (criteria) {
-        case 'title':
-          comparison = a.title.toLowerCase().compareTo(b.title.toLowerCase());
-          break;
-        case 'author':
-          comparison = a.author.toLowerCase().compareTo(b.author.toLowerCase());
-          break;
-        case 'publisher':
-          comparison = (a.publisher ?? '').toLowerCase().compareTo((b.publisher ?? '').toLowerCase());
-          break;
-        case 'collection':
-          comparison = (a.collectionName ?? '').toLowerCase().compareTo((b.collectionName ?? '').toLowerCase());
-          break;
-        case 'imprint':
-          final nameA = (imprintNames != null && a.imprintId != null) ? (imprintNames[a.imprintId] ?? '') : (a.publisher ?? '');
-          final nameB = (imprintNames != null && b.imprintId != null) ? (imprintNames[b.imprintId] ?? '') : (b.publisher ?? '');
-          comparison = nameA.toLowerCase().compareTo(nameB.toLowerCase());
-          break;
-        case 'publishYear':
-          comparison = (a.publishYear ?? 0).compareTo(b.publishYear ?? 0);
-          break;
-        case 'createdAt':
-          comparison = a.createdAt.compareTo(b.createdAt);
-          break;
-        case 'rating':
-          comparison = (a.rating ?? 0.0).compareTo(b.rating ?? 0.0);
-          break;
-      }
-      
-      if (comparison != 0) return isAsc ? comparison : -comparison;
-    }
-    return 0;
-  });
+extension ListExt<T> on List<T> {
+  List<T>? nullIfEmpty() => isEmpty ? null : this;
 }

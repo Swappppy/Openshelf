@@ -167,7 +167,7 @@ class _SummaryDisplay extends ConsumerWidget {
     
     final limited = books.take(10);
     for (final b in limited) {
-      final tags = await db.watchTagsForBook(b.id).first;
+      final tags = await db.tagDao.watchTagsForBook(b.id).first;
       for (final t in tags) {
         counts[t.name] = (counts[t.name] ?? 0) + 1;
       }

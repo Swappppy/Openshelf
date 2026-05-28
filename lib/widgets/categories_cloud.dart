@@ -120,7 +120,7 @@ class CategoriesCloud extends ConsumerWidget {
               leading: const Icon(Icons.delete_outline, color: Colors.red),
               title: Text(context.l10n.delete, style: const TextStyle(color: Colors.red)),
               onTap: () async {
-                await ref.read(databaseProvider).deleteTag(tag.id);
+                await ref.read(databaseProvider).tagDao.deleteTag(tag.id);
                 if (ctx.mounted) Navigator.pop(ctx);
               },
             ),
@@ -147,7 +147,7 @@ class CategoriesCloud extends ConsumerWidget {
               onColorSelected: (color) async {
                 final hex = color?.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase();
                 final updated = tag.copyWith(color: Value(hex));
-                await ref.read(databaseProvider).updateTag(updated);
+                await ref.read(databaseProvider).tagDao.updateTag(updated);
                 if (ctx.mounted) Navigator.pop(ctx);
               },
               allowNoColor: true,

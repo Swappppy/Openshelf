@@ -337,7 +337,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
     // Check for duplicates by ISBN (new books only)
     if (widget.existingBook == null && isbn.isNotEmpty) {
-      final existing = await db.getBookByIsbn(isbn);
+      final existing = await db.bookDao.getBookByIsbn(isbn);
       if (existing != null && mounted) {
         final l10n = context.l10n;
         final confirmed = await showDialog<bool>(
@@ -405,16 +405,16 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage - oldPage);
       }
     } else {
-      bookId = await db.insertBook(companion);
+      bookId = await db.bookDao.insertBook(companion);
       if (newPage > 0) {
         await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage);
       }
     }
 
     final tagIds = _selectedTags.map((t) => t.id).toList();
-    await db.setBookTags(bookId, tagIds);
+    await db.tagDao.setBookTags(bookId, tagIds);
     // REMOVED redundant setBookImprint call as it's now handled directly in the companion
-    await db.pruneOrphanTags();
+    await db.tagDao.pruneOrphanTags();
 
     // Trigger shelf automation check
     ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
@@ -424,13 +424,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
   Future<void> _loadExistingTags(int bookId) async {
     final db = ref.read(databaseProvider);
-    final existing = await db.watchTagsForBook(bookId).first;
+    final existing = await db.tagDao.watchTagsForBook(bookId).first;
     setState(() => _selectedTags = existing);
   }
 
   Future<void> _loadExistingImprint(int bookId) async {
     final db = ref.read(databaseProvider);
-    final existing = await db.watchImprintForBook(bookId).first;
+    final existing = await db.tagDao.watchImprintForBook(bookId).first;
     setState(() => _selectedImprint = existing);
   }
 
@@ -439,7 +439,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     
     // First, try to load by ID (source of truth)
     if (collectionId != null) {
-      final col = await (db.select(db.tags)..where((t) => t.id.equals(collectionId))).getSingleOrNull();
+      final col = await (db.tagDao.select(db.tagDao.tags)..where((t) => t.id.equals(collectionId))).getSingleOrNull();
       if (col != null) {
         setState(() => _selectedCollections = [col]);
         return;
@@ -448,7 +448,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
     // Fallback: search by name if ID was null or missing
     if (collectionName != null && collectionName.isNotEmpty) {
-      final col = await (db.select(db.tags)
+      final col = await (db.tagDao.select(db.tagDao.tags)
         ..where((t) => t.name.equals(collectionName) & t.type.equalsValue(TagType.collection))
       ).getSingleOrNull();
       

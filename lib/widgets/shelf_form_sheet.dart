@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show Value;
@@ -18,7 +17,7 @@ import 'entity_selector_grid.dart';
 class ShelfFormSheet extends ConsumerStatefulWidget {
   final Shelf? existing;
   final SearchFilters? initialFilters;
-  final Future<void> Function(ShelvesCompanion) onSave;
+  final Future<int?> Function(ShelvesCompanion) onSave;
   
   const ShelfFormSheet({super.key, this.existing, this.initialFilters, required this.onSave});
   
@@ -64,22 +63,14 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
       _status = f!.status;
     }
 
-    if (s?.filterTagIds != null) {
-      _loadTags(s!.filterTagIds!);
-    } else if (f?.tags != null && f!.tags.isNotEmpty) {
-      _selectedTags = List.from(f.tags);
-    }
-
-    if (s?.filterImprintIds != null) {
-      _loadImprints(s!.filterImprintIds!);
-    } else if (f?.imprints != null && f!.imprints.isNotEmpty) {
-      _selectedImprints = List.from(f.imprints);
-    }
-
-    if (s?.filterCollectionIds != null) {
-      _loadCollections(s!.filterCollectionIds!);
-    } else if (f?.collections != null && f!.collections.isNotEmpty) {
-      _selectedCollections = List.from(f.collections);
+    if (s != null) {
+      _loadTags(s.id);
+      _loadImprints(s.id);
+      _loadCollections(s.id);
+    } else if (f != null) {
+      if (f.tags.isNotEmpty) _selectedTags = List.from(f.tags);
+      if (f.imprints.isNotEmpty) _selectedImprints = List.from(f.imprints);
+      if (f.collections.isNotEmpty) _selectedCollections = List.from(f.collections);
     }
   }
 
@@ -102,25 +93,25 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
     Navigator.pop(context);
   }
 
-  Future<void> _loadTags(String json) async {
-    final ids = (jsonDecode(json) as List).cast<int>();
+  Future<void> _loadTags(int shelfId) async {
     final db = ref.read(databaseProvider);
-    final allTags = await db.getTagsByType(TagType.tag);
-    setState(() => _selectedTags = allTags.where((t) => ids.contains(t.id)).toList());
+    final tags = await db.shelfDao.getTagIdsForShelf(shelfId);
+    final allTags = await db.tagDao.getTagsByType(TagType.tag);
+    setState(() => _selectedTags = allTags.where((t) => tags.contains(t.id)).toList());
   }
 
-  Future<void> _loadImprints(String json) async {
-    final ids = (jsonDecode(json) as List).cast<int>();
+  Future<void> _loadImprints(int shelfId) async {
     final db = ref.read(databaseProvider);
-    final allImprints = await db.getTagsByType(TagType.imprint);
-    setState(() => _selectedImprints = allImprints.where((t) => ids.contains(t.id)).toList());
+    final tags = await db.shelfDao.getTagIdsForShelf(shelfId);
+    final allImprints = await db.tagDao.getTagsByType(TagType.imprint);
+    setState(() => _selectedImprints = allImprints.where((t) => tags.contains(t.id)).toList());
   }
 
-  Future<void> _loadCollections(String json) async {
-    final ids = (jsonDecode(json) as List).cast<int>();
+  Future<void> _loadCollections(int shelfId) async {
     final db = ref.read(databaseProvider);
-    final allCols = await db.getTagsByType(TagType.collection);
-    setState(() => _selectedCollections = allCols.where((c) => ids.contains(c.id)).toList());
+    final tags = await db.shelfDao.getTagIdsForShelf(shelfId);
+    final allCols = await db.tagDao.getTagsByType(TagType.collection);
+    setState(() => _selectedCollections = allCols.where((c) => tags.contains(c.id)).toList());
   }
 
   @override
@@ -147,12 +138,12 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
       filterPublisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
       filterIsbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
       filterLanguage: Value(_langCtrl.text.trim().isEmpty ? null : _langCtrl.text.trim()),
-      filterCollectionIds: Value(collectionIds.isEmpty ? null : jsonEncode(collectionIds)),
       filterStatus: Value(_status?.name),
-      filterTagIds: Value(tagIds.isEmpty ? null : jsonEncode(tagIds)),
-      filterImprintIds: Value(imprintIds.isEmpty ? null : jsonEncode(imprintIds)),
     );
-    await widget.onSave(companion);
+    final shelfId = await widget.onSave(companion);
+    if (shelfId != null) {
+      await ref.read(databaseProvider).shelfDao.setShelfTags(shelfId, [...tagIds, ...imprintIds, ...collectionIds]);
+    }
   }
 
   @override

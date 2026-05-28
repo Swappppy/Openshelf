@@ -15,16 +15,16 @@ class ReadingLogController extends Notifier<void> {
     final today = DateTime(now.year, now.month, now.day);
 
     // Check if an entry for this book and day already exists
-    final existing = await (db.select(db.readingLog)
+    final existing = await (db.logDao.select(db.logDao.readingLog)
           ..where((l) => l.bookId.equals(bookId) & l.date.equals(today)))
         .getSingleOrNull();
 
     if (existing != null) {
-      await db.update(db.readingLog).replace(
+      await db.logDao.updateLog(
         existing.copyWith(pagesRead: existing.pagesRead + delta),
       );
     } else {
-      await db.into(db.readingLog).insert(
+      await db.logDao.insertLog(
         ReadingLogCompanion.insert(
           bookId: bookId,
           date: today,
@@ -41,7 +41,7 @@ final readingLogControllerProvider = NotifierProvider<ReadingLogController, void
 
 final readingStreakProvider = StreamProvider<int>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.watchLogs().map((logs) {
+  return db.logDao.watchLogs().map((logs) {
     if (logs.isEmpty) return 0;
 
     final activeDates = logs
@@ -82,8 +82,8 @@ final totalPagesReadProvider = StreamProvider<int>((ref) {
   
   // Combine ReadingLog entries with the static progress of books 
   // to account for legacy books that weren't tracked via logs.
-  return db.watchAllBooks().asyncMap((books) async {
-    final logs = await db.watchLogs().first;
+  return db.bookDao.watchAllBooks().asyncMap((books) async {
+    final logs = await db.logDao.watchLogs().first;
     
     // 1. Sum all logged activity
     final loggedPages = logs.fold(0, (sum, l) => sum + l.pagesRead);

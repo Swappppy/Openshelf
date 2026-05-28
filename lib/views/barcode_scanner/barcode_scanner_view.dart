@@ -214,7 +214,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
       final db = ref.read(databaseProvider);
 
       // Check if already in DB
-      final existing = await db.getBookByIsbn(code);
+      final existing = await db.bookDao.getBookByIsbn(code);
       if (existing != null) {
         if (mounted) _showFeedback(warning: context.l10n.errorDuplicateIsbn);
         return;
@@ -236,10 +236,10 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
       // The first result is the Recommended one
       final book = results.first;
       final insertedBook = book.toCompanion();
-      final id = await db.insertBook(insertedBook);
+      final id = await db.bookDao.insertBook(insertedBook);
       
       // Fetch full book with ID for the list
-      final fullBook = await db.getBook(id);
+      final fullBook = await db.bookDao.getBook(id);
 
       if (mounted && fullBook != null) {
         _showFeedback(book: fullBook);

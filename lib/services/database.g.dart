@@ -2040,6 +2040,17 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _filterCollectionMeta = const VerificationMeta(
+    'filterCollection',
+  );
+  @override
+  late final GeneratedColumn<String> filterCollection = GeneratedColumn<String>(
+    'filter_collection',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _filterCollectionIdsMeta =
       const VerificationMeta('filterCollectionIds');
   @override
@@ -2110,6 +2121,7 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     filterIsbn,
     filterLanguage,
     filterTranslator,
+    filterCollection,
     filterCollectionIds,
     filterStatus,
     filterTagIds,
@@ -2196,6 +2208,15 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         filterTranslator.isAcceptableOrUnknown(
           data['filter_translator']!,
           _filterTranslatorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_collection')) {
+      context.handle(
+        _filterCollectionMeta,
+        filterCollection.isAcceptableOrUnknown(
+          data['filter_collection']!,
+          _filterCollectionMeta,
         ),
       );
     }
@@ -2289,6 +2310,10 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         DriftSqlType.string,
         data['${effectivePrefix}filter_translator'],
       ),
+      filterCollection: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_collection'],
+      ),
       filterCollectionIds: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}filter_collection_ids'],
@@ -2328,6 +2353,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
   final Value<String?> filterIsbn;
   final Value<String?> filterLanguage;
   final Value<String?> filterTranslator;
+  final Value<String?> filterCollection;
   final Value<String?> filterCollectionIds;
   final Value<String?> filterStatus;
   final Value<String?> filterTagIds;
@@ -2343,6 +2369,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     this.filterIsbn = const Value.absent(),
     this.filterLanguage = const Value.absent(),
     this.filterTranslator = const Value.absent(),
+    this.filterCollection = const Value.absent(),
     this.filterCollectionIds = const Value.absent(),
     this.filterStatus = const Value.absent(),
     this.filterTagIds = const Value.absent(),
@@ -2359,6 +2386,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     this.filterIsbn = const Value.absent(),
     this.filterLanguage = const Value.absent(),
     this.filterTranslator = const Value.absent(),
+    this.filterCollection = const Value.absent(),
     this.filterCollectionIds = const Value.absent(),
     this.filterStatus = const Value.absent(),
     this.filterTagIds = const Value.absent(),
@@ -2375,6 +2403,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     Expression<String>? filterIsbn,
     Expression<String>? filterLanguage,
     Expression<String>? filterTranslator,
+    Expression<String>? filterCollection,
     Expression<String>? filterCollectionIds,
     Expression<String>? filterStatus,
     Expression<String>? filterTagIds,
@@ -2391,6 +2420,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
       if (filterIsbn != null) 'filter_isbn': filterIsbn,
       if (filterLanguage != null) 'filter_language': filterLanguage,
       if (filterTranslator != null) 'filter_translator': filterTranslator,
+      if (filterCollection != null) 'filter_collection': filterCollection,
       if (filterCollectionIds != null)
         'filter_collection_ids': filterCollectionIds,
       if (filterStatus != null) 'filter_status': filterStatus,
@@ -2410,6 +2440,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     Value<String?>? filterIsbn,
     Value<String?>? filterLanguage,
     Value<String?>? filterTranslator,
+    Value<String?>? filterCollection,
     Value<String?>? filterCollectionIds,
     Value<String?>? filterStatus,
     Value<String?>? filterTagIds,
@@ -2426,6 +2457,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
       filterIsbn: filterIsbn ?? this.filterIsbn,
       filterLanguage: filterLanguage ?? this.filterLanguage,
       filterTranslator: filterTranslator ?? this.filterTranslator,
+      filterCollection: filterCollection ?? this.filterCollection,
       filterCollectionIds: filterCollectionIds ?? this.filterCollectionIds,
       filterStatus: filterStatus ?? this.filterStatus,
       filterTagIds: filterTagIds ?? this.filterTagIds,
@@ -2464,6 +2496,9 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     if (filterTranslator.present) {
       map['filter_translator'] = Variable<String>(filterTranslator.value);
     }
+    if (filterCollection.present) {
+      map['filter_collection'] = Variable<String>(filterCollection.value);
+    }
     if (filterCollectionIds.present) {
       map['filter_collection_ids'] = Variable<String>(
         filterCollectionIds.value,
@@ -2496,11 +2531,228 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
           ..write('filterIsbn: $filterIsbn, ')
           ..write('filterLanguage: $filterLanguage, ')
           ..write('filterTranslator: $filterTranslator, ')
+          ..write('filterCollection: $filterCollection, ')
           ..write('filterCollectionIds: $filterCollectionIds, ')
           ..write('filterStatus: $filterStatus, ')
           ..write('filterTagIds: $filterTagIds, ')
           ..write('filterImprintIds: $filterImprintIds, ')
           ..write('filterNoCover: $filterNoCover')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ShelfTagsTable extends ShelfTags
+    with TableInfo<$ShelfTagsTable, ShelfTag> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ShelfTagsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _shelfIdMeta = const VerificationMeta(
+    'shelfId',
+  );
+  @override
+  late final GeneratedColumn<int> shelfId = GeneratedColumn<int>(
+    'shelf_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES shelves (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _tagIdMeta = const VerificationMeta('tagId');
+  @override
+  late final GeneratedColumn<int> tagId = GeneratedColumn<int>(
+    'tag_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tags (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [shelfId, tagId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'shelf_tags';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ShelfTag> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('shelf_id')) {
+      context.handle(
+        _shelfIdMeta,
+        shelfId.isAcceptableOrUnknown(data['shelf_id']!, _shelfIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_shelfIdMeta);
+    }
+    if (data.containsKey('tag_id')) {
+      context.handle(
+        _tagIdMeta,
+        tagId.isAcceptableOrUnknown(data['tag_id']!, _tagIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tagIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {shelfId, tagId};
+  @override
+  ShelfTag map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ShelfTag(
+      shelfId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}shelf_id'],
+      )!,
+      tagId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tag_id'],
+      )!,
+    );
+  }
+
+  @override
+  $ShelfTagsTable createAlias(String alias) {
+    return $ShelfTagsTable(attachedDatabase, alias);
+  }
+}
+
+class ShelfTag extends DataClass implements Insertable<ShelfTag> {
+  final int shelfId;
+  final int tagId;
+  const ShelfTag({required this.shelfId, required this.tagId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['shelf_id'] = Variable<int>(shelfId);
+    map['tag_id'] = Variable<int>(tagId);
+    return map;
+  }
+
+  ShelfTagsCompanion toCompanion(bool nullToAbsent) {
+    return ShelfTagsCompanion(shelfId: Value(shelfId), tagId: Value(tagId));
+  }
+
+  factory ShelfTag.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ShelfTag(
+      shelfId: serializer.fromJson<int>(json['shelfId']),
+      tagId: serializer.fromJson<int>(json['tagId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'shelfId': serializer.toJson<int>(shelfId),
+      'tagId': serializer.toJson<int>(tagId),
+    };
+  }
+
+  ShelfTag copyWith({int? shelfId, int? tagId}) =>
+      ShelfTag(shelfId: shelfId ?? this.shelfId, tagId: tagId ?? this.tagId);
+  ShelfTag copyWithCompanion(ShelfTagsCompanion data) {
+    return ShelfTag(
+      shelfId: data.shelfId.present ? data.shelfId.value : this.shelfId,
+      tagId: data.tagId.present ? data.tagId.value : this.tagId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ShelfTag(')
+          ..write('shelfId: $shelfId, ')
+          ..write('tagId: $tagId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(shelfId, tagId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ShelfTag &&
+          other.shelfId == this.shelfId &&
+          other.tagId == this.tagId);
+}
+
+class ShelfTagsCompanion extends UpdateCompanion<ShelfTag> {
+  final Value<int> shelfId;
+  final Value<int> tagId;
+  final Value<int> rowid;
+  const ShelfTagsCompanion({
+    this.shelfId = const Value.absent(),
+    this.tagId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ShelfTagsCompanion.insert({
+    required int shelfId,
+    required int tagId,
+    this.rowid = const Value.absent(),
+  }) : shelfId = Value(shelfId),
+       tagId = Value(tagId);
+  static Insertable<ShelfTag> custom({
+    Expression<int>? shelfId,
+    Expression<int>? tagId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (shelfId != null) 'shelf_id': shelfId,
+      if (tagId != null) 'tag_id': tagId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ShelfTagsCompanion copyWith({
+    Value<int>? shelfId,
+    Value<int>? tagId,
+    Value<int>? rowid,
+  }) {
+    return ShelfTagsCompanion(
+      shelfId: shelfId ?? this.shelfId,
+      tagId: tagId ?? this.tagId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (shelfId.present) {
+      map['shelf_id'] = Variable<int>(shelfId.value);
+    }
+    if (tagId.present) {
+      map['tag_id'] = Variable<int>(tagId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ShelfTagsCompanion(')
+          ..write('shelfId: $shelfId, ')
+          ..write('tagId: $tagId, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -3735,10 +3987,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BooksTable books = $BooksTable(this);
   late final $BookTagsTable bookTags = $BookTagsTable(this);
   late final $ShelvesTable shelves = $ShelvesTable(this);
+  late final $ShelfTagsTable shelfTags = $ShelfTagsTable(this);
   late final $ReadingGoalsTable readingGoals = $ReadingGoalsTable(this);
   late final $ReadingLogTable readingLog = $ReadingLogTable(this);
   late final $StatWidgetConfigsTable statWidgetConfigs =
       $StatWidgetConfigsTable(this);
+  late final BookDao bookDao = BookDao(this as AppDatabase);
+  late final TagDao tagDao = TagDao(this as AppDatabase);
+  late final ShelfDao shelfDao = ShelfDao(this as AppDatabase);
+  late final GoalDao goalDao = GoalDao(this as AppDatabase);
+  late final LogDao logDao = LogDao(this as AppDatabase);
+  late final StatDao statDao = StatDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3748,10 +4007,28 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     books,
     bookTags,
     shelves,
+    shelfTags,
     readingGoals,
     readingLog,
     statWidgetConfigs,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'shelves',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('shelf_tags', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'tags',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('shelf_tags', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$TagsTableCreateCompanionBuilder =
@@ -3789,6 +4066,24 @@ final class $$TagsTableReferences
     ).filter((f) => f.tagId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_bookTagsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ShelfTagsTable, List<ShelfTag>>
+  _shelfTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.shelfTags,
+    aliasName: $_aliasNameGenerator(db.tags.id, db.shelfTags.tagId),
+  );
+
+  $$ShelfTagsTableProcessedTableManager get shelfTagsRefs {
+    final manager = $$ShelfTagsTableTableManager(
+      $_db,
+      $_db.shelfTags,
+    ).filter((f) => f.tagId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_shelfTagsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3863,6 +4158,31 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
           }) => $$BookTagsTableFilterComposer(
             $db: $db,
             $table: $db.bookTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> shelfTagsRefs(
+    Expression<bool> Function($$ShelfTagsTableFilterComposer f) f,
+  ) {
+    final $$ShelfTagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.shelfTags,
+      getReferencedColumn: (t) => t.tagId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelfTagsTableFilterComposer(
+            $db: $db,
+            $table: $db.shelfTags,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3981,6 +4301,31 @@ class $$TagsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> shelfTagsRefs<T extends Object>(
+    Expression<T> Function($$ShelfTagsTableAnnotationComposer a) f,
+  ) {
+    final $$ShelfTagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.shelfTags,
+      getReferencedColumn: (t) => t.tagId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelfTagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.shelfTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> readingGoalsRefs<T extends Object>(
     Expression<T> Function($$ReadingGoalsTableAnnotationComposer a) f,
   ) {
@@ -4020,7 +4365,11 @@ class $$TagsTableTableManager
           $$TagsTableUpdateCompanionBuilder,
           (Tag, $$TagsTableReferences),
           Tag,
-          PrefetchHooks Function({bool bookTagsRefs, bool readingGoalsRefs})
+          PrefetchHooks Function({
+            bool bookTagsRefs,
+            bool shelfTagsRefs,
+            bool readingGoalsRefs,
+          })
         > {
   $$TagsTableTableManager(_$AppDatabase db, $TagsTable table)
     : super(
@@ -4068,11 +4417,16 @@ class $$TagsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({bookTagsRefs = false, readingGoalsRefs = false}) {
+              ({
+                bookTagsRefs = false,
+                shelfTagsRefs = false,
+                readingGoalsRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (bookTagsRefs) db.bookTags,
+                    if (shelfTagsRefs) db.shelfTags,
                     if (readingGoalsRefs) db.readingGoals,
                   ],
                   addJoins: null,
@@ -4085,6 +4439,22 @@ class $$TagsTableTableManager
                               ._bookTagsRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$TagsTableReferences(db, table, p0).bookTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.tagId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (shelfTagsRefs)
+                        await $_getPrefetchedData<Tag, $TagsTable, ShelfTag>(
+                          currentTable: table,
+                          referencedTable: $$TagsTableReferences
+                              ._shelfTagsRefsTable(db),
+                          managerFromTypedResult: (p0) => $$TagsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).shelfTagsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.tagId == item.id,
@@ -4127,7 +4497,11 @@ typedef $$TagsTableProcessedTableManager =
       $$TagsTableUpdateCompanionBuilder,
       (Tag, $$TagsTableReferences),
       Tag,
-      PrefetchHooks Function({bool bookTagsRefs, bool readingGoalsRefs})
+      PrefetchHooks Function({
+        bool bookTagsRefs,
+        bool shelfTagsRefs,
+        bool readingGoalsRefs,
+      })
     >;
 typedef $$BooksTableCreateCompanionBuilder =
     BooksCompanion Function({
@@ -5475,6 +5849,7 @@ typedef $$ShelvesTableCreateCompanionBuilder =
       Value<String?> filterIsbn,
       Value<String?> filterLanguage,
       Value<String?> filterTranslator,
+      Value<String?> filterCollection,
       Value<String?> filterCollectionIds,
       Value<String?> filterStatus,
       Value<String?> filterTagIds,
@@ -5492,6 +5867,7 @@ typedef $$ShelvesTableUpdateCompanionBuilder =
       Value<String?> filterIsbn,
       Value<String?> filterLanguage,
       Value<String?> filterTranslator,
+      Value<String?> filterCollection,
       Value<String?> filterCollectionIds,
       Value<String?> filterStatus,
       Value<String?> filterTagIds,
@@ -5502,6 +5878,24 @@ typedef $$ShelvesTableUpdateCompanionBuilder =
 final class $$ShelvesTableReferences
     extends BaseReferences<_$AppDatabase, $ShelvesTable, Shelf> {
   $$ShelvesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ShelfTagsTable, List<ShelfTag>>
+  _shelfTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.shelfTags,
+    aliasName: $_aliasNameGenerator(db.shelves.id, db.shelfTags.shelfId),
+  );
+
+  $$ShelfTagsTableProcessedTableManager get shelfTagsRefs {
+    final manager = $$ShelfTagsTableTableManager(
+      $_db,
+      $_db.shelfTags,
+    ).filter((f) => f.shelfId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_shelfTagsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 
   static MultiTypedResultKey<$ReadingGoalsTable, List<ReadingGoal>>
   _readingGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -5576,6 +5970,11 @@ class $$ShelvesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get filterCollection => $composableBuilder(
+    column: $table.filterCollection,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get filterCollectionIds => $composableBuilder(
     column: $table.filterCollectionIds,
     builder: (column) => ColumnFilters(column),
@@ -5600,6 +5999,31 @@ class $$ShelvesTableFilterComposer
     column: $table.filterNoCover,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> shelfTagsRefs(
+    Expression<bool> Function($$ShelfTagsTableFilterComposer f) f,
+  ) {
+    final $$ShelfTagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.shelfTags,
+      getReferencedColumn: (t) => t.shelfId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelfTagsTableFilterComposer(
+            $db: $db,
+            $table: $db.shelfTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<bool> readingGoalsRefs(
     Expression<bool> Function($$ReadingGoalsTableFilterComposer f) f,
@@ -5681,6 +6105,11 @@ class $$ShelvesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get filterCollection => $composableBuilder(
+    column: $table.filterCollection,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get filterCollectionIds => $composableBuilder(
     column: $table.filterCollectionIds,
     builder: (column) => ColumnOrderings(column),
@@ -5757,6 +6186,11 @@ class $$ShelvesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get filterCollection => $composableBuilder(
+    column: $table.filterCollection,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get filterCollectionIds => $composableBuilder(
     column: $table.filterCollectionIds,
     builder: (column) => column,
@@ -5781,6 +6215,31 @@ class $$ShelvesTableAnnotationComposer
     column: $table.filterNoCover,
     builder: (column) => column,
   );
+
+  Expression<T> shelfTagsRefs<T extends Object>(
+    Expression<T> Function($$ShelfTagsTableAnnotationComposer a) f,
+  ) {
+    final $$ShelfTagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.shelfTags,
+      getReferencedColumn: (t) => t.shelfId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelfTagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.shelfTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<T> readingGoalsRefs<T extends Object>(
     Expression<T> Function($$ReadingGoalsTableAnnotationComposer a) f,
@@ -5821,7 +6280,7 @@ class $$ShelvesTableTableManager
           $$ShelvesTableUpdateCompanionBuilder,
           (Shelf, $$ShelvesTableReferences),
           Shelf,
-          PrefetchHooks Function({bool readingGoalsRefs})
+          PrefetchHooks Function({bool shelfTagsRefs, bool readingGoalsRefs})
         > {
   $$ShelvesTableTableManager(_$AppDatabase db, $ShelvesTable table)
     : super(
@@ -5845,6 +6304,7 @@ class $$ShelvesTableTableManager
                 Value<String?> filterIsbn = const Value.absent(),
                 Value<String?> filterLanguage = const Value.absent(),
                 Value<String?> filterTranslator = const Value.absent(),
+                Value<String?> filterCollection = const Value.absent(),
                 Value<String?> filterCollectionIds = const Value.absent(),
                 Value<String?> filterStatus = const Value.absent(),
                 Value<String?> filterTagIds = const Value.absent(),
@@ -5860,6 +6320,7 @@ class $$ShelvesTableTableManager
                 filterIsbn: filterIsbn,
                 filterLanguage: filterLanguage,
                 filterTranslator: filterTranslator,
+                filterCollection: filterCollection,
                 filterCollectionIds: filterCollectionIds,
                 filterStatus: filterStatus,
                 filterTagIds: filterTagIds,
@@ -5877,6 +6338,7 @@ class $$ShelvesTableTableManager
                 Value<String?> filterIsbn = const Value.absent(),
                 Value<String?> filterLanguage = const Value.absent(),
                 Value<String?> filterTranslator = const Value.absent(),
+                Value<String?> filterCollection = const Value.absent(),
                 Value<String?> filterCollectionIds = const Value.absent(),
                 Value<String?> filterStatus = const Value.absent(),
                 Value<String?> filterTagIds = const Value.absent(),
@@ -5892,6 +6354,7 @@ class $$ShelvesTableTableManager
                 filterIsbn: filterIsbn,
                 filterLanguage: filterLanguage,
                 filterTranslator: filterTranslator,
+                filterCollection: filterCollection,
                 filterCollectionIds: filterCollectionIds,
                 filterStatus: filterStatus,
                 filterTagIds: filterTagIds,
@@ -5906,35 +6369,63 @@ class $$ShelvesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({readingGoalsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (readingGoalsRefs) db.readingGoals],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (readingGoalsRefs)
-                    await $_getPrefetchedData<
-                      Shelf,
-                      $ShelvesTable,
-                      ReadingGoal
-                    >(
-                      currentTable: table,
-                      referencedTable: $$ShelvesTableReferences
-                          ._readingGoalsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$ShelvesTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).readingGoalsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.shelfId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({shelfTagsRefs = false, readingGoalsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (shelfTagsRefs) db.shelfTags,
+                    if (readingGoalsRefs) db.readingGoals,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (shelfTagsRefs)
+                        await $_getPrefetchedData<
+                          Shelf,
+                          $ShelvesTable,
+                          ShelfTag
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ShelvesTableReferences
+                              ._shelfTagsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ShelvesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).shelfTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.shelfId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (readingGoalsRefs)
+                        await $_getPrefetchedData<
+                          Shelf,
+                          $ShelvesTable,
+                          ReadingGoal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ShelvesTableReferences
+                              ._readingGoalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ShelvesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).readingGoalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.shelfId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -5951,7 +6442,353 @@ typedef $$ShelvesTableProcessedTableManager =
       $$ShelvesTableUpdateCompanionBuilder,
       (Shelf, $$ShelvesTableReferences),
       Shelf,
-      PrefetchHooks Function({bool readingGoalsRefs})
+      PrefetchHooks Function({bool shelfTagsRefs, bool readingGoalsRefs})
+    >;
+typedef $$ShelfTagsTableCreateCompanionBuilder =
+    ShelfTagsCompanion Function({
+      required int shelfId,
+      required int tagId,
+      Value<int> rowid,
+    });
+typedef $$ShelfTagsTableUpdateCompanionBuilder =
+    ShelfTagsCompanion Function({
+      Value<int> shelfId,
+      Value<int> tagId,
+      Value<int> rowid,
+    });
+
+final class $$ShelfTagsTableReferences
+    extends BaseReferences<_$AppDatabase, $ShelfTagsTable, ShelfTag> {
+  $$ShelfTagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ShelvesTable _shelfIdTable(_$AppDatabase db) => db.shelves
+      .createAlias($_aliasNameGenerator(db.shelfTags.shelfId, db.shelves.id));
+
+  $$ShelvesTableProcessedTableManager get shelfId {
+    final $_column = $_itemColumn<int>('shelf_id')!;
+
+    final manager = $$ShelvesTableTableManager(
+      $_db,
+      $_db.shelves,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_shelfIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TagsTable _tagIdTable(_$AppDatabase db) =>
+      db.tags.createAlias($_aliasNameGenerator(db.shelfTags.tagId, db.tags.id));
+
+  $$TagsTableProcessedTableManager get tagId {
+    final $_column = $_itemColumn<int>('tag_id')!;
+
+    final manager = $$TagsTableTableManager(
+      $_db,
+      $_db.tags,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_tagIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ShelfTagsTableFilterComposer
+    extends Composer<_$AppDatabase, $ShelfTagsTable> {
+  $$ShelfTagsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ShelvesTableFilterComposer get shelfId {
+    final $$ShelvesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shelfId,
+      referencedTable: $db.shelves,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelvesTableFilterComposer(
+            $db: $db,
+            $table: $db.shelves,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableFilterComposer get tagId {
+    final $$TagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableFilterComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ShelfTagsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ShelfTagsTable> {
+  $$ShelfTagsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ShelvesTableOrderingComposer get shelfId {
+    final $$ShelvesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shelfId,
+      referencedTable: $db.shelves,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelvesTableOrderingComposer(
+            $db: $db,
+            $table: $db.shelves,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableOrderingComposer get tagId {
+    final $$TagsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableOrderingComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ShelfTagsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ShelfTagsTable> {
+  $$ShelfTagsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ShelvesTableAnnotationComposer get shelfId {
+    final $$ShelvesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.shelfId,
+      referencedTable: $db.shelves,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ShelvesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.shelves,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableAnnotationComposer get tagId {
+    final $$TagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ShelfTagsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ShelfTagsTable,
+          ShelfTag,
+          $$ShelfTagsTableFilterComposer,
+          $$ShelfTagsTableOrderingComposer,
+          $$ShelfTagsTableAnnotationComposer,
+          $$ShelfTagsTableCreateCompanionBuilder,
+          $$ShelfTagsTableUpdateCompanionBuilder,
+          (ShelfTag, $$ShelfTagsTableReferences),
+          ShelfTag,
+          PrefetchHooks Function({bool shelfId, bool tagId})
+        > {
+  $$ShelfTagsTableTableManager(_$AppDatabase db, $ShelfTagsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ShelfTagsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ShelfTagsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ShelfTagsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> shelfId = const Value.absent(),
+                Value<int> tagId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ShelfTagsCompanion(
+                shelfId: shelfId,
+                tagId: tagId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int shelfId,
+                required int tagId,
+                Value<int> rowid = const Value.absent(),
+              }) => ShelfTagsCompanion.insert(
+                shelfId: shelfId,
+                tagId: tagId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ShelfTagsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({shelfId = false, tagId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (shelfId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.shelfId,
+                                referencedTable: $$ShelfTagsTableReferences
+                                    ._shelfIdTable(db),
+                                referencedColumn: $$ShelfTagsTableReferences
+                                    ._shelfIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (tagId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.tagId,
+                                referencedTable: $$ShelfTagsTableReferences
+                                    ._tagIdTable(db),
+                                referencedColumn: $$ShelfTagsTableReferences
+                                    ._tagIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ShelfTagsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ShelfTagsTable,
+      ShelfTag,
+      $$ShelfTagsTableFilterComposer,
+      $$ShelfTagsTableOrderingComposer,
+      $$ShelfTagsTableAnnotationComposer,
+      $$ShelfTagsTableCreateCompanionBuilder,
+      $$ShelfTagsTableUpdateCompanionBuilder,
+      (ShelfTag, $$ShelfTagsTableReferences),
+      ShelfTag,
+      PrefetchHooks Function({bool shelfId, bool tagId})
     >;
 typedef $$ReadingGoalsTableCreateCompanionBuilder =
     ReadingGoalsCompanion Function({
@@ -7180,6 +8017,8 @@ class $AppDatabaseManager {
       $$BookTagsTableTableManager(_db, _db.bookTags);
   $$ShelvesTableTableManager get shelves =>
       $$ShelvesTableTableManager(_db, _db.shelves);
+  $$ShelfTagsTableTableManager get shelfTags =>
+      $$ShelfTagsTableTableManager(_db, _db.shelfTags);
   $$ReadingGoalsTableTableManager get readingGoals =>
       $$ReadingGoalsTableTableManager(_db, _db.readingGoals);
   $$ReadingLogTableTableManager get readingLog =>

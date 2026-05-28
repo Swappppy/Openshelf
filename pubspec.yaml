@@ -45,7 +45,7 @@ dependencies:
   shared_preferences: ^2.3.0
 
   # Elegir ruta para imágenes y db
-  file_picker: ^12.0.0-beta.3
+  file_picker: ^11.0.2
 
   # Recortar imágenes en portadas y sellos
   image_cropper: ^12.2.1
@@ -59,9 +59,9 @@ dependencies:
   csv: ^8.0.0
   collection: ^1.19.1
   archive: ^4.0.9
-  share_plus: ^13.1.0
+  share_plus: ^12.0.2
   fl_chart: ^1.2.0
-  device_info_plus: ^13.1.0
+  device_info_plus: ^12.0.0
   reorderable_staggered_grid_view: ^0.1.1
   rxdart: ^0.28.0
 dev_dependencies:
