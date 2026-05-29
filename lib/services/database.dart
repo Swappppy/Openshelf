@@ -44,7 +44,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -121,6 +121,22 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 15) {
         await m.createTable(shelfTags);
+      }
+      if (from < 16) {
+        await transaction(() async {
+          // 1. Get existing data
+          final existing = await customSelect('SELECT book_id, tag_id FROM book_tags').get();
+          // 2. Drop and recreate
+          await m.deleteTable('book_tags');
+          await m.createTable(bookTags);
+          // 3. Restore data
+          for (final row in existing) {
+            await into(bookTags).insert(BookTagsCompanion.insert(
+              bookId: row.read<int>('book_id'),
+              tagId: row.read<int>('tag_id'),
+            ));
+          }
+        });
       }
     },
     beforeOpen: (details) async {
@@ -199,6 +215,28 @@ class AppDatabase extends _$AppDatabase {
                tagId: tid,
              ), mode: InsertMode.insertOrIgnore);
           }
+        }
+      }
+
+      // Initialize default stats widgets if none exist
+      final existingWidgets = await select(statWidgetConfigs).get();
+      if (existingWidgets.isEmpty) {
+        final defaults = [
+          ('pages', 's1x1'),
+          ('streak', 's1x1'),
+          ('goal', 's2x1'),
+          ('currentBook', 's2x1'),
+          ('status', 's1x1'),
+          ('addedOverTime', 's2x2'),
+          ('categories', 's2x2'),
+        ];
+
+        for (int i = 0; i < defaults.length; i++) {
+          await into(statWidgetConfigs).insert(StatWidgetConfigsCompanion.insert(
+            type: defaults[i].$1,
+            size: defaults[i].$2,
+            sortOrder: i,
+          ));
         }
       }
     }

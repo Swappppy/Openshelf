@@ -64,9 +64,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
     }
 
     if (s != null) {
-      _loadTags(s.id);
-      _loadImprints(s.id);
-      _loadCollections(s.id);
+      _loadSelectedEntities(s.id);
     } else if (f != null) {
       if (f.tags.isNotEmpty) _selectedTags = List.from(f.tags);
       if (f.imprints.isNotEmpty) _selectedImprints = List.from(f.imprints);
@@ -93,25 +91,23 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
     Navigator.pop(context);
   }
 
-  Future<void> _loadTags(int shelfId) async {
+  Future<void> _loadSelectedEntities(int shelfId) async {
     final db = ref.read(databaseProvider);
-    final tags = await db.shelfDao.getTagIdsForShelf(shelfId);
-    final allTags = await db.tagDao.getTagsByType(TagType.tag);
-    setState(() => _selectedTags = allTags.where((t) => tags.contains(t.id)).toList());
-  }
+    final tagIds = await db.shelfDao.getTagIdsForShelf(shelfId);
+    if (tagIds.isEmpty) return;
 
-  Future<void> _loadImprints(int shelfId) async {
-    final db = ref.read(databaseProvider);
-    final tags = await db.shelfDao.getTagIdsForShelf(shelfId);
-    final allImprints = await db.tagDao.getTagsByType(TagType.imprint);
-    setState(() => _selectedImprints = allImprints.where((t) => tags.contains(t.id)).toList());
-  }
+    final allEntities = await db.tagDao.getTagsByIds(tagIds);
 
-  Future<void> _loadCollections(int shelfId) async {
-    final db = ref.read(databaseProvider);
-    final tags = await db.shelfDao.getTagIdsForShelf(shelfId);
-    final allCols = await db.tagDao.getTagsByType(TagType.collection);
-    setState(() => _selectedCollections = allCols.where((c) => tags.contains(c.id)).toList());
+    if (mounted) {
+      setState(() {
+        _selectedTags =
+            allEntities.where((t) => t.type == TagType.tag).toList();
+        _selectedImprints =
+            allEntities.where((t) => t.type == TagType.imprint).toList();
+        _selectedCollections =
+            allEntities.where((t) => t.type == TagType.collection).toList();
+      });
+    }
   }
 
   @override
@@ -126,23 +122,36 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
   Future<void> _save() async {
     if (_nameCtrl.text.trim().isEmpty) return;
     setState(() => _isSaving = true);
-    final tagIds = _selectedTags.map((t) => t.id).toList();
-    final imprintIds = _selectedImprints.map((t) => t.id).toList();
-    final collectionIds = _selectedCollections.map((c) => c.id).toList();
     
-    final companion = ShelvesCompanion(
-      name: Value(_nameCtrl.text.trim()),
-      filterQuery: Value(_queryCtrl.text.trim().isEmpty ? null : _queryCtrl.text.trim()),
-      filterSubtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
-      filterAuthor: Value(_authorCtrl.text.trim().isEmpty ? null : _authorCtrl.text.trim()),
-      filterPublisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
-      filterIsbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
-      filterLanguage: Value(_langCtrl.text.trim().isEmpty ? null : _langCtrl.text.trim()),
-      filterStatus: Value(_status?.name),
-    );
-    final shelfId = await widget.onSave(companion);
-    if (shelfId != null) {
-      await ref.read(databaseProvider).shelfDao.setShelfTags(shelfId, [...tagIds, ...imprintIds, ...collectionIds]);
+    try {
+      final tagIds = _selectedTags.map((t) => t.id).toList();
+      final imprintIds = _selectedImprints.map((t) => t.id).toList();
+      final collectionIds = _selectedCollections.map((c) => c.id).toList();
+      
+      final companion = ShelvesCompanion(
+        name: Value(_nameCtrl.text.trim()),
+        filterQuery: Value(_queryCtrl.text.trim().isEmpty ? null : _queryCtrl.text.trim()),
+        filterSubtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
+        filterAuthor: Value(_authorCtrl.text.trim().isEmpty ? null : _authorCtrl.text.trim()),
+        filterPublisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
+        filterIsbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
+        filterLanguage: Value(_langCtrl.text.trim().isEmpty ? null : _langCtrl.text.trim()),
+        filterStatus: Value(_status?.name),
+      );
+      final shelfId = await widget.onSave(companion);
+      if (shelfId != null) {
+        await ref.read(databaseProvider).shelfDao.setShelfTags(shelfId, [...tagIds, ...imprintIds, ...collectionIds]);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 

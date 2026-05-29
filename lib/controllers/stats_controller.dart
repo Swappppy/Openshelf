@@ -6,30 +6,7 @@ import 'database_provider.dart';
 
 final statsWidgetsProvider = StreamProvider<List<StatWidgetConfig>>((ref) {
   final db = ref.watch(databaseProvider);
-  return db.statDao.watchWidgetConfigs().asyncMap((configs) async {
-    if (configs.isEmpty) {
-      // Initialize default layout if empty
-      final defaults = [
-        ('pages', 's1x1'),
-        ('streak', 's1x1'),
-        ('goal', 's2x1'),
-        ('currentBook', 's2x1'),
-        ('status', 's1x1'),
-        ('addedOverTime', 's2x2'),
-        ('categories', 's2x2'),
-      ];
-      
-      for (int i = 0; i < defaults.length; i++) {
-        await db.statDao.insertWidgetConfig(StatWidgetConfigsCompanion.insert(
-          type: defaults[i].$1,
-          size: defaults[i].$2,
-          sortOrder: i,
-        ));
-      }
-      return db.statDao.watchWidgetConfigs().first;
-    }
-    return configs;
-  });
+  return db.statDao.watchWidgetConfigs();
 });
 
 class StatsController extends Notifier<void> {

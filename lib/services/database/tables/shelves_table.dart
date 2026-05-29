@@ -15,6 +15,7 @@ class Shelves extends Table {
   TextColumn get filterTranslator => text().nullable()();
   @Deprecated('Use filterCollectionIds instead')
   TextColumn get filterCollection => text().nullable()();
+  @Deprecated('Use ShelfTags table instead')
   TextColumn get filterCollectionIds => text().nullable()();
   TextColumn get filterStatus => text().nullable()();
   /// DEPRECATED: Replaced by ShelfTags table.

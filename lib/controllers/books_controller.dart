@@ -34,10 +34,6 @@ final allShelvesWithStatsProvider = StreamProvider<List<(Shelf, int, int)>>((ref
           publisher: shelf.filterPublisher,
           isbn: shelf.filterIsbn,
           language: shelf.filterLanguage,
-          // Note: collectionId and imprintId are now just Tags in the shelfTags list
-          // We need to filter them by type here or store them separately.
-          // For now, let's pass all tagIds to watchBooksFiltered and let it handle the types if it can,
-          // or we filter them here.
           collectionIds: shelfTags.where((t) => t.type == TagType.collection).map((t) => t.id).toList().nullIfEmpty(),
           tagIds: shelfTags.where((t) => t.type == TagType.tag).map((t) => t.id).toList().nullIfEmpty(),
           imprintIds: shelfTags.where((t) => t.type == TagType.imprint).map((t) => t.id).toList().nullIfEmpty(),
@@ -180,6 +176,13 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
     orElse: () => <int, String>{},
   );
 
+  // Watch all collections to get names for sorting
+  final collectionsAsync = ref.watch(allCollectionsProvider);
+  final collectionNames = collectionsAsync.maybeWhen(
+    data: (list) => {for (final t in list) t.id: t.name},
+    orElse: () => <int, String>{},
+  );
+
   final stream = db.bookDao.watchBooksFiltered(
     query: filters.query,
     author: filters.author,
@@ -196,7 +199,11 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
     var filtered = allBooks.toList();
 
     // Sort
-    filtered.applyLibrarySorting(prefs, imprintNames: imprintNames);
+    filtered.applyLibrarySorting(
+      prefs, 
+      imprintNames: imprintNames,
+      collectionNames: collectionNames,
+    );
 
     return filtered;
   });

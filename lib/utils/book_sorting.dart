@@ -3,7 +3,10 @@ import '../models/display_preferences.dart';
 
 extension BookSortingExtension on List<Book> {
   /// Sorts the list of books based on user preferences.
-  void applyLibrarySorting(DisplayPreferences prefs, {Map<int, String>? imprintNames}) {
+  void applyLibrarySorting(DisplayPreferences prefs, {
+    Map<int, String>? imprintNames,
+    Map<int, String>? collectionNames,
+  }) {
     sort((a, b) {
       for (final criteria in prefs.sortOrder) {
         final isAsc = prefs.sortDirections[criteria] ?? true;
@@ -20,7 +23,13 @@ extension BookSortingExtension on List<Book> {
             comparison = (a.publisher ?? '').toLowerCase().compareTo((b.publisher ?? '').toLowerCase());
             break;
           case 'collection':
-            comparison = (a.collectionName ?? '').toLowerCase().compareTo((b.collectionName ?? '').toLowerCase());
+            final nameA = (collectionNames != null && a.collectionId != null) 
+                ? (collectionNames[a.collectionId] ?? '') 
+                : (a.collectionName ?? '');
+            final nameB = (collectionNames != null && b.collectionId != null) 
+                ? (collectionNames[b.collectionId] ?? '') 
+                : (b.collectionName ?? '');
+            comparison = nameA.toLowerCase().compareTo(nameB.toLowerCase());
             break;
           case 'imprint':
             final nameA = (imprintNames != null && a.imprintId != null) ? (imprintNames[a.imprintId] ?? '') : '';

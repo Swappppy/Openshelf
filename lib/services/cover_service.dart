@@ -124,7 +124,7 @@ class CoverService {
           // We compress in-place by using a temp file
           final tempPath = '${book.coverPath!}.tmp';
           await compressImage(book.coverPath!, tempPath);
-          await File(tempPath).rename(book.coverPath!);
+          await _safeReplaceFile(tempPath, book.coverPath!);
           optimized++;
         }
       }
@@ -137,13 +137,33 @@ class CoverService {
         if (await shouldCompress(imp.imagePath!)) {
           final tempPath = '${imp.imagePath!}.tmp';
           await compressImage(imp.imagePath!, tempPath);
-          await File(tempPath).rename(imp.imagePath!);
+          await _safeReplaceFile(tempPath, imp.imagePath!);
           optimized++;
         }
       }
     }
 
     return optimized;
+  }
+
+  /// Verifies that a temporary file is valid before replacing the original.
+  static Future<void> _safeReplaceFile(String tempPath, String originalPath) async {
+    final tempFile = File(tempPath);
+    try {
+      if (await tempFile.exists() && await tempFile.length() > 0) {
+        // Safe to replace
+        await tempFile.rename(originalPath);
+      } else {
+        // Invalid or empty file, cleanup and abort replacement
+        if (await tempFile.exists()) await tempFile.delete();
+        debugPrint('CoverService: Compression produced invalid or empty file for $originalPath. Aborting replacement.');
+      }
+    } catch (e) {
+      debugPrint('CoverService: Error during safe file replacement for $originalPath: $e');
+      if (await tempFile.exists()) {
+        try { await tempFile.delete(); } catch (_) {}
+      }
+    }
   }
 
   /// Checks if an image should be compressed based on its size and dimensions.

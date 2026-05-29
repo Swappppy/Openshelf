@@ -14,6 +14,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
   final String? filterTranslator;
   @Deprecated('Use filterCollectionIds instead')
   final String? filterCollection;
+  @Deprecated('Use ShelfTags table instead')
   final String? filterCollectionIds;
   final String? filterStatus;
   

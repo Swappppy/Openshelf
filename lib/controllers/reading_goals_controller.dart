@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rxdart/rxdart.dart';
 import '../services/database.dart';
 import 'database_provider.dart';
 
@@ -9,41 +10,51 @@ final allGoalsProvider = StreamProvider<List<ReadingGoal>>((ref) {
 
 final goalProgressProvider = StreamProvider.family<int, int>((ref, goalId) {
   final db = ref.watch(databaseProvider);
-  
-  return (db.goalDao.select(db.goalDao.readingGoals)..where((t) => t.id.equals(goalId))).watchSingle().asyncMap((goal) async {
+
+  return (db.goalDao.select(db.goalDao.readingGoals)
+        ..where((t) => t.id.equals(goalId)))
+      .watchSingle()
+      .switchMap((goal) {
     if (goal.type == 'books') {
-      final books = await db.bookDao.watchAllBooks().first;
-      return books.where((b) => 
-        b.status == ReadingStatus.read &&
-        b.finishedAt != null &&
-        b.finishedAt!.isAfter(goal.startDate) &&
-        b.finishedAt!.isBefore(goal.endDate)
-      ).length;
+      return db.bookDao.watchAllBooks().map((books) => books
+          .where((b) =>
+              b.status == ReadingStatus.read &&
+              b.finishedAt != null &&
+              b.finishedAt!.isAfter(goal.startDate) &&
+              b.finishedAt!.isBefore(goal.endDate))
+          .length);
     } else if (goal.type == 'pages') {
-      final logs = await db.logDao.watchLogs().first;
-      return logs.where((l) => 
-        l.date.isAfter(goal.startDate) &&
-        l.date.isBefore(goal.endDate)
-      ).fold<int>(0, (sum, l) => sum + l.pagesRead);
+      return db.logDao.watchLogs().map((logs) => logs
+          .where((l) =>
+              l.date.isAfter(goal.startDate) && l.date.isBefore(goal.endDate))
+          .fold<int>(0, (sum, l) => sum + l.pagesRead));
     } else if (goal.type == 'shelf' && goal.shelfId != null) {
       // For shelf goals, progress is how many books in that shelf are 'read'
-      final shelf = await (db.shelfDao.select(db.shelfDao.shelves)..where((t) => t.id.equals(goal.shelfId!))).getSingleOrNull();
-      if (shelf == null) return 0;
-      
-      final books = await db.bookDao.watchBooksFiltered(
-        query: shelf.filterQuery,
-        author: shelf.filterAuthor,
-        publisher: shelf.filterPublisher,
-        isbn: shelf.filterIsbn,
-        collectionIds: shelf.filterCollectionIds != null ? (jsonDecode(shelf.filterCollectionIds!) as List).cast<int>() : null,
-        tagIds: shelf.filterTagIds != null ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>() : null,
-        imprintIds: shelf.filterImprintIds != null ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>() : null,
-        status: ReadingStatus.read,
-      ).first;
-      
-      return books.length;
+      return (db.shelfDao.select(db.shelfDao.shelves)
+            ..where((t) => t.id.equals(goal.shelfId!)))
+          .watchSingle()
+          .switchMap((shelf) {
+        return db.bookDao
+            .watchBooksFiltered(
+              query: shelf.filterQuery,
+              author: shelf.filterAuthor,
+              publisher: shelf.filterPublisher,
+              isbn: shelf.filterIsbn,
+              collectionIds: shelf.filterCollectionIds != null
+                  ? (jsonDecode(shelf.filterCollectionIds!) as List).cast<int>()
+                  : null,
+              tagIds: shelf.filterTagIds != null
+                  ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>()
+                  : null,
+              imprintIds: shelf.filterImprintIds != null
+                  ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>()
+                  : null,
+              status: ReadingStatus.read,
+            )
+            .map((books) => books.length);
+      });
     }
-    return 0;
+    return Stream.value(0);
   });
 });
 

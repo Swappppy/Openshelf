@@ -35,8 +35,8 @@ class Books extends Table {
 
 /// Many-to-Many relationship between Books and Tags
 class BookTags extends Table {
-  IntColumn get bookId => integer().references(Books, #id)();
-  IntColumn get tagId => integer().references(Tags, #id)();
+  IntColumn get bookId => integer().references(Books, #id, onDelete: KeyAction.cascade)();
+  IntColumn get tagId => integer().references(Tags, #id, onDelete: KeyAction.cascade)();
 
   @override
   Set<Column> get primaryKey => {bookId, tagId};

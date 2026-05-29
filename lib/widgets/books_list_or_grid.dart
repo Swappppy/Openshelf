@@ -90,7 +90,16 @@ class BooksListOrGrid extends ConsumerWidget {
             data: (list) => {for (final t in list) t.id: t.name},
             orElse: () => <int, String>{},
           );
-          items.applyLibrarySorting(prefs, imprintNames: imprintNames);
+          final collectionsAsync = ref.watch(allCollectionsProvider);
+          final collectionNames = collectionsAsync.maybeWhen(
+            data: (list) => {for (final t in list) t.id: t.name},
+            orElse: () => <int, String>{},
+          );
+          items.applyLibrarySorting(
+            prefs,
+            imprintNames: imprintNames,
+            collectionNames: collectionNames,
+          );
         }
 
         return AnimatedSwitcher(
