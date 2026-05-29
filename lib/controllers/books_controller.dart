@@ -163,6 +163,10 @@ final imprintBookCountProvider = StreamProvider.family<int, int>((ref, imprintId
   return ref.watch(databaseProvider).tagDao.watchBookCountByImprint(imprintId);
 });
 
+final topTagsForBooksProvider = StreamProvider.family<List<String>, List<int>>((ref, bookIds) {
+  return ref.watch(databaseProvider).tagDao.watchTopTagNamesForBooks(bookIds);
+});
+
 /// Main filtered provider used by the Library view
 final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
   final filters = ref.watch(searchFiltersProvider);

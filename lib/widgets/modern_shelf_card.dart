@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/shelf.dart';
 import '../services/database.dart';
 import '../controllers/books_controller.dart';
-import '../controllers/database_provider.dart';
 import '../l10n/l10n_extension.dart';
 import '../views/shelves/shelf_books_view.dart';
 import 'cover_mosaic.dart';
@@ -131,11 +130,11 @@ class _SummaryDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final bookIds = books.take(10).map((b) => b.id).toList();
+    final topTagsAsync = ref.watch(topTagsForBooksProvider(bookIds));
     
-    return FutureBuilder<List<String>>(
-      future: _getTopTags(ref, books),
-      builder: (context, snapshot) {
-        final tags = snapshot.data ?? [];
+    return topTagsAsync.maybeWhen(
+      data: (tags) {
         if (tags.isEmpty) {
           final filterSummary = _buildFilterSummary(context, shelf);
           return Text(
@@ -157,26 +156,8 @@ class _SummaryDisplay extends ConsumerWidget {
           )).toList(),
         );
       },
+      orElse: () => const SizedBox.shrink(),
     );
-  }
-
-  Future<List<String>> _getTopTags(WidgetRef ref, List<Book> books) async {
-    if (books.isEmpty) return [];
-    final db = ref.read(databaseProvider);
-    final counts = <String, int>{};
-    
-    final limited = books.take(10);
-    for (final b in limited) {
-      final tags = await db.tagDao.watchTagsForBook(b.id).first;
-      for (final t in tags) {
-        counts[t.name] = (counts[t.name] ?? 0) + 1;
-      }
-    }
-    
-    final sorted = counts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-      
-    return sorted.take(3).map((e) => e.key).toList();
   }
 
   String _buildFilterSummary(BuildContext context, Shelf s) {

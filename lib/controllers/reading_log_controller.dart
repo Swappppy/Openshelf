@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
+import 'package:rxdart/rxdart.dart';
 import '../services/database.dart';
 import 'database_provider.dart';
 
@@ -82,27 +83,29 @@ final totalPagesReadProvider = StreamProvider<int>((ref) {
   
   // Combine ReadingLog entries with the static progress of books 
   // to account for legacy books that weren't tracked via logs.
-  return db.bookDao.watchAllBooks().asyncMap((books) async {
-    final logs = await db.logDao.watchLogs().first;
-    
-    // 1. Sum all logged activity
-    final loggedPages = logs.fold(0, (sum, l) => sum + l.pagesRead);
-    
-    // 2. Identify books that don't have ANY log entries yet
-    final loggedBookIds = logs.map((l) => l.bookId).toSet();
-    
-    // 3. Sum current progress of those un-logged books
-    int unloggedPages = 0;
-    for (final b in books) {
-      if (!loggedBookIds.contains(b.id)) {
-        if (b.status == ReadingStatus.read) {
-          unloggedPages += (b.totalPages ?? 0);
-        } else {
-          unloggedPages += (b.currentPage ?? 0);
+  return CombineLatestStream.combine2(
+    db.bookDao.watchAllBooks(),
+    db.logDao.watchLogs(),
+    (books, logs) {
+      // 1. Sum all logged activity
+      final loggedPages = logs.fold(0, (sum, l) => sum + l.pagesRead);
+      
+      // 2. Identify books that don't have ANY log entries yet
+      final loggedBookIds = logs.map((l) => l.bookId).toSet();
+      
+      // 3. Sum current progress of those un-logged books
+      int unloggedPages = 0;
+      for (final b in books) {
+        if (!loggedBookIds.contains(b.id)) {
+          if (b.status == ReadingStatus.read) {
+            unloggedPages += (b.totalPages ?? 0);
+          } else {
+            unloggedPages += (b.currentPage ?? 0);
+          }
         }
       }
-    }
-    
-    return loggedPages + unloggedPages;
-  });
+      
+      return loggedPages + unloggedPages;
+    },
+  );
 });
