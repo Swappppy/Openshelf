@@ -140,9 +140,9 @@ class AppDatabase extends _$AppDatabase {
       }
     },
     beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
       if (details.wasCreated || details.hadUpgrade && details.versionBefore! < 14) {
         // We perform the data migration from collectionName to collectionId
-        await customStatement('PRAGMA foreign_keys = ON');
         
         // 1. Books: Map collectionName to collectionId
         final allBooks = await select(books).get();

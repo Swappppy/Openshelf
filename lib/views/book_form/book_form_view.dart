@@ -365,8 +365,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     setState(() => _isSaving = true);
 
     final newPage = int.tryParse(_currentPageCtrl.text) ?? 0;
-    final collectionId = _selectedCollections.firstOrNull?.id;
+    final rawCollectionId = _selectedCollections.firstOrNull?.id;
+    final collectionId = (rawCollectionId != null && rawCollectionId > 0) ? rawCollectionId : null;
     final collectionName = _selectedCollections.firstOrNull?.name;
+    
+    final rawImprintId = _selectedImprint?.id;
+    final imprintId = (rawImprintId != null && rawImprintId > 0) ? rawImprintId : null;
 
     final companion = BooksCompanion(
       title: Value(_titleCtrl.text.trim()),
@@ -390,7 +394,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       startedAt: Value(_startedAt),
       finishedAt: Value(_finishedAt),
-      imprintId: Value(_selectedImprint?.id),
+      imprintId: Value(imprintId),
     );
 
     int bookId;
@@ -425,12 +429,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   Future<void> _loadExistingTags(int bookId) async {
     final db = ref.read(databaseProvider);
     final existing = await db.tagDao.watchTagsForBook(bookId).first;
+    if (!mounted) return;
     setState(() => _selectedTags = existing);
   }
 
   Future<void> _loadExistingImprint(int bookId) async {
     final db = ref.read(databaseProvider);
     final existing = await db.tagDao.watchImprintForBook(bookId).first;
+    if (!mounted) return;
     setState(() => _selectedImprint = existing);
   }
 
