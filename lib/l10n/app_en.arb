@@ -187,6 +187,9 @@
   "scanIsbnTextSubtitle": "Point at the printed number",
   "@scanIsbnTextSubtitle": { "description": "Subtitle for scanning ISBN as text" },
 
+  "scanOcrHoldMessage": "Hold the image for a couple of seconds...",
+  "@scanOcrHoldMessage": { "description": "Instruction to hold the camera steady for OCR" },
+
   "scanBarcodePermission": "Camera permission required to scan barcodes",
   "@scanBarcodePermission": { "description": "Camera permission missing message" },
 
@@ -195,6 +198,12 @@
 
   "scanBatchSubtitle": "Scan multiple books in a row",
   "@scanBatchSubtitle": { "description": "Batch scan option subtitle" },
+
+  "scanModeBarcode": "Barcode",
+  "@scanModeBarcode": { "description": "Label for scanner mode: barcode" },
+
+  "scanModeIsbn": "ISBN Number",
+  "@scanModeIsbn": { "description": "Label for scanner mode: ISBN number / text" },
 
   "bookFormNewTitle": "New book",
   "@bookFormNewTitle": { "description": "New book form title" },

@@ -46,19 +46,13 @@ class BookListTile extends ConsumerWidget {
           children: [
             Stack(
               children: [
-                Hero(
-                  tag: 'book_cover_${book.id}',
-                  placeholderBuilder: (context, size, child) {
-                    return Opacity(opacity: 0.5, child: child);
-                  },
-                  child: BookCover(
-                    coverUrl: book.coverUrl,
-                    coverPath: book.coverPath,
-                    height: 136, 
-                    width: 92, 
-                    author: book.author,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                BookCover(
+                  coverUrl: book.coverUrl,
+                  coverPath: book.coverPath,
+                  height: 136, 
+                  width: 92, 
+                  author: book.author,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 if (collectionNumber != null)
                   Positioned(

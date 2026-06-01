@@ -197,6 +197,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get scanIsbnTextSubtitle => 'Apunta al número impreso';
 
   @override
+  String get scanOcrHoldMessage => 'Mantén la imagen unos segundos...';
+
+  @override
   String get scanBarcodePermission =>
       'Se requiere permiso de cámara para escanear códigos';
 
@@ -205,6 +208,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get scanBatchSubtitle => 'Escanea varios libros seguidos';
+
+  @override
+  String get scanModeBarcode => 'Código de barras';
+
+  @override
+  String get scanModeIsbn => 'Número ISBN';
 
   @override
   String get bookFormNewTitle => 'Nuevo libro';

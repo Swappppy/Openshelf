@@ -458,6 +458,12 @@ abstract class AppLocalizations {
   /// **'Apunta al número impreso'**
   String get scanIsbnTextSubtitle;
 
+  /// Instrucción de mantener la cámara quieta para OCR
+  ///
+  /// In es, this message translates to:
+  /// **'Mantén la imagen unos segundos...'**
+  String get scanOcrHoldMessage;
+
   /// Mensaje de falta de permiso de cámara
   ///
   /// In es, this message translates to:
@@ -475,6 +481,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Escanea varios libros seguidos'**
   String get scanBatchSubtitle;
+
+  /// Etiqueta del modo escáner: código de barras
+  ///
+  /// In es, this message translates to:
+  /// **'Código de barras'**
+  String get scanModeBarcode;
+
+  /// Etiqueta del modo escáner: número ISBN / texto
+  ///
+  /// In es, this message translates to:
+  /// **'Número ISBN'**
+  String get scanModeIsbn;
 
   /// Título del formulario al crear libro
   ///

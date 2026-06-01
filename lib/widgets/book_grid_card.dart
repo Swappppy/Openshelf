@@ -53,16 +53,10 @@ class BookGridCard extends ConsumerWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Hero(
-                    tag: 'book_cover_${book.id}',
-                    placeholderBuilder: (context, size, child) {
-                      return Opacity(opacity: 0.5, child: child);
-                    },
-                    child: BookCover(
-                      coverUrl: book.coverUrl,
-                      coverPath: book.coverPath,
-                      author: book.author,
-                    ),
+                  BookCover(
+                    coverUrl: book.coverUrl,
+                    coverPath: book.coverPath,
+                    author: book.author,
                   ),
                   if (overlayLabel != null)
                     Positioned(

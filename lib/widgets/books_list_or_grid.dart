@@ -38,130 +38,139 @@ class BooksListOrGrid extends ConsumerWidget {
     final prefs = ref.watch(displayPreferencesProvider);
     final gridColumns = ref.watch(appSettingsProvider.select((s) => s.libraryGridColumns));
     final viewMode = prefs.viewMode;
+
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        // We handle AsyncValue state INSIDE the switcher to allow cross-fades
+        child: booksAsync.when(
+          skipLoadingOnRefresh: true, // IMPORTANT: Prevents showing spinner during data updates
+          loading: () => const Center(
+            key: ValueKey('loading_spinner'),
+            child: CircularProgressIndicator(),
+          ),
+          error: (e, _) => Center(
+            key: ValueKey('error_state'),
+            child: Text(context.l10n.errorPrefix(e.toString())),
+          ),
+          data: (bookList) => _buildView(context, ref, bookList, viewMode, gridColumns, prefs),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildView(
+    BuildContext context,
+    WidgetRef ref,
+    List<Book> bookList,
+    LibraryViewMode viewMode,
+    int gridColumns,
+    DisplayPreferences prefs,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return booksAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text(context.l10n.errorPrefix(e.toString()))),
-      data: (bookList) {
-        if (bookList.isEmpty) {
-          final isSearching = filters != null && (!filters!.isEmpty || filters!.status != null);
-          
-          if (isSearching) {
-            return Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search_off,
-                      size: 80,
-                      color: colorScheme.outline,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      context.l10n.libraryNoResults,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return OsEmptyState(
-            iconWidget: OpenshelfLogoIcon(size: 70, color: colorScheme.primary), // Larger to fit the custom paint well
-            message: emptyMessage ?? context.l10n.libraryEmpty,
-            subtitle: context.l10n.libraryEmptyHint,
-            actionLabel: context.l10n.libraryAddFirstBook,
-            onActionPressed: onAddPressed,
-            accentColor: colorScheme.primary,
-          );
-        }
-
-        final items = List<Book>.from(bookList);
-        if (isCollection) {
-          items.sort((a, b) => (a.collectionNumber ?? 0).compareTo(b.collectionNumber ?? 0));
-        } else {
-          // Apply standard library sorting to all other views by default
-          final prefs = ref.watch(displayPreferencesProvider);
-          final imprintsAsync = ref.watch(allImprintsProvider);
-          final imprintNames = imprintsAsync.maybeWhen(
-            data: (list) => {for (final t in list) t.id: t.name},
-            orElse: () => <int, String>{},
-          );
-          final collectionsAsync = ref.watch(allCollectionsProvider);
-          final collectionNames = collectionsAsync.maybeWhen(
-            data: (list) => {for (final t in list) t.id: t.name},
-            orElse: () => <int, String>{},
-          );
-          items.applyLibrarySorting(
-            prefs,
-            imprintNames: imprintNames,
-            collectionNames: collectionNames,
-          );
-        }
-
-        return Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-            child: viewMode == LibraryViewMode.list
-              ? ListView.builder(
-                  key: const ValueKey('list_view'),
-                  controller: scrollController,
-                  padding: EdgeInsets.zero,
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final book = items[index];
-                    return BookListTile(
-                      book: book,
-                      prefs: prefs,
-                      collectionNumber: isCollection ? book.collectionNumber : null,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BookDetailView(book: book),
-                        ),
-                      ),
-                    );
-                  },
-                )
-              : GridView.builder(
-                  key: const ValueKey('grid_view'),
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: gridColumns,
-                    childAspectRatio: gridColumns >= 3 ? 0.60 : 0.65,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final book = items[index];
-                    return BookGridCard(
-                      book: book,
-                      prefs: prefs,
-                      overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BookDetailView(book: book),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+    if (bookList.isEmpty) {
+      final isSearching = filters != null && (!filters!.isEmpty || filters!.status != null);
+      
+      if (isSearching) {
+        return Center(
+          key: const ValueKey('empty_search_results'),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.search_off, size: 80, color: colorScheme.outline),
+                const SizedBox(height: 16),
+                Text(context.l10n.libraryNoResults, style: Theme.of(context).textTheme.titleLarge),
+              ],
+            ),
           ),
         );
-      },
-    );
+      }
+
+      return OsEmptyState(
+        key: const ValueKey('empty_library_state'),
+        iconWidget: OpenshelfLogoIcon(size: 70, color: colorScheme.primary),
+        message: emptyMessage ?? context.l10n.libraryEmpty,
+        subtitle: context.l10n.libraryEmptyHint,
+        actionLabel: context.l10n.libraryAddFirstBook,
+        onActionPressed: onAddPressed,
+        accentColor: colorScheme.primary,
+      );
+    }
+
+    // Sort items
+    final items = List<Book>.from(bookList);
+    if (isCollection) {
+      items.sort((a, b) => (a.collectionNumber ?? 0).compareTo(b.collectionNumber ?? 0));
+    } else {
+      final imprintsAsync = ref.watch(allImprintsProvider);
+      final imprintNames = imprintsAsync.maybeWhen(
+        data: (list) => {for (final t in list) t.id: t.name},
+        orElse: () => <int, String>{},
+      );
+      final collectionsAsync = ref.watch(allCollectionsProvider);
+      final collectionNames = collectionsAsync.maybeWhen(
+        data: (list) => {for (final t in list) t.id: t.name},
+        orElse: () => <int, String>{},
+      );
+      items.applyLibrarySorting(
+        prefs,
+        imprintNames: imprintNames,
+        collectionNames: collectionNames,
+      );
+    }
+
+    if (viewMode == LibraryViewMode.list) {
+      return ListView.builder(
+        key: const ValueKey('list_layout'),
+        controller: scrollController,
+        padding: EdgeInsets.zero,
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final book = items[index];
+          return BookListTile(
+            book: book,
+            prefs: prefs,
+            collectionNumber: isCollection ? book.collectionNumber : null,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+            ),
+          );
+        },
+      );
+    } else {
+      return GridView.builder(
+        key: const ValueKey('grid_layout'),
+        controller: scrollController,
+        padding: const EdgeInsets.all(12),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: gridColumns,
+          childAspectRatio: gridColumns >= 3 ? 0.60 : 0.65,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final book = items[index];
+          return BookGridCard(
+            book: book,
+            prefs: prefs,
+            overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+            ),
+          );
+        },
+      );
+    }
   }
 }

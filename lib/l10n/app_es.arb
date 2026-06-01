@@ -187,6 +187,9 @@
   "scanIsbnTextSubtitle": "Apunta al número impreso",
   "@scanIsbnTextSubtitle": { "description": "Subtítulo de la opción de escanear ISBN mediante texto" },
 
+  "scanOcrHoldMessage": "Mantén la imagen unos segundos...",
+  "@scanOcrHoldMessage": { "description": "Instrucción de mantener la cámara quieta para OCR" },
+
   "scanBarcodePermission": "Se requiere permiso de cámara para escanear códigos",
   "@scanBarcodePermission": { "description": "Mensaje de falta de permiso de cámara" },
 
@@ -195,6 +198,12 @@
 
   "scanBatchSubtitle": "Escanea varios libros seguidos",
   "@scanBatchSubtitle": { "description": "Subtítulo de la opción de escanear en lote" },
+
+  "scanModeBarcode": "Código de barras",
+  "@scanModeBarcode": { "description": "Etiqueta del modo escáner: código de barras" },
+
+  "scanModeIsbn": "Número ISBN",
+  "@scanModeIsbn": { "description": "Etiqueta del modo escáner: número ISBN / texto" },
 
   "bookFormNewTitle": "Nuevo libro",
   "@bookFormNewTitle": { "description": "Título del formulario al crear libro" },
