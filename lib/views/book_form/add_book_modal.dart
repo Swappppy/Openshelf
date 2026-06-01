@@ -8,6 +8,17 @@ import '../barcode_scanner/barcode_scanner_view.dart';
 class AddBookModal extends ConsumerWidget {
   const AddBookModal({super.key});
 
+  static Future<void> show(BuildContext context) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const AddBookModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(

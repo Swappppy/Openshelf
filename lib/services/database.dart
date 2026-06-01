@@ -218,27 +218,7 @@ class AppDatabase extends _$AppDatabase {
         }
       }
 
-      // Initialize default stats widgets if none exist
-      final existingWidgets = await select(statWidgetConfigs).get();
-      if (existingWidgets.isEmpty) {
-        final defaults = [
-          ('pages', 's1x1'),
-          ('streak', 's1x1'),
-          ('goal', 's2x1'),
-          ('currentBook', 's2x1'),
-          ('status', 's1x1'),
-          ('addedOverTime', 's2x2'),
-          ('categories', 's2x2'),
-        ];
-
-        for (int i = 0; i < defaults.length; i++) {
-          await into(statWidgetConfigs).insert(StatWidgetConfigsCompanion.insert(
-            type: defaults[i].$1,
-            size: defaults[i].$2,
-            sortOrder: i,
-          ));
-        }
-      }
+      // Default stats widgets are no longer initialized here to allow showing an empty state for new users
     }
   );
 

@@ -1108,6 +1108,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsPlaceholder => 'Your statistics will appear here';
 
   @override
+  String get statsEmptySubtitle =>
+      'Add widgets to see your reading habits, goals and personal records.';
+
+  @override
   String get statsAddFirstWidget => 'Add your first widget';
 
   @override

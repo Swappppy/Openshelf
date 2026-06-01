@@ -1011,6 +1011,9 @@
   "statsPlaceholder": "Your statistics will appear here",
   "@statsPlaceholder": { "description": "Stats placeholder" },
 
+  "statsEmptySubtitle": "Add widgets to see your reading habits, goals and personal records.",
+  "@statsEmptySubtitle": { "description": "Empty stats state subtitle" },
+
   "statsAddFirstWidget": "Add your first widget",
   "statsAddWidgetTitle": "Add widget",
   "statsGoalTargetShelf": "Target shelf",

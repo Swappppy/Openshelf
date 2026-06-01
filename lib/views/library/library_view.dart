@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../book_form/book_form_view.dart';
+import '../book_form/add_book_modal.dart';
 import '../shelves/shelves_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/search_filters.dart';
@@ -184,10 +184,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                 booksAsync: booksAsync,
                 scrollController: _scrollController,
                 filters: filters,
-                onAddPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const BookFormView()),
-                ),
+                onAddPressed: () => AddBookModal.show(context),
               ),
             ),
           ),

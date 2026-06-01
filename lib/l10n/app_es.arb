@@ -1011,6 +1011,9 @@
   "statsPlaceholder": "Tus estadísticas aparecerán aquí",
   "@statsPlaceholder": { "description": "Placeholder de estadísticas" },
 
+  "statsEmptySubtitle": "Añade widgets para ver tus hábitos de lectura, metas y récords personales.",
+  "@statsEmptySubtitle": { "description": "Subtítulo del estado vacío de estadísticas" },
+
   "statsAddFirstWidget": "Añadir primer widget",
   "statsAddWidgetTitle": "Añadir widget",
   "statsGoalTargetShelf": "Estantería objetivo",

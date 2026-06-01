@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 import 'package:camera/camera.dart';
 import '../../services/permission_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +14,7 @@ import 'dart:async';
 import 'dart:io';
 
 /// A unified scanner view that combines standard barcode scanning with OCR text recognition.
-/// This allows capturing both traditional barcodes and printed ISBN text.
+/// Uses Tesseract OCR (FOSS) for text recognition.
 class BarcodeScannerView extends ConsumerStatefulWidget {
   final bool batchMode;
   const BarcodeScannerView({super.key, this.batchMode = false});
@@ -30,7 +30,6 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
   // Standard Camera package - used for periodic OCR snapshots.
   CameraController? _cameraController;
 
-  final TextRecognizer _textRecognizer = TextRecognizer();
   bool _hasPermission = false;
   bool _isChecking = true;
   bool _isPopped = false;
@@ -61,7 +60,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
         await _initCameraForOcr();
         // Periodically run OCR on camera snapshots.
         _ocrTimer = Timer.periodic(
-          const Duration(milliseconds: 1500),
+          const Duration(milliseconds: 2000), // Increased interval for Tesseract
               (_) => _runOcr(),
         );
       }
@@ -98,7 +97,6 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     _feedbackTimer?.cancel();
     _scannerController.dispose();
     _cameraController?.dispose();
-    _textRecognizer.close();
     super.dispose();
   }
 
@@ -114,7 +112,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     }
   }
 
-  /// Captures a frame and runs ML Kit Text Recognition to find printed ISBNs.
+  /// Captures a frame and runs Tesseract OCR to find printed ISBNs.
   Future<void> _runOcr() async {
     if (_isPopped || _isProcessingOcr) return;
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
@@ -122,13 +120,20 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     _isProcessingOcr = true;
     try {
       final xFile = await _cameraController!.takePicture();
-      final inputImage = InputImage.fromFilePath(xFile.path);
-      final result = await _textRecognizer.processImage(inputImage);
+      
+      // Run OCR with whitelist optimization
+      final text = await FlutterTesseractOcr.extractText(
+        xFile.path,
+        language: 'eng',
+        args: {
+          "tessedit_char_whitelist": "0123456789X",
+        },
+      );
 
       // Clean up temporary image immediately.
       await File(xFile.path).delete();
 
-      final isbn = _extractIsbn(result.text);
+      final isbn = _extractIsbn(text);
       if (isbn != null) _onFound(isbn);
     } catch (e) {
       debugPrint('OCR Error: $e');
@@ -203,10 +208,12 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     }
 
     // Batch mode logic
-    setState(() {
-      _isBatchProcessing = true;
-      _warningMessage = null;
-    });
+    if (mounted) {
+      setState(() {
+        _isBatchProcessing = true;
+        _warningMessage = null;
+      });
+    }
     HapticFeedback.lightImpact();
 
     try {

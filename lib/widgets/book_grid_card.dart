@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/database.dart';
 import '../models/display_preferences.dart';
@@ -46,11 +45,6 @@ class BookGridCard extends ConsumerWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        onLongPress: () {
-          HapticFeedback.mediumImpact();
-          // The long press logic is usually handled by the parent (selection mode)
-          // or we can add a callback if needed. For now, we provide the feedback.
-        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -61,6 +55,9 @@ class BookGridCard extends ConsumerWidget {
                 children: [
                   Hero(
                     tag: 'book_cover_${book.id}',
+                    placeholderBuilder: (context, size, child) {
+                      return Opacity(opacity: 0.5, child: child);
+                    },
                     child: BookCover(
                       coverUrl: book.coverUrl,
                       coverPath: book.coverPath,

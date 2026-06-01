@@ -9,6 +9,7 @@ import '../../services/database.dart';
 import '../../models/stats_widget.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../widgets/add_entity_fab.dart';
+import '../../widgets/os_empty_state.dart';
 import 'widgets/pages_tile.dart';
 import 'widgets/streak_tile.dart';
 import 'widgets/status_tile.dart';
@@ -118,22 +119,12 @@ class _StatsViewState extends ConsumerState<StatsView> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.bar_chart,
-              size: 64, color: Theme.of(context).colorScheme.outline),
-          const SizedBox(height: 16),
-          Text(context.l10n.statsPlaceholder),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: _showAddWidgetSheet,
-            icon: const Icon(Icons.add),
-            label: Text(context.l10n.statsAddFirstWidget),
-          ),
-        ],
-      ),
+    return OsEmptyState(
+      icon: Icons.bar_chart_rounded,
+      message: context.l10n.statsPlaceholder,
+      subtitle: context.l10n.statsEmptySubtitle,
+      actionLabel: context.l10n.statsAddFirstWidget,
+      onActionPressed: _showAddWidgetSheet,
     );
   }
 
@@ -161,16 +152,11 @@ class _StatsViewState extends ConsumerState<StatsView> {
         animationKey: _animationKey(c.id),
         crossAxisCellCount: cross,
         mainAxisCellCount: main,
-        child: GestureDetector(
-          onLongPressStart: (_) {
-            if (_isEditing) HapticFeedback.mediumImpact();
-          },
-          child: _StatTile(
-            config: c,
-            isEditing: _isEditing,
-            onRemove: () => _handleRemove(c.id),
-            onResize: (newSize) => _handleResize(c, newSize),
-          ),
+        child: _StatTile(
+          config: c,
+          isEditing: _isEditing,
+          onRemove: () => _handleRemove(c.id),
+          onResize: (newSize) => _handleResize(c, newSize),
         ),
       );
     }).toList();
@@ -188,17 +174,19 @@ class _StatsViewState extends ConsumerState<StatsView> {
         crossAxisSpacing: 12,
         enable: _isEditing,
         isLongPressDraggable: true,
+        onDragStarted: () {
+          HapticFeedback.mediumImpact();
+        },
         onAcceptWithDetails: (details, index) {
-          // Library handles visual move, we handle DB persistence
           final dragged = details.data as StatWidgetConfig;
-          final List<StatWidgetConfig> newList = List.from(_localConfigs);
-          final oldIdx = newList.indexWhere((c) => c.id == dragged.id);
-          if (oldIdx != -1) {
-            newList.removeAt(oldIdx);
-            newList.insert(index.clamp(0, newList.length), dragged);
-            _localConfigs = newList; // Immediate local update
-            ref.read(statsControllerProvider.notifier).reorderWidgets(newList);
-          }
+          setState(() {
+            final oldIdx = _localConfigs.indexWhere((c) => c.id == dragged.id);
+            if (oldIdx != -1) {
+              final item = _localConfigs.removeAt(oldIdx);
+              _localConfigs.insert(index.clamp(0, _localConfigs.length), item);
+            }
+          });
+          ref.read(statsControllerProvider.notifier).reorderWidgets(_localConfigs);
         },
         items: gridItems,
       ),
@@ -358,7 +346,7 @@ class _AddWidgetSheet extends ConsumerWidget {
             shrinkWrap: true,
             children: [
               _buildOption(context, ref, StatWidgetType.pages, context.l10n.statsOptPagesTitle, context.l10n.statsOptPagesSub, Icons.menu_book, StatWidgetSize.s1x1),
-              _buildOption(context, ref, StatWidgetType.streak, context.l10n.statsOptStreakTitle, context.l10n.statsOptStreakSub, Icons.local_fire_department, StatWidgetSize.s1x1),
+              _buildOption(context, ref, StatWidgetType.streak, context.l10n.statsOptStreakTitle, context.l10n.statsOptPagesSub, Icons.local_fire_department, StatWidgetSize.s1x1),
               _buildOption(context, ref, StatWidgetType.goal, context.l10n.statsOptGoalTitle, context.l10n.statsOptGoalSub, Icons.track_changes, StatWidgetSize.s2x1),
               _buildOption(context, ref, StatWidgetType.status, context.l10n.statsOptStatusTitle, context.l10n.statsOptStatusSub, Icons.pie_chart_outline, StatWidgetSize.s1x1),
               _buildOption(context, ref, StatWidgetType.currentBook, context.l10n.statsOptCurrentTitle, context.l10n.statsOptCurrentSub, Icons.auto_stories, StatWidgetSize.s2x1),

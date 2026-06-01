@@ -102,24 +102,17 @@ class BooksListOrGrid extends ConsumerWidget {
           );
         }
 
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-            return Stack(
-              alignment: Alignment.topCenter,
-              children: <Widget>[
-                ...previousChildren,
-                currentChild ?? const SizedBox.shrink(),
-              ],
-            );
-          },
-          transitionBuilder: (child, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-          child: viewMode == LibraryViewMode.list
+        return Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            child: viewMode == LibraryViewMode.list
               ? ListView.builder(
                   key: const ValueKey('list_view'),
                   controller: scrollController,
@@ -166,6 +159,7 @@ class BooksListOrGrid extends ConsumerWidget {
                     );
                   },
                 ),
+          ),
         );
       },
     );

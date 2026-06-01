@@ -2114,6 +2114,12 @@ abstract class AppLocalizations {
   /// **'Tus estadísticas aparecerán aquí'**
   String get statsPlaceholder;
 
+  /// Subtítulo del estado vacío de estadísticas
+  ///
+  /// In es, this message translates to:
+  /// **'Añade widgets para ver tus hábitos de lectura, metas y récords personales.'**
+  String get statsEmptySubtitle;
+
   /// No description provided for @statsAddFirstWidget.
   ///
   /// In es, this message translates to:
