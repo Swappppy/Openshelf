@@ -1,0 +1,28 @@
+{
+    "appTitle": "Openshelf",
+    "@appTitle": {
+        "description": "Nombre de la aplicación"
+    },
+    "errorPrefix": "Viga: {message}",
+    "@errorPrefix": {
+        "description": "Prefijo genérico de error",
+        "placeholders": {
+            "message": {
+                "type": "String"
+            }
+        }
+    },
+    "criticalStartError": "Kriitiline viga rakenduse käivitamisel: {error}",
+    "@criticalStartError": {
+        "description": "Error crítico al arrancar la app",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "navLibrary": "Raamatukogu",
+    "@navLibrary": {
+        "description": "Pestaña de navegación: biblioteca"
+    }
+}
