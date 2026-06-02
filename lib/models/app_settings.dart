@@ -1,45 +1,79 @@
 import 'package:flutter/material.dart';
 
-enum BookSearchServer { openLibrary, googleBooks }
+enum BookSearchServer {
+  openLibrary,
+  googleBooks,
+  inventaire,
+}
 
+/// Global application settings persisted in shared preferences.
 class AppSettings {
-  final Color seedColor;
   final ThemeMode themeMode;
+  final Locale? locale;
+  final Color seedColor;
   final String? coversPath;
   final String? dbPath;
-  final Locale? locale;
-  final BookSearchServer searchServer;
+  final List<BookSearchServer> searchServers;
   final String? googleBooksApiKey;
+  final int libraryGridColumns;
+  final bool autoNoCoverShelf;
+  final bool compressImages;
+  final bool dynamicIconEnabled;
+  final String? activeIconName;
+  final bool hasSeenOnboarding;
 
   const AppSettings({
-    this.seedColor = const Color(0xFF6B4E3D),
     this.themeMode = ThemeMode.system,
+    this.locale,
+    this.seedColor = const Color(0xFF6750A4),
     this.coversPath,
     this.dbPath,
-    this.locale,
-    this.searchServer = BookSearchServer.openLibrary,
+    this.searchServers = const [
+      BookSearchServer.googleBooks,
+      BookSearchServer.openLibrary,
+      BookSearchServer.inventaire,
+    ],
     this.googleBooksApiKey,
+    this.libraryGridColumns = 3,
+    this.autoNoCoverShelf = true,
+    this.compressImages = true,
+    this.dynamicIconEnabled = false,
+    this.activeIconName,
+    this.hasSeenOnboarding = false,
   });
 
   AppSettings copyWith({
-    Color? seedColor,
     ThemeMode? themeMode,
-    String? coversPath,
-    String? dbPath,
     Locale? locale,
     bool clearLocale = false,
-    BookSearchServer? searchServer,
+    Color? seedColor,
+    String? coversPath,
+    String? dbPath,
+    List<BookSearchServer>? searchServers,
     String? googleBooksApiKey,
-    bool clearApiKey = false,
-  }) =>
-      AppSettings(
-        seedColor: seedColor ?? this.seedColor,
-        themeMode: themeMode ?? this.themeMode,
-        coversPath: coversPath ?? this.coversPath,
-        dbPath: dbPath ?? this.dbPath,
-        locale: clearLocale ? null : (locale ?? this.locale),
-        searchServer: searchServer ?? this.searchServer,
-        googleBooksApiKey:
-        clearApiKey ? null : (googleBooksApiKey ?? this.googleBooksApiKey),
-      );
+    bool clearGoogleBooksApiKey = false,
+    int? libraryGridColumns,
+    bool? autoNoCoverShelf,
+    bool? compressImages,
+    bool? dynamicIconEnabled,
+    String? activeIconName,
+    bool clearActiveIconName = false,
+    bool? hasSeenOnboarding,
+  }) {
+    return AppSettings(
+      themeMode: themeMode ?? this.themeMode,
+      locale: clearLocale ? null : (locale ?? this.locale),
+      seedColor: seedColor ?? this.seedColor,
+      coversPath: coversPath ?? this.coversPath,
+      dbPath: dbPath ?? this.dbPath,
+      searchServers: searchServers ?? this.searchServers,
+      googleBooksApiKey: clearGoogleBooksApiKey ? null : (googleBooksApiKey ?? this.googleBooksApiKey),
+      libraryGridColumns: libraryGridColumns ?? this.libraryGridColumns,
+      autoNoCoverShelf: autoNoCoverShelf ?? this.autoNoCoverShelf,
+      compressImages: compressImages ?? this.compressImages,
+      dynamicIconEnabled: dynamicIconEnabled ?? this.dynamicIconEnabled,
+      activeIconName: clearActiveIconName ? null : (activeIconName ?? this.activeIconName),
+      hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
+    );
+  }
 }

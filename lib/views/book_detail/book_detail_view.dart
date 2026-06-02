@@ -5,18 +5,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/database.dart';
 import '../../controllers/database_provider.dart';
 import '../../controllers/books_controller.dart';
-import '../../widgets/status_chip.dart';
+import '../../controllers/reading_log_controller.dart';
+import '../../controllers/book_operations_controller.dart';
 import '../book_form/book_form_view.dart';
 import '../../widgets/page_picker.dart';
 import '../../widgets/tag_chip.dart';
 import '../../l10n/l10n_extension.dart';
+import '../shelves/shelf_books_view.dart';
 
+/// Comprehensive detailed view for a specific book.
+/// Provides access to all metadata, reading progress, and management options (edit/delete).
 class BookDetailView extends ConsumerWidget {
   final Book book;
   const BookDetailView({super.key, required this.book});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Watch for real-time updates of this specific book.
     final bookAsync = ref.watch(bookByIdProvider(book.id));
 
     return bookAsync.when(
@@ -63,31 +68,50 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     super.dispose();
   }
 
+  /// Updates the book's current page and intelligently adjusts reading status.
   Future<void> _updatePage(int newPage) async {
     final book = widget.book;
+    final oldPage = book.currentPage ?? 0;
     final total = book.totalPages ?? 0;
     ReadingStatus newStatus = book.status;
+    DateTime? newFinishedAt = book.finishedAt;
+    DateTime? newStartedAt = book.startedAt;
+
     if (newPage == 0) {
       newStatus = ReadingStatus.wantToRead;
+      newFinishedAt = null;
     } else if (total > 0 && newPage >= total) {
       newStatus = ReadingStatus.read;
+      newFinishedAt ??= DateTime.now();
     } else {
+      if (book.status == ReadingStatus.wantToRead) {
+        newStartedAt ??= DateTime.now();
+      }
       newStatus = ReadingStatus.reading;
+      newFinishedAt = null;
     }
+
     final updated = book.copyWith(
       currentPage: Value(newPage),
       status: newStatus,
+      finishedAt: Value(newFinishedAt),
+      startedAt: Value(newStartedAt),
     );
-    await ref.read(databaseProvider).updateBook(updated);
+    await ref.read(databaseProvider).bookDao.updateBook(updated);
+
+    if (newPage > oldPage) {
+      await ref.read(readingLogControllerProvider.notifier).logPages(book.id, newPage - oldPage);
+    }
   }
 
   Future<void> _updateNotes(String notes) async {
     final updated = widget.book.copyWith(
       notes: Value(notes.trim().isEmpty ? null : notes.trim()),
     );
-    await ref.read(databaseProvider).updateBook(updated);
+    await ref.read(databaseProvider).bookDao.updateBook(updated);
   }
 
+  /// Opens the ergonomic wheel-based page picker.
   void _showPagePicker(BuildContext context) {
     final book = widget.book;
     if (book.totalPages == null) return;
@@ -98,33 +122,36 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              context.l10n.bookDetailPagePickerTitle,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.l10n.bookDetailPagePickerTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 12),
+                PagePicker(
+                  initialValue: selectedPage,
+                  maxValue: book.totalPages!,
+                  onChanged: (val) => selectedPage = val,
+                ),
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () async {
+                    await _updatePage(selectedPage);
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  },
+                  child: Text(context.l10n.save),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            PagePicker(
-              initialValue: selectedPage,
-              maxValue: book.totalPages!,
-              onChanged: (val) => selectedPage = val,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () async {
-                await _updatePage(selectedPage);
-                if (ctx.mounted) Navigator.pop(ctx);
-              },
-              child: Text(context.l10n.save),
-            ),
-            const SizedBox(height: 8),
-          ],
+          ),
         ),
       ),
     );
@@ -161,7 +188,6 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
             TextField(
               controller: controller,
               maxLines: 6,
-              autofocus: true,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 hintText: context.l10n.bookDetailNotesHint,
@@ -211,6 +237,11 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                 transitionDuration: const Duration(milliseconds: 350),
               ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.copy_outlined),
+            tooltip: context.l10n.duplicate,
+            onPressed: () => _confirmDuplicate(context),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -266,7 +297,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
             onPressed: () async {
               await ref
                   .read(databaseProvider)
-                  .deleteBook(widget.book.id);
+                  .bookDao.deleteBook(widget.book.id);
               if (ctx.mounted) Navigator.pop(ctx);
               if (context.mounted) Navigator.pop(context);
             },
@@ -276,93 +307,123 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       ),
     );
   }
+
+  void _confirmDuplicate(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.l10n.bookDetailDuplicateTitle),
+        content: Text(context.l10n.bookDetailDuplicateConfirm(widget.book.title)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () async {
+              await ref.read(bookOperationsProvider).duplicate(widget.book.id);
+              if (ctx.mounted) Navigator.pop(ctx);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(context.l10n.addedToLibrary)),
+                );
+              }
+            },
+            child: Text(context.l10n.duplicate),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-// -------------------------------------------------------
-// Cabecera — portada izquierda + resumen derecha
-// -------------------------------------------------------
-class _BookHeader extends StatelessWidget {
+/// Header section displaying the large cover and a summary column (Title, Author, Rating, Tags).
+class _BookHeader extends ConsumerWidget {
   final Book book;
   const _BookHeader({required this.book});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final tagsAsync = ref.watch(bookTagsProvider(book.id));
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Portada
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: book.coverPath != null
-                ? Image.file(
-              File(book.coverPath!),
-              width: 90,
-              height: 130,
-              fit: BoxFit.cover,
-            )
-                : Container(
-              width: 90,
-              height: 130,
-              color: colorScheme.surfaceContainerHighest,
-              child: Icon(
-                Icons.menu_book,
-                size: 40,
-                color: colorScheme.outline,
-              ),
+          // Cover image
+          Hero(
+            tag: 'book_cover_${book.id}',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: book.coverPath != null
+                  ? Image.file(
+                File(book.coverPath!),
+                width: 100,
+                height: 150,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const _CoverPlaceholder(width: 100, height: 150),
+              )
+                  : const _CoverPlaceholder(width: 100, height: 150),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 20),
 
-          // Resumen
+          // Summary Column
           Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Texto izquierda
-                Expanded(
-                  child: Column(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 150), // Ensures alignment for short content
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                children: [
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         book.title,
-                        style: theme.textTheme.titleSmall?.copyWith(
+                        style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          fontFamily: 'Serif',
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        book.author,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.outline,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (book.publisher != null)
+                      if (book.subtitle != null) ...[
+                        const SizedBox(height: 2),
                         Text(
-                          book.publisher!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.outline,
+                          book.subtitle!,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                             fontStyle: FontStyle.italic,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                      ],
+                      const SizedBox(height: 2),
+                      Text(
+                        book.author,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
-                ),
 
-                // Chip derecha
-                StatusChip(status: book.status),
-              ],
+                  // Tags display (Limited to 2 rows with +N counter)
+                  tagsAsync.maybeWhen(
+                    data: (tagList) => tagList.isEmpty 
+                      ? const SizedBox.shrink() 
+                      : _CompactTagsDisplay(tags: tagList),
+                    orElse: () => const SizedBox.shrink(),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -371,8 +432,86 @@ class _BookHeader extends StatelessWidget {
   }
 }
 
+/// A smart tag display that fits tags within two rows and adds a counter for hidden ones.
+class _CompactTagsDisplay extends StatelessWidget {
+  final List<Tag> tags;
+  const _CompactTagsDisplay({required this.tags});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final colorScheme = Theme.of(context).colorScheme;
+        final textStyle = const TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
+        
+        final rows = <List<Tag>>[];
+        var currentContext = <Tag>[];
+        double currentRowWidth = 0;
+        const spacing = 8.0;
+        const chipPadding = 20.0; // horizontal total
+
+        for (var i = 0; i < tags.length; i++) {
+          final tag = tags[i];
+          final painter = TextPainter(
+            text: TextSpan(text: tag.name, style: textStyle),
+            textDirection: TextDirection.ltr,
+          )..layout();
+          
+          final tagWidth = painter.width + chipPadding;
+          
+          if (currentRowWidth + tagWidth <= constraints.maxWidth) {
+            currentContext.add(tag);
+            currentRowWidth += tagWidth + spacing;
+          } else {
+            rows.add(currentContext);
+            currentContext = [tag];
+            currentRowWidth = tagWidth + spacing;
+          }
+          
+          if (rows.length == 2) break;
+        }
+        
+        if (rows.length < 2) rows.add(currentContext);
+        
+        final visibleTags = rows.take(2).expand((r) => r).toList();
+        final hiddenCount = tags.length - visibleTags.length;
+
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ...visibleTags.map((tag) {
+              return TagChip(
+                label: tag.name,
+                colorHex: tag.color,
+                heroTag: 'tag_title_${tag.id}',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => TagBooksView(tag: tag)),
+                ),
+              );
+            }),
+            if (hiddenCount > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: colorScheme.surfaceContainerHighest,
+                ),
+                child: Text(
+                  '+$hiddenCount',
+                  style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 // -------------------------------------------------------
-// Pestaña Principal
+// Main Tab
 // -------------------------------------------------------
 class _MainTab extends StatelessWidget {
   final Book book;
@@ -398,6 +537,53 @@ class _MainTab extends StatelessWidget {
     }
   }
 
+  void _showFullDescription(BuildContext context, String description) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    context.l10n.fieldDescription.toUpperCase(),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close, size: 20),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Text(
+                    description,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final book = this.book;
@@ -408,18 +594,60 @@ class _MainTab extends StatelessWidget {
       children: [
         _ReadOnlyField(label: context.l10n.fieldTitle, value: book.title),
         const SizedBox(height: 20),
+        if (book.subtitle != null) ...[
+          _ReadOnlyField(label: context.l10n.fieldSubtitle, value: book.subtitle!),
+          const SizedBox(height: 20),
+        ],
         _ReadOnlyField(label: context.l10n.fieldAuthor, value: book.author),
         const SizedBox(height: 20),
         _ReadOnlyField(label: context.l10n.fieldPublisher, value: book.publisher ?? '—'),
         const SizedBox(height: 20),
-        _ReadOnlyField(
-          label: context.l10n.fieldYear,
-          value: book.publishYear?.toString() ?? '—',
-        ),
-        const SizedBox(height: 20),
-        _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
-        const SizedBox(height: 20),
-        // Categorías
+        
+        if (book.description != null && book.description!.isNotEmpty) ...[
+          GestureDetector(
+            onTap: () => _showFullDescription(context, book.description!),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.l10n.fieldDescription.toUpperCase(),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxHeight: 120),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outlineVariant
+                            .withValues(alpha: 0.5)),
+                  ),
+                  child: Text(
+                    book.description!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+        
+        // Full Category list
         Text(
           context.l10n.bookDetailFieldCategories,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -445,13 +673,17 @@ class _MainTab extends StatelessWidget {
               children: tagList.map((tag) => TagChip(
                 label: tag.name,
                 colorHex: tag.color,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => TagBooksView(tag: tag)),
+                ),
               )).toList(),
             ),
           );
         }),
         const SizedBox(height: 20),
 
-        // Páginas — toca para editar
+        // Progress Section - Tap to edit
         GestureDetector(
           onTap: onTapPages,
           behavior: HitTestBehavior.opaque,
@@ -481,7 +713,6 @@ class _MainTab extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    // Columna izquierda — slider
                     Expanded(
                       child: LinearProgressIndicator(
                         value: ((book.currentPage ?? 0) / book.totalPages!)
@@ -491,8 +722,6 @@ class _MainTab extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-
-                    // Columna derecha — números
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -523,7 +752,7 @@ class _MainTab extends StatelessWidget {
         _ReadOnlyField(label: context.l10n.bookDetailFieldFormat, value: _formatLabel(context, book.bookFormat)),
         const SizedBox(height: 20),
 
-        // Valoración
+        // Star Rating
         Text(
           context.l10n.bookDetailFieldRating,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -549,7 +778,7 @@ class _MainTab extends StatelessWidget {
 }
 
 // -------------------------------------------------------
-// Pestaña Detalles
+// Details Tab
 // -------------------------------------------------------
 class _DetailsTab extends StatelessWidget {
   final Book book;
@@ -564,17 +793,113 @@ class _DetailsTab extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         _ReadOnlyField(
-          label: context.l10n.fieldCollection,
-          value: book.collectionName ?? '—',
+          label: context.l10n.fieldYear,
+          value: book.publishYear?.toString() ?? '—',
         ),
         const SizedBox(height: 20),
-        _ReadOnlyField(
-          label: context.l10n.fieldCollectionNumber,
-          value: book.collectionNumber?.toString() ?? '—',
-        ),
+        _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
         const SizedBox(height: 20),
+        _ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
+        const SizedBox(height: 24),
 
-        // Sellos
+        // Collection section
+        Text(
+          context.l10n.fieldCollection.toUpperCase(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (book.collectionName != null && book.collectionName!.isNotEmpty)
+          Consumer(builder: (context, ref, _) {
+            final tagsAsync = ref.watch(allCollectionsProvider);
+            return tagsAsync.maybeWhen(
+              data: (allCols) {
+                final collection = allCols.where((t) => t.id == book.collectionId).firstOrNull;
+                if (collection == null) return Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge);
+                
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TagBooksView(tag: collection),
+                    ),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        // Collection number placeholder
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(
+                              book.collectionNumber?.toString() ?? '#',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                collection.name,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Consumer(builder: (context, ref, _) {
+                                final countAsync = ref.watch(booksByCollectionProvider(collection.id));
+                                return countAsync.maybeWhen(
+                                  data: (list) => Text(
+                                    context.l10n.imprintBookCount(list.length),
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: colorScheme.outline,
+                                    ),
+                                  ),
+                                  orElse: () => const SizedBox.shrink(),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              orElse: () => Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge),
+            );
+          })
+        else
+          Text('—', style: Theme.of(context).textTheme.bodyLarge),
+
+        const SizedBox(height: 24),
+
+        // Imprint section
         Text(
           context.l10n.bookDetailFieldImprintSection,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -583,8 +908,7 @@ class _DetailsTab extends StatelessWidget {
             letterSpacing: 1.2,
           ),
         ),
-        const SizedBox(height: 4),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Consumer(builder: (context, ref, _) {
           final imprintAsync = ref.watch(bookImprintProvider(book.id));
           return imprintAsync.when(
@@ -594,52 +918,72 @@ class _DetailsTab extends StatelessWidget {
               if (imprint == null) {
                 return Text('—', style: Theme.of(context).textTheme.bodyLarge);
               }
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+              return GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TagBooksView(tag: imprint),
+                  ),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
                     children: [
+                      // Thumbnail or initials
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: imprint.imagePath != null
                             ? Image.file(
                           File(imprint.imagePath!),
-                          width: 80,
-                          height: 80,
+                          width: 40,
+                          height: 40,
                           fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                          errorBuilder: (context, error, stackTrace) => _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
                         )
-                            : Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.business_outlined,
-                            size: 32,
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
+                            : _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              imprint.name,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Consumer(builder: (context, ref, _) {
+                              final countAsync =
+                              ref.watch(imprintBookCountProvider(imprint.id));
+                              return countAsync.maybeWhen(
+                                data: (count) => Text(
+                                  context.l10n.imprintBookCount(count),
+                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: colorScheme.outline,
+                                  ),
+                                ),
+                                orElse: () => const SizedBox.shrink(),
+                              );
+                            }),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      SizedBox(
-                        width: 80,
-                        child: Text(
-                          imprint.name,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
                     ],
                   ),
-                ],
+                ),
               );
             },
           );
@@ -647,7 +991,13 @@ class _DetailsTab extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        // Notas
+        _ReadOnlyField(
+          label: context.l10n.fieldTranslator,
+          value: book.translator ?? '—',
+        ),
+        const SizedBox(height: 20),
+
+        // Personal Notes
         GestureDetector(
           onTap: onTapNotes,
           child: Column(
@@ -700,7 +1050,8 @@ class _DetailsTab extends StatelessWidget {
           ),
         ),
 
-        // Fechas
+        // Timestamps Section
+        const SizedBox(height: 12),
         _ReadOnlyField(
           label: context.l10n.bookDetailFieldAdded,
           value:
@@ -727,7 +1078,7 @@ class _DetailsTab extends StatelessWidget {
 }
 
 // -------------------------------------------------------
-// Widgets auxiliares
+// Helper Widgets
 // -------------------------------------------------------
 
 class _ReadOnlyField extends StatelessWidget {
@@ -754,6 +1105,85 @@ class _ReadOnlyField extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],
+    );
+  }
+}
+
+class _CoverPlaceholder extends StatelessWidget {
+  final double width;
+  final double height;
+
+  const _CoverPlaceholder({
+    this.width = 90,
+    this.height = 130,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: width,
+      height: height,
+      color: colorScheme.surfaceContainerHighest,
+      child: Icon(
+        Icons.menu_book,
+        size: 40,
+        color: colorScheme.outline,
+      ),
+    );
+  }
+}
+
+class _ImprintPlaceholder extends StatelessWidget {
+  final double size;
+  final double iconSize;
+  final String? name;
+
+  const _ImprintPlaceholder({
+    this.size = 80,
+    this.iconSize = 32,
+    this.name,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    Widget content;
+    if (name != null && name!.isNotEmpty) {
+      final initials = name!
+          .split(RegExp(r'\s+'))
+          .where((w) => w.isNotEmpty)
+          .take(3)
+          .map((w) => w[0].toUpperCase())
+          .join();
+      content = Center(
+        child: Text(
+          initials,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: colorScheme.onSurface.withValues(alpha: 0.5),
+            fontSize: size * 0.35,
+            letterSpacing: 0.5,
+          ),
+        ),
+      );
+    } else {
+      content = Icon(
+        Icons.business_outlined,
+        size: iconSize,
+        color: colorScheme.outline,
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: content,
     );
   }
 }

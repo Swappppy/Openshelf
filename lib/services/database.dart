@@ -1,102 +1,50 @@
+import 'dart:convert';
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
+import 'package:drift/native.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 import '../models/shelf.dart';
+import '../models/tag_type.dart';
+
+import 'daos/book_dao.dart';
+import 'daos/tag_dao.dart';
+import 'daos/shelf_dao.dart';
+import 'daos/goal_dao.dart';
+import 'daos/log_dao.dart';
+import 'daos/stat_dao.dart';
+
+import 'database/converters.dart';
+import 'database/tables/books_table.dart';
+import 'database/tables/tags_table.dart';
+import 'database/tables/shelves_table.dart';
+import 'database/tables/shelf_tags_table.dart';
+import 'database/tables/goals_table.dart';
+import 'database/tables/logs_table.dart';
+import 'database/tables/stats_table.dart';
+
+export 'database/converters.dart';
+export 'database/tables/books_table.dart';
+export 'database/tables/tags_table.dart';
+export 'database/tables/shelves_table.dart';
+export 'database/tables/shelf_tags_table.dart';
+export 'database/tables/goals_table.dart';
+export 'database/tables/logs_table.dart';
+export 'database/tables/stats_table.dart';
 
 part 'database.g.dart';
 
-class Books extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get title => text()();
-  TextColumn get author => text()();
-  TextColumn get isbn => text().nullable()();
-  TextColumn get publisher => text().nullable()();
-  TextColumn get coverUrl => text().nullable()();
-  IntColumn get totalPages => integer().nullable()();
-  IntColumn get currentPage => integer().nullable()();
-  TextColumn get status => textEnum<ReadingStatus>()();
-  RealColumn get rating => real().nullable()();
-  TextColumn get bookFormat => text().nullable().map(
-    const BookFormatConverter(),
-  )();
-  TextColumn get collectionName => text().nullable()();
-  IntColumn get collectionNumber => integer().nullable()();
-  TextColumn get coverPath => text().nullable()();
-  TextColumn get notes => text().nullable()();
-  IntColumn get publishYear => integer().nullable()();
-  DateTimeColumn get startedAt => dateTime().nullable()();
-  DateTimeColumn get finishedAt => dateTime().nullable()();
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-}
-
-class Tags extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
-  TextColumn get type => text().withDefault(const Constant('tag'))();
-  TextColumn get color => text().nullable()();
-  TextColumn get imagePath => text().nullable()();
-}
-
-class BookTags extends Table {
-  IntColumn get bookId => integer().references(Books, #id)();
-  IntColumn get tagId => integer().references(Tags, #id)();
-
-  @override
-  Set<Column> get primaryKey => {bookId, tagId};
-}
-
-@UseRowClass(Shelf)
-class Shelves extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
-  TextColumn get filterQuery => text().nullable()();
-  TextColumn get filterAuthor => text().nullable()();
-  TextColumn get filterPublisher => text().nullable()();
-  TextColumn get filterIsbn => text().nullable()();
-  TextColumn get filterCollection => text().nullable()();
-  TextColumn get filterStatus => text().nullable()();
-  TextColumn get filterTagIds => text().nullable()(); // JSON: [1,2,3]
-  IntColumn get filterImprintId => integer().nullable()();
-}
-
-enum ReadingStatus {
-  wantToRead,
-  reading,
-  read,
-  abandoned,
-}
-
-enum BookFormat {
-  paperback,    // Tapa blanda
-  hardcover,    // Tapa dura
-  leatherbound, // Piel
-  rustic,       // Rústica
-  digital,      // Digital
-  other,        // Otro
-}
-
-class BookFormatConverter extends TypeConverter<BookFormat?, String?> {
-  const BookFormatConverter();
-
-  @override
-  BookFormat? fromSql(String? fromDb) {
-    if (fromDb == null) return null;
-    return BookFormat.values.firstWhere(
-          (e) => e.name == fromDb,
-      orElse: () => BookFormat.other,
-    );
-  }
-
-  @override
-  String? toSql(BookFormat? value) => value?.name;
-}
-
-@DriftDatabase(tables: [Books, Tags, BookTags, Shelves])
+@DriftDatabase(
+  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs],
+  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -117,317 +65,195 @@ class AppDatabase extends _$AppDatabase {
       if (from < 5) {
         await m.addColumn(books, books.publishYear as GeneratedColumn);
       }
+      if (from < 6) {
+        // Guard against duplicate column if version 6 was partially applied
+        try {
+          await m.addColumn(books, books.subtitle as GeneratedColumn);
+        } catch (_) {}
+        try {
+          await m.addColumn(books, books.language as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 7) {
+        // Guard against duplicate column if version 7 was partially applied
+        try {
+          await m.addColumn(books, books.translator as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 8) {
+        try {
+          await m.addColumn(shelves, shelves.filterSubtitle as GeneratedColumn);
+          await m.addColumn(shelves, shelves.filterLanguage as GeneratedColumn);
+          await m.addColumn(shelves, shelves.filterTranslator as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 9) {
+        try {
+          await m.addColumn(shelves, shelves.filterImprintIds as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 10) {
+        await m.createTable(readingGoals);
+        await m.createTable(readingLog);
+        await m.createTable(statWidgetConfigs);
+      }
+      if (from < 11) {
+        try {
+          await m.addColumn(books, books.description as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 12) {
+        try {
+          await m.addColumn(shelves, shelves.filterNoCover as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 13) {
+        try {
+          await m.addColumn(statWidgetConfigs, statWidgetConfigs.config as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 14) {
+        await m.addColumn(books, books.collectionId as GeneratedColumn);
+        await m.addColumn(books, books.imprintId as GeneratedColumn);
+        await m.addColumn(shelves, shelves.filterCollectionIds as GeneratedColumn);
+        // Migration logic for collectionId will be handled via transactional update after schema change
+        // Drift migrations support post-schema-change actions
+      }
+      if (from < 15) {
+        await m.createTable(shelfTags);
+      }
+      if (from < 16) {
+        await transaction(() async {
+          // 1. Get existing data
+          final existing = await customSelect('SELECT book_id, tag_id FROM book_tags').get();
+          // 2. Drop and recreate
+          await m.deleteTable('book_tags');
+          await m.createTable(bookTags);
+          // 3. Restore data
+          for (final row in existing) {
+            await into(bookTags).insert(BookTagsCompanion.insert(
+              bookId: row.read<int>('book_id'),
+              tagId: row.read<int>('tag_id'),
+            ));
+          }
+        });
+      }
     },
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+      if (details.wasCreated || details.hadUpgrade && details.versionBefore! < 14) {
+        // We perform the data migration from collectionName to collectionId
+        
+        // 1. Books: Map collectionName to collectionId
+        final allBooks = await select(books).get();
+        for (final book in allBooks) {
+          // Collection migration
+          if (book.collectionName != null && book.collectionId == null) {
+            final col = await (select(tags)
+              ..where((t) => t.name.equals(book.collectionName!) & t.type.equalsValue(TagType.collection))).getSingleOrNull();
+            if (col != null) {
+              await (update(books)..where((b) => b.id.equals(book.id))).write(BooksCompanion(
+                collectionId: Value(col.id),
+              ));
+            }
+          }
+
+          // Imprint migration from BookTags
+          if (book.imprintId == null) {
+            final imprintLink = await (select(bookTags).join([
+              innerJoin(tags, tags.id.equalsExp(bookTags.tagId)),
+            ])
+              ..where(bookTags.bookId.equals(book.id))
+              ..where(tags.type.equalsValue(TagType.imprint))).getSingleOrNull();
+            
+            if (imprintLink != null) {
+              final tagId = imprintLink.readTable(bookTags).tagId;
+              await (update(books)..where((b) => b.id.equals(book.id))).write(BooksCompanion(
+                imprintId: Value(tagId),
+              ));
+            }
+          }
+        }
+
+        // 2. Shelves: Map filterCollection (names) to filterCollectionIds (JSON)
+        final allShelves = await select(shelves).get();
+        for (final shelf in allShelves) {
+          if (shelf.filterCollection != null && shelf.filterCollectionIds == null) {
+            final names = shelf.filterCollection!.split(' | ');
+            final matchingTags = await (select(tags)
+              ..where((t) => t.name.isIn(names) & t.type.equalsValue(TagType.collection))).get();
+            
+            if (matchingTags.isNotEmpty) {
+              final ids = matchingTags.map((t) => t.id).toList();
+              await (update(shelves)..where((s) => s.id.equals(shelf.id))).write(ShelvesCompanion(
+                filterCollectionIds: Value(json.encode(ids)),
+              ));
+            }
+          }
+        }
+      }
+
+      if (details.hadUpgrade && details.versionBefore! < 15) {
+        // Data migration from JSON strings to ShelfTags table
+        final allShelves = await select(shelves).get();
+        for (final shelf in allShelves) {
+          final tagIds = <int>[];
+          
+          if (shelf.filterTagIds != null) {
+            try { tagIds.addAll((jsonDecode(shelf.filterTagIds!) as List).cast<int>()); } catch (_) {}
+          }
+          if (shelf.filterImprintIds != null) {
+            try { tagIds.addAll((jsonDecode(shelf.filterImprintIds!) as List).cast<int>()); } catch (_) {}
+          }
+          if (shelf.filterCollectionIds != null) {
+            try { tagIds.addAll((jsonDecode(shelf.filterCollectionIds!) as List).cast<int>()); } catch (_) {}
+          }
+
+          for (final tid in tagIds.toSet()) {
+             await into(shelfTags).insert(ShelfTagsCompanion.insert(
+               shelfId: shelf.id,
+               tagId: tid,
+             ), mode: InsertMode.insertOrIgnore);
+          }
+        }
+      }
+
+      // Default stats widgets are no longer initialized here to allow showing an empty state for new users
+    }
   );
 
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'openshelf_db');
+    return LazyDatabase(() async {
+      final prefs = await SharedPreferences.getInstance();
+      final customPath = prefs.getString('app_db_path');
+      
+      final File dbFile;
+      if (customPath != null && customPath.isNotEmpty) {
+        dbFile = File(p.join(customPath, 'openshelf_db.sqlite'));
+      } else {
+        final dbFolder = await getApplicationDocumentsDirectory();
+        dbFile = File(p.join(dbFolder.path, 'openshelf_db.sqlite'));
+      }
+
+      // Ensure the directory exists and is writable
+      if (!await dbFile.parent.exists()) {
+        await dbFile.parent.create(recursive: true);
+      }
+
+      return NativeDatabase.createInBackground(dbFile);
+    });
   }
 
-  Stream<List<Book>> watchAllBooks() => select(books).watch();
-
-  Stream<List<Book>> watchBooksByStatus(ReadingStatus status) {
-    return (select(books)
-      ..where((b) => b.status.equalsValue(status)))
-        .watch();
-  }
-
-  Stream<Book?> watchBookById(int id) =>
-      (select(books)..where((b) => b.id.equals(id))).watchSingleOrNull();
-
-  Future<int> insertBook(BooksCompanion book) => into(books).insert(book);
-
-  Future<bool> updateBook(Book book) => update(books).replace(book);
-
-  Future<void> deleteBook(int id) async {
+  Future<void> clearAllData() async {
     await transaction(() async {
-      final book = await (select(books)..where((b) => b.id.equals(id)))
-          .getSingleOrNull();
-
-      final linked = await (select(bookTags)
-        ..where((bt) => bt.bookId.equals(id))).get();
-      final tagIds = linked.map((bt) => bt.tagId).toList();
-
-      await (delete(bookTags)..where((bt) => bt.bookId.equals(id))).go();
-      await (delete(books)..where((b) => b.id.equals(id))).go();
-
-      for (final tagId in tagIds) {
-        final remaining = await (select(bookTags)
-          ..where((bt) => bt.tagId.equals(tagId))).get();
-        if (remaining.isEmpty) {
-          final t = await (select(tags)..where((t) => t.id.equals(tagId)))
-              .getSingleOrNull();
-          if (t != null && t.type == 'tag') {
-            await (delete(tags)..where((t) => t.id.equals(tagId))).go();
-          }
-        }
-      }
-
-      if (book != null && book.collectionName != null) {
-        final others = await (select(books)
-          ..where((b) => b.collectionName.equals(book.collectionName!)))
-            .get();
-        if (others.isEmpty) {
-          await (delete(tags)
-            ..where((t) =>
-            t.name.equals(book.collectionName!) &
-            t.type.equals('collection'))).go();
-        }
-      }
+      await delete(shelfTags).go();
+      await delete(bookTags).go();
+      await delete(books).go();
+      await delete(shelves).go();
+      await delete(tags).go(); // Clears Categories, Imprints, and Collections
+      await delete(readingGoals).go();
+      await delete(readingLog).go();
+      await delete(statWidgetConfigs).go();
     });
   }
-
-  Future<Book?> getBook(int id) =>
-      (select(books)..where((b) => b.id.equals(id))).getSingleOrNull();
-
-  // --- Colección  ---
-  Future<int> getOrCreateCollection(String name) async {
-    final existing = await (select(tags)
-      ..where((t) => t.name.equals(name) & t.type.equals('collection')))
-        .getSingleOrNull();
-    if (existing != null) return existing.id;
-    return insertTag(TagsCompanion(
-      name: Value(name),
-      type: const Value('collection'),
-    ));
-  }
-
-  // --- Tags ---
-  Future<int> insertTag(TagsCompanion tag) => into(tags).insert(tag);
-
-  Future<List<Tag>> getTagsByType(String type) =>
-      (select(tags)..where((t) => t.type.equals(type))).get();
-
-  Future<List<Tag>> searchTags(String query, String type) =>
-      (select(tags)
-        ..where((t) => t.name.contains(query) & t.type.equals(type)))
-          .get();
-
-  Future<bool> updateTag(Tag tag) => update(tags).replace(tag);
-
-  Future<void> deleteTag(int id) async {
-    await transaction(() async {
-      // Si es una colección, limpiar los libros que la usan
-      final tag = await (select(tags)..where((t) => t.id.equals(id)))
-          .getSingleOrNull();
-      if (tag != null && tag.type == 'collection') {
-        await (update(books)
-          ..where((b) => b.collectionName.equals(tag.name)))
-            .write(const BooksCompanion(
-          collectionName: Value(null),
-          collectionNumber: Value(null),
-        ));
-      }
-      // Borrar relaciones libro↔tag
-      await (delete(bookTags)..where((bt) => bt.tagId.equals(id))).go();
-      // Borrar el tag
-      await (delete(tags)..where((t) => t.id.equals(id))).go();
-    });
-  }
-
-// --- Relación libro<->tags ---
-  Future<void> setBookTags(int bookId, List<int> tagIds) async {
-    await transaction(() async {
-      await (delete(bookTags)
-        ..where((bt) => bt.bookId.equals(bookId))).go();
-      for (final tagId in tagIds) {
-        await into(bookTags).insert(
-          BookTagsCompanion(
-            bookId: Value(bookId),
-            tagId: Value(tagId),
-          ),
-        );
-      }
-    });
-  }
-
-  Future<void> pruneOrphanTags() async {
-    final allTags = await select(tags).get();
-    for (final tag in allTags) {
-      // Imprints y colecciones se gestionan manualmente, no se auto-borran
-      if (tag.type == 'imprint' || tag.type == 'collection') continue;
-      final refs = await (select(bookTags)
-        ..where((bt) => bt.tagId.equals(tag.id))).get();
-      if (refs.isEmpty) {
-        await (delete(tags)..where((t) => t.id.equals(tag.id))).go();
-      }
-    }
-  }
-
-  Stream<List<Tag>> watchTagsForBook(int bookId) {
-    final query = select(tags).join([
-      innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
-    ])
-      ..where(bookTags.bookId.equals(bookId))
-      ..where(tags.type.equals('tag'));
-
-    return query.watch().map(
-          (rows) => rows.map((r) => r.readTable(tags)).toList(),
-    );
-  }
-
-  Stream<Tag?> watchImprintForBook(int bookId) {
-    final query = select(tags).join([
-      innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
-    ])
-      ..where(bookTags.bookId.equals(bookId))
-      ..where(tags.type.equals('imprint'));
-
-    return query.watch().map(
-          (rows) => rows.isEmpty ? null : rows.first.readTable(tags),
-    );
-  }
-
-  Stream<List<Tag>> watchTagsByType(String type) =>
-      (select(tags)..where((t) => t.type.equals(type))).watch();
-
-  Future<void> setBookImprint(int bookId, int? imprintId) async {
-    await transaction(() async {
-      // Borrar sello anterior
-      final oldLinks = await (select(bookTags)
-        ..where((bt) => bt.bookId.equals(bookId))).get();
-      for (final link in oldLinks) {
-        final t = await (select(tags)..where((t) => t.id.equals(link.tagId)))
-            .getSingleOrNull();
-        if (t != null && t.type == 'imprint') {
-          await (delete(bookTags)
-            ..where((bt) =>
-            bt.bookId.equals(bookId) &
-            bt.tagId.equals(link.tagId))).go();
-        }
-      }
-      // Insertar nuevo sello si hay uno
-      if (imprintId != null) {
-        await into(bookTags).insert(
-          BookTagsCompanion(
-            bookId: Value(bookId),
-            tagId: Value(imprintId),
-          ),
-        );
-      }
-    });
-  }
-
-  Future<void> pruneCollectionIfOrphan(String collectionName) async {
-    final users = await (select(books)
-      ..where((b) => b.collectionName.equals(collectionName))).get();
-    if (users.isEmpty) {
-      await (delete(tags)
-        ..where((t) =>
-        t.name.equals(collectionName) &
-        t.type.equals('collection'))).go();
-    }
-  }
-
-  Stream<List<Book>> watchBooksFiltered({
-    String? query,
-    List<int>? tagIds,
-    String? author,
-    String? publisher,
-    String? isbn,
-    String? collectionName,
-    int? imprintId,
-  }) {
-    // Si hay filtro por tags necesitamos una query especial
-    if ((tagIds != null && tagIds.isNotEmpty) || imprintId != null){
-      return _watchBooksWithTags(
-        query: query,
-        tagIds: tagIds,
-        author: author,
-        publisher: publisher,
-        isbn: isbn,
-        collectionName: collectionName,
-        imprintId: imprintId,
-      );
-    }
-
-    final q = select(books)
-      ..where((b) {
-        Expression<bool> expr = const Constant(true);
-        if (query != null && query.isNotEmpty) {
-          expr = expr & b.title.contains(query);
-        }
-        if (author != null && author.isNotEmpty) {
-          expr = expr & b.author.contains(author);
-        }
-        if (publisher != null && publisher.isNotEmpty) {
-          expr = expr & b.publisher.contains(publisher);
-        }
-        if (isbn != null && isbn.isNotEmpty) {
-          expr = expr & b.isbn.contains(isbn);
-        }
-        if (collectionName != null && collectionName.isNotEmpty) {
-          expr = expr & b.collectionName.contains(collectionName);
-        }
-        return expr;
-      });
-    return q.watch();
-  }
-
-  Stream<List<Book>> _watchBooksWithTags({
-    String? query,
-    List<int>? tagIds,
-    String? author,
-    String? publisher,
-    String? isbn,
-    String? collectionName,
-    int? imprintId,
-  }) {
-    final allRequiredTagIds = [
-      ...?tagIds,
-      imprintId,
-    ].whereType<int>().toList();
-
-    if (allRequiredTagIds.isEmpty) return watchAllBooks();
-
-    return (select(bookTags)
-      ..where((bt) => bt.tagId.isIn(allRequiredTagIds)))
-        .watch()
-        .asyncMap((links) async {
-      final Map<int, Set<int>> bookToTags = {};
-      for (final link in links) {
-        bookToTags.putIfAbsent(link.bookId, () => {}).add(link.tagId);
-      }
-      final validBookIds = bookToTags.entries
-          .where((e) => e.value.length >= allRequiredTagIds.length)
-          .map((e) => e.key)
-          .toList();
-
-      if (validBookIds.isEmpty) return <Book>[];
-
-      final q = select(books)
-        ..where((b) {
-          Expression<bool> expr = b.id.isIn(validBookIds);
-          if (query != null && query.isNotEmpty) {
-            expr = expr & b.title.contains(query);
-          }
-          if (author != null && author.isNotEmpty) {
-            expr = expr & b.author.contains(author);
-          }
-          if (publisher != null && publisher.isNotEmpty) {
-            expr = expr & b.publisher.contains(publisher);
-          }
-          if (isbn != null && isbn.isNotEmpty) {
-            expr = expr & b.isbn.contains(isbn);
-          }
-          if (collectionName != null && collectionName.isNotEmpty) {
-            expr = expr & b.collectionName.contains(collectionName);
-          }
-          return expr;
-        });
-      return q.get();
-    });
-  }
-
-  // --- Shelves ---
-  Stream<List<Shelf>> watchAllShelves() => select(shelves).watch();
-
-  Future<int> insertShelf(ShelvesCompanion shelf) =>
-      into(shelves).insert(shelf);
-
-  Future<bool> updateShelf(Shelf shelf) => update(shelves).replace(shelf);
-
-  Future<void> deleteShelf(int id) =>
-      (delete(shelves)..where((s) => s.id.equals(id))).go();
-
 }

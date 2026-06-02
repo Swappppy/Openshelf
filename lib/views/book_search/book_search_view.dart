@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/app_settings_controller.dart';
 import '../../models/app_settings.dart';
 import '../book_form/book_form_view.dart';
 import '../../models/book_search_result.dart';
@@ -6,29 +7,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/book_search_service.dart';
 import '../../l10n/l10n_extension.dart';
 
+/// Screen for searching books across multiple online providers.
 class BookSearchView extends ConsumerStatefulWidget {
-  const BookSearchView({super.key});
+  final String? initialQuery;
+  const BookSearchView({super.key, this.initialQuery});
 
   @override
   ConsumerState<BookSearchView> createState() => _BookSearchViewState();
 }
 
 class _BookSearchViewState extends ConsumerState<BookSearchView> {
-  final _ctrl = TextEditingController();
+  late final TextEditingController _ctrl;
   final _focusNode = FocusNode();
 
   List<BookSearchResult> _results = [];
   bool _loading = false;
   String? _error;
   bool _searched = false;
-  String? _fallbackNotice;
 
   @override
   void initState() {
     super.initState();
-    // Abre el teclado al entrar
+    _ctrl = TextEditingController(text: widget.initialQuery ?? '');
+    
+    // Automatically focus search bar or trigger search if query provided.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
+      if (widget.initialQuery == null) {
+        _focusNode.requestFocus();
+      } else {
+        _search();
+      }
     });
   }
 
@@ -39,6 +47,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     super.dispose();
   }
 
+  /// Triggers a parallel multi-provider search.
   Future<void> _search() async {
     final query = _ctrl.text.trim();
     if (query.isEmpty) return;
@@ -51,26 +60,26 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     });
 
     try {
-      final service = ref.read(bookSearchServiceProvider);
-      final response = await service.search(query);
+      final settings = ref.read(appSettingsProvider);
+      final preferredLanguage = settings.locale?.languageCode;
+      
+      // Direct call to the static orchestration service.
+      final results = await BookSearchService.searchAll(
+        query,
+        servers: settings.searchServers,
+        googleApiKey: settings.googleBooksApiKey,
+        preferredLanguage: preferredLanguage,
+      );
       if (mounted) {
         setState(() {
-          _results = response.results;
-          _fallbackNotice = response.usedFallback != null
-              ? context.l10n.bookSearchFallbackNotice(response.usedFallback!)
-              : null;
+          _results = results;
           _loading = false;
         });
       }
     } catch (e) {
       if (mounted) {
-        final msg = e.toString();
         setState(() {
-          _error = msg.contains('no_api_key')
-              ? context.l10n.bookSearchErrorNoApiKey
-              : msg.contains('rate_limit')
-              ? context.l10n.bookSearchErrorRateLimit
-              : context.l10n.bookSearchErrorNetwork;
+          _error = context.l10n.bookSearchErrorNetwork;
           _loading = false;
         });
       }
@@ -127,7 +136,6 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
                   _results = [];
                   _searched = false;
                   _error = null;
-                  _fallbackNotice = null;
                 });
                 _focusNode.requestFocus();
               },
@@ -141,6 +149,12 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
       body: _buildBody(colorScheme),
     );
   }
+
+  String _label(BookSearchServer s, BuildContext context) => switch (s) {
+    BookSearchServer.openLibrary => context.l10n.bookSearchServerOpenLibrary,
+    BookSearchServer.googleBooks => context.l10n.bookSearchServerGoogleBooks,
+    BookSearchServer.inventaire => context.l10n.bookSearchServerInventaire,
+  };
 
   Widget _buildBody(ColorScheme colorScheme) {
     if (_loading) {
@@ -176,11 +190,8 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     }
 
     if (!_searched) {
-      final service = ref.watch(bookSearchServiceProvider);
-      final serverLabel = switch (service.server) {
-        BookSearchServer.openLibrary => 'Open Library',
-        BookSearchServer.googleBooks => 'Google Books',
-      };
+      final activeServers = ref.watch(appSettingsProvider.select((s) => s.searchServers));
+
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -194,18 +205,22 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
               ),
             ),
             const SizedBox(height: 6),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.public, size: 13, color: colorScheme.outline),
-                const SizedBox(width: 4),
-                Text(
-                  serverLabel,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colorScheme.outline,
+            Wrap(
+              spacing: 8,
+              alignment: WrapAlignment.center,
+              children: activeServers.map((s) => Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.public, size: 13, color: colorScheme.outline),
+                  const SizedBox(width: 4),
+                  Text(
+                    _label(s, context),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colorScheme.outline,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              )).toList(),
             ),
           ],
         ),
@@ -230,44 +245,15 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
       );
     }
 
-    return Column(
-      children: [
-        if (_fallbackNotice != null)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: colorScheme.tertiaryContainer.withValues(alpha: 0.5),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline,
-                    size: 14, color: colorScheme.onTertiaryContainer),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _fallbackNotice!,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onTertiaryContainer,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: _results.length,
-            itemBuilder: (context, index) =>
-                _ResultTile(result: _results[index], onTap: _openForm),
-          ),
-        ),
-      ],
+    return ListView.builder(
+      itemCount: _results.length,
+      itemBuilder: (context, index) =>
+          _ResultTile(result: _results[index], onTap: _openForm),
     );
   }
 }
 
-// -------------------------------------------------------
-// Tile de resultado
-// -------------------------------------------------------
+/// Compact result tile for a book search result.
 class _ResultTile extends StatelessWidget {
   final BookSearchResult result;
   final ValueChanged<BookSearchResult> onTap;
@@ -278,15 +264,17 @@ class _ResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final isRecommended = result.source == context.l10n.bookSearchRecommendedSource;
 
     return InkWell(
       onTap: () => onTap(result),
-      child: Padding(
+      child: Container(
+        color: isRecommended ? colorScheme.primaryContainer.withValues(alpha: 0.15) : null,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Miniatura portada
+            // Cover Thumbnail
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: SizedBox(
@@ -296,7 +284,7 @@ class _ResultTile extends StatelessWidget {
                     ? Image.network(
                   result.coverUrl!,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) =>
+                  errorBuilder: (context, error, stackTrace) =>
                       _CoverPlaceholder(colorScheme: colorScheme),
                 )
                     : _CoverPlaceholder(colorScheme: colorScheme),
@@ -304,11 +292,30 @@ class _ResultTile extends StatelessWidget {
             ),
             const SizedBox(width: 12),
 
-            // Datos
+            // Metadata Column
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (isRecommended)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          context.l10n.bookSearchRecommended,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.onPrimary,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   Text(
                     result.title,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -317,27 +324,25 @@ class _ResultTile extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (result.author.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      result.author,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.outline,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 2),
+                  Text(
+                    result.authors.join(', '),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.outline,
                     ),
-                  ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 4),
                   Wrap(
                     spacing: 8,
                     children: [
                       if (result.publishYear != null)
-                        _MetaChip(label: '${result.publishYear}'),
+                        _MetaText(label: '${result.publishYear}'),
                       if (result.publisher != null)
-                        _MetaChip(label: result.publisher!),
-                      if (result.totalPages != null)
-                        _MetaChip(label: context.l10n.pageSuffix(result.totalPages!)),
+                        _MetaText(label: result.publisher!),
+                      if (result.pageCount != null)
+                        _MetaText(label: context.l10n.pageSuffix(result.pageCount!)),
                     ],
                   ),
                 ],
@@ -365,9 +370,9 @@ class _CoverPlaceholder extends StatelessWidget {
   }
 }
 
-class _MetaChip extends StatelessWidget {
+class _MetaText extends StatelessWidget {
   final String label;
-  const _MetaChip({required this.label});
+  const _MetaText({required this.label});
 
   @override
   Widget build(BuildContext context) {

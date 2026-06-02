@@ -7,7 +7,6 @@
     android:versionName="1.0.0"
     tools:ignore="all">
 
-    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="34" />
 
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
@@ -28,6 +27,10 @@
         tools:ignore="SelectedPhotoAccess" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
 
     <application
         android:label="Openshelf"
@@ -45,7 +48,8 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
@@ -59,6 +63,32 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Dynamic Icon Aliases (color0 to color23) -->
+        <activity-alias android:name=".color0" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color0" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color1" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color1" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color2" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color2" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color3" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color3" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color4" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color4" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color5" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color5" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color6" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color6" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color7" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color7" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color8" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color8" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color9" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color9" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color10" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color10" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color11" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color11" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color12" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color12" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color13" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color13" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color14" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color14" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color15" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color15" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color16" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color16" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color17" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color17" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color18" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color18" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color19" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color19" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color20" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color20" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color21" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color21" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color22" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color22" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
+        <activity-alias android:name=".color23" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_color23" android:label="Openshelf" android:targetActivity=".MainActivity"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity-alias>
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

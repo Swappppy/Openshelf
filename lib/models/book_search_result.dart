@@ -1,45 +1,92 @@
+import 'package:drift/drift.dart';
+import '../services/database.dart';
+
+/// Represents a book metadata result fetched from an external provider (Google Books, Open Library, etc.)
 class BookSearchResult {
   final String title;
-  final String author;
+  final String? subtitle;
+  final List<String> authors;
   final String? isbn;
+  final String? language;
+  final String? translator;
   final String? publisher;
-  final int? publishYear;
-  final int? totalPages;
   final String? coverUrl;
-  final String? openLibraryKey;
+  final int? pageCount;
+  final int? publishYear;
+  final String? description;
+  final List<String> categories;
+  
+  /// The source that provided this data.
+  final String source;
+
+  /// Optional URI for Inventaire deep lookups (Works vs Editions)
+  final String? inventaireWorkUri;
 
   const BookSearchResult({
     required this.title,
-    required this.author,
+    this.subtitle,
+    required this.authors,
     this.isbn,
+    this.language,
+    this.translator,
     this.publisher,
-    this.publishYear,
-    this.totalPages,
     this.coverUrl,
-    this.openLibraryKey,
+    this.pageCount,
+    this.publishYear,
+    this.description,
+    this.categories = const [],
+    required this.source,
+    this.inventaireWorkUri,
   });
 
-  factory BookSearchResult.fromOpenLibraryDoc(Map<String, dynamic> doc) {
-    final authors = doc['author_name'];
-    final isbns = doc['isbn'];
-    final publishers = doc['publisher'];
-    final coverId = doc['cover_i'];
-
+  BookSearchResult copyWith({
+    String? title,
+    String? subtitle,
+    List<String>? authors,
+    String? isbn,
+    String? language,
+    String? translator,
+    String? publisher,
+    String? coverUrl,
+    int? pageCount,
+    int? publishYear,
+    String? description,
+    List<String>? categories,
+    String? source,
+    String? inventaireWorkUri,
+  }) {
     return BookSearchResult(
-      title: doc['title'] as String? ?? '',
-      author: (authors is List && authors.isNotEmpty)
-          ? authors.first as String
-          : '',
-      isbn: (isbns is List && isbns.isNotEmpty) ? isbns.first as String : null,
-      publisher: (publishers is List && publishers.isNotEmpty)
-          ? publishers.first as String
-          : null,
-      publishYear: doc['first_publish_year'] as int?,
-      totalPages: doc['number_of_pages_median'] as int?,
-      coverUrl: coverId != null
-          ? 'https://covers.openlibrary.org/b/id/$coverId-M.jpg'
-          : null,
-      openLibraryKey: doc['key'] as String?,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      authors: authors ?? this.authors,
+      isbn: isbn ?? this.isbn,
+      language: language ?? this.language,
+      translator: translator ?? this.translator,
+      publisher: publisher ?? this.publisher,
+      coverUrl: coverUrl ?? this.coverUrl,
+      pageCount: pageCount ?? this.pageCount,
+      publishYear: publishYear ?? this.publishYear,
+      description: description ?? this.description,
+      categories: categories ?? this.categories,
+      source: source ?? this.source,
+      inventaireWorkUri: inventaireWorkUri ?? this.inventaireWorkUri,
+    );
+  }
+
+  /// Converts this search result into a database companion for insertion.
+  BooksCompanion toCompanion() {
+    return BooksCompanion.insert(
+      title: title,
+      subtitle: Value(subtitle),
+      author: authors.join(', '),
+      isbn: Value(isbn),
+      language: Value(language),
+      translator: Value(translator),
+      publisher: Value(publisher),
+      coverUrl: Value(coverUrl),
+      totalPages: Value(pageCount),
+      status: ReadingStatus.wantToRead,
+      publishYear: Value(publishYear),
     );
   }
 }

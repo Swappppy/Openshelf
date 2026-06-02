@@ -1,317 +1,350 @@
 import 'dart:io';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:image/image.dart' as img;
-import 'package:image_cropper/image_cropper.dart';
-import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image/image.dart' as img;
+import '../models/tag_type.dart';
+import 'database.dart';
 
+/// Service for managing book covers and imprint images locally.
 class CoverService {
-  // -------------------------------------------------------
-  // Directorios
-  // -------------------------------------------------------
-  static Future<Directory> _coversDir() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    final dir = Directory(p.join(appDir.path, 'covers'));
-    if (!await dir.exists()) await dir.create(recursive: true);
-    return dir;
-  }
+  /// Downloads an image from a URL and saves it to the app's local documents directory.
+  static Future<String?> saveCoverFromUrl(
+    String url, {
+    String? cropTitle,
+    String? doneButtonTitle,
+    String? cancelButtonTitle,
+    bool shouldCrop = true,
+  }) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final directory = await getApplicationDocumentsDirectory();
+        final tempFileName = 'temp_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final tempPath = p.join(directory.path, tempFileName);
+        final tempFile = File(tempPath);
+        await tempFile.writeAsBytes(response.bodyBytes);
 
-  static Future<Directory> _imprintsDir() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    final dir = Directory(p.join(appDir.path, 'imprints'));
-    if (!await dir.exists()) await dir.create(recursive: true);
-    return dir;
-  }
-
-  // -------------------------------------------------------
-  // Deduplicación por hash
-  // -------------------------------------------------------
-
-  /// Calcula el MD5 de los bytes y busca si ya existe un archivo
-  /// con ese contenido en el directorio de portadas.
-  /// Devuelve el path existente o null si no hay duplicado.
-  static Future<String?> _findExisting(List<int> bytes) async {
-    final hash = md5.convert(bytes).toString();
-    final dir = await _coversDir();
-    await for (final entity in dir.list()) {
-      if (entity is! File) continue;
-      final existing = await entity.readAsBytes();
-      if (md5.convert(existing).toString() == hash) return entity.path;
-    }
-    return null;
-  }
-
-  // -------------------------------------------------------
-  // Recorte
-  // -------------------------------------------------------
-  static Future<String?> cropCover(String sourcePath, {required String title}) async {
-    final cropped = await ImageCropper().cropImage(
-      sourcePath: sourcePath,
-      aspectRatio: const CropAspectRatio(ratioX: 2, ratioY: 3),
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: title,
-          toolbarColor: const Color(0xFF6B4E3D),
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: true,
-        ),
-        IOSUiSettings(
-          title: title,
-          aspectRatioLockEnabled: true,
-        ),
-      ],
-    );
-    return cropped?.path;
-  }
-
-  static Future<String?> cropImprint(String sourcePath, {required String title}) async {
-    final cropped = await ImageCropper().cropImage(
-      sourcePath: sourcePath,
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: title,
-          toolbarColor: const Color(0xFF6B4E3D),
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: true,
-        ),
-        IOSUiSettings(
-          title: title,
-          aspectRatioLockEnabled: true,
-        ),
-      ],
-    );
-    return cropped?.path;
-  }
-
-  // -------------------------------------------------------
-  // Guardar desde path local
-  // -------------------------------------------------------
-  static Future<String> saveCover(String sourcePath) async {
-    final bytes = await File(sourcePath).readAsBytes();
-    final existing = await _findExisting(bytes);
-    if (existing != null) return existing;
-
-    final dir = await _coversDir();
-    final ext = p.extension(sourcePath);
-    final filename = '${DateTime.now().millisecondsSinceEpoch}$ext';
-    final dest = File(p.join(dir.path, filename));
-    await dest.writeAsBytes(bytes);
-    return dest.path;
-  }
-
-  static Future<String> saveImprintImage(String sourcePath) async {
-    final dir = await _imprintsDir();
-    final ext = p.extension(sourcePath);
-    final filename = '${DateTime.now().millisecondsSinceEpoch}$ext';
-    final dest = File(p.join(dir.path, filename));
-    await File(sourcePath).copy(dest.path);
-    return dest.path;
-  }
-
-  // -------------------------------------------------------
-  // Descarga para previsualización (sin recortar)
-  // -------------------------------------------------------
-
-  /// Descarga una imagen a /tmp y devuelve el path.
-  /// Solo para mostrar en la cuadrícula — no va a /covers.
-  /// Implementa reintentos en caso de fallo transitorio.
-  static Future<String?> downloadForPreview(String url) async {
-    int attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
-      try {
-        final response = await http
-            .get(Uri.parse(url))
-            .timeout(const Duration(seconds: 8));
-
-        // 404 es definitivo, no reintentamos
-        if (response.statusCode == 404) {
-          debugPrint('Preview 404 (No reintentar): $url');
-          return null;
-        }
-
-        // Errores de servidor (5xx) o rate limit (429) merecen reintento
-        if (response.statusCode != 200) {
-          debugPrint('Preview error ${response.statusCode} (Intento ${attempts + 1}): $url');
-          attempts++;
-          if (attempts < maxAttempts) {
-            await Future.delayed(Duration(milliseconds: 500 * attempts));
-            continue;
+        if (shouldCrop) {
+          final isGood = await isRatioCorrect(tempPath, 2 / 3);
+          if (isGood) {
+            final finalPath = await saveCover(tempPath);
+            await tempFile.delete();
+            return finalPath;
           }
-          return null;
-        }
 
-        // Validar que sea una imagen (evitar HTML/JSON devuelto con status 200)
-        final contentType = response.headers['content-type']?.toLowerCase() ?? '';
-        if (!contentType.contains('image/')) {
-          debugPrint('Preview no es una imagen ($contentType): $url');
-          return null;
+          final cropped = await cropCover(
+            tempPath, 
+            title: cropTitle ?? 'Crop Cover',
+            doneButtonTitle: doneButtonTitle,
+            cancelButtonTitle: cancelButtonTitle,
+          );
+          if (cropped != null) {
+            final finalPath = await saveCover(cropped);
+            await tempFile.delete();
+            return finalPath;
+          }
         }
-
-        // Open Library devuelve una gif de 1x1 (~43 bytes) si no existe la portada
-        if (response.bodyBytes.length < 500) {
-          debugPrint('Preview too small (${response.bodyBytes.length}b): $url');
-          return null;
-        }
-
-        final tempDir = await getTemporaryDirectory();
-        final ext = _extensionFromUrl(url);
-        final path = p.join(
-          tempDir.path,
-          'preview_${DateTime.now().millisecondsSinceEpoch}$ext',
-        );
-        await File(path).writeAsBytes(response.bodyBytes);
-        return path;
-      } catch (e) {
-        attempts++;
-        debugPrint('downloadForPreview error (Intento $attempts): $e — $url');
-        if (attempts < maxAttempts) {
-          await Future.delayed(Duration(milliseconds: 500 * attempts));
-          continue;
-        }
-        return null;
+        
+        final finalPath = await saveCover(tempPath);
+        return finalPath;
       }
+    } catch (e) {
+      debugPrint('Error saving cover from URL: $e');
     }
     return null;
   }
 
-  // -------------------------------------------------------
-  // Guardar desde URL (con recorte opcional) — deduplicado
-  // -------------------------------------------------------
-  static Future<String?> saveCoverFromUrl(String url, {bool shouldCrop = true, String? cropTitle}) async {
+  /// Downloads an image to a temporary location for preview purposes.
+  static Future<String?> downloadForPreview(String url) async {
     try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode != 200) return null;
-      if (response.bodyBytes.length < 1000) return null;
-
-      // Deduplicación: si ya tenemos esta imagen, no volvemos a descargar
-      final existing = await _findExisting(response.bodyBytes);
-      if (existing != null) return existing;
-
-      final tempDir = await getTemporaryDirectory();
-      final ext = _extensionFromUrl(url);
-      final tempFile = File(p.join(
-        tempDir.path,
-        'temp_cover_${DateTime.now().millisecondsSinceEpoch}$ext',
-      ));
-      await tempFile.writeAsBytes(response.bodyBytes);
-
-      // Si el ratio ya es el correcto (o muy cercano), omitir el recorte
-      if (await isRatioCorrect(tempFile.path, 2 / 3)) {
-        debugPrint('Smart Crop (Portada): Ratio correcto, omitiendo recorte.');
-        final saved = await saveCover(tempFile.path);
-        await tempFile.delete();
-        return saved;
+      final response = await http.get(Uri.parse(url), headers: {
+        'User-Agent': 'Openshelf/1.0.0 (https://github.com/ftena/openshelf)',
+      });
+      if (response.statusCode == 200) {
+        final directory = await getTemporaryDirectory();
+        final fileName = 'preview_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final filePath = p.join(directory.path, fileName);
+        await File(filePath).writeAsBytes(response.bodyBytes);
+        return filePath;
       }
-
-      if (!shouldCrop) {
-        final saved = await saveCover(tempFile.path);
-        await tempFile.delete();
-        return saved;
-      }
-
-      final croppedPath = await cropCover(tempFile.path, title: cropTitle ?? 'Crop');
-      await tempFile.delete();
-      if (croppedPath == null) return null;
-      return await saveCover(croppedPath);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  static Future<String?> saveImprintFromUrl(String url, {bool shouldCrop = true, String? cropTitle}) async {
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode != 200) return null;
-
-      final tempDir = await getTemporaryDirectory();
-      final ext = _extensionFromUrl(url);
-      final tempFile = File(p.join(
-        tempDir.path,
-        'temp_imprint_${DateTime.now().millisecondsSinceEpoch}$ext',
-      ));
-      await tempFile.writeAsBytes(response.bodyBytes);
-
-      // Sello es 1:1
-      if (await isRatioCorrect(tempFile.path, 1.0)) {
-        debugPrint('Smart Crop (Sello): Ratio correcto, omitiendo recorte.');
-        final saved = await saveImprintImage(tempFile.path);
-        await tempFile.delete();
-        return saved;
-      }
-
-      if (!shouldCrop) {
-        final saved = await saveImprintImage(tempFile.path);
-        await tempFile.delete();
-        return saved;
-      }
-
-      final croppedPath = await cropImprint(tempFile.path, title: cropTitle ?? 'Crop');
-      await tempFile.delete();
-      if (croppedPath == null) return null;
-      return await saveImprintImage(croppedPath);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  // -------------------------------------------------------
-  // Eliminar
-  // -------------------------------------------------------
-  static Future<void> deleteCover(String path) async {
-    final file = File(path);
-    if (await file.exists()) await file.delete();
-  }
-
-  static Future<void> deleteImprintImage(String path) async {
-    final file = File(path);
-    if (await file.exists()) await file.delete();
-  }
-
-  // -------------------------------------------------------
-  // Utilidades
-  // -------------------------------------------------------
-
-  /// Comprueba si el aspect ratio de una imagen es cercano al deseado (con 5% de tolerancia).
-  static Future<bool> isRatioCorrect(String path, double targetRatio) async {
-    try {
-      final file = File(path);
-      if (!await file.exists()) return false;
-      
-      final bytes = await file.readAsBytes();
-      if (bytes.isEmpty) return false;
-
-      // Usar decodeImage directly para mayor robustez ante archivos con extensiones incorrectas
-      final image = img.decodeImage(bytes);
-      if (image == null) {
-        debugPrint('isRatioCorrect: No se pudo decodificar la imagen (${bytes.length} bytes).');
-        return false;
-      }
-
-      final currentRatio = image.width / image.height;
-      const tolerance = 0.05; // 5% de margen
-
-      final diff = (currentRatio - targetRatio).abs();
-      debugPrint('Smart Crop: Detectado ratio ${currentRatio.toStringAsFixed(3)} '
-          '(objetivo: ${targetRatio.toStringAsFixed(3)}, diff: ${diff.toStringAsFixed(3)})');
-      
-      return diff < tolerance;
     } catch (e) {
-      debugPrint('isRatioCorrect error: $e');
+      debugPrint('Error downloading preview: $e');
+    }
+    return null;
+  }
+
+  /// Checks if the image at the given path matches the target aspect ratio.
+  static Future<bool> isRatioCorrect(String path, double targetRatio, {double tolerance = 0.1}) async {
+    try {
+      final bytes = await File(path).readAsBytes();
+      final image = img.decodeImage(bytes);
+      if (image == null) return false;
+      
+      final currentRatio = image.width / image.height;
+      final diff = (currentRatio - targetRatio).abs();
+      final threshold = targetRatio * tolerance;
+      
+      final isCorrect = diff <= threshold;
+      debugPrint('CoverService: SmartCrop check - current=$currentRatio, target=$targetRatio, diff=$diff, threshold=$threshold, result=$isCorrect');
+      return isCorrect;
+    } catch (e) {
+      debugPrint('Error checking image ratio: $e');
       return false;
     }
   }
 
-  static String _extensionFromUrl(String url) {
-    final uri = Uri.parse(url);
-    final ext = p.extension(uri.path);
-    if (ext.isNotEmpty) return ext;
-    return '.jpg';
+  /// Saves a cover image to the permanent storage with automatic compression if enabled.
+  static Future<String> saveCover(String path, {bool forceCompress = false}) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName = 'cover_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final finalPath = p.join(directory.path, fileName);
+    
+    // Apply compression if forced or if would benefit from it
+    if (forceCompress || await shouldCompress(path)) {
+      await compressImage(path, finalPath);
+    } else {
+      await File(path).copy(finalPath);
+    }
+    
+    return finalPath;
+  }
+
+  /// Iterates over all books and imprints and compresses images that benefit from it.
+  static Future<int> batchCompressAll(AppDatabase db) async {
+    int optimized = 0;
+
+    // 1. Books
+    final allBooks = await db.select(db.books).get();
+    for (final book in allBooks) {
+      if (book.coverPath != null) {
+        if (await shouldCompress(book.coverPath!)) {
+          // We compress in-place by using a temp file
+          final tempPath = '${book.coverPath!}.tmp';
+          await compressImage(book.coverPath!, tempPath);
+          await _safeReplaceFile(tempPath, book.coverPath!);
+          optimized++;
+        }
+      }
+    }
+
+    // 2. Imprints
+    final allImprints = await db.tagDao.getTagsByType(TagType.imprint);
+    for (final imp in allImprints) {
+      if (imp.imagePath != null) {
+        if (await shouldCompress(imp.imagePath!)) {
+          final tempPath = '${imp.imagePath!}.tmp';
+          await compressImage(imp.imagePath!, tempPath);
+          await _safeReplaceFile(tempPath, imp.imagePath!);
+          optimized++;
+        }
+      }
+    }
+
+    return optimized;
+  }
+
+  /// Verifies that a temporary file is valid before replacing the original.
+  static Future<void> _safeReplaceFile(String tempPath, String originalPath) async {
+    final tempFile = File(tempPath);
+    try {
+      if (await tempFile.exists() && await tempFile.length() > 0) {
+        // Safe to replace
+        await tempFile.rename(originalPath);
+      } else {
+        // Invalid or empty file, cleanup and abort replacement
+        if (await tempFile.exists()) await tempFile.delete();
+        debugPrint('CoverService: Compression produced invalid or empty file for $originalPath. Aborting replacement.');
+      }
+    } catch (e) {
+      debugPrint('CoverService: Error during safe file replacement for $originalPath: $e');
+      if (await tempFile.exists()) {
+        try { await tempFile.delete(); } catch (_) {}
+      }
+    }
+  }
+
+  /// Checks if an image should be compressed based on its size and dimensions.
+  static Future<bool> shouldCompress(String path) async {
+    try {
+      final file = File(path);
+      if (!await file.exists()) return false;
+      
+      // If file is very small (< 150KB), don't bother compressing again
+      final size = await file.length();
+      if (size < 150 * 1024) return false;
+
+      final bytes = await file.readAsBytes();
+      final image = img.decodeImage(bytes);
+      if (image == null) return false;
+
+      // If height is large (> 1000px), it should be compressed/resized
+      if (image.height > 1000) return true;
+      
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Compresses an image to a maximum height and reduced JPEG quality.
+  static Future<void> compressImage(String sourcePath, String targetPath, {int maxHeight = 1000, int quality = 75}) async {
+    try {
+      final bytes = await File(sourcePath).readAsBytes();
+      img.Image? image = img.decodeImage(bytes);
+      
+      if (image == null) {
+        // Fallback to simple copy if decoding fails
+        await File(sourcePath).copy(targetPath);
+        return;
+      }
+
+      // Resize if height exceeds limit
+      if (image.height > maxHeight) {
+        image = img.copyResize(image, height: maxHeight, interpolation: img.Interpolation.linear);
+      }
+
+      // Encode as compressed JPEG
+      final compressedBytes = img.encodeJpg(image, quality: quality);
+      await File(targetPath).writeAsBytes(compressedBytes);
+      debugPrint('CoverService: Compressed image saved to $targetPath (Quality: $quality, Height: ${image.height})');
+    } catch (e) {
+      debugPrint('Error compressing image: $e');
+      // Final fallback
+      await File(sourcePath).copy(targetPath);
+    }
+  }
+
+  /// Provides a standard UI for cropping book covers (usually 2:3 ratio).
+  static Future<String?> cropCover(String path, {
+    required String title,
+    String? doneButtonTitle,
+    String? cancelButtonTitle,
+  }) async {
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: path,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: title,
+          toolbarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+        ),
+        IOSUiSettings(
+          title: title,
+          doneButtonTitle: doneButtonTitle,
+          cancelButtonTitle: cancelButtonTitle,
+        ),
+      ],
+    );
+    return croppedFile?.path;
+  }
+
+  /// Copies a local file to the app's permanent storage directory with compression.
+  static Future<String?> saveLocalCover(String tempPath) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final filePath = p.join(directory.path, fileName);
+      
+      await compressImage(tempPath, filePath);
+      return filePath;
+    } catch (e) {
+      debugPrint('Error saving local cover: $e');
+    }
+    return null;
+  }
+
+  /// Deletes a local cover image file.
+  static Future<void> deleteCover(String filePath) async {
+    try {
+      final file = File(filePath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      debugPrint('Error deleting cover: $e');
+    }
+  }
+
+  /// Returns the directory where covers are stored.
+  static Future<Directory> getCoverDirectory() async {
+    final docDir = await getApplicationDocumentsDirectory();
+    return docDir; // Currently stored in root documents
+  }
+
+  /// Provides a standard UI for cropping imprint/publisher logos.
+  static Future<String?> cropImprint(String path, {
+    required String title,
+    String? doneButtonTitle,
+    String? cancelButtonTitle,
+  }) async {
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: path,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: title,
+          toolbarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(
+          title: title,
+          doneButtonTitle: doneButtonTitle,
+          cancelButtonTitle: cancelButtonTitle,
+        ),
+      ],
+    );
+    return croppedFile?.path;
+  }
+
+  /// Saves an imprint image and returns the local path.
+  static Future<String?> saveImprintImage(String tempPath) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final imprintDir = Directory(p.join(directory.path, 'imprints'));
+      if (!await imprintDir.exists()) await imprintDir.create(recursive: true);
+
+      final fileName = 'imprint_${ p.basename(tempPath) }';
+      final filePath = p.join(imprintDir.path, fileName);
+      await File(tempPath).copy(filePath);
+      return filePath;
+    } catch (e) {
+      debugPrint('Error saving imprint image: $e');
+      return null;
+    }
+  }
+
+  /// Downloads and crops an imprint image from a URL.
+  static Future<String?> saveImprintFromUrl(
+    String url, {
+    required String cropTitle,
+    String? doneButtonTitle,
+    String? cancelButtonTitle,
+  }) async {
+    final temp = await downloadForPreview(url);
+    if (temp == null) return null;
+    final cropped = await cropImprint(
+      temp, 
+      title: cropTitle,
+      doneButtonTitle: doneButtonTitle,
+      cancelButtonTitle: cancelButtonTitle,
+    );
+    if (cropped == null) return null;
+    return saveImprintImage(cropped);
+  }
+
+  /// Deletes an imprint image.
+  static Future<void> deleteImprintImage(String path) async {
+    try {
+      final file = File(path);
+      if (await file.exists()) await file.delete();
+    } catch (e) {
+      debugPrint('Error deleting imprint image: $e');
+    }
   }
 }
