@@ -31,9 +31,8 @@ Openshelf is currently in active development. Native stores coming soon:
 
 ## 📱 Screenshots
 
- | | | |
-:---:|:---:|:---:|:---:
- <img src="assets/Screenshots/1.png" width="400"> | <img src="assets/Screenshots/2.png" width="400"> | <img src="assets/Screenshots/3.png" width="400"> | <img src="assets/Screenshots/4.png" width="400">
+alt
+ <img src="assets/Screenshots/1.png" width="300"> | <img src="assets/Screenshots/2.png" width="300"> | <img src="assets/Screenshots/3.png" width="300"> | <img src="assets/Screenshots/4.png" width="300">
 
 ---
 
