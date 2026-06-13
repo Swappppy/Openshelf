@@ -1,9 +1,8 @@
 # 📚 Openshelf
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](file:///home/ftena/Projects/Openshelf/LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-android%20%7C%20ios-lightgrey.svg)](https://flutter.dev)
 [![FOSS](https://img.shields.io/badge/FOSS-100%25-green.svg)](#-technical-stack)
-[![Weblate](https://img.shields.io/badge/Translate-Weblate-informational.svg)](https://hosted.weblate.org/projects/openshelf/)
 
 **Your library. Your data. Your app.**
 
@@ -31,8 +30,7 @@ Openshelf is currently in active development. Native stores coming soon:
 
 ## 📱 Screenshots
 
-alt
- <img src="assets/Screenshots/1.png" width="300"> | <img src="assets/Screenshots/2.png" width="300"> | <img src="assets/Screenshots/3.png" width="300"> | <img src="assets/Screenshots/4.png" width="300">
+ <img src="assets/Screenshots/1.png" width="300" alt="Library View - List Layout"> | <img src="assets/Screenshots/2.png" width="300" alt="Library View - Grid Layout"> | <img src="assets/Screenshots/3.png" width="300" alt="Book Details View"> | <img src="assets/Screenshots/4.png" width="300" alt="Statistics Dashboard">
 
 ---
 
@@ -140,6 +138,11 @@ Built on **Drift**, the database uses a polymorphic tag system. A single `Tags` 
 ## 🌍 Translations
 
 Openshelf uses **[Weblate](https://hosted.weblate.org/projects/openshelf/)** for community translations. English and Spanish are built-in.
+
+<a href="https://hosted.weblate.org/engage/openshelf/">
+<img src="https://hosted.weblate.org/widgets/openshelf/-/multi-auto.svg" alt="Translation status" />
+</a>
+
 > [!TIP]
 > To contribute a new language or improve existing ones, visit the [Openshelf project on Weblate](https://hosted.weblate.org/projects/openshelf/).
 
@@ -156,7 +159,7 @@ Bug reports, feature requests, and pull requests are welcome!
 
 ## 📜 License
 
-Openshelf is licensed under the **GNU General Public License v3.0**. See the [LICENSE](file:///home/ftena/Projects/Openshelf/LICENSE) file for more details.
+Openshelf is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE) file for more details.
 
 ---
 *Developed with ❤️ for book lovers.*
