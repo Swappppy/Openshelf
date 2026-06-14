@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/shelf.dart';
 import '../services/database.dart';
+import '../controllers/database_provider.dart';
 import '../controllers/books_controller.dart';
 import '../l10n/l10n_extension.dart';
 import '../views/shelves/shelf_books_view.dart';
@@ -130,41 +131,58 @@ class _SummaryDisplay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final bookIds = books.take(10).map((b) => b.id).toList();
-    final topTagsAsync = ref.watch(topTagsForBooksProvider(bookIds));
+    final bookIds = books.map((b) => b.id).toList();
+    
+    // Always show common tags if available
+    final topTagsAsync = ref.watch(topTagsForBooksProvider(bookIds.join(',')));
     
     return topTagsAsync.maybeWhen(
       data: (tags) {
-        if (tags.isEmpty) {
-          final filterSummary = _buildFilterSummary(context, shelf);
-          return Text(
-            filterSummary,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurface.withValues(alpha: 0.5),
-              fontSize: 11,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+        if (tags.isNotEmpty) {
+          return Wrap(
+            spacing: 4,
+            children: tags.map((t) => Text(
+              '#$t',
+              style: TextStyle(fontSize: 10, color: colorScheme.primary, fontWeight: FontWeight.bold),
+            )).toList(),
           );
         }
-        
-        return Wrap(
-          spacing: 4,
-          children: tags.map((t) => Text(
-            '#$t',
-            style: TextStyle(fontSize: 9, color: colorScheme.primary.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
-          )).toList(),
+
+        // Fallback to filter summary if no common tags
+        return FutureBuilder<String>(
+          future: _buildFilterSummary(ref, shelf),
+          builder: (context, snapshot) {
+            return Text(
+              snapshot.data ?? '—',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
+                fontSize: 11,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            );
+          },
         );
       },
       orElse: () => const SizedBox.shrink(),
     );
   }
 
-  String _buildFilterSummary(BuildContext context, Shelf s) {
+  Future<String> _buildFilterSummary(WidgetRef ref, Shelf s) async {
     final parts = <String>[];
+    
+    // 1. Check textual filters
     if (s.filterAuthor != null) parts.add(s.filterAuthor!);
     if (s.filterPublisher != null) parts.add(s.filterPublisher!);
     if (s.filterCollection != null) parts.add(s.filterCollection!);
+    
+    // 2. Check relationship filters (Tags table)
+    final db = ref.read(databaseProvider);
+    final tags = await db.shelfDao.watchTagsForShelf(s.id).first;
+    for (final tag in tags) {
+      parts.add(tag.name);
+    }
+
     return parts.isEmpty ? '—' : parts.join(' · ');
   }
 }

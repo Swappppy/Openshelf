@@ -17,7 +17,7 @@ import 'entity_selector_grid.dart';
 class ShelfFormSheet extends ConsumerStatefulWidget {
   final Shelf? existing;
   final SearchFilters? initialFilters;
-  final Future<int?> Function(ShelvesCompanion) onSave;
+  final Future<int?> Function(ShelvesCompanion, List<int>) onSave;
   
   const ShelfFormSheet({super.key, this.existing, this.initialFilters, required this.onSave});
   
@@ -138,10 +138,8 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
         filterLanguage: Value(_langCtrl.text.trim().isEmpty ? null : _langCtrl.text.trim()),
         filterStatus: Value(_status?.name),
       );
-      final shelfId = await widget.onSave(companion);
-      if (shelfId != null) {
-        await ref.read(databaseProvider).shelfDao.setShelfTags(shelfId, [...tagIds, ...imprintIds, ...collectionIds]);
-      }
+      
+      await widget.onSave(companion, [...tagIds, ...imprintIds, ...collectionIds]);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -95,6 +95,13 @@ class BookshelfImportService {
           await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(collectionId: Value(id)));
         }
 
+        // Link Imprint (Publisher)
+        final publisher = _str(row, _colPublisher).nullIfEmpty();
+        if (publisher != null) {
+          final id = await ImportExportUtils.getOrCreateTag(_db, publisher, TagType.imprint);
+          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(imprintId: Value(id)));
+        }
+
         // Link Categories
         final catsRaw = _str(row, _colCategories).nullIfEmpty();
         if (catsRaw != null) {

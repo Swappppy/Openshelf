@@ -22,7 +22,7 @@ dependencies:
   drift_flutter: ^0.3.0
 
   # Escáner ISBN
-  mobile_scanner: ^7.2.0
+  flutter_zxing: ^2.3.0
   flutter_tesseract_ocr: ^0.4.31
   camera: ^0.12.0+1
 

@@ -42,7 +42,7 @@ class WidgetHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            ?trailing,
+            if (trailing != null) ...[trailing!],
           ],
         );
       }

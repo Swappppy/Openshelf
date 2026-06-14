@@ -21,7 +21,15 @@ class ReadListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(allBooksProvider);
-    final period = _getPeriod(config.config);
+    final configAsync = ref.watch(statWidgetConfigProvider(config.id));
+    
+    // Use the live config from the database, fall back to the initial one
+    final liveConfig = configAsync.maybeWhen(
+      data: (c) => c ?? config,
+      orElse: () => config,
+    );
+    
+    final period = _getPeriod(liveConfig.config);
 
     return booksAsync.maybeWhen(
       data: (allBooks) {
@@ -64,7 +72,7 @@ class ReadListTile extends ConsumerWidget {
                       icon: Icons.checklist_rtl,
                     ),
                   ),
-                  _buildPeriodMenu(context, ref),
+                  _buildPeriodMenu(context, ref, liveConfig),
                 ],
               ),
               const SizedBox(height: 12),
@@ -168,15 +176,15 @@ class ReadListTile extends ConsumerWidget {
     );
   }
 
-  Widget _buildPeriodMenu(BuildContext context, WidgetRef ref) {
+  Widget _buildPeriodMenu(BuildContext context, WidgetRef ref, StatWidgetConfig liveConfig) {
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, size: 18, color: Colors.grey),
       padding: EdgeInsets.zero,
       onSelected: (val) {
-        final currentConfig = config.config != null ? jsonDecode(config.config!) as Map<String, dynamic> : {};
+        final currentConfig = liveConfig.config != null ? jsonDecode(liveConfig.config!) as Map<String, dynamic> : {};
         currentConfig['period'] = val;
         ref.read(statsControllerProvider.notifier).updateWidgetConfig(
-          config.copyWith(config: Value(jsonEncode(currentConfig))),
+          liveConfig.copyWith(config: Value(jsonEncode(currentConfig))),
         );
       },
       itemBuilder: (context) => [

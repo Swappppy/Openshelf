@@ -9,6 +9,11 @@ final statsWidgetsProvider = StreamProvider<List<StatWidgetConfig>>((ref) {
   return db.statDao.watchWidgetConfigs();
 });
 
+final statWidgetConfigProvider = StreamProvider.family<StatWidgetConfig?, int>((ref, id) {
+  final db = ref.watch(databaseProvider);
+  return db.statDao.watchWidgetConfig(id);
+});
+
 class StatsController extends Notifier<void> {
   @override
   void build() {}
