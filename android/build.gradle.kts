@@ -13,6 +13,16 @@ val newBuildDir: Directory =
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
+    configurations.all {
+        exclude(group = "com.google.android.gms")
+        exclude(group = "com.google.mlkit")
+        exclude(group = "com.google.android.datatransport")
+        exclude(group = "com.google.firebase")
+        exclude(group = "androidx.camera", module = "camera-mlkit-vision")
+    }
+}
+
+subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
