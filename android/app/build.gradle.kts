@@ -26,6 +26,11 @@ android {
         jvmTarget = "17"
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String?
@@ -79,6 +84,9 @@ configurations.all {
     exclude(group = "com.android.support", module = "support-media-compat")
     exclude(group = "com.android.support", module = "support-core-utils")
     exclude(group = "com.android.support", module = "support-core-ui")
+    exclude(group = "com.google.android.gms", module = "play-services-mlkit-barcode-scanning")
+    exclude(group = "com.google.mlkit", module = "barcode-scanning")
+    exclude(group = "androidx.camera", module = "camera-mlkit-vision")
     
     resolutionStrategy {
         force("androidx.core:core:1.13.1")
