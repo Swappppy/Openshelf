@@ -2,7 +2,17 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") }
+    }
+}
+
+subprojects {
+    configurations.configureEach {
+        resolutionStrategy {
+            dependencySubstitution {
+                substitute(module("com.github.Yalantis:ucrop"))
+                    .using(project(":ucrop"))
+            }
+        }
     }
 }
 
@@ -40,7 +50,9 @@ subprojects {
 }
 
 subprojects {
-    project.evaluationDependsOn(":app")
+    if (project.name != "ucrop") {
+        project.evaluationDependsOn(":app")
+    }
 }
 
 tasks.register<Delete>("clean") {
