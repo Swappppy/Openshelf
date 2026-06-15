@@ -187,6 +187,9 @@
   "scanIsbnTextSubtitle": "Point at the printed number",
   "@scanIsbnTextSubtitle": { "description": "Subtitle for scanning ISBN as text" },
 
+  "scanIsbnSelect": "Tap an ISBN to select it",
+  "@scanIsbnSelect": { "description": "Instruction to tap a detected ISBN" },
+
   "scanOcrHoldMessage": "Hold the image for a couple of seconds...",
   "@scanOcrHoldMessage": { "description": "Instruction to hold the camera steady for OCR" },
 

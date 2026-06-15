@@ -1,0 +1,1 @@
+Initial release. Full personal library management with barcode/OCR scanning and detailed statistics.

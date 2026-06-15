@@ -474,6 +474,12 @@ abstract class AppLocalizations {
   /// **'Apunta al número impreso'**
   String get scanIsbnTextSubtitle;
 
+  /// Instrucción para tocar un ISBN detectado
+  ///
+  /// In es, this message translates to:
+  /// **'Toca un ISBN para seleccionarlo'**
+  String get scanIsbnSelect;
+
   /// Instrucción de mantener la cámara quieta para OCR
   ///
   /// In es, this message translates to:

@@ -36,7 +36,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "org.ftena.openshelf"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion

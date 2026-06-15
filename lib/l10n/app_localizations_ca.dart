@@ -197,6 +197,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get scanIsbnTextSubtitle => 'Apunta al número impreso';
 
   @override
+  String get scanIsbnSelect => 'Toca un ISBN para seleccionarlo';
+
+  @override
   String get scanOcrHoldMessage => 'Mantén la imagen unos segundos...';
 
   @override

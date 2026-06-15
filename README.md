@@ -24,7 +24,7 @@ Openshelf is currently in active development. Native stores coming soon:
 
 |    Google Play    |      F-Droid      |
 |:-----------------:|:-----------------:|
-| 🏗️ *Coming Soon* | 🏗️ *Coming Soon* |
+| 🏗️ *Coming Soon* | 🚀 *In Submission* |
 
 ---
 
