@@ -73,6 +73,19 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
 }
 
+configurations.all {
+    exclude(group = "com.android.support", module = "support-compat")
+    exclude(group = "com.android.support", module = "support-v4")
+    exclude(group = "com.android.support", module = "support-media-compat")
+    exclude(group = "com.android.support", module = "support-core-utils")
+    exclude(group = "com.android.support", module = "support-core-ui")
+    
+    resolutionStrategy {
+        force("androidx.core:core:1.13.1")
+        force("androidx.core:core-ktx:1.13.1")
+    }
+}
+
 flutter {
     source = "../.."
 }

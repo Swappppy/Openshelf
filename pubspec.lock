@@ -41,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
+  barcode_scan2:
+    dependency: "direct main"
+    description:
+      name: barcode_scan2
+      sha256: "9b539b0ce419005c451de66374c79f39801986f1fd7a213e63d948f21487cd69"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.7.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -445,14 +453,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_zxing:
-    dependency: "direct main"
-    description:
-      name: flutter_zxing
-      sha256: "6bf0cb0fde122455e73ae78214457c106fbde3c633af4624ce29567ac590ef21"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -893,6 +893,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.5.0"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      sha256: "75ec242d22e950bdcc79ee38dd520ce4ee0bc491d7fadc4ea47694604d22bf06"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
   pub_semver:
     dependency: transitive
     description:

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_zxing/flutter_zxing.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 import 'package:camera/camera.dart';
 import '../../services/permission_service.dart';
@@ -135,10 +135,43 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     }
   }
 
+  Future<void> _startBarcodeScan() async {
+    if (_isPopped) return;
+    
+    try {
+      final result = await BarcodeScanner.scan(
+        options: ScanOptions(
+          strings: {
+            'cancel': context.l10n.cancel,
+            'flash_on': '⚡', 
+            'flash_off': '⚡',
+          },
+          restrictFormat: [BarcodeFormat.ean8, BarcodeFormat.ean13],
+          useCamera: -1, // Use default back camera
+          autoEnableFlash: _isFlashOn,
+        ),
+      );
+
+      if (result.type == ResultType.Barcode && result.rawContent.isNotEmpty) {
+        _onFound(result.rawContent);
+        
+        // If in batch mode, we might want to automatically re-launch
+        if (widget.batchMode && !_isPopped) {
+          Future.delayed(const Duration(milliseconds: 500), _startBarcodeScan);
+        }
+      }
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
+        setState(() {
+          _hasPermission = false;
+        });
+      }
+    }
+  }
+
   Future<void> _toggleMode(ScannerMode? newMode) async {
     if (newMode == null || newMode == _mode) return;
     
-    final oldMode = _mode;
     setState(() {
       _mode = newMode;
     });
@@ -146,10 +179,6 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     if (newMode == ScannerMode.barcode) {
       await _stopOcrMode();
     } else {
-      // Small delay to ensure Barcode reader releases camera
-      if (oldMode == ScannerMode.barcode) {
-        await Future.delayed(const Duration(milliseconds: 200));
-      }
       await _startOcrMode();
     }
   }
@@ -356,24 +385,27 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
             children: [
               // Camera Previews
               if (_mode == ScannerMode.barcode)
-                ReaderWidget(
-                  onScan: (code) {
-                    debugPrint('Barcode scanned: ${code.text}');
-                    if (code.text != null && code.text!.isNotEmpty) {
-                      _onFound(code.text!);
-                    }
-                  },
-                  onControllerCreated: (controller, error) {
-                    _cameraController = controller;
-                  },
-                  showScannerOverlay: false, // We use our own rectangular overlay
-                  showGallery: false, 
-                  showFlashlight: false, 
-                  showToggleCamera: false, 
-                  scanDelay: const Duration(milliseconds: 500),
-                  tryHarder: true,
-                  lensDirection: _lensDirection,
-                  cropPercent: 0.8, // Align barcode scan area with our UI frame
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.qr_code_scanner, size: 80, color: Colors.white24),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        onPressed: _startBarcodeScan,
+                        icon: const Icon(Icons.camera_alt),
+                        label: Text(context.l10n.scanBarcode),
+                      ),
+                      if (widget.batchMode)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(
+                            context.l10n.scanBatchSubtitle,
+                            style: const TextStyle(color: Colors.white54, fontSize: 12),
+                          ),
+                        ),
+                    ],
+                  ),
                 )
               else if (_mode == ScannerMode.ocr && _cameraController != null && _cameraController!.value.isInitialized)
                 SizedBox.expand(
@@ -389,45 +421,44 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
 
               // Visual scanning guide frame + Instructions
               // Shared RECTANGULAR overlay for both modes
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: availableSize.width * 0.8,
-                      height: 150, // Matches common rectangular crop area
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: _isBatchProcessing 
-                            ? Theme.of(context).colorScheme.primary 
-                            : Colors.white, 
-                          width: 2,
+              if (_mode == ScannerMode.ocr)
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: availableSize.width * 0.8,
+                        height: 150, // Matches common rectangular crop area
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _isBatchProcessing 
+                              ? Theme.of(context).colorScheme.primary 
+                              : Colors.white, 
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        borderRadius: BorderRadius.circular(12),
+                        child: _isBatchProcessing 
+                          ? const Center(child: CircularProgressIndicator()) 
+                          : null,
                       ),
-                      child: _isBatchProcessing 
-                        ? const Center(child: CircularProgressIndicator()) 
-                        : null,
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        _mode == ScannerMode.barcode 
-                          ? context.l10n.scanBarcodeSubtitle 
-                          : _detectedIsbns.isEmpty 
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.black45,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _detectedIsbns.isEmpty 
                               ? context.l10n.scanIsbnTextSubtitle
                               : context.l10n.scanIsbnSelect,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
               
               // Mode Selector & Camera Controls
               Positioned(
@@ -516,10 +547,16 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _ScannerActionButton(
-                          icon: _isFlashOn ? Icons.flash_on : Icons.flash_off,
-                          onPressed: _toggleFlash,
-                        ),
+                        if (_mode == ScannerMode.ocr)
+                          _ScannerActionButton(
+                            icon: _isFlashOn ? Icons.flash_on : Icons.flash_off,
+                            onPressed: _toggleFlash,
+                          )
+                        else
+                          _ScannerActionButton(
+                            icon: Icons.camera_alt,
+                            onPressed: _startBarcodeScan,
+                          ),
                       ],
                     ),
                   ],
