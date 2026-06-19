@@ -1,1 +1,1 @@
-Tu biblioteca. Tus datos. Tu app. Gestor de biblioteca personal.
+Gestor de biblioteca personal y seguimiento libros, libre y código abierto.
