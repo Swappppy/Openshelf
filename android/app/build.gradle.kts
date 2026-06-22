@@ -22,12 +22,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    packagingOptions {
-        exclude("lib/armeabi-v7a/**")
-        exclude("lib/x86_64/**")
-        exclude("lib/x86/**")
-    }
-
     kotlin {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
