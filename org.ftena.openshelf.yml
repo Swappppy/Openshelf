@@ -33,8 +33,8 @@ Builds:
     prebuild:
       - $$flutter$$ pub get
     build:
-      - $$flutter$$ build apk --release --target-platform android-arm64
-    output: build/app/outputs/flutter-apk/app-release.apk
+      - $$flutter$$ build apk --release --target-platform android-arm64 --split-per-abi
+    output: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
