@@ -1,1 +1,1 @@
-Gestor de biblioteca personal y seguimiento de libros, libre y de código abierto.
+Gestor de biblioteca personal y tracker de libros, libre y de código abierto.
