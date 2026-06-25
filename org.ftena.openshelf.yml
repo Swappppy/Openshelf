@@ -6,6 +6,8 @@ SourceCode: https://github.com/Swappppy/Openshelf
 IssueTracker: https://github.com/Swappppy/Openshelf/issues
 Translation: https://hosted.weblate.org/projects/openshelf/
 
+AutoName: Openshelf
+
 RepoType: git
 Repo: https://github.com/Swappppy/Openshelf
 
