@@ -27,6 +27,9 @@ Builds:
   - versionName: '1.0.2'
     versionCode: 11
     commit: v1.0.2
+    sudo:
+      - mkdir -p /home/runner/work/Openshelf
+      - chown -R vagrant /home/runner/work
     output: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
     srclibs:
       - flutter@stable
@@ -40,9 +43,26 @@ Builds:
       - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/release.yml)
       - '[[ $flutterVersion ]]'
       - git -C $$flutter$$ checkout -f $flutterVersion
-      - $$flutter$$/bin/flutter pub get
+      - export repo=/home/runner/work/Openshelf/Openshelf
+      - cd ..
+      - mv org.ftena.openshelf $repo
+      - pushd $repo
+      - export PUB_CACHE=$(pwd)/.pub-cache
+      - $$flutter$$/bin/flutter config --no-analytics
+      - $$flutter$$/bin/flutter pub get --enforce-lockfile
+      - popd
+      - mv $repo org.ftena.openshelf
+    scandelete:
+      - .pub-cache
     build:
+      - export repo=/home/runner/work/Openshelf/Openshelf
+      - cd ..
+      - mv org.ftena.openshelf $repo
+      - pushd $repo
+      - export PUB_CACHE=$(pwd)/.pub-cache
       - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm64"
+      - popd
+      - mv $repo org.ftena.openshelf
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
