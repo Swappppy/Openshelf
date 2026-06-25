@@ -17,7 +17,6 @@ Builds:
     output: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
     srclibs:
       - flutter@stable
-      - tesseract4android@4.9.0
     rm:
       - ios
       - linux
@@ -33,9 +32,11 @@ Builds:
     scandelete:
       - .pub-cache
     build:
-      - cd $$tesseract4android$$ && ./gradlew :tesseract4android:assembleRelease --no-daemon
-      - export PUB_CACHE=$(pwd)/.pub-cache && mkdir -p $PUB_CACHE/hosted/pub.dev/flutter_tesseract_ocr-0.4.31/android/libs/ && cp $$tesseract4android$$/tesseract4android/build/outputs/aar/tesseract4android-release.aar $PUB_CACHE/hosted/pub.dev/flutter_tesseract_ocr-0.4.31/android/libs/
+      - git clone https://github.com/adaptech-cz/Tesseract4Android.git --branch 4.9.0 --depth 1 /tmp/ta
+      - cd /tmp/ta && ./gradlew :tesseract4android:assembleRelease --no-daemon
       - export PUB_CACHE=$(pwd)/.pub-cache
+      - mkdir -p $PUB_CACHE/hosted/pub.dev/flutter_tesseract_ocr-0.4.31/android/libs/
+      - cp /tmp/ta/tesseract4android/build/outputs/aar/tesseract4android-release.aar $PUB_CACHE/hosted/pub.dev/flutter_tesseract_ocr-0.4.31/android/libs/
       - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm64"
 
 AutoUpdateMode: Version
