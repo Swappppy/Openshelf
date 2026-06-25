@@ -29,14 +29,12 @@ Builds:
       - git -C $$flutter$$ checkout -f $flutterVersion
       - export PUB_CACHE=$(pwd)/.pub-cache
       - $$flutter$$/bin/flutter pub get --enforce-lockfile
+    scanignore:
+      - .pub-cache/hosted/pub.dev/flutter_tesseract_ocr-*/android/libs/*.aar
     scandelete:
       - .pub-cache
     build:
-      - git clone https://github.com/adaptech-cz/Tesseract4Android.git --branch 4.9.0 --depth 1 /tmp/ta
-      - cd /tmp/ta && ./gradlew :tesseract4android:assembleRelease --no-daemon
       - export PUB_CACHE=$(pwd)/.pub-cache
-      - mkdir -p $PUB_CACHE/hosted/pub.dev/flutter_tesseract_ocr-0.4.31/android/libs/
-      - cp /tmp/ta/tesseract4android/build/outputs/aar/tesseract4android-release.aar $PUB_CACHE/hosted/pub.dev/flutter_tesseract_ocr-0.4.31/android/libs/
       - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm64"
 
 AutoUpdateMode: Version
