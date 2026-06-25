@@ -11,7 +11,7 @@ Description: |-
   Openshelf is a free, open-source personal library manager.
   It works as a comprehensive reading tracker and book archiving tool.
   Everything stays on your device: no account required and no data leaves your phone.
-  
+
   Features:
   * Dynamic views (List/Grid).
   * Trackable reading status.
@@ -24,25 +24,30 @@ RepoType: git
 Repo: https://github.com/Swappppy/Openshelf
 
 Builds:
-  - versionName: 1.0.0
-    versionCode: 2001
+  - versionName: '1.0.2'
+    versionCode: 11
     commit: v1.0.2
-    subdir: .
+    output: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
     srclibs:
       - flutter@stable
+    rm:
+      - ios
+      - linux
+      - macos
+      - web
+      - windows
     prebuild:
       - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/release.yml)
       - '[[ $flutterVersion ]]'
       - git -C $$flutter$$ checkout -f $flutterVersion
-      - $$flutter$$ pub get
+      - $$flutter$$/bin/flutter pub get
     build:
-      - $$flutter$$ build apk --release --split-per-abi --target-platform android-arm64
-    output: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+      - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm64"
 
-AutoUpdateMode: Version v%v
+AutoUpdateMode: Version
 UpdateCheckMode: Tags
 VercodeOperation:
-  - '%c + 2000'
+  - '%c * 10 + 1'
 UpdateCheckData: pubspec.yaml|version:\s.+\+(\d+)|.|version:\s(.+)\+
-CurrentVersion: 1.0.0
-CurrentVersionCode: 2001
+CurrentVersion: '1.0.2'
+CurrentVersionCode: 11
