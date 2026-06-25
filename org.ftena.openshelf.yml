@@ -31,6 +31,9 @@ Builds:
     srclibs:
       - flutter@stable
     prebuild:
+      - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/release.yml)
+      - '[[ $flutterVersion ]]'
+      - git -C $$flutter$$ checkout -f $flutterVersion
       - $$flutter$$ pub get
     build:
       - $$flutter$$ build apk --release --split-per-abi --target-platform android-arm64
