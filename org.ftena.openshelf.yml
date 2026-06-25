@@ -40,14 +40,8 @@ Builds:
       - flutterVersion=$(sed -n -E "s/.*flutter-version:\ '(.*)'/\1/p" .github/workflows/release.yml)
       - '[[ $flutterVersion ]]'
       - git -C $$flutter$$ checkout -f $flutterVersion
-      - export PUB_CACHE=$(pwd)/.pub-cache
-      - $$flutter$$/bin/flutter config --no-analytics
-      - $$flutter$$/bin/flutter pub get --enforce-lockfile
-    build:
-      - export PUB_CACHE=$(pwd)/.pub-cache
-      - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm64"
-    scandelete:
-      - .pub-cache
+      - $$flutter$$/bin/flutter pub get
+    build: $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm64"
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
