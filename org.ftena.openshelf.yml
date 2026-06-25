@@ -33,10 +33,11 @@ Builds:
     scandelete:
       - .pub-cache
     build:
-      - cd $$tesseract4android$$ && ./gradlew :tesseract4android:assembleStandardRelease --no-daemon
+      - (cd $$tesseract4android$$ && ./gradlew :tesseract4android:assembleStandardRelease
+        --no-daemon)
       - export PUB_CACHE=$(pwd)/.pub-cache
       - mkdir -p $PUB_CACHE/hosted/pub.dev/flutter_tesseract_ocr-0.4.31/android/libs/
-      - cp
+      - cp 
         $$tesseract4android$$/tesseract4android/build/outputs/aar/tesseract4android-standard-release.aar
         $PUB_CACHE/hosted/pub.dev/flutter_tesseract_ocr-0.4.31/android/libs/tesseract4android-release.aar
       - $$flutter$$/bin/flutter build apk --release --split-per-abi --target-platform="android-arm64"
