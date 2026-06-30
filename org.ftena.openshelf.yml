@@ -1,6 +1,8 @@
 Categories:
   - Reading
 License: GPL-3.0-only
+AntiFeatures:
+  - NonFreeNet
 SourceCode: https://github.com/Swappppy/Openshelf
 IssueTracker: https://github.com/Swappppy/Openshelf/issues
 Translation: https://hosted.weblate.org/projects/openshelf/
