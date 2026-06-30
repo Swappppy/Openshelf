@@ -20,7 +20,7 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 
 ## 📥 Download
 
-Openshelf is available on F-Droid.
+Latest release: **v1.0.0** | F-Droid: 🚀 *In Submission*
 
 ---
 
