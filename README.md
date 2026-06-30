@@ -20,11 +20,7 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 
 ## 📥 Download
 
-Openshelf is currently in active development. Native stores coming soon:
-
-|    Google Play    |      F-Droid      |
-|:-----------------:|:-----------------:|
-| 🏗️ *Coming Soon* | 🚀 *In Submission* |
+Openshelf is available on F-Droid.
 
 ---
 
