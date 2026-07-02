@@ -1,9 +1,9 @@
-Categories:
-  - Reading
-License: GPL-3.0-only
 AntiFeatures:
   NonFreeNet:
     en-US: Connects to openlibrary.org, inventaire.io, and books.googleapis.com to fetch book metadata
+Categories:
+  - Reading
+License: GPL-3.0-only
 SourceCode: https://github.com/Swappppy/Openshelf
 IssueTracker: https://github.com/Swappppy/Openshelf/issues
 Translation: https://hosted.weblate.org/projects/openshelf/
