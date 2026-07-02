@@ -1,7 +1,9 @@
 AntiFeatures:
   NonFreeNet:
-    en-US: Connects to openlibrary.org, inventaire.io, and books.googleapis.com to fetch book metadata
-    es: Se conecta a openlibrary.org, inventaire.io y books.googleapis.com para obtener metadatos de libros
+    en-US: Connects to openlibrary.org, inventaire.io, and books.googleapis.com to
+      fetch book metadata
+    es: Se conecta a openlibrary.org, inventaire.io y books.googleapis.com para obtener
+      metadatos de libros
 Categories:
   - Reading
 License: GPL-3.0-only
