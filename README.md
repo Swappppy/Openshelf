@@ -1,7 +1,7 @@
 # 📚 Openshelf
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-android%20%7C%20ios-lightgrey.svg)](https://flutter.dev)
+[![Platform](https://img.shields.io/badge/platform-android-lightgrey.svg)](https://flutter.dev)
 [![FOSS](https://img.shields.io/badge/FOSS-100%25-green.svg)](#-technical-stack)
 
 **Your library. Your data. Your app.**
@@ -20,7 +20,9 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 
 ## 📥 Download
 
-Latest release: **v1.0.0** | F-Droid: 🚀 *In Submission*
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.ftena.openshelf/)
+
+Latest release: **v1.0.0**
 
 ---
 
