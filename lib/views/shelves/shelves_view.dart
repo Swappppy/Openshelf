@@ -18,7 +18,7 @@ import '../../widgets/tag_form_dialog.dart';
 import '../../widgets/library_app_bar.dart';
 import '../../controllers/search_filters_controller.dart';
 import '../../controllers/shelf_creation_buffer_controller.dart';
-import '../settings/settings_view.dart';
+import '../../widgets/shelves_settings_menu.dart';
 
 enum _ShelvesTab { shelves, categories, imprints, collections }
 
@@ -74,8 +74,12 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
       ),
       builder: (ctx) => ShelfFormSheet(
         initialFilters: buffered,
-        onSave: (shelf) async {
-          final id = await ref.read(databaseProvider).shelfDao.insertShelf(shelf);
+        onSave: (shelf, tagIds) async {
+          final db = ref.read(databaseProvider);
+          final id = await db.shelfDao.insertShelf(shelf);
+          if (tagIds.isNotEmpty) {
+            await db.shelfDao.setShelfTags(id, tagIds);
+          }
           if (ctx.mounted) {
             ref.read(shelfCreationBufferProvider.notifier).clear();
             Navigator.pop(ctx);
@@ -186,6 +190,30 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isFabVisible = ref.watch(fabVisibilityProvider);
+    final p = ref.watch(displayPreferencesProvider);
+
+    final sectionLabels = {
+      _ShelvesTab.shelves: context.l10n.shelvesSectionMine,
+      _ShelvesTab.categories: context.l10n.managementCategories,
+      _ShelvesTab.imprints: context.l10n.managementImprints,
+      _ShelvesTab.collections: context.l10n.managementCollections,
+    };
+
+    final sectionColors = {
+      _ShelvesTab.shelves: colorScheme.primary,
+      _ShelvesTab.categories: Colors.blue,
+      _ShelvesTab.imprints: Colors.deepPurple,
+      _ShelvesTab.collections: Colors.teal,
+    };
+
+    final orderedTabs = p.shelvesSectionOrder
+        .map((s) => _ShelvesTab.values.firstWhere((v) => v.name == s))
+        .toList();
+
+    // Ensure _activeTab is still valid in case of reordering or data changes
+    if (!orderedTabs.contains(_activeTab)) {
+      _activeTab = orderedTabs.first;
+    }
 
     final shelvesAsync = ref.watch(allShelvesWithStatsProvider);
     final tagsAsync = ref.watch(allTagsWithCountsProvider);
@@ -224,7 +252,7 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
         actions: [
           BoxedIconButton(
             icon: Icons.settings_outlined,
-            onPressed: () => SettingsView.show(context),
+            onPressed: () => ShelvesSettingsMenu.show(context),
           ),
           const SizedBox(width: 16),
         ],
@@ -232,12 +260,11 @@ class _ShelvesScreenState extends ConsumerState<ShelvesScreen> {
       body: Column(
         children: [
           ScrollableSelectionBar<_ShelvesTab>(
-            items: [
-              SelectionItem(value: _ShelvesTab.shelves, label: context.l10n.shelvesSectionMine, color: colorScheme.primary),
-              SelectionItem(value: _ShelvesTab.categories, label: context.l10n.managementCategories, color: Colors.blue),
-              SelectionItem(value: _ShelvesTab.imprints, label: context.l10n.managementImprints, color: Colors.deepPurple),
-              SelectionItem(value: _ShelvesTab.collections, label: context.l10n.managementCollections, color: Colors.teal),
-            ],
+            items: orderedTabs.map((tab) => SelectionItem(
+              value: tab, 
+              label: sectionLabels[tab] ?? '', 
+              color: sectionColors[tab] ?? colorScheme.primary,
+            )).toList(),
             selectedValue: _activeTab,
             onSelected: (tab) {
               setState(() => _activeTab = tab);

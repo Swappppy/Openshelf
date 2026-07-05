@@ -37,8 +37,12 @@ class ShelvesSection extends ConsumerWidget {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
               builder: (ctx) => ShelfFormSheet(
-                onSave: (shelf) async {
-                  final id = await ref.read(databaseProvider).shelfDao.insertShelf(shelf);
+                onSave: (shelf, tagIds) async {
+                  final db = ref.read(databaseProvider);
+                  final id = await db.shelfDao.insertShelf(shelf);
+                  if (tagIds.isNotEmpty) {
+                    await db.shelfDao.setShelfTags(id, tagIds);
+                  }
                   if (ctx.mounted) Navigator.pop(ctx);
                   return id;
                 },
@@ -91,10 +95,11 @@ class ShelvesSection extends ConsumerWidget {
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
                   builder: (ctx2) => ShelfFormSheet(
                     existing: shelf,
-                    onSave: (companion) async {
+                    onSave: (companion, tagIds) async {
                       final db = ref.read(databaseProvider);
                       final updated = companion.copyWith(id: Value(shelf.id));
                       await db.shelfDao.update(db.shelfDao.shelves).replace(updated);
+                      await db.shelfDao.setShelfTags(shelf.id, tagIds);
                       if (ctx2.mounted) Navigator.pop(ctx2);
                       return shelf.id;
                     },

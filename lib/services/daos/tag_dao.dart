@@ -96,18 +96,21 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
   Stream<List<String>> watchTopTagNamesForBooks(List<int> bookIds, {int limit = 3}) {
     if (bookIds.isEmpty) return Stream.value([]);
     
-    final countExp = tags.id.count();
+    final countExp = bookTags.tagId.count();
     final query = select(tags).join([
       innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
     ])
       ..where(bookTags.bookId.isIn(bookIds))
       ..where(tags.type.equalsValue(TagType.tag))
       ..addColumns([countExp])
-      ..groupBy([tags.id])
+      ..groupBy([tags.id, tags.name])
       ..orderBy([OrderingTerm(expression: countExp, mode: OrderingMode.desc)])
       ..limit(limit);
 
-    return query.watch().map((rows) => rows.map((r) => r.readTable(tags).name).toList());
+    return query.watch().map((rows) {
+      final results = rows.map((r) => r.readTable(tags).name).toList();
+      return results;
+    });
   }
 
   Stream<Tag?> watchImprintForBook(int bookId) {

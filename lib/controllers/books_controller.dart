@@ -81,6 +81,7 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
       author: shelf.filterAuthor,
       publisher: shelf.filterPublisher,
       isbn: shelf.filterIsbn,
+      language: shelf.filterLanguage,
       collectionIds: collectionIds.isEmpty ? null : collectionIds,
       imprintIds: imprintIds.isEmpty ? null : imprintIds,
       noCover: shelf.filterNoCover,
@@ -159,8 +160,11 @@ final imprintBookCountProvider = StreamProvider.family<int, int>((ref, imprintId
   return ref.watch(databaseProvider).tagDao.watchBookCountByImprint(imprintId);
 });
 
-final topTagsForBooksProvider = StreamProvider.family<List<String>, List<int>>((ref, bookIds) {
-  return ref.watch(databaseProvider).tagDao.watchTopTagNamesForBooks(bookIds);
+final topTagsForBooksProvider = StreamProvider.family<List<String>, String>((ref, bookIdsString) {
+  if (bookIdsString.isEmpty) return Stream.value([]);
+  final db = ref.watch(databaseProvider);
+  final ids = bookIdsString.split(',').map(int.parse).toList();
+  return db.tagDao.watchTopTagNamesForBooks(ids).distinct();
 });
 
 /// Main filtered provider used by the Library view

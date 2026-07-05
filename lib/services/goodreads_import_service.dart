@@ -83,6 +83,13 @@ class GoodreadsImportService {
         final companion = _rowToCompanion(row, isbn13: isbn13, isbn10: isbn10);
         final bookId = await _db.bookDao.insertBook(companion);
 
+        // Link Imprint (Publisher)
+        final publisher = _str(row, _colPublisher).nullIfEmpty();
+        if (publisher != null) {
+          final id = await ImportExportUtils.getOrCreateTag(_db, publisher, TagType.imprint);
+          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(imprintId: Value(id)));
+        }
+
         // Shelves as tags
         final shelfNames = _str(row, _colBookshelves).nullIfEmpty()?.split(',').map((s) => s.trim()) ?? [];
         final ids = <int>[];

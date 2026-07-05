@@ -2,7 +2,17 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") }
+    }
+}
+
+subprojects {
+    configurations.configureEach {
+        resolutionStrategy {
+            dependencySubstitution {
+                substitute(module("com.github.Yalantis:ucrop"))
+                    .using(project(":ucrop"))
+            }
+        }
     }
 }
 
@@ -13,11 +23,41 @@ val newBuildDir: Directory =
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
+    configurations.all {
+        exclude(group = "com.google.android.gms")
+        exclude(group = "com.google.mlkit")
+        exclude(group = "com.google.android.datatransport")
+        exclude(group = "com.google.firebase")
+        exclude(group = "androidx.camera", module = "camera-mlkit-vision")
+    }
+}
+
+subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+
 subprojects {
-    project.evaluationDependsOn(":app")
+    afterEvaluate {
+        if (project.hasProperty("android")) {
+            val android = project.extensions.getByName("android") as com.android.build.gradle.BaseExtension
+            android.compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
+        }
+        tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+            compilerOptions {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            }
+        }
+    }
+}
+
+subprojects {
+    if (project.name != "ucrop") {
+        project.evaluationDependsOn(":app")
+    }
 }
 
 tasks.register<Delete>("clean") {

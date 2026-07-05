@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 import 'package:camera/camera.dart';
 import '../../services/permission_service.dart';
@@ -14,6 +14,8 @@ import '../../l10n/l10n_extension.dart';
 import 'dart:async';
 import 'dart:io';
 import 'ocr_processor.dart';
+import 'ocr_models.dart';
+import 'ocr_hocr_parser.dart';
 
 enum ScannerMode { barcode, ocr }
 
@@ -29,18 +31,20 @@ class BarcodeScannerView extends ConsumerStatefulWidget {
 class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
   ScannerMode _mode = ScannerMode.barcode;
   
-  // MobileScanner - for barcodes
-  MobileScannerController? _scannerController;
-
-  // Camera package - for OCR
+  // Camera package - for OCR and Barcode (via ReaderWidget)
   CameraController? _cameraController;
   List<CameraDescription> _availableCameras = [];
+  bool _isFlashOn = false;
+  final CameraLensDirection _lensDirection = CameraLensDirection.back;
 
   bool _hasPermission = false;
   bool _isChecking = true;
   bool _isPopped = false;
   bool _isProcessingOcr = false;
   Timer? _ocrTimer;
+
+  // OCR interaction state
+  List<DetectedIsbn> _detectedIsbns = [];
 
   // Batch mode feedback state
   bool _isBatchProcessing = false;
@@ -71,40 +75,16 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
         _isChecking = false;
       });
       if (granted) {
-        // Start in default mode
-        _startBarcodeMode();
+        // Mode is already barcode by default
+        if (_mode == ScannerMode.ocr) {
+          _startOcrMode();
+        }
       }
     }
   }
 
-  Future<void> _startBarcodeMode() async {
-    await _stopOcrMode();
-    if (_isPopped) return;
-
-    setState(() {
-      _mode = ScannerMode.barcode;
-      _scannerController = MobileScannerController(
-        detectionSpeed: DetectionSpeed.normal,
-        autoStart: true,
-        returnImage: false,
-      );
-    });
-  }
-
-  Future<void> _stopBarcodeMode() async {
-    if (_scannerController != null) {
-      await _scannerController!.dispose();
-      _scannerController = null;
-    }
-  }
-
   Future<void> _startOcrMode() async {
-    await _stopBarcodeMode();
     if (_isPopped) return;
-
-    setState(() {
-      _mode = ScannerMode.ocr;
-    });
 
     try {
       if (_availableCameras.isEmpty) {
@@ -112,24 +92,32 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
       }
       if (_availableCameras.isEmpty) return;
 
-      final back = _availableCameras.firstWhere(
-            (c) => c.lensDirection == CameraLensDirection.back,
+      final camera = _availableCameras.firstWhere(
+            (c) => c.lensDirection == _lensDirection,
         orElse: () => _availableCameras.first,
       );
 
       _cameraController = CameraController(
-        back,
-        ResolutionPreset.medium,
+        camera,
+        ResolutionPreset.medium, // Use medium resolution for faster startup
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.jpeg,
+        imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
       );
       
       await _cameraController!.initialize();
+      
+      // Improve focus and exposure for OCR
+      if (_cameraController!.value.isInitialized) {
+        try {
+          await _cameraController!.setFocusMode(FocusMode.auto);
+          await _cameraController!.setExposureMode(ExposureMode.auto);
+        } catch (_) {}
+      }
 
       if (mounted && !_isPopped && _mode == ScannerMode.ocr) {
         setState(() {}); // Refresh to show camera preview
         _ocrTimer = Timer.periodic(
-          const Duration(milliseconds: 2000),
+          const Duration(milliseconds: 1500), // Slightly faster OCR interval
           (_) => _runOcr(),
         );
       }
@@ -147,11 +135,49 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     }
   }
 
+  Future<void> _startBarcodeScan() async {
+    if (_isPopped) return;
+    
+    try {
+      final result = await BarcodeScanner.scan(
+        options: ScanOptions(
+          strings: {
+            'cancel': context.l10n.cancel,
+            'flash_on': '⚡', 
+            'flash_off': '⚡',
+          },
+          restrictFormat: [BarcodeFormat.ean8, BarcodeFormat.ean13],
+          useCamera: -1, // Use default back camera
+          autoEnableFlash: _isFlashOn,
+        ),
+      );
+
+      if (result.type == ResultType.Barcode && result.rawContent.isNotEmpty) {
+        _onFound(result.rawContent);
+        
+        // If in batch mode, we might want to automatically re-launch
+        if (widget.batchMode && !_isPopped) {
+          Future.delayed(const Duration(milliseconds: 500), _startBarcodeScan);
+        }
+      }
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
+        setState(() {
+          _hasPermission = false;
+        });
+      }
+    }
+  }
+
   Future<void> _toggleMode(ScannerMode? newMode) async {
     if (newMode == null || newMode == _mode) return;
     
+    setState(() {
+      _mode = newMode;
+    });
+
     if (newMode == ScannerMode.barcode) {
-      await _startBarcodeMode();
+      await _stopOcrMode();
     } else {
       await _startOcrMode();
     }
@@ -162,21 +188,8 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     _isPopped = true;
     _ocrTimer?.cancel();
     _feedbackTimer?.cancel();
-    _scannerController?.dispose();
     _cameraController?.dispose();
     super.dispose();
-  }
-
-  /// Callback when the MobileScanner detects a valid barcode.
-  Future<void> _processBarcode(BarcodeCapture capture) async {
-    if (_isPopped || _isBatchProcessing || _mode != ScannerMode.barcode) return;
-    for (final barcode in capture.barcodes) {
-      final code = barcode.rawValue ?? barcode.displayValue;
-      if (code != null && code.trim().length >= 10) {
-        _onFound(code.trim());
-        return;
-      }
-    }
   }
 
   /// Captures a frame and runs Tesseract OCR to find printed ISBNs.
@@ -191,31 +204,40 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
       final String croppedPath = '${Directory.systemTemp.path}/ocr_crop_${DateTime.now().millisecondsSinceEpoch}.png';
 
       // Background Isolate processing
-      final bool success = await compute(OcrProcessor.processAndCrop, OcrCropParams(
+      final OcrProcessingResult result = await compute(OcrProcessor.processAndCrop, OcrCropParams(
         inputPath: originalPath,
         outputPath: croppedPath,
         widthPercent: 0.8,
         heightPercent: 0.4,
       ));
 
-      if (success && mounted && _mode == ScannerMode.ocr) {
-        final text = await FlutterTesseractOcr.extractText(
+      if (result.success && mounted && _mode == ScannerMode.ocr) {
+        final hocr = await FlutterTesseractOcr.extractHocr(
           croppedPath,
           language: 'eng',
           args: {
             "tessedit_char_whitelist": "0123456789X",
-            "tessedit_pageseg_mode": "7",
+            "tessedit_pageseg_mode": "3",
           },
         );
 
-        final croppedFile = File(croppedPath);
+        final File croppedFile = File(croppedPath);
         if (await croppedFile.exists()) await croppedFile.delete();
         
-        final isbn = _extractIsbn(text);
-        if (isbn != null) _onFound(isbn);
+        final candidates = HocrParser.parse(hocr);
+        
+        if (mounted) {
+          setState(() {
+            _detectedIsbns = candidates;
+          });
+        }
+      } else if (mounted) {
+        setState(() {
+          _detectedIsbns = [];
+        });
       }
       
-      final originalFile = File(originalPath);
+      final File originalFile = File(originalPath);
       if (await originalFile.exists()) await originalFile.delete();
 
     } catch (e) {
@@ -223,51 +245,6 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     } finally {
       _isProcessingOcr = false;
     }
-  }
-
-  String? _extractIsbn(String text) {
-    final lines = text.split('\n');
-    for (final line in lines) {
-      final clean = line.replaceAll(RegExp(r'[^0123456789X]'), '');
-      final isbn13Match = RegExp(r'(97[89]\d{10})').firstMatch(clean);
-      if (isbn13Match != null) {
-        final candidate = isbn13Match.group(1)!;
-        if (_validateIsbn13(candidate)) return candidate;
-      }
-      final isbn10Match = RegExp(r'(\d{9}[\dX])').firstMatch(clean);
-      if (isbn10Match != null) {
-        final candidate = isbn10Match.group(1)!;
-        if (_validateIsbn10(candidate)) return candidate;
-      }
-    }
-    return null;
-  }
-
-  bool _validateIsbn13(String isbn) {
-    if (isbn.length != 13) return false;
-    int sum = 0;
-    for (int i = 0; i < 12; i++) {
-      final d = int.tryParse(isbn[i]) ?? -1;
-      if (d < 0) return false;
-      sum += i.isEven ? d : d * 3;
-    }
-    final check = (10 - (sum % 10)) % 10;
-    return check == int.tryParse(isbn[12]);
-  }
-
-  bool _validateIsbn10(String isbn) {
-    if (isbn.length != 10) return false;
-    int sum = 0;
-    for (int i = 0; i < 9; i++) {
-      final d = int.tryParse(isbn[i]) ?? -1;
-      if (d < 0) return false;
-      sum += d * (10 - i);
-    }
-    final lastChar = isbn[9].toUpperCase();
-    final last = lastChar == 'X' ? 10 : (int.tryParse(lastChar) ?? -1);
-    if (last < 0) return false;
-    sum += last;
-    return sum % 11 == 0;
   }
 
   void _onFound(String code) async {
@@ -342,6 +319,23 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     });
   }
 
+  Future<void> _toggleFlash() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
+    try {
+      final newMode = _isFlashOn ? FlashMode.off : FlashMode.torch;
+      await _cameraController!.setFlashMode(newMode);
+      
+      // Some devices need a tiny delay or a UI refresh to show the button state change
+      if (mounted) {
+        setState(() {
+          _isFlashOn = !_isFlashOn;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error toggling flash: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isChecking) {
@@ -382,133 +376,203 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text(widget.batchMode ? context.l10n.scanBatch : context.l10n.scanBarcode),
-        actions: [
-          if (_mode == ScannerMode.barcode && _scannerController != null)
-            IconButton(
-              icon: ValueListenableBuilder(
-                valueListenable: _scannerController!,
-                builder: (context, state, child) {
-                  switch (state.torchState) {
-                    case TorchState.off: return const Icon(Icons.flash_off, color: Colors.grey);
-                    case TorchState.on: return const Icon(Icons.flash_on, color: Colors.yellow);
-                    default: return const Icon(Icons.flash_auto, color: Colors.grey);
-                  }
-                },
-              ),
-              onPressed: () => _scannerController?.toggleTorch(),
-            ),
-          if (_mode == ScannerMode.barcode && _scannerController != null)
-            IconButton(
-              icon: const Icon(Icons.flip_camera_ios_outlined),
-              onPressed: () => _scannerController?.switchCamera(),
-            ),
-        ],
       ),
-      body: Stack(
-        children: [
-          // Camera Previews
-          if (_mode == ScannerMode.barcode && _scannerController != null)
-            MobileScanner(
-              controller: _scannerController!,
-              fit: BoxFit.cover,
-              onDetect: _processBarcode,
-            )
-          else if (_mode == ScannerMode.ocr && _cameraController != null && _cameraController!.value.isInitialized)
-            SizedBox.expand(
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: _cameraController!.value.previewSize!.height,
-                  height: _cameraController!.value.previewSize!.width,
-                  child: CameraPreview(_cameraController!),
-                ),
-              ),
-            ),
-
-          // Visual scanning guide frame + Instructions
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 280,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: _isBatchProcessing 
-                        ? Theme.of(context).colorScheme.primary 
-                        : Colors.white, 
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: _isBatchProcessing 
-                    ? const Center(child: CircularProgressIndicator()) 
-                    : null,
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black45,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    _mode == ScannerMode.barcode 
-                      ? context.l10n.scanBarcodeSubtitle 
-                      : context.l10n.scanIsbnTextSubtitle,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-          ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final Size availableSize = Size(constraints.maxWidth, constraints.maxHeight);
           
-          // Mode Selector
-          Positioned(
-            bottom: widget.batchMode && _recentlyScanned.isNotEmpty ? 190 : 100,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: SegmentedButton<ScannerMode>(
-                  style: const ButtonStyle(
-                    visualDensity: VisualDensity.compact,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          return Stack(
+            children: [
+              // Camera Previews
+              if (_mode == ScannerMode.barcode)
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.qr_code_scanner, size: 80, color: Colors.white24),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        onPressed: _startBarcodeScan,
+                        icon: const Icon(Icons.camera_alt),
+                        label: Text(context.l10n.scanBarcode),
+                      ),
+                      if (widget.batchMode)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(
+                            context.l10n.scanBatchSubtitle,
+                            style: const TextStyle(color: Colors.white54, fontSize: 12),
+                          ),
+                        ),
+                    ],
                   ),
-                  segments: [
-                    ButtonSegment(
-                      value: ScannerMode.barcode,
-                      label: Text(context.l10n.scanModeBarcode, style: const TextStyle(fontSize: 12)),
-                      icon: const Icon(Icons.qr_code_scanner, size: 18),
+                )
+              else if (_mode == ScannerMode.ocr && _cameraController != null && _cameraController!.value.isInitialized)
+                SizedBox.expand(
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: _cameraController!.value.previewSize!.height,
+                      height: _cameraController!.value.previewSize!.width,
+                      child: CameraPreview(_cameraController!),
                     ),
-                    ButtonSegment(
-                      value: ScannerMode.ocr,
-                      label: Text(context.l10n.scanModeIsbn, style: const TextStyle(fontSize: 12)),
-                      icon: const Icon(Icons.text_fields, size: 18),
+                  ),
+                ),
+
+              // Visual scanning guide frame + Instructions
+              // Shared RECTANGULAR overlay for both modes
+              if (_mode == ScannerMode.ocr)
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: availableSize.width * 0.8,
+                        height: 150, // Matches common rectangular crop area
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _isBatchProcessing 
+                              ? Theme.of(context).colorScheme.primary 
+                              : Colors.white, 
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: _isBatchProcessing 
+                          ? const Center(child: CircularProgressIndicator()) 
+                          : null,
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.black45,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _detectedIsbns.isEmpty 
+                              ? context.l10n.scanIsbnTextSubtitle
+                              : context.l10n.scanIsbnSelect,
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              
+              // Mode Selector & Camera Controls
+              Positioned(
+                bottom: widget.batchMode && _recentlyScanned.isNotEmpty ? 190 : 50,
+                left: 0,
+                right: 0,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // OCR Interactive Labels (Row of pills)
+                    if (_mode == ScannerMode.ocr && _detectedIsbns.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16, left: 24, right: 24),
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _detectedIsbns.map((detected) {
+                            return GestureDetector(
+                              onTap: () => _onFound(detected.isbn),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.4),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.check_circle, color: Colors.white, size: 16),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      detected.isbn,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: SegmentedButton<ScannerMode>(
+                        style: const ButtonStyle(
+                          visualDensity: VisualDensity.compact,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        segments: [
+                          ButtonSegment(
+                            value: ScannerMode.barcode,
+                            label: Text(context.l10n.scanModeBarcode, style: const TextStyle(fontSize: 12)),
+                            icon: const Icon(Icons.qr_code_scanner, size: 18),
+                          ),
+                          ButtonSegment(
+                            value: ScannerMode.ocr,
+                            label: Text(context.l10n.scanModeIsbn, style: const TextStyle(fontSize: 12)),
+                            icon: const Icon(Icons.text_fields, size: 18),
+                          ),
+                        ],
+                        selected: {_mode},
+                        onSelectionChanged: (set) => _toggleMode(set.first),
+                        showSelectedIcon: false,
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_mode == ScannerMode.ocr)
+                          _ScannerActionButton(
+                            icon: _isFlashOn ? Icons.flash_on : Icons.flash_off,
+                            onPressed: _toggleFlash,
+                          )
+                        else
+                          _ScannerActionButton(
+                            icon: Icons.camera_alt,
+                            onPressed: _startBarcodeScan,
+                          ),
+                      ],
                     ),
                   ],
-                  selected: {_mode},
-                  onSelectionChanged: (set) => _toggleMode(set.first),
-                  showSelectedIcon: false,
                 ),
               ),
-            ),
-          ),
 
-          // Batch List
-          if (widget.batchMode && _recentlyScanned.isNotEmpty)
-            _buildBatchList(),
+              // Batch List
+              if (widget.batchMode && _recentlyScanned.isNotEmpty)
+                _buildBatchList(),
 
-          // Error/Warning Feedback
-          if (_warningMessage != null)
-            _buildWarningFeedback(),
-        ],
+              // Error/Warning Feedback
+              if (_warningMessage != null)
+                _buildWarningFeedback(),
+            ],
+          );
+        },
       ),
     );
   }
@@ -605,6 +669,27 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ScannerActionButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _ScannerActionButton({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.5),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.white, size: 24),
+        onPressed: onPressed,
       ),
     );
   }

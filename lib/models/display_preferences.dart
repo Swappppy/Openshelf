@@ -24,6 +24,13 @@ const _defaultCategorySortOrder = ['name', 'usage', 'color'];
 const _defaultImprintSortOrder = ['name', 'count'];
 const _defaultCollectionSortOrder = ['name', 'count'];
 
+const _defaultShelvesSectionOrder = [
+  'shelves',
+  'categories',
+  'imprints',
+  'collections',
+];
+
 /// User preferences for how the book library and other sections are displayed and sorted.
 class DisplayPreferences {
   final LibraryViewMode viewMode;
@@ -34,6 +41,7 @@ class DisplayPreferences {
   final bool showStatusChip;
   final bool showPublisher; 
   final List<String> fieldOrder;
+  final List<String> shelvesSectionOrder;
   final bool showYear; 
   final bool showSpacer;
   
@@ -68,6 +76,7 @@ class DisplayPreferences {
     this.showStatusChip = true,
     this.showPublisher = true,
     this.fieldOrder = const [..._defaultFieldOrder],
+    this.shelvesSectionOrder = const [..._defaultShelvesSectionOrder],
     this.showYear = true,
     this.showSpacer = true,
     
@@ -108,6 +117,7 @@ class DisplayPreferences {
       'showStatusChip': showStatusChip,
       'showPublisher': showPublisher,
       'fieldOrder': fieldOrder,
+      'shelvesSectionOrder': shelvesSectionOrder,
       'showYear': showYear,
       'showSpacer': showSpacer,
       'sortOrder': sortOrder,
@@ -135,6 +145,7 @@ class DisplayPreferences {
       showStatusChip: json['showStatusChip'] as bool? ?? true,
       showPublisher: json['showPublisher'] as bool? ?? true,
       fieldOrder: (json['fieldOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultFieldOrder],
+      shelvesSectionOrder: (json['shelvesSectionOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultShelvesSectionOrder],
       showYear: json['showYear'] as bool? ?? true,
       showSpacer: json['showSpacer'] as bool? ?? true,
       sortOrder: (json['sortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultSortOrder],
@@ -165,6 +176,7 @@ class DisplayPreferences {
     bool? showStatusChip,
     bool? showPublisher,
     List<String>? fieldOrder,
+    List<String>? shelvesSectionOrder,
     bool? showYear,
     bool? showSpacer,
     
@@ -194,6 +206,7 @@ class DisplayPreferences {
       showStatusChip: showStatusChip ?? this.showStatusChip,
       showPublisher: showPublisher ?? this.showPublisher,
       fieldOrder: fieldOrder ?? this.fieldOrder,
+      shelvesSectionOrder: shelvesSectionOrder ?? this.shelvesSectionOrder,
       showYear: showYear ?? this.showYear,
       showSpacer: showSpacer ?? this.showSpacer,
       

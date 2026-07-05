@@ -1,0 +1,8 @@
+Openshelf es un gestor de biblioteca personal gratuito y de código abierto. Funciona como un rastreador de lectura completo, organizador (por categoría, colección, editorial o cualquier combinación) y herramienta de archivo de libros. Todo permanece en tu dispositivo: no se requiere cuenta y ningún dato sale de tu teléfono.
+
+Características:
+- Vistas de biblioteca dinámicas (Lista/Cuadrícula)
+- Estadísticas avanzadas y widgets de panel personalizados
+- Estanterías inteligentes con filtros automáticos
+- Seguimiento exhaustivo de metadatos de libros
+- 100% Offline y Privado

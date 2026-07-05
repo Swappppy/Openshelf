@@ -355,7 +355,10 @@ class DataMigrationService {
 
       final exist = await (_db.shelfDao.select(_db.shelfDao.shelves)..where((t) => t.name.equals(name))).getSingleOrNull();
       if (exist == null) {
-        await _db.shelfDao.into(_db.shelfDao.shelves).insert(comp);
+        final id = await _db.shelfDao.into(_db.shelfDao.shelves).insert(comp);
+        if (tIds.isNotEmpty || iIds.isNotEmpty) {
+          await _db.shelfDao.setShelfTags(id, [...tIds, ...iIds]);
+        }
       } else {
         await _db.shelfDao.updateShelf(exist.copyWith(
           filterQuery: comp.filterQuery.value,
@@ -370,6 +373,7 @@ class DataMigrationService {
           filterTagIds: comp.filterTagIds.value,
           filterImprintIds: comp.filterImprintIds.value,
         ));
+        await _db.shelfDao.setShelfTags(exist.id, [...tIds, ...iIds]);
       }
     }
   }

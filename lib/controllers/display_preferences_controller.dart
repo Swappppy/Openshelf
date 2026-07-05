@@ -61,6 +61,14 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
     _save(state.copyWith(fieldOrder: order));
   }
 
+  void reorderShelvesSections(int oldIndex, int newIndex) {
+    final order = List<String>.from(state.shelvesSectionOrder);
+    if (newIndex > oldIndex) newIndex--;
+    final item = order.removeAt(oldIndex);
+    order.insert(newIndex, item);
+    _save(state.copyWith(shelvesSectionOrder: order));
+  }
+
   void reorderSort(int oldIndex, int newIndex) {
     final order = List<String>.from(state.sortOrder);
     if (newIndex > oldIndex) newIndex--;

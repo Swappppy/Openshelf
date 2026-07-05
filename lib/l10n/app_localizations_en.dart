@@ -198,6 +198,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanIsbnTextSubtitle => 'Point at the printed number';
 
   @override
+  String get scanIsbnSelect => 'Tap an ISBN to select it';
+
+  @override
   String get scanOcrHoldMessage => 'Hold the image for a couple of seconds...';
 
   @override

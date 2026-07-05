@@ -22,8 +22,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     signingConfigs {
@@ -36,7 +43,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "org.ftena.openshelf"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
@@ -72,6 +78,22 @@ android {
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
+}
+
+configurations.all {
+    exclude(group = "com.android.support", module = "support-compat")
+    exclude(group = "com.android.support", module = "support-v4")
+    exclude(group = "com.android.support", module = "support-media-compat")
+    exclude(group = "com.android.support", module = "support-core-utils")
+    exclude(group = "com.android.support", module = "support-core-ui")
+    exclude(group = "com.google.android.gms", module = "play-services-mlkit-barcode-scanning")
+    exclude(group = "com.google.mlkit", module = "barcode-scanning")
+    exclude(group = "androidx.camera", module = "camera-mlkit-vision")
+    
+    resolutionStrategy {
+        force("androidx.core:core:1.13.1")
+        force("androidx.core:core-ktx:1.13.1")
+    }
 }
 
 flutter {
