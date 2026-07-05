@@ -4,6 +4,8 @@
 [![Platform](https://img.shields.io/badge/platform-android-lightgrey.svg)](https://flutter.dev)
 [![FOSS](https://img.shields.io/badge/FOSS-100%25-green.svg)](#-technical-stack)
 
+<img src="assets/Screenshots/Openshelf-banner-en.png" alt="Openshelf Banner">
+
 **Your library. Your data. Your app.**
 
 Openshelf is a free, open-source personal library manager. It functions as a comprehensive reading tracker, organizer (by category, collection, imprint, or any combination), and book archival tool. Everything stays on your device—no account required, and no data ever leaves your phone.
