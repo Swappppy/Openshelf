@@ -1,4 +1,4 @@
-# 📚 Openshelf
+# Openshelf
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-android-lightgrey.svg)](https://flutter.dev)
@@ -12,7 +12,7 @@ Openshelf is a free, open-source personal library manager. It functions as a com
 
 ---
 
-## 🎯 My Intention
+## My Intention
 
 I built Openshelf as the definitive app for book archival and tracking. As a collector with a large library, I found every alternative lacking features, hidden behind paywalls, or cluttered with ads.
 
@@ -20,7 +20,7 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 
 ---
 
-## 📥 Download
+## Download
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.ftena.openshelf/)
 
@@ -28,49 +28,49 @@ Latest release: **v1.0.0**
 
 ---
 
-## 📱 Screenshots
+## Screenshots
 
  <img src="assets/Screenshots/Openshelf-en/1.png" width="300" alt="Library View - List Layout"> | <img src="assets/Screenshots/Openshelf-en/2.png" width="300" alt="Library View - Grid Layout"> | <img src="assets/Screenshots/Openshelf-en/3.png" width="300" alt="Book Details View"> | <img src="assets/Screenshots/Openshelf-en/4.png" width="300" alt="Statistics Dashboard">
 
 ---
 
-## ✨ Features
+## Features
 
-### 📖 Library
+### Library
 - **Dynamic Views**: Instant toggle between List and Grid layouts.
 - **Reading Status**: Five trackable states: *Want to read, Reading, Read, Abandoned, and Paused*.
 - **Powerful Search**: Full-text search across Title, Author, ISBN, and personal notes among other advanced filtering.
 - **Granular Control**: Cascading ordering in every book or tag list (each with custom ordering).
 - **Dynamic Properties**: Enable, disable, or rearrange book fields in the library view at will.
 
-### 📑 Books
+### Books
 - **Custom Covers**: Search via multiple APIs, or use a URL, photo, or gallery for custom covers.
 - **Extensive Metadata**: Manage categories, imprints (exclusive), and collections (exclusive).
 - **Interactive Forms**: Quick page updates via a **scrollable drum picker** and quick notetaking with infinite space.
 - **Progress Tracking**: Automatic reading dates and status updates based on your current page.
 - **Dynamic Tags**: Every category, imprint, and collection is fully interactive and searchable within the book form.
 
-### 📂 Smart Shelves
+### Smart Shelves
 - **Live Views**: Save any filter combination as a self-updating smart shelf.
 - **Progress Bars**: Automatic progress indicators for shelves and relevant tags.
 - **Visual Mosaics**: Custom mosaic cover displays for your collections.
 
-### 🏷️ Categories
+### Categories
 - **Flexible Management**: Add categories via the dedicated page or directly in the book form.
 - **Visual Cataloging**: Optional colors for easy identification.
 - **Cloud View**: Algorithmic sizing based on book count, using a user-adjustable curve.
 - **Graphic Picker**: Intuitive visual selector within the book form.
 
-### 🏢 Imprints
+### Imprints
 - **Professional Branding**: Support for 1:1 logo images or initial-based placeholders.
 - **Dedicated Progress**: Each imprint tracks its own reading progress bar.
 
-### 📚 Collections (Series)
+### Collections (Series)
 - **Saga Tracking**: Custom cover fade displays for series.
 - **Numbered Ordering**: Collections store and display both the name and the book number in the series.
 - **Progress Tracking**: Each collection has its own dedicated progress bar.
 
-### 📊 Statistics
+### Statistics
 - **Custom Dashboard**: Dedicated stats page with reorganizable and resizable widgets.
 - **Interactive Widgets**:
     - **Streak (1x1)**: Tracks how many days in a row you have read.
@@ -91,7 +91,7 @@ Latest release: **v1.0.0**
 
 ---
 
-## 🌐 APIs
+## APIs
 
 Openshelf orchestrates multiple providers simultaneously to ensure high-confidence metadata:
 
@@ -103,7 +103,7 @@ The app implements a **four-step high-confidence lookup** (ISBN -> Title+Publish
 
 ---
 
-## 🛠 Technical Stack
+## Technical Stack
 
 Openshelf is built using modern Flutter development practices with a 100% on-device architecture:
 
@@ -115,27 +115,27 @@ Openshelf is built using modern Flutter development practices with a 100% on-dev
 
 ---
 
-## 💎 Key Code Features
+## Key Code Features
 
-### ⚡ Hybrid FLOSS Scanner (Dual-Mode)
+### Hybrid FLOSS Scanner (Dual-Mode)
 To avoid hardware conflicts and provide maximum precision, the scanner implements a mutually exclusive system:
 - **Barcode Mode**: High-speed line detection for traditional ISBN barcodes.
 - **ISBN Mode (OCR)**: Optimized Tesseract engine tuned with **Page Segmentation Mode (PSM) 7** for single-line recognition. It utilizes **background Isolates** and **lossless PNG processing** to ensure the UI remains at 60fps while recognizing complex or wide fonts.
 
-### 🎬 Zero-Flicker Transitions
+### Zero-Flicker Transitions
 The Library view implements a custom `AnimatedSwitcher` logic combined with Riverpod's `skipLoadingOnRefresh`. This allows for a **seamless cross-fade** between List and Grid layouts without any black background flicker or loading spinners, maintaining existing data on screen while the new layout initializes.
 
-### 🖼 Intelligent Image Management
+### Intelligent Image Management
 - **Smart Cover Cropping**: Automatic ratio detection (2:3) when downloading covers; triggers a dynamic crop tool if the ratio is off.
 - **Background Compression**: Automatic JPEG optimization (max-height 1000px, 75% quality) to keep app storage lean.
 - **Lossless Buffer**: Internal use of PNG during OCR processing to ensure zero artifact noise for the recognition engine.
 
-### 🧬 Polymorphic Database Tags
+### Polymorphic Database Tags
 Built on **Drift**, the database uses a polymorphic tag system. A single `Tags` table manages Categories, Imprints, and Collections via a type discriminator. This allows for unified search queries and complex filtering with minimal overhead.
 
 ---
 
-## 🌍 Translations
+## Translations
 
 Openshelf uses **[Weblate](https://hosted.weblate.org/projects/openshelf/)** for community translations. English and Spanish are built-in.
 
@@ -148,7 +148,7 @@ Openshelf uses **[Weblate](https://hosted.weblate.org/projects/openshelf/)** for
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Bug reports, feature requests, and pull requests are welcome! 
 1. Please open an issue first for anything beyond small fixes.
@@ -157,9 +157,9 @@ Bug reports, feature requests, and pull requests are welcome!
 
 ---
 
-## 📜 License
+## License
 
 Openshelf is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE) file for more details.
 
 ---
-*Developed with ❤️ for book lovers.*
+*Developed for book lovers.*
