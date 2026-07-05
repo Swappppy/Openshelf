@@ -28,7 +28,7 @@ Latest release: **v1.0.0**
 
 ## 📱 Screenshots
 
- <img src="assets/Screenshots/1.png" width="300" alt="Library View - List Layout"> | <img src="assets/Screenshots/2.png" width="300" alt="Library View - Grid Layout"> | <img src="assets/Screenshots/3.png" width="300" alt="Book Details View"> | <img src="assets/Screenshots/4.png" width="300" alt="Statistics Dashboard">
+ <img src="assets/Screenshots/Openshelf-en/1.png" width="300" alt="Library View - List Layout"> | <img src="assets/Screenshots/Openshelf-en/2.png" width="300" alt="Library View - Grid Layout"> | <img src="assets/Screenshots/Openshelf-en/3.png" width="300" alt="Book Details View"> | <img src="assets/Screenshots/Openshelf-en/4.png" width="300" alt="Statistics Dashboard">
 
 ---
 
