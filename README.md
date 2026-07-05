@@ -16,7 +16,7 @@ Openshelf is a free, open-source personal library manager. It functions as a com
 
 I built Openshelf as the definitive app for book archival and tracking. As a collector with a large library, I found every alternative lacking features, hidden behind paywalls, or cluttered with ads.
 
-Openshelf is designed for **book lovers**, not just readers. It is for people who care about the craftsmanship of managing a personal collection. While the open-source stack has some limits in database depth compared to proprietary giants, Openshelf strives to deliver the best experience with high-quality FLOSS tools.
+Openshelf is designed for **book lovers**, not just readers. It is for people who care about the craftsmanship of managing a personal collection. While the open-source stack has some limits in database depth compared to proprietary giants, Openshelf strives to deliver the best experience with high-quality FOSS tools.
 
 ---
 
@@ -95,8 +95,8 @@ Latest release: **v1.0.0**
 
 Openshelf orchestrates multiple providers simultaneously to ensure high-confidence metadata:
 
-- **[Open Library (FLOSS)](https://openlibrary.org)**: Primary source for book metadata and high-quality covers.
-- **[Inventaire (FLOSS)](https://inventaire.io)**: Secondary source focused on linked open data and deep edition lookups.
+- **[Open Library (FOSS)](https://openlibrary.org)**: Primary source for book metadata and high-quality covers.
+- **[Inventaire (FOSS)](https://inventaire.io)**: Secondary source focused on linked open data and deep edition lookups.
 - **[Google Books](https://books.google.com)**: Optional proprietary source (requires a free API key).
 
 The app implements a **four-step high-confidence lookup** (ISBN -> Title+Publisher -> Title+Author -> Deep Dive) to ensure you always get the best possible record.
@@ -110,7 +110,7 @@ Openshelf is built using modern Flutter development practices with a 100% on-dev
 - **Framework**: [Flutter](https://flutter.dev/) (Multi-platform UI).
 - **State Management**: [Riverpod](https://riverpod.dev/) (Reactive, thread-safe state handling).
 - **Local Database**: [Drift](https://drift.simonbinder.eu/) (High-performance reactive SQLite wrapper).
-- **OCR Engine**: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (100% FLOSS).
+- **OCR Engine**: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (100% FOSS).
 - **Scanning**: [Mobile Scanner](https://pub.dev/packages/mobile_scanner).
 
 ---
