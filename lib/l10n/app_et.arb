@@ -963,5 +963,543 @@
     "done": "",
     "@done": {
         "description": "Botón genérico de confirmación / cerrar"
+    },
+    "bookSearchRecommendedSource": "",
+    "statsAddFirstWidget": "",
+    "searchFilterPublisherLabel": "",
+    "@searchFilterPublisherLabel": {
+        "placeholders": {
+            "publisher": {
+                "type": "String"
+            }
+        }
+    },
+    "shelfPaused": "",
+    "@shelfPaused": {
+        "description": "Estantería de libros pausados"
+    },
+    "settingsBatchCompressTitle": "",
+    "scanOcrHoldMessage": "",
+    "@scanOcrHoldMessage": {
+        "description": "Instrucción de mantener la cámara quieta para OCR"
+    },
+    "settingsLibraryColumns": "",
+    "statsStreakTitle": "",
+    "statsLastAddedTitle": "",
+    "statsOptAddedTimeSub": "",
+    "settingsImportSelectCovers": "",
+    "scanBarcodePermission": "",
+    "@scanBarcodePermission": {
+        "description": "Mensaje de falta de permiso de cámara"
+    },
+    "statsOptYearsTitle": "",
+    "statsReadingNowTitle": "",
+    "bookSearchServerGoogleBooks": "",
+    "settingsBatchCompressSub": "",
+    "statsCategoriesTitle": "",
+    "searchTabImprint": "",
+    "@searchTabImprint": {
+        "description": "Panel de búsqueda: pestaña Sello"
+    },
+    "statsOptReadYearTitle": "",
+    "dataManagementImport": "",
+    "statsPagesTitle": "",
+    "searchFilterCategory": "",
+    "@searchFilterCategory": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "statsAddedNoData": "",
+    "statsOptStatusSub": "",
+    "statsReadByYearTitle": "",
+    "statsOptStreakTitle": "",
+    "settingsDevDbCleared": "",
+    "settingsImportBookshelf": "",
+    "@settingsImportBookshelf": {
+        "description": "Opción de importar desde Bookshelf"
+    },
+    "exportTitle": "",
+    "@exportTitle": {
+        "description": "Título del diálogo de exportación"
+    },
+    "searchFilterCollection": "",
+    "@searchFilterCollection": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "dataManagementExportHint": "",
+    "@dataManagementExportHint": {
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "statsEmptySubtitle": "",
+    "@statsEmptySubtitle": {
+        "description": "Subtítulo del estado vacío de estadísticas"
+    },
+    "onboardingWelcomeSub": "",
+    "searchFilterAuthorLabel": "",
+    "@searchFilterAuthorLabel": {
+        "placeholders": {
+            "author": {
+                "type": "String"
+            }
+        }
+    },
+    "bookDuplicateTitle": "",
+    "@bookDuplicateTitle": {
+        "description": "Título del aviso de libro duplicado"
+    },
+    "searchClearAll": "",
+    "@searchClearAll": {
+        "description": "Botón para limpiar todos los filtros de búsqueda"
+    },
+    "statsOptReadYearSub": "",
+    "dataManagementRestoreBackupHint": "",
+    "statsGoalTypePages": "",
+    "dataManagementRestoreBackup": "",
+    "devDeleteConfirmContent": "",
+    "@devDeleteConfirmContent": {
+        "description": "Contenido de confirmación de borrado dev"
+    },
+    "no": "",
+    "@no": {
+        "description": "Botón No"
+    },
+    "settingsCompressImagesSub": "",
+    "imprintsAddFirst": "",
+    "@imprintsAddFirst": {
+        "description": "Texto del botón de acción en el estado vacío de los sellos"
+    },
+    "statsGoalUnitBooks": "",
+    "statsPeriodLast3Months": "",
+    "dataManagementImportHint": "",
+    "@dataManagementImportHint": {
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "devDeleteConfirmTitle": "",
+    "@devDeleteConfirmTitle": {
+        "description": "Título de confirmación de borrado dev"
+    },
+    "searchFilterIsbnLabel": "",
+    "@searchFilterIsbnLabel": {
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "sortTitle": "",
+    "statsOptAvgCompletionTitle": "",
+    "bookDetailDuplicateTitle": "",
+    "@bookDetailDuplicateTitle": {
+        "description": "Título del diálogo de duplicar libro"
+    },
+    "settingsImportSelectBackup": "",
+    "exportProgressMedia": "",
+    "statsGoalNew": "",
+    "noCoverShelfTitle": "",
+    "scanIsbnText": "",
+    "@scanIsbnText": {
+        "description": "Opción de escanear ISBN mediante texto"
+    },
+    "settingsAutoNoCoverTitle": "",
+    "statsOptLastAddedTitle": "",
+    "exportCoversPrompt": "",
+    "@exportCoversPrompt": {
+        "description": "Pregunta sobre portadas en exportación"
+    },
+    "statsPagesSub": "",
+    "statsOptAvgPagesTitle": "",
+    "statsGoalDelete": "",
+    "statsPeriodLast3Years": "",
+    "onboardingAddSub": "",
+    "settingsFullBackup": "",
+    "@settingsFullBackup": {
+        "description": "Título de restauración"
+    },
+    "exportProgressData": "",
+    "statsOptAvgPagesSub": "",
+    "settingsSectionData": "",
+    "@settingsSectionData": {
+        "description": "Encabezado de sección de datos"
+    },
+    "shelfEmptySubtitle": "",
+    "@shelfEmptySubtitle": {
+        "description": "Subtítulo del estado vacío de estanterías"
+    },
+    "settingsLanguageEnglish": "",
+    "@settingsLanguageEnglish": {
+        "description": "Opción de idioma: inglés"
+    },
+    "shelfShowInLibrary": "",
+    "yes": "",
+    "@yes": {
+        "description": "Botón Sí"
+    },
+    "statsOptPagesTitle": "",
+    "settingsDynamicIconSub": "",
+    "errorGeneric": "",
+    "@errorGeneric": {
+        "description": "Mensaje genérico de error con parámetro",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "fieldTotalBooks": "",
+    "@fieldTotalBooks": {
+        "description": "Nombre del campo de libros totales"
+    },
+    "searchFilterLanguageLabel": "",
+    "@searchFilterLanguageLabel": {
+        "placeholders": {
+            "language": {
+                "type": "String"
+            }
+        }
+    },
+    "addedToLibrary": "",
+    "@addedToLibrary": {
+        "description": "Mensaje de éxito al añadir libro"
+    },
+    "onboardingNext": "",
+    "duplicate": "",
+    "@duplicate": {
+        "description": "Acción genérica de duplicar"
+    },
+    "importPartial": "",
+    "@importPartial": {
+        "placeholders": {
+            "added": {
+                "type": "int"
+            },
+            "skipped": {
+                "type": "int"
+            }
+        }
+    },
+    "fieldLanguage": "",
+    "@fieldLanguage": {
+        "description": "Nombre del campo idioma"
+    },
+    "statsStatusTitle": "",
+    "tabMore": "",
+    "importSuccess": "",
+    "@importSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statsGoalTypeLabel": "",
+    "shelvesAddFirstShelf": "",
+    "@shelvesAddFirstShelf": {
+        "description": "Texto del botón de acción en el estado vacío de las estanterías"
+    },
+    "dataManagementCreateBackupHint": "",
+    "statsPeriodThisYear": "",
+    "loadingImport": "",
+    "@loadingImport": {
+        "description": "Mensaje de carga durante la importación"
+    },
+    "statsAvgCompletionValue": "",
+    "@statsAvgCompletionValue": {
+        "placeholders": {
+            "days": {
+                "type": "String"
+            }
+        }
+    },
+    "fieldSubtitle": "",
+    "@fieldSubtitle": {
+        "description": "Nombre del campo subtítulo"
+    },
+    "exportProgressCompress": "",
+    "statsAvgPagesTitle": "",
+    "exportProgressFinalize": "",
+    "errorDuplicateIsbn": "",
+    "@errorDuplicateIsbn": {
+        "description": "Error cuando el ISBN ya existe"
+    },
+    "settingsLibraryColumnsSub": "",
+    "searchTabCollection": "",
+    "@searchTabCollection": {
+        "description": "Panel de búsqueda: pestaña Colección"
+    },
+    "settingsLanguageSpanish": "",
+    "@settingsLanguageSpanish": {
+        "description": "Opción de idioma: español"
+    },
+    "settingsFullBackupHint": "",
+    "@settingsFullBackupHint": {
+        "description": "Pista de restauración"
+    },
+    "bookSearchRecommended": "",
+    "@bookSearchRecommended": {
+        "description": "Etiqueta para el resultado recomendado"
+    },
+    "statsOptGoalSub": "",
+    "onboardingStart": "",
+    "managementCategoryCloudCurve": "",
+    "statsGoalToLabel": "",
+    "statsOptReadListTitle": "",
+    "statsOptStreakSub": "",
+    "categoriesAddFirst": "",
+    "@categoriesAddFirst": {
+        "description": "Texto del botón de acción en el estado vacío de las categorías"
+    },
+    "statsOptAvgCompletionSub": "",
+    "importRestoreCoversTitle": "",
+    "@importRestoreCoversTitle": {
+        "description": "Título de restauración de portadas"
+    },
+    "statsGoalCompleted": "",
+    "scanModeBarcode": "",
+    "@scanModeBarcode": {
+        "description": "Etiqueta del modo escáner: código de barras"
+    },
+    "statsOptGoalTitle": "",
+    "statusPaused": "",
+    "@statusPaused": {
+        "description": "Estado: pausado"
+    },
+    "searchTabStatus": "",
+    "@searchTabStatus": {
+        "description": "Panel de búsqueda: pestaña Estado"
+    },
+    "settingsDynamicIcon": "",
+    "collectionNameLabel": "",
+    "@collectionNameLabel": {
+        "description": "Label del campo nombre de colección"
+    },
+    "collectionsAddFirst": "",
+    "@collectionsAddFirst": {
+        "description": "Texto del botón de acción en el estado vacío de las colecciones"
+    },
+    "dataManagementBookshelf": "",
+    "imprintNoneSubtitle": "",
+    "@imprintNoneSubtitle": {
+        "description": "Subtítulo del estado vacío de sellos"
+    },
+    "onboardingAddTitle": "",
+    "loadingExport": "",
+    "@loadingExport": {
+        "description": "Mensaje de carga durante la exportación"
+    },
+    "searchActiveFilters": "",
+    "@searchActiveFilters": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "searchFilterImprint": "",
+    "@searchFilterImprint": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "statsOptStatusTitle": "",
+    "bookDetailDuplicateConfirm": "",
+    "@bookDetailDuplicateConfirm": {
+        "description": "Confirmación de duplicar libro",
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "onboardingOrganizeSub": "",
+    "dataManagementCreateBackup": "",
+    "dataManagementGoodreads": "",
+    "statsOptReadListSub": "",
+    "settingsBatchCompressSuccess": "",
+    "@settingsBatchCompressSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statsAddedTitle": "",
+    "statsStreakSub": "",
+    "cameraPermissionExplanation": "",
+    "@cameraPermissionExplanation": {
+        "description": "Explicación del permiso de cámara denegado permanentemente"
+    },
+    "statsPeriodThisMonth": "",
+    "shelfStatusLabelPaused": "",
+    "@shelfStatusLabelPaused": {
+        "description": "Etiqueta de estado: pausados en subtítulo de estantería"
+    },
+    "scanModeIsbn": "",
+    "@scanModeIsbn": {
+        "description": "Etiqueta del modo escáner: número ISBN / texto"
+    },
+    "statsOptCollectionsSub": "",
+    "bookDuplicateContent": "",
+    "@bookDuplicateContent": {
+        "description": "Contenido del aviso de libro duplicado",
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "tagNoneSubtitle": "",
+    "@tagNoneSubtitle": {
+        "description": "Subtítulo del estado vacío de categorías"
+    },
+    "onboardingProgressTitle": "",
+    "dataManagementOpenShelf": "",
+    "openSettings": "",
+    "@openSettings": {
+        "description": "Botón para abrir los ajustes del sistema"
+    },
+    "statsOptCategoriesTitle": "",
+    "permissionRequired": "",
+    "@permissionRequired": {
+        "description": "Título del diálogo de permiso denegado permanentemente"
+    },
+    "statsGoalTargetShelf": "",
+    "statsReadingTitle": "",
+    "statsOptAddedTimeTitle": "",
+    "collectionNoneSubtitle": "",
+    "@collectionNoneSubtitle": {
+        "description": "Subtítulo del estado vacío de colecciones"
+    },
+    "statsOptCollectionsTitle": "",
+    "managementCategoryCount": "",
+    "@managementCategoryCount": {
+        "description": "Número de libros en una categoría"
+    },
+    "bookSearchServerInventaire": "",
+    "bookSearchServerOpenLibrary": "",
+    "statsGoalFromLabel": "",
+    "settingsDevClearDbSub": "",
+    "statsGoalUnitPages": "",
+    "searchTabCategory": "",
+    "@searchTabCategory": {
+        "description": "Panel de búsqueda: pestaña Categoría"
+    },
+    "statsGoalTargetLabel": "",
+    "settingsApplyIcon": "",
+    "statsYearsTitle": "",
+    "statsReadingNone": "",
+    "statsOptLastAddedSub": "",
+    "loading": "",
+    "@loading": {
+        "description": "Mensaje genérico de carga"
+    },
+    "settingsCompressImagesTitle": "",
+    "statsGoalRemaining": "",
+    "@statsGoalRemaining": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statsGoalEdit": "",
+    "settingsExportCsv": "",
+    "@settingsExportCsv": {
+        "description": "Título de exportación"
+    },
+    "searchSaveAsShelf": "",
+    "settingsImportBookshelfHint": "",
+    "@settingsImportBookshelfHint": {
+        "description": "Pista de importación"
+    },
+    "searchFilterStatus": "",
+    "@searchFilterStatus": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "statsGoalTitle": "",
+    "onboardingProgressSub": "",
+    "storagePermissionExplanation": "",
+    "@storagePermissionExplanation": {
+        "description": "Explicación del permiso de almacenamiento denegado permanentemente"
+    },
+    "onboardingOrganizeTitle": "",
+    "statsGoalNameLabel": "",
+    "onboardingWelcomeTitle": "",
+    "statsAvgPagesSub": "",
+    "bookSearchProvidersNotice": "",
+    "@bookSearchProvidersNotice": {
+        "description": "Aviso de proveedores que contribuyeron a la búsqueda",
+        "placeholders": {
+            "providers": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsAutoNoCoverSub": "",
+    "statsOptPagesSub": "",
+    "imprintBookCount": "",
+    "@imprintBookCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statsGoalTypeBooks": "",
+    "libraryAddFirstBook": "",
+    "@libraryAddFirstBook": {
+        "description": "Texto del botón de acción en el estado vacío de la biblioteca"
+    },
+    "dataManagementExport": "",
+    "importRestoreCoversPrompt": "",
+    "@importRestoreCoversPrompt": {
+        "description": "Pregunta sobre portadas en importación"
+    },
+    "statsCollectionsTitle": "",
+    "settingsExportCsvHint": "",
+    "@settingsExportCsvHint": {
+        "description": "Pista de exportación"
+    },
+    "scanIsbnTextSubtitle": "",
+    "@scanIsbnTextSubtitle": {
+        "description": "Subtítulo de la opción de escanear ISBN mediante texto"
+    },
+    "statsOptCurrentTitle": "",
+    "statsOptYearsSub": "",
+    "fieldTranslator": "",
+    "@fieldTranslator": {
+        "description": "Nombre del campo traductor"
+    },
+    "statsOptCurrentSub": "",
+    "statsGoalFullTitle": "",
+    "devDeleteAllBooks": "",
+    "@devDeleteAllBooks": {
+        "description": "Opción de desarrollador para limpiar base de datos"
+    },
+    "statsOptCategoriesSub": "",
+    "statsAddWidgetTitle": "",
+    "fieldDescription": "",
+    "@fieldDescription": {
+        "description": "Nombre del campo sinopsis/descripción"
     }
 }
