@@ -6,7 +6,7 @@ Features:
 - Powerful Search: Full-text search across Title, Author, ISBN, and personal notes.
 - Custom Covers: Search via Open Library, Inventaire, or use custom photos.
 - Smart Shelves: Save filter combinations as self-updating shelves.
-- Hybrid FOSS Scanner: High-speed barcode detection and ISBN OCR recognition.
+- Hybrid FLOSS Scanner: High-speed barcode detection and ISBN OCR recognition.
 - Detailed Statistics: Reorganizable widgets for tracking reading streaks, page goals, and reading history.
 
 Openshelf is designed for book lovers who care about the craftsmanship of managing a personal collection. 100% on-device and privacy-focused.

@@ -2,7 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-android-lightgrey.svg)](https://flutter.dev)
-[![FOSS](https://img.shields.io/badge/FOSS-100%25-green.svg)](#-technical-stack)
+[![FLOSS](https://img.shields.io/badge/FLOSS-100%25-green.svg)](#-technical-stack)
 
 <img src="assets/Screenshots/Openshelf-banner-en.png" alt="Openshelf Banner">
 
@@ -16,7 +16,7 @@ Openshelf is a free, open-source personal library manager. It functions as a com
 
 I built Openshelf as the definitive app for book archival and tracking. As a collector with a large library, I found every alternative lacking features, hidden behind paywalls, or cluttered with ads.
 
-Openshelf is designed for **book lovers**, not just readers. It is for people who care about the craftsmanship of managing a personal collection. While the open-source stack has some limits in database depth compared to proprietary giants, Openshelf strives to deliver the best experience with high-quality FOSS tools.
+Openshelf is designed for **book lovers**, not just readers. It is for people who care about the craftsmanship of managing a personal collection. While the open-source stack has some limits in database depth compared to proprietary giants, Openshelf strives to deliver the best experience with high-quality FLOSS tools.
 
 ---
 
@@ -95,8 +95,8 @@ Latest release: **v1.0.0**
 
 Openshelf orchestrates multiple providers simultaneously to ensure high-confidence metadata:
 
-- **[Open Library (FOSS)](https://openlibrary.org)**: Primary source for book metadata and high-quality covers.
-- **[Inventaire (FOSS)](https://inventaire.io)**: Secondary source focused on linked open data and deep edition lookups.
+- **[Open Library (FLOSS)](https://openlibrary.org)**: Primary source for book metadata and high-quality covers.
+- **[Inventaire (FLOSS)](https://inventaire.io)**: Secondary source focused on linked open data and deep edition lookups.
 - **[Google Books](https://books.google.com)**: Optional proprietary source (requires a free API key).
 
 The app implements a **four-step high-confidence lookup** (ISBN -> Title+Publisher -> Title+Author -> Deep Dive) to ensure you always get the best possible record.
@@ -110,14 +110,14 @@ Openshelf is built using modern Flutter development practices with a 100% on-dev
 - **Framework**: [Flutter](https://flutter.dev/) (Multi-platform UI).
 - **State Management**: [Riverpod](https://riverpod.dev/) (Reactive, thread-safe state handling).
 - **Local Database**: [Drift](https://drift.simonbinder.eu/) (High-performance reactive SQLite wrapper).
-- **OCR Engine**: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (100% FOSS).
+- **OCR Engine**: [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (100% FLOSS).
 - **Scanning**: [Mobile Scanner](https://pub.dev/packages/mobile_scanner).
 
 ---
 
 ## 💎 Key Code Features
 
-### ⚡ Hybrid FOSS Scanner (Dual-Mode)
+### ⚡ Hybrid FLOSS Scanner (Dual-Mode)
 To avoid hardware conflicts and provide maximum precision, the scanner implements a mutually exclusive system:
 - **Barcode Mode**: High-speed line detection for traditional ISBN barcodes.
 - **ISBN Mode (OCR)**: Optimized Tesseract engine tuned with **Page Segmentation Mode (PSM) 7** for single-line recognition. It utilizes **background Isolates** and **lossless PNG processing** to ensure the UI remains at 60fps while recognizing complex or wide fonts.

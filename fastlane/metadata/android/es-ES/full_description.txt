@@ -6,7 +6,7 @@ Características:
 - Búsqueda Potente: Búsqueda de texto completo en Título, Autor, ISBN y notas personales.
 - Portadas Personalizadas: Búsqueda vía Open Library, Inventaire, o usa fotos personalizadas.
 - Estanterías Inteligentes: Guarda combinaciones de filtros como estanterías que se actualizan solas.
-- Escáner Híbrido FOSS: Detección de códigos de barras de alta velocidad y reconocimiento OCR de ISBN.
+- Escáner Híbrido FLOSS: Detección de códigos de barras de alta velocidad y reconocimiento OCR de ISBN.
 - Estadísticas Detalladas: Widgets reorganizables para seguir rachas de lectura, metas de páginas e historial.
 
 Openshelf está diseñado para amantes de los libros que se preocupan por el arte de gestionar una colección personal. 100% local y enfocado en la privacidad.
