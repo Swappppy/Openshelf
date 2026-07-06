@@ -1,1 +1,105 @@
-{}
+{
+    "appTitle": "Openshelf",
+    "@appTitle": {
+        "description": "Nombre de la aplicación"
+    },
+    "errorPrefix": "Hata: {message}",
+    "@errorPrefix": {
+        "description": "Prefijo genérico de error",
+        "placeholders": {
+            "message": {
+                "type": "String"
+            }
+        }
+    },
+    "errorGeneric": "Hata: {error}",
+    "@errorGeneric": {
+        "description": "Mensaje genérico de error con parámetro",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "criticalStartError": "Uygulamayı başlatırken bir hata meydana geldi: {error}",
+    "@criticalStartError": {
+        "description": "Error crítico al arrancar la app",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "navLibrary": "Kütüphane",
+    "@navLibrary": {
+        "description": "Pestaña de navegación: biblioteca"
+    },
+    "navShelves": "Raflar",
+    "@navShelves": {
+        "description": "Pestaña de navegación: estanterías"
+    },
+    "navStats": "İstatistikler",
+    "@navStats": {
+        "description": "Pestaña de navegación: estadísticas"
+    },
+    "libraryTitle": "Kütüphane",
+    "@libraryTitle": {
+        "description": "Título de la pantalla de biblioteca"
+    },
+    "libraryEmpty": "Kütüphaneniz henüz boş",
+    "@libraryEmpty": {
+        "description": "Estado vacío de la biblioteca sin filtros"
+    },
+    "libraryEmptyHint": "Ekleyeceğiniz ilk kitap ne olacak?",
+    "@libraryEmptyHint": {
+        "description": "Pista cuando la biblioteca está vacía"
+    },
+    "libraryAddFirstBook": "İlk kitabı ekle",
+    "@libraryAddFirstBook": {
+        "description": "Texto del botón de acción en el estado vacío de la biblioteca"
+    },
+    "libraryNoResults": "Sonuç bulunamadı",
+    "@libraryNoResults": {
+        "description": "Sin resultados con filtros activos"
+    },
+    "libraryNoResultsHint": "Başka bir filtre deneyin",
+    "@libraryNoResultsHint": {
+        "description": "Pista cuando no hay resultados con filtros"
+    },
+    "addBook": "Kitap ekle",
+    "@addBook": {
+        "description": "Etiqueta del FAB para añadir libro"
+    },
+    "displaySettings": "Kütüphanede göster",
+    "@displaySettings": {
+        "description": "Título del panel de preferencias de visualización"
+    },
+    "displaySettingsDragHint": "Sırayı değiştirmek için sürükleyin",
+    "@displaySettingsDragHint": {
+        "description": "Pista sobre arrastrar para reordenar campos"
+    },
+    "settingsButton": "Ayarlar",
+    "@settingsButton": {
+        "description": "Botón de ajustes en el panel de visualización"
+    },
+    "fieldAuthor": "Yazar",
+    "@fieldAuthor": {
+        "description": "Nombre del campo autor"
+    },
+    "fieldPublisher": "Editör",
+    "@fieldPublisher": {
+        "description": "Nombre del campo editorial"
+    },
+    "fieldYear": "Yayın yılı",
+    "@fieldYear": {
+        "description": "Nombre del campo año de publicación"
+    },
+    "fieldRating": "Değerlendirme",
+    "@fieldRating": {
+        "description": "Nombre del campo valoración"
+    },
+    "fieldTags": "Etiketler",
+    "@fieldTags": {
+        "description": "Nombre del campo etiquetas"
+    }
+}
