@@ -282,7 +282,7 @@
     "@statusRead": {
         "description": "Estado: leído"
     },
-    "statusAbandoned": "Não finalizado",
+    "statusAbandoned": "Abandonado",
     "@statusAbandoned": {
         "description": "Estado: abandonado"
     },
@@ -410,5 +410,113 @@
     "permissionRequired": "Permissão necessária",
     "@permissionRequired": {
         "description": "Título del diálogo de permiso denegado permanentemente"
+    },
+    "filterIsbn": "ISBN",
+    "@filterIsbn": {
+        "description": "Placeholder del filtro de ISBN"
+    },
+    "filterAuthor": "Autor",
+    "@filterAuthor": {
+        "description": "Placeholder del filtro de autor"
+    },
+    "filterImprintLabel": "Selo editorial",
+    "@filterImprintLabel": {
+        "description": "Etiqueta de sección de sello editorial en filtros"
+    },
+    "duplicate": "Duplicar",
+    "@duplicate": {
+        "description": "Acción genérica de duplicar"
+    },
+    "photo": "Foto",
+    "@photo": {
+        "description": "Botón para tomar foto"
+    },
+    "url": "URL",
+    "@url": {
+        "description": "Botón para introducir URL"
+    },
+    "addBookModalTitle": "Adicionar livro",
+    "@addBookModalTitle": {
+        "description": "Título del modal de añadir libro"
+    },
+    "addBookModalSubtitle": "Como você quer adicionar seu livro",
+    "@addBookModalSubtitle": {
+        "description": "Subtítulo del modal de añadir libro"
+    },
+    "addManuallySubtitle": "Preencha os dados manualmente",
+    "@addManuallySubtitle": {
+        "description": "Subtítulo de la opción de añadir manualmente"
+    },
+    "scanBarcode": "Escanear o código de barras",
+    "@scanBarcode": {
+        "description": "Opción de escanear código de barras"
+    },
+    "scanIsbnText": "Escanear o número ISBN",
+    "@scanIsbnText": {
+        "description": "Opción de escanear ISBN mediante texto"
+    },
+    "scanIsbnTextSubtitle": "Aponte o número impresso",
+    "@scanIsbnTextSubtitle": {
+        "description": "Subtítulo de la opción de escanear ISBN mediante texto"
+    },
+    "scanIsbnSelect": "Toque em um ISBN para selecioná-lo",
+    "@scanIsbnSelect": {
+        "description": "Instrucción para tocar un ISBN detectado"
+    },
+    "scanOcrHoldMessage": "Deixe o celular parado por alguns segundos...",
+    "@scanOcrHoldMessage": {
+        "description": "Instrucción de mantener la cámara quieta para OCR"
+    },
+    "scanBarcodePermission": "Requer permissão da câmera para escanear códigos",
+    "@scanBarcodePermission": {
+        "description": "Mensaje de falta de permiso de cámara"
+    },
+    "scanBatch": "Escanear em lote",
+    "@scanBatch": {
+        "description": "Opción de escanear en lote"
+    },
+    "scanModeBarcode": "Código de barras",
+    "@scanModeBarcode": {
+        "description": "Etiqueta del modo escáner: código de barras"
+    },
+    "scanModeIsbn": "Número ISBN",
+    "@scanModeIsbn": {
+        "description": "Etiqueta del modo escáner: número ISBN / texto"
+    },
+    "tabMain": "Início",
+    "@tabMain": {
+        "description": "Nombre de la pestaña principal del formulario/detalle"
+    },
+    "sectionFormat": "Formato",
+    "@sectionFormat": {
+        "description": "Encabezado de sección de formato"
+    },
+    "sectionImprint": "Selo editorial",
+    "@sectionImprint": {
+        "description": "Encabezado de sección de sello editorial"
+    },
+    "coverPickUrl": "URL",
+    "@coverPickUrl": {
+        "description": "Botón de portada: URL"
+    },
+    "tagSearchOrCreate": "Procurar ou criar etiqueta",
+    "@tagSearchOrCreate": {
+        "description": "Placeholder del campo de búsqueda/creación de etiquetas"
+    },
+    "tagCreateHint": "Escreva e aperte Enter para adicionar ou criar",
+    "@tagCreateHint": {
+        "description": "Pista sobre cómo crear etiquetas"
+    },
+    "tagNoCategories": "Não há categorias criadas",
+    "@tagNoCategories": {
+        "description": "Estado vacío de categorías en el picker"
+    },
+    "coverPickPhoto": "Tirar foto",
+    "@coverPickPhoto": {
+        "description": "Botón de portada: hacer foto"
+    },
+    "fieldStatusChip": "Marcador de status",
+    "@fieldStatusChip": {
+        "description": "Nombre del campo chip de estado"
     }
 }
