@@ -1,1 +1,79 @@
-{}
+{
+    "appTitle": "Openshelf",
+    "@appTitle": {
+        "description": "Nombre de la aplicación"
+    },
+    "errorGeneric": "Erro",
+    "@errorGeneric": {
+        "description": "Mensaje genérico de error con parámetro",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "navShelves": "Estantes",
+    "@navShelves": {
+        "description": "Pestaña de navegación: estanterías"
+    },
+    "navStats": "Estatísticas",
+    "@navStats": {
+        "description": "Pestaña de navegación: estadísticas"
+    },
+    "libraryTitle": "Biblioteca",
+    "@libraryTitle": {
+        "description": "Título de la pantalla de biblioteca"
+    },
+    "libraryEmpty": "Sua biblioteca está vazia",
+    "@libraryEmpty": {
+        "description": "Estado vacío de la biblioteca sin filtros"
+    },
+    "libraryEmptyHint": "Qual será seu primeiro livro?",
+    "@libraryEmptyHint": {
+        "description": "Pista cuando la biblioteca está vacía"
+    },
+    "libraryAddFirstBook": "Adicionar primeiro livro",
+    "@libraryAddFirstBook": {
+        "description": "Texto del botón de acción en el estado vacío de la biblioteca"
+    },
+    "libraryNoResults": "Sem resultados",
+    "@libraryNoResults": {
+        "description": "Sin resultados con filtros activos"
+    },
+    "libraryNoResultsHint": "Tente outros filtros",
+    "@libraryNoResultsHint": {
+        "description": "Pista cuando no hay resultados con filtros"
+    },
+    "displaySettings": "Mostrar na biblioteca",
+    "@displaySettings": {
+        "description": "Título del panel de preferencias de visualización"
+    },
+    "displaySettingsDragHint": "Arraste para reordenar",
+    "@displaySettingsDragHint": {
+        "description": "Pista sobre arrastrar para reordenar campos"
+    },
+    "settingsButton": "Ajustes",
+    "@settingsButton": {
+        "description": "Botón de ajustes en el panel de visualización"
+    },
+    "addBook": "Adicionar livro",
+    "@addBook": {
+        "description": "Etiqueta del FAB para añadir libro"
+    },
+    "fieldAuthor": "Autor",
+    "@fieldAuthor": {
+        "description": "Nombre del campo autor"
+    },
+    "fieldYear": "Ano de Publicação",
+    "@fieldYear": {
+        "description": "Nombre del campo año de publicación"
+    },
+    "fieldPublisher": "Editora",
+    "@fieldPublisher": {
+        "description": "Nombre del campo editorial"
+    },
+    "fieldRating": "Avaliação",
+    "@fieldRating": {
+        "description": "Nombre del campo valoración"
+    }
+}
