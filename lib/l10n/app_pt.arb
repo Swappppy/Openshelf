@@ -75,5 +75,33 @@
     "fieldRating": "Avaliação",
     "@fieldRating": {
         "description": "Nombre del campo valoración"
+    },
+    "fieldTranslator": "Tradução",
+    "@fieldTranslator": {
+        "description": "Nombre del campo traductor"
+    },
+    "scanBatch": "Escanear em lote",
+    "@scanBatch": {
+        "description": "Opción de escanear en lote"
+    },
+    "scanBatchSubtitle": "Escanear vários livros seguidos",
+    "@scanBatchSubtitle": {
+        "description": "Subtítulo de la opción de escanear en lote"
+    },
+    "scanModeBarcode": "Código de barras",
+    "@scanModeBarcode": {
+        "description": "Etiqueta del modo escáner: código de barras"
+    },
+    "scanModeIsbn": "Número ISBN",
+    "@scanModeIsbn": {
+        "description": "Etiqueta del modo escáner: número ISBN / texto"
+    },
+    "bookFormNewTitle": "Novo livro",
+    "@bookFormNewTitle": {
+        "description": "Título del formulario al crear libro"
+    },
+    "bookFormEditTitle": "Editar livro",
+    "@bookFormEditTitle": {
+        "description": "Título del formulario al editar libro"
     }
 }
