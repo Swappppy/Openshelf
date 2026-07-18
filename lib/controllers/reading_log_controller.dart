@@ -1,7 +1,5 @@
-import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
-import 'package:rxdart/rxdart.dart';
 import '../services/database.dart';
 import 'database_provider.dart';
 
@@ -85,8 +83,18 @@ final totalPagesReadProvider = StreamProvider<int>((ref) {
   return db.bookDao.watchAllBooks().map((books) {
     int total = 0;
     for (final b in books) {
-      for (final pages in b.readingSessions.values) {
-        total += pages;
+      if (b.paginationConfig == null || b.paginationConfig!.segments.isEmpty) {
+        // Simple books: sum global reading sessions
+        for (final pages in b.readingSessions.values) {
+          total += pages;
+        }
+      } else {
+        // Advanced books: sum independent sessions of every segment
+        for (final segment in b.paginationConfig!.segments) {
+          for (final pages in segment.sessions.values) {
+            total += pages;
+          }
+        }
       }
     }
     return total;

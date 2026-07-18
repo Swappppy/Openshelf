@@ -17,6 +17,7 @@ import '../../models/tag_type.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../widgets/os_permission_dialog.dart';
 import 'cover_picker_sheet.dart';
+import 'advanced_pagination_view.dart';
 
 /// Form for adding a new book or editing an existing one.
 /// Supports prefilling from external search results and handling M:M relationships.
@@ -62,6 +63,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   List<Tag> _selectedTags = [];        
   List<Tag> _selectedCollections = [];
   Tag? _selectedImprint;
+  PaginationConfig? _paginationConfig;
   bool _isInitializing = true;
 
   @override
@@ -108,6 +110,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _loadExistingTags(b.id);
       _loadExistingImprint(b.id);
       _loadExistingCollection(b.id, b.collectionId, b.collectionName);
+      _paginationConfig = b.paginationConfig;
     } else if (pre?.coverUrl != null) {
       // Auto-prefill cover from provided URL in the background
       _prefillCoverFromUrl(pre!.coverUrl!);
@@ -357,7 +360,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   Map<int, int> _calculateUpdatedSessions(int reads, int current, int total) {
     final Map<int, int> sessions = widget.existingBook != null ? Map<int, int>.from(widget.existingBook!.readingSessions) : {};
     
-    // Ensure all completed sessions are marked as finished
+    // Ensure all completed global sessions are marked as finished with the NEW total
     for (int i = 1; i <= reads; i++) {
       sessions[i] = total;
     }
@@ -377,6 +380,30 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     sessions.removeWhere((key, value) => key > reads + 1);
     
     return sessions;
+  }
+
+  PaginationConfig? _syncBlockSessions(PaginationConfig? config, int reads, int current, int total) {
+    if (config == null || config.segments.isEmpty) return config;
+
+    final newSegments = config.segments.map((s) {
+       final updatedSessions = Map<int, int>.from(s.sessions);
+       final segmentLength = s.endPhysical - s.startPhysical + 1;
+
+       // Any segment physically before the current global page is marked as completed
+       if (current > s.endPhysical) {
+          updatedSessions[1] = segmentLength;
+       } else if (current >= s.startPhysical && current <= s.endPhysical) {
+          // This is the active segment
+          updatedSessions[1] = current - s.startPhysical + 1;
+       } else if (current < s.startPhysical) {
+          // This segment hasn't been reached yet in the current read
+          updatedSessions[1] = 0;
+       }
+
+       return s.copyWith(sessions: updatedSessions);
+    }).toList();
+
+    return PaginationConfig(segments: newSegments, markers: config.markers);
   }
 
   /// Handles saving the book and all its associations (tags, imprints, collections) to the DB.
@@ -427,15 +454,43 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final imprintId = (rawImprintId != null && rawImprintId > 0) ? rawImprintId : null;
 
     final currentReads = int.tryParse(_readsCtrl.text) ?? 0;
+    final total = int.tryParse(_totalPagesCtrl.text) ?? 0;
+    
+    // Auto-adjust and sanitize pagination config if total pages changed
+    PaginationConfig? finalConfig = _paginationConfig;
+    if (finalConfig != null && finalConfig.segments.isNotEmpty) {
+      final List<PaginationSegment> sanitizedSegments = [];
+      for (final s in finalConfig.segments) {
+        if (s.startPhysical > total) continue; // Remove segments starting after the book ends
+        
+        sanitizedSegments.add(s.copyWith(
+          endPhysical: s.endPhysical > total ? total : s.endPhysical,
+        ));
+        
+        if (sanitizedSegments.last.endPhysical == total) break;
+      }
+
+      // If we finished and the last segment doesn't reach the new total, extend it
+      if (sanitizedSegments.isNotEmpty && sanitizedSegments.last.endPhysical < total) {
+        final last = sanitizedSegments.removeLast();
+        sanitizedSegments.add(last.copyWith(endPhysical: total));
+      }
+      
+      finalConfig = PaginationConfig(
+        segments: sanitizedSegments, 
+        markers: finalConfig.markers.where((m) => m.physicalPage <= total).toList(),
+      );
+    }
+
     final companion = BooksCompanion(
       title: Value(_titleCtrl.text.trim()),
       subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
-      author: Value(_authorCtrl.text.trim().isEmpty ? 'Desconocido' : _authorCtrl.text.trim()),
+      author: Value(_authorCtrl.text.trim().isEmpty ? context.l10n.unknownAuthor : _authorCtrl.text.trim()),
       isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
       language: Value(_languageCtrl.text.trim().isEmpty ? null : _languageCtrl.text.trim()),
       translator: Value(_translatorCtrl.text.trim().isEmpty ? null : _translatorCtrl.text.trim()),
       publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
-      totalPages: Value(int.tryParse(_totalPagesCtrl.text)),
+      totalPages: Value(total),
       currentPage: Value(newPage),
       status: Value(_status),
       bookFormat: Value(_format),
@@ -449,7 +504,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       reads: Value(currentReads),
       copies: Value(int.tryParse(_copiesCtrl.text) ?? 1),
-      readingSessions: Value(_calculateUpdatedSessions(currentReads, int.tryParse(_currentPageCtrl.text) ?? 0, int.tryParse(_totalPagesCtrl.text) ?? 0)),
+      readingSessions: Value(_calculateUpdatedSessions(currentReads, int.tryParse(_currentPageCtrl.text) ?? 0, total)),
+      paginationConfig: Value(_syncBlockSessions(finalConfig, currentReads, int.tryParse(_currentPageCtrl.text) ?? 0, total)),
       startedAt: Value(_startedAt),
       finishedAt: Value(_finishedAt),
       imprintId: Value(imprintId),
@@ -631,6 +687,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onTagsChanged: (list) => setState(() => _selectedTags = list),
               onPickCoverFromUrl: _pickCoverFromUrl,
               onSearchCovers: _searchCovers,
+              paginationConfig: _paginationConfig,
+              onPaginationConfigChanged: (cfg) => setState(() => _paginationConfig = cfg),
             ),
             _DetailsTab(
               notesCtrl: _notesCtrl,
@@ -682,6 +740,8 @@ class _MainTab extends ConsumerWidget {
   final ValueChanged<List<Tag>> onTagsChanged;
   final VoidCallback onPickCoverFromUrl;
   final VoidCallback onSearchCovers;
+  final PaginationConfig? paginationConfig;
+  final ValueChanged<PaginationConfig> onPaginationConfigChanged;
 
   const _MainTab({
     required this.titleCtrl,
@@ -704,6 +764,8 @@ class _MainTab extends ConsumerWidget {
     required this.onTagsChanged,
     required this.onPickCoverFromUrl,
     required this.onSearchCovers,
+    required this.onPaginationConfigChanged,
+    this.paginationConfig,
   });
 
   @override
@@ -821,7 +883,31 @@ class _MainTab extends ConsumerWidget {
         const SizedBox(height: 24),
 
         // --- Reading Progress Section ---
-        _SectionHeader(label: context.l10n.fieldReadingProgress),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _SectionHeader(label: context.l10n.fieldReadingProgress),
+            TextButton.icon(
+              onPressed: () {
+                final total = int.tryParse(totalPagesCtrl.text) ?? 0;
+                if (total <= 0) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AdvancedPaginationView(
+                      initialConfig: paginationConfig ?? PaginationConfig(),
+                      totalPages: total,
+                      onSave: onPaginationConfigChanged,
+                    ),
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+              icon: const Icon(Icons.settings_suggest_outlined, size: 16),
+              label: Text(context.l10n.paginationAdvancedButton, style: const TextStyle(fontSize: 12)),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -845,6 +931,7 @@ class _MainTab extends ConsumerWidget {
           ],
         ),
         // --- Status Section ---
+        const SizedBox(height: 24),
         _SectionHeader(label: context.l10n.sectionReadingStatus),
         const SizedBox(height: 12),
         _StatusSelector(selected: status, onChanged: onStatusChanged),

@@ -33,6 +33,7 @@ class Books extends Table {
   IntColumn get reads => integer().withDefault(const Constant(0))();
   IntColumn get copies => integer().withDefault(const Constant(1))();
   TextColumn get readingSessions => text().withDefault(const Constant('{}')).map(const ReadingSessionsConverter())();
+  TextColumn get paginationConfig => text().nullable().map(const PaginationConfigConverter())();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 

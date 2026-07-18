@@ -1373,6 +1373,134 @@ class AppLocalizationsIt extends AppLocalizations {
   String get permissionRequired => 'Permiso necesario';
 
   @override
+  String get paginationMarkersAndIndices => 'Marcadores e Índices';
+
+  @override
+  String get paginationSaveProgress => 'Guardar Progreso';
+
+  @override
+  String get paginationAllPagesAssigned =>
+      'Todas las páginas ya han sido asignadas.';
+
+  @override
+  String get paginationChooseColor => 'Elegir color';
+
+  @override
+  String paginationSegmentRequired(Object index) {
+    return 'Segmento $index: Todos los campos de página son obligatorios.';
+  }
+
+  @override
+  String paginationSegmentStartGreater(Object index) {
+    return 'Segmento $index: El inicio no puede ser mayor que el fin.';
+  }
+
+  @override
+  String paginationSegmentExceedsTotal(Object index, Object total) {
+    return 'Segmento $index: Los valores exceden el total de páginas ($total).';
+  }
+
+  @override
+  String get paginationAdvancedConfig => 'Configuración avanzada';
+
+  @override
+  String get paginationBlocksSegments => 'BLOQUES / SEGMENTOS';
+
+  @override
+  String get paginationNoSegmentsDefined =>
+      'No hay segmentos definidos. Se usa el rango 1-N por defecto.';
+
+  @override
+  String get paginationAddBlock => 'Añadir bloque';
+
+  @override
+  String get paginationAllPagesAssignedNote =>
+      'Nota: Ya has asignado todas las páginas disponibles.';
+
+  @override
+  String paginationPagesRemainingWarning(Object count) {
+    return 'Aviso: Quedan $count páginas físicas sin asignar.';
+  }
+
+  @override
+  String get paginationCorrectErrors => 'CORRIJA LOS SIGUIENTES ERRORES:';
+
+  @override
+  String get paginationMarkersLabels => 'MARCADORES / ETIQUETAS';
+
+  @override
+  String get paginationMarkerDefaultName => 'Marcador';
+
+  @override
+  String get paginationSegmentsDefaultName => 'Bloque';
+
+  @override
+  String get paginationAddMarker => 'Añadir marcador';
+
+  @override
+  String get paginationLabelOptional => 'Etiqueta (opcional)';
+
+  @override
+  String get paginationType => 'Tipo:';
+
+  @override
+  String get paginationArabic => 'Arábigo';
+
+  @override
+  String get paginationRoman => 'Romano';
+
+  @override
+  String get paginationOffset => 'Offset';
+
+  @override
+  String get paginationMarkerLabel => 'Etiqueta del marcador';
+
+  @override
+  String get paginationVisualPage => 'Página Visual';
+
+  @override
+  String get paginationVisualPageHint => 'Ej: xiv o 501';
+
+  @override
+  String paginationPhysicalLabel(Object page) {
+    return 'Física: $page';
+  }
+
+  @override
+  String get paginationAdjustsAutomatically => 'Se ajusta automáticamente';
+
+  @override
+  String get paginationVisualMode => 'Modo visual';
+
+  @override
+  String paginationEquivalentPhysical(Object end, Object start) {
+    return 'Equivale a físicas: $start - $end';
+  }
+
+  @override
+  String paginationSectionLabel(Object index) {
+    return 'Sección $index';
+  }
+
+  @override
+  String get paginationStartPhysical => 'Inicio (Físico)';
+
+  @override
+  String get paginationEndPhysical => 'Fin (Físico)';
+
+  @override
+  String get paginationStartVisual => 'Inicio (Visual)';
+
+  @override
+  String get paginationEndVisual => 'Fin (Visual)';
+
+  @override
+  String get paginationAdvancedButton => 'Avanzada';
+
+  @override
+  String get unknownAuthor => 'Desconocido';
+
+  @override
   String get storagePermissionExplanation =>
       'Para seleccionar una portada necesitas conceder acceso al almacenamiento. Puedes hacerlo desde los ajustes de la aplicación.';
 

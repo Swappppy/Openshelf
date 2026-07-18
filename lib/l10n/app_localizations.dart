@@ -2652,6 +2652,228 @@ abstract class AppLocalizations {
   /// **'Permiso necesario'**
   String get permissionRequired;
 
+  /// No description provided for @paginationMarkersAndIndices.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcadores e Índices'**
+  String get paginationMarkersAndIndices;
+
+  /// No description provided for @paginationSaveProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Progreso'**
+  String get paginationSaveProgress;
+
+  /// No description provided for @paginationAllPagesAssigned.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas las páginas ya han sido asignadas.'**
+  String get paginationAllPagesAssigned;
+
+  /// No description provided for @paginationChooseColor.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir color'**
+  String get paginationChooseColor;
+
+  /// No description provided for @paginationSegmentRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Segmento {index}: Todos los campos de página son obligatorios.'**
+  String paginationSegmentRequired(Object index);
+
+  /// No description provided for @paginationSegmentStartGreater.
+  ///
+  /// In es, this message translates to:
+  /// **'Segmento {index}: El inicio no puede ser mayor que el fin.'**
+  String paginationSegmentStartGreater(Object index);
+
+  /// No description provided for @paginationSegmentExceedsTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Segmento {index}: Los valores exceden el total de páginas ({total}).'**
+  String paginationSegmentExceedsTotal(Object index, Object total);
+
+  /// No description provided for @paginationAdvancedConfig.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración avanzada'**
+  String get paginationAdvancedConfig;
+
+  /// No description provided for @paginationBlocksSegments.
+  ///
+  /// In es, this message translates to:
+  /// **'BLOQUES / SEGMENTOS'**
+  String get paginationBlocksSegments;
+
+  /// No description provided for @paginationNoSegmentsDefined.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay segmentos definidos. Se usa el rango 1-N por defecto.'**
+  String get paginationNoSegmentsDefined;
+
+  /// No description provided for @paginationAddBlock.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir bloque'**
+  String get paginationAddBlock;
+
+  /// No description provided for @paginationAllPagesAssignedNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Nota: Ya has asignado todas las páginas disponibles.'**
+  String get paginationAllPagesAssignedNote;
+
+  /// No description provided for @paginationPagesRemainingWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'Aviso: Quedan {count} páginas físicas sin asignar.'**
+  String paginationPagesRemainingWarning(Object count);
+
+  /// No description provided for @paginationCorrectErrors.
+  ///
+  /// In es, this message translates to:
+  /// **'CORRIJA LOS SIGUIENTES ERRORES:'**
+  String get paginationCorrectErrors;
+
+  /// No description provided for @paginationMarkersLabels.
+  ///
+  /// In es, this message translates to:
+  /// **'MARCADORES / ETIQUETAS'**
+  String get paginationMarkersLabels;
+
+  /// No description provided for @paginationMarkerDefaultName.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcador'**
+  String get paginationMarkerDefaultName;
+
+  /// No description provided for @paginationSegmentsDefaultName.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloque'**
+  String get paginationSegmentsDefaultName;
+
+  /// No description provided for @paginationAddMarker.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir marcador'**
+  String get paginationAddMarker;
+
+  /// No description provided for @paginationLabelOptional.
+  ///
+  /// In es, this message translates to:
+  /// **'Etiqueta (opcional)'**
+  String get paginationLabelOptional;
+
+  /// No description provided for @paginationType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo:'**
+  String get paginationType;
+
+  /// No description provided for @paginationArabic.
+  ///
+  /// In es, this message translates to:
+  /// **'Arábigo'**
+  String get paginationArabic;
+
+  /// No description provided for @paginationRoman.
+  ///
+  /// In es, this message translates to:
+  /// **'Romano'**
+  String get paginationRoman;
+
+  /// No description provided for @paginationOffset.
+  ///
+  /// In es, this message translates to:
+  /// **'Offset'**
+  String get paginationOffset;
+
+  /// No description provided for @paginationMarkerLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Etiqueta del marcador'**
+  String get paginationMarkerLabel;
+
+  /// No description provided for @paginationVisualPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Página Visual'**
+  String get paginationVisualPage;
+
+  /// No description provided for @paginationVisualPageHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: xiv o 501'**
+  String get paginationVisualPageHint;
+
+  /// No description provided for @paginationPhysicalLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Física: {page}'**
+  String paginationPhysicalLabel(Object page);
+
+  /// No description provided for @paginationAdjustsAutomatically.
+  ///
+  /// In es, this message translates to:
+  /// **'Se ajusta automáticamente'**
+  String get paginationAdjustsAutomatically;
+
+  /// No description provided for @paginationVisualMode.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo visual'**
+  String get paginationVisualMode;
+
+  /// No description provided for @paginationEquivalentPhysical.
+  ///
+  /// In es, this message translates to:
+  /// **'Equivale a físicas: {start} - {end}'**
+  String paginationEquivalentPhysical(Object end, Object start);
+
+  /// No description provided for @paginationSectionLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Sección {index}'**
+  String paginationSectionLabel(Object index);
+
+  /// No description provided for @paginationStartPhysical.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio (Físico)'**
+  String get paginationStartPhysical;
+
+  /// No description provided for @paginationEndPhysical.
+  ///
+  /// In es, this message translates to:
+  /// **'Fin (Físico)'**
+  String get paginationEndPhysical;
+
+  /// No description provided for @paginationStartVisual.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio (Visual)'**
+  String get paginationStartVisual;
+
+  /// No description provided for @paginationEndVisual.
+  ///
+  /// In es, this message translates to:
+  /// **'Fin (Visual)'**
+  String get paginationEndVisual;
+
+  /// No description provided for @paginationAdvancedButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Avanzada'**
+  String get paginationAdvancedButton;
+
+  /// No description provided for @unknownAuthor.
+  ///
+  /// In es, this message translates to:
+  /// **'Desconocido'**
+  String get unknownAuthor;
+
   /// Explicación del permiso de almacenamiento denegado permanentemente
   ///
   /// In es, this message translates to:

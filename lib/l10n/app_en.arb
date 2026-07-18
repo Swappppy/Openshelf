@@ -42,7 +42,7 @@
 
   "libraryAddFirstBook": "Add first book",
   "@libraryAddFirstBook": {
-    "description": "Texto del botón de acción en el estado vacío de la biblioteca"
+    "description": "Text for the action button in the empty library state"
   },
 
   "libraryNoResults": "No results",
@@ -1144,6 +1144,44 @@
 
   "permissionRequired": "Permission required",
   "@permissionRequired": { "description": "Title for permanently denied permission dialog" },
+
+  "paginationMarkersAndIndices": "Markers & Indices",
+  "paginationSaveProgress": "Save Progress",
+  "paginationAllPagesAssigned": "All pages have already been assigned.",
+  "paginationChooseColor": "Choose color",
+  "paginationSegmentRequired": "Segment {index}: All page fields are required.",
+  "paginationSegmentStartGreater": "Segment {index}: Start cannot be greater than end.",
+  "paginationSegmentExceedsTotal": "Segment {index}: Values exceed total pages ({total}).",
+  "paginationAdvancedConfig": "Advanced Configuration",
+  "paginationBlocksSegments": "BLOCKS / SEGMENTS",
+  "paginationNoSegmentsDefined": "No segments defined. Defaulting to 1-N range.",
+  "paginationAddBlock": "Add block",
+  "paginationAllPagesAssignedNote": "Note: You have already assigned all available pages.",
+  "paginationPagesRemainingWarning": "Warning: {count} physical pages remain unassigned.",
+  "paginationCorrectErrors": "PLEASE CORRECT THE FOLLOWING ERRORS:",
+  "paginationMarkersLabels": "MARKERS / LABELS",
+  "paginationMarkerDefaultName": "Marker",
+  "paginationSegmentsDefaultName": "Segment",
+  "paginationAddMarker": "Add marker",
+  "paginationLabelOptional": "Label (optional)",
+  "paginationType": "Type:",
+  "paginationArabic": "Arabic",
+  "paginationRoman": "Roman",
+  "paginationOffset": "Offset",
+  "paginationMarkerLabel": "Marker label",
+  "paginationVisualPage": "Visual Page",
+  "paginationVisualPageHint": "e.g., xiv or 501",
+  "paginationPhysicalLabel": "Physical: {page}",
+  "paginationAdjustsAutomatically": "Adjusts automatically",
+  "paginationVisualMode": "Visual mode",
+  "paginationEquivalentPhysical": "Equivalent to physical: {start} - {end}",
+  "paginationSectionLabel": "Section {index}",
+  "paginationStartPhysical": "Start (Physical)",
+  "paginationEndPhysical": "End (Physical)",
+  "paginationStartVisual": "Start (Visual)",
+  "paginationEndVisual": "End (Visual)",
+  "paginationAdvancedButton": "Advanced",
+  "unknownAuthor": "Unknown",
 
   "storagePermissionExplanation": "To select a cover you need to grant storage access. You can do this from the application settings.",
   "@storagePermissionExplanation": { "description": "Explanation for permanently denied storage permission" },

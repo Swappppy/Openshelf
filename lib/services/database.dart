@@ -44,7 +44,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -139,35 +139,22 @@ class AppDatabase extends _$AppDatabase {
         });
       }
       if (from < 17) {
-        await m.addColumn(books, books.reads as GeneratedColumn);
-        await m.addColumn(books, books.copies as GeneratedColumn);
-        await transaction(() async {
-          await (update(books)
-                ..where((b) => b.status.equalsValue(ReadingStatus.read)))
-              .write(const BooksCompanion(reads: Value(1)));
-        });
+        try {
+          await m.addColumn(books, books.reads as GeneratedColumn);
+        } catch (_) {}
+        try {
+          await m.addColumn(books, books.copies as GeneratedColumn);
+        } catch (_) {}
       }
       if (from < 18) {
-        await m.addColumn(books, books.readingSessions);
-        await transaction(() async {
-          final allBooks = await select(books).get();
-          for (final b in allBooks) {
-            final sessions = <int, int>{};
-            if (b.reads > 0) {
-              for (int i = 1; i <= b.reads; i++) {
-                sessions[i] = b.totalPages ?? 0;
-              }
-            }
-            // If currently reading (and not marked as read yet in sessions)
-            if (b.status != ReadingStatus.read && (b.currentPage ?? 0) > 0) {
-              sessions[b.reads + 1] = b.currentPage!;
-            }
-            
-            await (update(books)..where((book) => book.id.equals(b.id))).write(
-              BooksCompanion(readingSessions: Value(sessions))
-            );
-          }
-        });
+        try {
+          await m.addColumn(books, books.readingSessions as GeneratedColumn);
+        } catch (_) {}
+      }
+      if (from < 19) {
+        try {
+          await m.addColumn(books, books.paginationConfig as GeneratedColumn);
+        } catch (_) {}
       }
     },
     beforeOpen: (details) async {
@@ -247,6 +234,40 @@ class AppDatabase extends _$AppDatabase {
              ), mode: InsertMode.insertOrIgnore);
           }
         }
+      }
+
+      if (details.hadUpgrade && details.versionBefore! < 18) {
+        // Data migration for sessions and reads
+        await transaction(() async {
+          final allBooks = await select(books).get();
+          for (final b in allBooks) {
+            final sessions = <int, int>{};
+            int newReads = b.reads;
+            
+            // If it was already migrated to version 17 (but failed 18)
+            // or if we are doing a fresh upgrade from 16
+            if (b.status == ReadingStatus.read && newReads == 0) {
+               newReads = 1;
+            }
+
+            if (newReads > 0) {
+              for (int i = 1; i <= newReads; i++) {
+                sessions[i] = b.totalPages ?? 0;
+              }
+            }
+            
+            if (b.status != ReadingStatus.read && (b.currentPage ?? 0) > 0) {
+              sessions[newReads + 1] = b.currentPage!;
+            }
+            
+            await (update(books)..where((book) => book.id.equals(b.id))).write(
+              BooksCompanion(
+                readingSessions: Value(sessions),
+                reads: Value(newReads),
+              )
+            );
+          }
+        });
       }
 
       // Default stats widgets are no longer initialized here to allow showing an empty state for new users

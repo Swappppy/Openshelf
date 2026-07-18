@@ -4,10 +4,20 @@ import '../services/database.dart';
 import 'import_export_base.dart';
 
 /// Exports OpenShelf books to a GoodReads-compatible CSV file.
+///
+/// Rows are built as name -> value maps and then serialized against
+/// [_headers], instead of writing into fixed numeric slots. This avoids
+/// the class of bug where inserting/removing a header column silently
+/// shifts every value after it (see GoodreadsImportService for the same
+/// pattern on the read side).
 class GoodreadsExportService {
   final AppDatabase _db;
   GoodreadsExportService(this._db);
 
+  // Standard Goodreads header, including "Average Rating" (kept blank on
+  // export, since OpenShelf doesn't track a global average) so files we
+  // produce round-trip through Goodreads-compatible importers, including
+  // our own.
   static const List<String> _headers = [
     'Book Id', 'Title', 'Author', 'Author l-f', 'Additional Authors', 'ISBN', 'ISBN13', 'My Rating',
     'Average Rating', 'Publisher', 'Binding', 'Number of Pages', 'Year Published', 'Original Publication Year',
@@ -19,16 +29,14 @@ class GoodreadsExportService {
     final books = await _db.bookDao.watchAllBooks().first;
     final errors = <String>[];
     final rows = <List<String>>[_headers];
-
     for (final book in books) {
       try {
         final tags = await _db.tagDao.watchTagsForBook(book.id).first;
-        rows.add(_bookToRow(book, tags));
+        rows.add(_toRow(_bookToFields(book, tags)));
       } catch (e) {
         errors.add('Book "${book.title}" (id ${book.id}): $e');
       }
     }
-
     return ExportResult(
       exported: rows.length - 1,
       content: _encodeCsv(rows),
@@ -40,28 +48,34 @@ class GoodreadsExportService {
     await file.writeAsString(result.content, encoding: utf8);
   }
 
-  List<String> _bookToRow(Book book, List<Tag> tags) {
-    final row = List<String>.filled(_headers.length, '');
+  /// Builds a name -> value map for one book. Any header not set here is
+  /// exported as an empty string.
+  Map<String, String> _bookToFields(Book book, List<Tag> tags) {
     final shelfNames = tags.map((t) => t.name).join(',');
+    return {
+      'Book Id': book.id.toString(),
+      'Title': book.title,
+      'Author': book.author,
+      'ISBN': book.isbn != null && book.isbn!.length == 10 ? '="${book.isbn}"' : '',
+      'ISBN13': book.isbn != null && book.isbn!.length == 13 ? '="${book.isbn}"' : '',
+      'My Rating': book.rating?.round().clamp(1, 5).toString() ?? '0',
+      'Publisher': book.publisher ?? '',
+      'Binding': _mapFormat(book.bookFormat),
+      'Number of Pages': book.totalPages?.toString() ?? '',
+      'Year Published': book.publishYear?.toString() ?? '',
+      'Date Read': _formatDate(book.finishedAt),
+      'Date Added': _formatDate(book.createdAt),
+      'Bookshelves': shelfNames,
+      'Exclusive Shelf': _mapStatus(book.status),
+      'My Review': book.notes ?? '',
+      'Read Count': book.status == ReadingStatus.read ? '1' : '0',
+    };
+  }
 
-    row[0] = book.id.toString();
-    row[1] = book.title;
-    row[2] = book.author;
-    row[5] = book.isbn != null && book.isbn!.length == 10 ? '="${book.isbn}"' : '';
-    row[6] = book.isbn != null && book.isbn!.length == 13 ? '="${book.isbn}"' : '';
-    row[7] = book.rating?.round().clamp(1, 5).toString() ?? '0';
-    row[9] = book.publisher ?? '';
-    row[10] = _mapFormat(book.bookFormat);
-    row[11] = book.totalPages?.toString() ?? '';
-    row[12] = book.publishYear?.toString() ?? '';
-    row[14] = _formatDate(book.finishedAt);
-    row[15] = _formatDate(book.createdAt);
-    row[16] = shelfNames;
-    row[18] = _mapStatus(book.status);
-    row[19] = book.notes ?? '';
-    row[22] = book.status == ReadingStatus.read ? '1' : '0';
-
-    return row;
+  /// Serializes a name -> value map into a row matching [_headers], in
+  /// order, filling any header without an entry with ''.
+  List<String> _toRow(Map<String, String> fields) {
+    return _headers.map((h) => fields[h] ?? '').toList();
   }
 
   String _formatDate(DateTime? dt) {
@@ -86,5 +100,6 @@ class GoodreadsExportService {
     return rows.map((r) => r.map(_quote).join(',')).join('\r\n');
   }
 
-  String _quote(String v) => (v.contains(',') || v.contains('"') || v.contains('\n')) ? '"${v.replaceAll('"', '""')}"' : v;
+  String _quote(String v) =>
+      (v.contains(',') || v.contains('"') || v.contains('\n')) ? '"${v.replaceAll('"', '""')}"' : v;
 }

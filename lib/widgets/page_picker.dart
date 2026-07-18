@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../l10n/l10n_extension.dart';
+import 'wheel_dial_picker.dart';
 
 /// A wheel-based number picker for selecting page numbers.
 /// Uses multiple dials (thousands, hundreds, tens, units) for ergonomic high-number input.
 class PagePicker extends StatefulWidget {
   final int initialValue;
   final int maxValue;
+  final int minValue;
   final ValueChanged<int> onChanged;
 
   const PagePicker({
@@ -14,6 +14,7 @@ class PagePicker extends StatefulWidget {
     required this.initialValue,
     required this.maxValue,
     required this.onChanged,
+    this.minValue = 0,
   });
 
   @override
@@ -47,7 +48,7 @@ class _PagePickerState extends State<PagePicker> {
 
   /// Breaks down an integer into its component digits based on column count.
   List<int> _toDigits(int value) {
-    final clamped = value.clamp(0, widget.maxValue);
+    final clamped = value.clamp(widget.minValue, widget.maxValue);
     if (_columnCount == 4) {
       return [
         (clamped ~/ 1000) % 10,
@@ -85,118 +86,25 @@ class _PagePickerState extends State<PagePicker> {
   }
 
   void _onDigitChanged(int column, int value) {
-    HapticFeedback.selectionClick();
     setState(() => _digits[column] = value);
-    final result = _toValue().clamp(0, widget.maxValue);
+    final result = _toValue().clamp(widget.minValue, widget.maxValue);
     widget.onChanged(result);
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final labels = _columnCount == 4
         ? ['×1000', '×100', '×10', '×1']
         : ['×100', '×10', '×1'];
 
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Magnitude Labels
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(_columnCount, (i) {
-              return SizedBox(
-                width: 72,
-                child: Center(
-                  child: Text(
-                    labels[i],
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colorScheme.outline,
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 4),
-
-          // Picker Dials
-          SizedBox(
-            height: 180,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Visual selection highlight lines
-                Positioned(
-                  top: 58,
-                  left: 16,
-                  right: 16,
-                  child: Container(
-                    height: 64,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                            color: colorScheme.primary, width: 1.5),
-                        bottom: BorderSide(
-                            color: colorScheme.primary, width: 1.5),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Columns for each digit
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_columnCount, (col) {
-                    return SizedBox(
-                      width: 72,
-                      child: ListWheelScrollView.useDelegate(
-                        controller: _controllers[col],
-                        itemExtent: 64,
-                        perspective: 0.003,
-                        diameterRatio: 1.8,
-                        physics: const FixedExtentScrollPhysics(),
-                        onSelectedItemChanged: (val) =>
-                            _onDigitChanged(col, val),
-                        childDelegate: ListWheelChildBuilderDelegate(
-                          childCount: _maxDigit(col) + 1,
-                          builder: (context, index) {
-                            final isSelected = _digits[col] == index;
-                            return Center(
-                              child: Text(
-                                '$index',
-                                style: TextStyle(
-                                  fontSize: isSelected ? 36 : 24,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color: isSelected
-                                      ? colorScheme.primary
-                                      : colorScheme.onSurface
-                                      .withValues(alpha: 0.4),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            ),
-          ),
-
-          // Real-time calculated value display
-          Text(
-            '${context.l10n.pageProgressShort(_toValue(), widget.maxValue)} ${context.l10n.pagesLabel}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: colorScheme.outline,
-            ),
-          ),
-        ],
-      ),
+    return WheelDialPicker(
+      columnCount: _columnCount,
+      currentDigits: _digits,
+      controllers: _controllers,
+      columnLabels: labels,
+      maxDigitProvider: _maxDigit,
+      digitLabelProvider: (col, index, _) => '$index',
+      onDigitChanged: _onDigitChanged,
     );
   }
 }

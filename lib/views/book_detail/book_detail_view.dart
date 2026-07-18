@@ -8,10 +8,12 @@ import '../../controllers/books_controller.dart';
 import '../../controllers/reading_log_controller.dart';
 import '../../controllers/book_operations_controller.dart';
 import '../book_form/book_form_view.dart';
-import '../../widgets/page_picker.dart';
 import '../../widgets/tag_chip.dart';
 import '../../l10n/l10n_extension.dart';
 import '../shelves/shelf_books_view.dart';
+import '../../widgets/segmented_progress_bar.dart';
+import '../../utils/pagination_helper.dart';
+import '../../widgets/segmented_page_picker.dart';
 
 /// Comprehensive detailed view for a specific book.
 /// Provides access to all metadata, reading progress, and management options (edit/delete).
@@ -69,30 +71,42 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
   }
 
   /// Updates the book's current page and intelligently adjusts reading status and reads count.
-  Future<void> _updatePage(int newPage) async {
+  Future<void> _updatePage(int newPage, [PaginationConfig? newConfig]) async {
     final book = widget.book;
     final oldPage = book.currentPage ?? 0;
     final total = book.totalPages ?? 0;
     final oldStatus = book.status;
     
     ReadingStatus newStatus = oldStatus;
-    int newReads = book.reads;
     DateTime? newFinishedAt = book.finishedAt;
     DateTime? newStartedAt = book.startedAt;
-    final sessions = Map<int, int>.from(book.readingSessions);
+    
+    // 1. Use the new config (which contains the independent session data)
+    final PaginationConfig activeConfig = newConfig ?? (book.paginationConfig ?? PaginationConfig());
 
+    // 2. Calculate the global 'reads' count based on the new segments state
+    // We consider a global 'read' completed only if all segments are finished in their session 1
+    bool allSegmentsFinished = true;
+    if (activeConfig.segments.isNotEmpty) {
+      for (final s in activeConfig.segments) {
+        final progress = s.sessions[1] ?? 0;
+        final segmentTotal = s.endPhysical - s.startPhysical + 1;
+        if (progress < segmentTotal) {
+          allSegmentsFinished = false;
+          break;
+        }
+      }
+    }
+
+    int newReads = book.reads;
     if (newPage == 0) {
       newStatus = ReadingStatus.wantToRead;
       newFinishedAt = null;
-      if (sessions.containsKey(newReads + 1)) sessions[newReads + 1] = 0;
-    } else if (total > 0 && newPage >= total) {
+    } else if (total > 0 && newPage >= total && allSegmentsFinished) {
       if (oldStatus != ReadingStatus.read) {
         newReads++;
         newStatus = ReadingStatus.read;
         newFinishedAt = DateTime.now();
-        sessions[newReads] = total;
-      } else {
-        sessions[newReads] = total;
       }
     } else {
       if (oldStatus == ReadingStatus.read) {
@@ -104,17 +118,17 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           newStartedAt ??= DateTime.now();
         }
       }
-      sessions[newReads + 1] = newPage;
     }
 
     final updated = book.copyWith(
       currentPage: Value(newPage),
       status: newStatus,
       reads: newReads,
-      readingSessions: sessions,
+      paginationConfig: Value(activeConfig),
       finishedAt: Value(newFinishedAt),
       startedAt: Value(newStartedAt),
     );
+
     await ref.read(databaseProvider).bookDao.updateBook(updated);
 
     if (newPage > oldPage) {
@@ -137,11 +151,26 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     // 3. Prepare next session
     sessions[newReads + 1] = 1;
 
+    // 4. Synchronize Advanced Pagination Config if exists
+    PaginationConfig? newConfig = book.paginationConfig;
+    if (newConfig != null && newConfig.segments.isNotEmpty) {
+      final newSegments = newConfig.segments.asMap().entries.map((e) {
+        final idx = e.key;
+        final s = e.value;
+        final updatedSess = Map<int, int>.from(s.sessions);
+        // Reset to first page of first segment, 0 for others
+        updatedSess[1] = (idx == 0) ? 1 : 0;
+        return s.copyWith(sessions: updatedSess);
+      }).toList();
+      newConfig = newConfig.copyWith(segments: newSegments);
+    }
+
     final updated = book.copyWith(
       reads: newReads,
       currentPage: const Value(1),
       status: ReadingStatus.reading,
       readingSessions: sessions,
+      paginationConfig: Value(newConfig),
       finishedAt: const Value(null),
     );
     await ref.read(databaseProvider).bookDao.updateBook(updated);
@@ -160,39 +189,72 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       // If we still have completed reads, go back to the previous one
       if (book.reads > 0) {
         final newReads = book.reads - 1;
+        
+        // Restore segments to fully read state
+        PaginationConfig? newConfig = book.paginationConfig;
+        if (newConfig != null && newConfig.segments.isNotEmpty) {
+          final newSegments = newConfig.segments.map((s) {
+            final updatedSess = Map<int, int>.from(s.sessions);
+            updatedSess[1] = s.endPhysical - s.startPhysical + 1;
+            return s.copyWith(sessions: updatedSess);
+          }).toList();
+          newConfig = newConfig.copyWith(segments: newSegments);
+        }
+
         final updated = book.copyWith(
           reads: newReads,
           currentPage: Value(book.totalPages),
           status: ReadingStatus.read,
           readingSessions: sessions,
+          paginationConfig: Value(newConfig),
         );
         await ref.read(databaseProvider).bookDao.updateBook(updated);
       } else {
         // We were on the first read at page 1, reset to 'Want to Read'
+        PaginationConfig? newConfig = book.paginationConfig;
+        if (newConfig != null && newConfig.segments.isNotEmpty) {
+          final newSegments = newConfig.segments.map((s) {
+            final updatedSess = Map<int, int>.from(s.sessions);
+            updatedSess[1] = 0;
+            return s.copyWith(sessions: updatedSess);
+          }).toList();
+          newConfig = newConfig.copyWith(segments: newSegments);
+        }
+
         final updated = book.copyWith(
           currentPage: const Value(0),
           status: ReadingStatus.wantToRead,
           readingSessions: sessions,
+          paginationConfig: Value(newConfig),
         );
         await ref.read(databaseProvider).bookDao.updateBook(updated);
       }
       return;
     }
 
-    // Normal decrement (when > 1 page): just go back to finished state of previous or remove current if it was finished?
-    // User specified: "If -1 is pressed and pages is 1, delete entry". 
-    // Otherwise, we just revert the completed read.
-    
+    // Normal decrement (when > 1 page): revert current session back to total of previous
     if (book.reads > 0) {
       sessions.remove(book.reads + 1);
       final newReads = book.reads - 1;
       sessions[newReads + 1] = book.totalPages ?? 0;
+
+      // Restore segments to fully read state
+      PaginationConfig? newConfig = book.paginationConfig;
+      if (newConfig != null && newConfig.segments.isNotEmpty) {
+        final newSegments = newConfig.segments.map((s) {
+          final updatedSess = Map<int, int>.from(s.sessions);
+          updatedSess[1] = s.endPhysical - s.startPhysical + 1;
+          return s.copyWith(sessions: updatedSess);
+        }).toList();
+        newConfig = newConfig.copyWith(segments: newSegments);
+      }
 
       final updated = book.copyWith(
         reads: newReads,
         currentPage: Value(book.totalPages),
         status: ReadingStatus.read,
         readingSessions: sessions,
+        paginationConfig: Value(newConfig),
       );
       await ref.read(databaseProvider).bookDao.updateBook(updated);
     }
@@ -220,47 +282,26 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     await ref.read(databaseProvider).bookDao.updateBook(updated);
   }
 
-  /// Opens the ergonomic wheel-based page picker.
   void _showPagePicker(BuildContext context) {
     final book = widget.book;
     if (book.totalPages == null) return;
-    int selectedPage = book.currentPage ?? 0;
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.l10n.bookDetailPagePickerTitle,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 12),
-                PagePicker(
-                  initialValue: selectedPage,
-                  maxValue: book.totalPages!,
-                  onChanged: (val) => selectedPage = val,
-                ),
-                const SizedBox(height: 12),
-                FilledButton(
-                  onPressed: () async {
-                    await _updatePage(selectedPage);
-                    if (ctx.mounted) Navigator.pop(ctx);
-                  },
-                  child: Text(context.l10n.save),
-                ),
-              ],
-            ),
-          ),
+      builder: (ctx) => Container(
+        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: SegmentedPagePicker(
+          initialPhysicalPage: book.currentPage ?? 0,
+          totalPages: book.totalPages!,
+          config: book.paginationConfig,
+          onSave: (phys, newConfig) async {
+            await _updatePage(phys, newConfig);
+            if (ctx.mounted) Navigator.pop(ctx);
+          },
         ),
       ),
     );
@@ -650,6 +691,26 @@ class _MainTab extends StatelessWidget {
     }
   }
 
+  String _getMultiBlockProgress(Book book) {
+    if (book.paginationConfig == null || book.paginationConfig!.segments.isEmpty) {
+      return '';
+    }
+    
+    return book.paginationConfig!.segments.map((s) {
+      final endVisual = PaginationHelper.getVisualPageInSegment(s.endPhysical, s);
+      
+      // Use the segment's independent session progress
+      final currentInSegment = s.sessions[1] ?? 0;
+      
+      // Calculate physical page within segment to get visual representation
+      // if currentInSegment is 5, it means 5 pages read, so we are at startPhysical + 4
+      final physForVisual = s.startPhysical + (currentInSegment > 0 ? currentInSegment - 1 : 0);
+      final currentVisualInSegment = PaginationHelper.getVisualPageInSegment(physForVisual, s);
+      
+      return '$currentVisualInSegment/$endVisual';
+    }).join(', ');
+  }
+
   void _showFullDescription(BuildContext context, String description) {
     showDialog(
       context: context,
@@ -824,22 +885,31 @@ class _MainTab extends StatelessWidget {
               const SizedBox(height: 4),
               if (book.totalPages != null) ...[
                 const SizedBox(height: 8),
+                SegmentedProgressBar(
+                  currentPage: book.currentPage ?? 0,
+                  totalPages: book.totalPages!,
+                  config: book.paginationConfig,
+                ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Expanded(
-                      child: LinearProgressIndicator(
-                        value: ((book.currentPage ?? 0) / book.totalPages!)
-                            .clamp(0.0, 1.0),
-                        borderRadius: BorderRadius.circular(4),
-                        minHeight: 6,
+                      child: Text(
+                        _getMultiBlockProgress(book),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                          fontSize: 11,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          context.l10n.pageProgressShort(book.currentPage ?? 0, book.totalPages!),
+                          'Pág. ${book.currentPage ?? 0} / ${book.totalPages ?? 0}',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -857,6 +927,23 @@ class _MainTab extends StatelessWidget {
                 ),
               ] else
                 Text('—', style: Theme.of(context).textTheme.bodyLarge),
+              
+              if (book.paginationConfig != null && book.paginationConfig!.markers.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                ExpansionTile(
+                  title: Text(context.l10n.paginationMarkersAndIndices, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.outline, fontWeight: FontWeight.bold)),
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                  children: book.paginationConfig!.markers.map((m) => ListTile(
+                    leading: Icon(Icons.location_on_outlined, size: 16, color: m.color != null ? Color(int.parse('0xFF${m.color}')) : null),
+                    title: Text(m.label, style: const TextStyle(fontSize: 13)),
+                    trailing: Text('${context.l10n.fieldCurrentPage.substring(0, 1).toUpperCase()}${context.l10n.fieldCurrentPage.substring(1).toLowerCase()}. ${PaginationHelper.getVisualPage(m.physicalPage, book.paginationConfig)}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    visualDensity: VisualDensity.compact,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  )).toList(),
+                ),
+              ],
             ],
           ),
         ),
@@ -1298,8 +1385,7 @@ class _StepControl extends StatelessWidget {
 class _ReadOnlyField extends StatelessWidget {
   final String label;
   final String value;
-  final IconData? icon;
-  const _ReadOnlyField({required this.label, required this.value, this.icon});
+  const _ReadOnlyField({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -1315,17 +1401,9 @@ class _ReadOnlyField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 16, color: Theme.of(context).colorScheme.outline),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              value,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ],
+        Text(
+          value,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],
     );

@@ -1382,6 +1382,134 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionRequired => 'Permission required';
 
   @override
+  String get paginationMarkersAndIndices => 'Markers & Indices';
+
+  @override
+  String get paginationSaveProgress => 'Save Progress';
+
+  @override
+  String get paginationAllPagesAssigned =>
+      'All pages have already been assigned.';
+
+  @override
+  String get paginationChooseColor => 'Choose color';
+
+  @override
+  String paginationSegmentRequired(Object index) {
+    return 'Segment $index: All page fields are required.';
+  }
+
+  @override
+  String paginationSegmentStartGreater(Object index) {
+    return 'Segment $index: Start cannot be greater than end.';
+  }
+
+  @override
+  String paginationSegmentExceedsTotal(Object index, Object total) {
+    return 'Segment $index: Values exceed total pages ($total).';
+  }
+
+  @override
+  String get paginationAdvancedConfig => 'Advanced Configuration';
+
+  @override
+  String get paginationBlocksSegments => 'BLOCKS / SEGMENTS';
+
+  @override
+  String get paginationNoSegmentsDefined =>
+      'No segments defined. Defaulting to 1-N range.';
+
+  @override
+  String get paginationAddBlock => 'Add block';
+
+  @override
+  String get paginationAllPagesAssignedNote =>
+      'Note: You have already assigned all available pages.';
+
+  @override
+  String paginationPagesRemainingWarning(Object count) {
+    return 'Warning: $count physical pages remain unassigned.';
+  }
+
+  @override
+  String get paginationCorrectErrors => 'PLEASE CORRECT THE FOLLOWING ERRORS:';
+
+  @override
+  String get paginationMarkersLabels => 'MARKERS / LABELS';
+
+  @override
+  String get paginationMarkerDefaultName => 'Marker';
+
+  @override
+  String get paginationSegmentsDefaultName => 'Segment';
+
+  @override
+  String get paginationAddMarker => 'Add marker';
+
+  @override
+  String get paginationLabelOptional => 'Label (optional)';
+
+  @override
+  String get paginationType => 'Type:';
+
+  @override
+  String get paginationArabic => 'Arabic';
+
+  @override
+  String get paginationRoman => 'Roman';
+
+  @override
+  String get paginationOffset => 'Offset';
+
+  @override
+  String get paginationMarkerLabel => 'Marker label';
+
+  @override
+  String get paginationVisualPage => 'Visual Page';
+
+  @override
+  String get paginationVisualPageHint => 'e.g., xiv or 501';
+
+  @override
+  String paginationPhysicalLabel(Object page) {
+    return 'Physical: $page';
+  }
+
+  @override
+  String get paginationAdjustsAutomatically => 'Adjusts automatically';
+
+  @override
+  String get paginationVisualMode => 'Visual mode';
+
+  @override
+  String paginationEquivalentPhysical(Object end, Object start) {
+    return 'Equivalent to physical: $start - $end';
+  }
+
+  @override
+  String paginationSectionLabel(Object index) {
+    return 'Section $index';
+  }
+
+  @override
+  String get paginationStartPhysical => 'Start (Physical)';
+
+  @override
+  String get paginationEndPhysical => 'End (Physical)';
+
+  @override
+  String get paginationStartVisual => 'Start (Visual)';
+
+  @override
+  String get paginationEndVisual => 'End (Visual)';
+
+  @override
+  String get paginationAdvancedButton => 'Advanced';
+
+  @override
+  String get unknownAuthor => 'Unknown';
+
+  @override
   String get storagePermissionExplanation =>
       'To select a cover you need to grant storage access. You can do this from the application settings.';
 

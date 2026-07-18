@@ -640,6 +640,15 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     requiredDuringInsert: false,
     defaultValue: const Constant('{}'),
   ).withConverter<Map<int, int>>($BooksTable.$converterreadingSessions);
+  @override
+  late final GeneratedColumnWithTypeConverter<PaginationConfig?, String>
+  paginationConfig = GeneratedColumn<String>(
+    'pagination_config',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<PaginationConfig?>($BooksTable.$converterpaginationConfign);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -681,6 +690,7 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     reads,
     copies,
     readingSessions,
+    paginationConfig,
     createdAt,
   ];
   @override
@@ -987,6 +997,12 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
           data['${effectivePrefix}reading_sessions'],
         )!,
       ),
+      paginationConfig: $BooksTable.$converterpaginationConfign.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}pagination_config'],
+        ),
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1005,6 +1021,10 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
       const BookFormatConverter();
   static TypeConverter<Map<int, int>, String> $converterreadingSessions =
       const ReadingSessionsConverter();
+  static TypeConverter<PaginationConfig, String> $converterpaginationConfig =
+      const PaginationConfigConverter();
+  static TypeConverter<PaginationConfig?, String?> $converterpaginationConfign =
+      NullAwareTypeConverter.wrap($converterpaginationConfig);
 }
 
 class Book extends DataClass implements Insertable<Book> {
@@ -1035,6 +1055,7 @@ class Book extends DataClass implements Insertable<Book> {
   final int reads;
   final int copies;
   final Map<int, int> readingSessions;
+  final PaginationConfig? paginationConfig;
   final DateTime createdAt;
   const Book({
     required this.id,
@@ -1064,6 +1085,7 @@ class Book extends DataClass implements Insertable<Book> {
     required this.reads,
     required this.copies,
     required this.readingSessions,
+    this.paginationConfig,
     required this.createdAt,
   });
   @override
@@ -1146,6 +1168,11 @@ class Book extends DataClass implements Insertable<Book> {
         $BooksTable.$converterreadingSessions.toSql(readingSessions),
       );
     }
+    if (!nullToAbsent || paginationConfig != null) {
+      map['pagination_config'] = Variable<String>(
+        $BooksTable.$converterpaginationConfign.toSql(paginationConfig),
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -1217,6 +1244,9 @@ class Book extends DataClass implements Insertable<Book> {
       reads: Value(reads),
       copies: Value(copies),
       readingSessions: Value(readingSessions),
+      paginationConfig: paginationConfig == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paginationConfig),
       createdAt: Value(createdAt),
     );
   }
@@ -1258,6 +1288,9 @@ class Book extends DataClass implements Insertable<Book> {
       readingSessions: serializer.fromJson<Map<int, int>>(
         json['readingSessions'],
       ),
+      paginationConfig: serializer.fromJson<PaginationConfig?>(
+        json['paginationConfig'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -1294,6 +1327,9 @@ class Book extends DataClass implements Insertable<Book> {
       'reads': serializer.toJson<int>(reads),
       'copies': serializer.toJson<int>(copies),
       'readingSessions': serializer.toJson<Map<int, int>>(readingSessions),
+      'paginationConfig': serializer.toJson<PaginationConfig?>(
+        paginationConfig,
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -1326,6 +1362,7 @@ class Book extends DataClass implements Insertable<Book> {
     int? reads,
     int? copies,
     Map<int, int>? readingSessions,
+    Value<PaginationConfig?> paginationConfig = const Value.absent(),
     DateTime? createdAt,
   }) => Book(
     id: id ?? this.id,
@@ -1359,6 +1396,9 @@ class Book extends DataClass implements Insertable<Book> {
     reads: reads ?? this.reads,
     copies: copies ?? this.copies,
     readingSessions: readingSessions ?? this.readingSessions,
+    paginationConfig: paginationConfig.present
+        ? paginationConfig.value
+        : this.paginationConfig,
     createdAt: createdAt ?? this.createdAt,
   );
   Book copyWithCompanion(BooksCompanion data) {
@@ -1412,6 +1452,9 @@ class Book extends DataClass implements Insertable<Book> {
       readingSessions: data.readingSessions.present
           ? data.readingSessions.value
           : this.readingSessions,
+      paginationConfig: data.paginationConfig.present
+          ? data.paginationConfig.value
+          : this.paginationConfig,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -1446,6 +1489,7 @@ class Book extends DataClass implements Insertable<Book> {
           ..write('reads: $reads, ')
           ..write('copies: $copies, ')
           ..write('readingSessions: $readingSessions, ')
+          ..write('paginationConfig: $paginationConfig, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1480,6 +1524,7 @@ class Book extends DataClass implements Insertable<Book> {
     reads,
     copies,
     readingSessions,
+    paginationConfig,
     createdAt,
   ]);
   @override
@@ -1513,6 +1558,7 @@ class Book extends DataClass implements Insertable<Book> {
           other.reads == this.reads &&
           other.copies == this.copies &&
           other.readingSessions == this.readingSessions &&
+          other.paginationConfig == this.paginationConfig &&
           other.createdAt == this.createdAt);
 }
 
@@ -1544,6 +1590,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
   final Value<int> reads;
   final Value<int> copies;
   final Value<Map<int, int>> readingSessions;
+  final Value<PaginationConfig?> paginationConfig;
   final Value<DateTime> createdAt;
   const BooksCompanion({
     this.id = const Value.absent(),
@@ -1573,6 +1620,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.reads = const Value.absent(),
     this.copies = const Value.absent(),
     this.readingSessions = const Value.absent(),
+    this.paginationConfig = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   BooksCompanion.insert({
@@ -1603,6 +1651,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.reads = const Value.absent(),
     this.copies = const Value.absent(),
     this.readingSessions = const Value.absent(),
+    this.paginationConfig = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : title = Value(title),
        author = Value(author),
@@ -1635,6 +1684,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Expression<int>? reads,
     Expression<int>? copies,
     Expression<String>? readingSessions,
+    Expression<String>? paginationConfig,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -1665,6 +1715,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
       if (reads != null) 'reads': reads,
       if (copies != null) 'copies': copies,
       if (readingSessions != null) 'reading_sessions': readingSessions,
+      if (paginationConfig != null) 'pagination_config': paginationConfig,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -1697,6 +1748,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Value<int>? reads,
     Value<int>? copies,
     Value<Map<int, int>>? readingSessions,
+    Value<PaginationConfig?>? paginationConfig,
     Value<DateTime>? createdAt,
   }) {
     return BooksCompanion(
@@ -1727,6 +1779,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
       reads: reads ?? this.reads,
       copies: copies ?? this.copies,
       readingSessions: readingSessions ?? this.readingSessions,
+      paginationConfig: paginationConfig ?? this.paginationConfig,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -1821,6 +1874,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
         $BooksTable.$converterreadingSessions.toSql(readingSessions.value),
       );
     }
+    if (paginationConfig.present) {
+      map['pagination_config'] = Variable<String>(
+        $BooksTable.$converterpaginationConfign.toSql(paginationConfig.value),
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1857,6 +1915,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
           ..write('reads: $reads, ')
           ..write('copies: $copies, ')
           ..write('readingSessions: $readingSessions, ')
+          ..write('paginationConfig: $paginationConfig, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -4686,6 +4745,7 @@ typedef $$BooksTableCreateCompanionBuilder =
       Value<int> reads,
       Value<int> copies,
       Value<Map<int, int>> readingSessions,
+      Value<PaginationConfig?> paginationConfig,
       Value<DateTime> createdAt,
     });
 typedef $$BooksTableUpdateCompanionBuilder =
@@ -4717,6 +4777,7 @@ typedef $$BooksTableUpdateCompanionBuilder =
       Value<int> reads,
       Value<int> copies,
       Value<Map<int, int>> readingSessions,
+      Value<PaginationConfig?> paginationConfig,
       Value<DateTime> createdAt,
     });
 
@@ -4929,6 +4990,12 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
   ColumnWithTypeConverterFilters<Map<int, int>, Map<int, int>, String>
   get readingSessions => $composableBuilder(
     column: $table.readingSessions,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PaginationConfig?, PaginationConfig, String>
+  get paginationConfig => $composableBuilder(
+    column: $table.paginationConfig,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -5168,6 +5235,11 @@ class $$BooksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get paginationConfig => $composableBuilder(
+    column: $table.paginationConfig,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5325,6 +5397,12 @@ class $$BooksTableAnnotationComposer
         column: $table.readingSessions,
         builder: (column) => column,
       );
+
+  GeneratedColumnWithTypeConverter<PaginationConfig?, String>
+  get paginationConfig => $composableBuilder(
+    column: $table.paginationConfig,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5486,6 +5564,8 @@ class $$BooksTableTableManager
                 Value<int> reads = const Value.absent(),
                 Value<int> copies = const Value.absent(),
                 Value<Map<int, int>> readingSessions = const Value.absent(),
+                Value<PaginationConfig?> paginationConfig =
+                    const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => BooksCompanion(
                 id: id,
@@ -5515,6 +5595,7 @@ class $$BooksTableTableManager
                 reads: reads,
                 copies: copies,
                 readingSessions: readingSessions,
+                paginationConfig: paginationConfig,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -5546,6 +5627,8 @@ class $$BooksTableTableManager
                 Value<int> reads = const Value.absent(),
                 Value<int> copies = const Value.absent(),
                 Value<Map<int, int>> readingSessions = const Value.absent(),
+                Value<PaginationConfig?> paginationConfig =
+                    const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => BooksCompanion.insert(
                 id: id,
@@ -5575,6 +5658,7 @@ class $$BooksTableTableManager
                 reads: reads,
                 copies: copies,
                 readingSessions: readingSessions,
+                paginationConfig: paginationConfig,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
