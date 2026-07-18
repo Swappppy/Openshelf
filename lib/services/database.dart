@@ -44,7 +44,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -135,6 +135,37 @@ class AppDatabase extends _$AppDatabase {
               bookId: row.read<int>('book_id'),
               tagId: row.read<int>('tag_id'),
             ));
+          }
+        });
+      }
+      if (from < 17) {
+        await m.addColumn(books, books.reads as GeneratedColumn);
+        await m.addColumn(books, books.copies as GeneratedColumn);
+        await transaction(() async {
+          await (update(books)
+                ..where((b) => b.status.equalsValue(ReadingStatus.read)))
+              .write(const BooksCompanion(reads: Value(1)));
+        });
+      }
+      if (from < 18) {
+        await m.addColumn(books, books.readingSessions);
+        await transaction(() async {
+          final allBooks = await select(books).get();
+          for (final b in allBooks) {
+            final sessions = <int, int>{};
+            if (b.reads > 0) {
+              for (int i = 1; i <= b.reads; i++) {
+                sessions[i] = b.totalPages ?? 0;
+              }
+            }
+            // If currently reading (and not marked as read yet in sessions)
+            if (b.status != ReadingStatus.read && (b.currentPage ?? 0) > 0) {
+              sessions[b.reads + 1] = b.currentPage!;
+            }
+            
+            await (update(books)..where((book) => book.id.equals(b.id))).write(
+              BooksCompanion(readingSessions: Value(sessions))
+            );
           }
         });
       }

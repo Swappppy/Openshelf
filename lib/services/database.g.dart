@@ -610,6 +610,36 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _readsMeta = const VerificationMeta('reads');
+  @override
+  late final GeneratedColumn<int> reads = GeneratedColumn<int>(
+    'reads',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _copiesMeta = const VerificationMeta('copies');
+  @override
+  late final GeneratedColumn<int> copies = GeneratedColumn<int>(
+    'copies',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<Map<int, int>, String>
+  readingSessions = GeneratedColumn<String>(
+    'reading_sessions',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  ).withConverter<Map<int, int>>($BooksTable.$converterreadingSessions);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -648,6 +678,9 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     imprintId,
     startedAt,
     finishedAt,
+    reads,
+    copies,
+    readingSessions,
     createdAt,
   ];
   @override
@@ -813,6 +846,18 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         finishedAt.isAcceptableOrUnknown(data['finished_at']!, _finishedAtMeta),
       );
     }
+    if (data.containsKey('reads')) {
+      context.handle(
+        _readsMeta,
+        reads.isAcceptableOrUnknown(data['reads']!, _readsMeta),
+      );
+    }
+    if (data.containsKey('copies')) {
+      context.handle(
+        _copiesMeta,
+        copies.isAcceptableOrUnknown(data['copies']!, _copiesMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -928,6 +973,20 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}finished_at'],
       ),
+      reads: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reads'],
+      )!,
+      copies: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}copies'],
+      )!,
+      readingSessions: $BooksTable.$converterreadingSessions.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}reading_sessions'],
+        )!,
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -944,6 +1003,8 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
       const EnumNameConverter<ReadingStatus>(ReadingStatus.values);
   static TypeConverter<BookFormat?, String?> $converterbookFormat =
       const BookFormatConverter();
+  static TypeConverter<Map<int, int>, String> $converterreadingSessions =
+      const ReadingSessionsConverter();
 }
 
 class Book extends DataClass implements Insertable<Book> {
@@ -971,6 +1032,9 @@ class Book extends DataClass implements Insertable<Book> {
   final int? imprintId;
   final DateTime? startedAt;
   final DateTime? finishedAt;
+  final int reads;
+  final int copies;
+  final Map<int, int> readingSessions;
   final DateTime createdAt;
   const Book({
     required this.id,
@@ -997,6 +1061,9 @@ class Book extends DataClass implements Insertable<Book> {
     this.imprintId,
     this.startedAt,
     this.finishedAt,
+    required this.reads,
+    required this.copies,
+    required this.readingSessions,
     required this.createdAt,
   });
   @override
@@ -1072,6 +1139,13 @@ class Book extends DataClass implements Insertable<Book> {
     if (!nullToAbsent || finishedAt != null) {
       map['finished_at'] = Variable<DateTime>(finishedAt);
     }
+    map['reads'] = Variable<int>(reads);
+    map['copies'] = Variable<int>(copies);
+    {
+      map['reading_sessions'] = Variable<String>(
+        $BooksTable.$converterreadingSessions.toSql(readingSessions),
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -1140,6 +1214,9 @@ class Book extends DataClass implements Insertable<Book> {
       finishedAt: finishedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(finishedAt),
+      reads: Value(reads),
+      copies: Value(copies),
+      readingSessions: Value(readingSessions),
       createdAt: Value(createdAt),
     );
   }
@@ -1176,6 +1253,11 @@ class Book extends DataClass implements Insertable<Book> {
       imprintId: serializer.fromJson<int?>(json['imprintId']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
       finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      reads: serializer.fromJson<int>(json['reads']),
+      copies: serializer.fromJson<int>(json['copies']),
+      readingSessions: serializer.fromJson<Map<int, int>>(
+        json['readingSessions'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -1209,6 +1291,9 @@ class Book extends DataClass implements Insertable<Book> {
       'imprintId': serializer.toJson<int?>(imprintId),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
       'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'reads': serializer.toJson<int>(reads),
+      'copies': serializer.toJson<int>(copies),
+      'readingSessions': serializer.toJson<Map<int, int>>(readingSessions),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -1238,6 +1323,9 @@ class Book extends DataClass implements Insertable<Book> {
     Value<int?> imprintId = const Value.absent(),
     Value<DateTime?> startedAt = const Value.absent(),
     Value<DateTime?> finishedAt = const Value.absent(),
+    int? reads,
+    int? copies,
+    Map<int, int>? readingSessions,
     DateTime? createdAt,
   }) => Book(
     id: id ?? this.id,
@@ -1268,6 +1356,9 @@ class Book extends DataClass implements Insertable<Book> {
     imprintId: imprintId.present ? imprintId.value : this.imprintId,
     startedAt: startedAt.present ? startedAt.value : this.startedAt,
     finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+    reads: reads ?? this.reads,
+    copies: copies ?? this.copies,
+    readingSessions: readingSessions ?? this.readingSessions,
     createdAt: createdAt ?? this.createdAt,
   );
   Book copyWithCompanion(BooksCompanion data) {
@@ -1316,6 +1407,11 @@ class Book extends DataClass implements Insertable<Book> {
       finishedAt: data.finishedAt.present
           ? data.finishedAt.value
           : this.finishedAt,
+      reads: data.reads.present ? data.reads.value : this.reads,
+      copies: data.copies.present ? data.copies.value : this.copies,
+      readingSessions: data.readingSessions.present
+          ? data.readingSessions.value
+          : this.readingSessions,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -1347,6 +1443,9 @@ class Book extends DataClass implements Insertable<Book> {
           ..write('imprintId: $imprintId, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
+          ..write('reads: $reads, ')
+          ..write('copies: $copies, ')
+          ..write('readingSessions: $readingSessions, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1378,6 +1477,9 @@ class Book extends DataClass implements Insertable<Book> {
     imprintId,
     startedAt,
     finishedAt,
+    reads,
+    copies,
+    readingSessions,
     createdAt,
   ]);
   @override
@@ -1408,6 +1510,9 @@ class Book extends DataClass implements Insertable<Book> {
           other.imprintId == this.imprintId &&
           other.startedAt == this.startedAt &&
           other.finishedAt == this.finishedAt &&
+          other.reads == this.reads &&
+          other.copies == this.copies &&
+          other.readingSessions == this.readingSessions &&
           other.createdAt == this.createdAt);
 }
 
@@ -1436,6 +1541,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
   final Value<int?> imprintId;
   final Value<DateTime?> startedAt;
   final Value<DateTime?> finishedAt;
+  final Value<int> reads;
+  final Value<int> copies;
+  final Value<Map<int, int>> readingSessions;
   final Value<DateTime> createdAt;
   const BooksCompanion({
     this.id = const Value.absent(),
@@ -1462,6 +1570,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.imprintId = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
+    this.reads = const Value.absent(),
+    this.copies = const Value.absent(),
+    this.readingSessions = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   BooksCompanion.insert({
@@ -1489,6 +1600,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.imprintId = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
+    this.reads = const Value.absent(),
+    this.copies = const Value.absent(),
+    this.readingSessions = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : title = Value(title),
        author = Value(author),
@@ -1518,6 +1632,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Expression<int>? imprintId,
     Expression<DateTime>? startedAt,
     Expression<DateTime>? finishedAt,
+    Expression<int>? reads,
+    Expression<int>? copies,
+    Expression<String>? readingSessions,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -1545,6 +1662,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
       if (imprintId != null) 'imprint_id': imprintId,
       if (startedAt != null) 'started_at': startedAt,
       if (finishedAt != null) 'finished_at': finishedAt,
+      if (reads != null) 'reads': reads,
+      if (copies != null) 'copies': copies,
+      if (readingSessions != null) 'reading_sessions': readingSessions,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -1574,6 +1694,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Value<int?>? imprintId,
     Value<DateTime?>? startedAt,
     Value<DateTime?>? finishedAt,
+    Value<int>? reads,
+    Value<int>? copies,
+    Value<Map<int, int>>? readingSessions,
     Value<DateTime>? createdAt,
   }) {
     return BooksCompanion(
@@ -1601,6 +1724,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
       imprintId: imprintId ?? this.imprintId,
       startedAt: startedAt ?? this.startedAt,
       finishedAt: finishedAt ?? this.finishedAt,
+      reads: reads ?? this.reads,
+      copies: copies ?? this.copies,
+      readingSessions: readingSessions ?? this.readingSessions,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -1684,6 +1810,17 @@ class BooksCompanion extends UpdateCompanion<Book> {
     if (finishedAt.present) {
       map['finished_at'] = Variable<DateTime>(finishedAt.value);
     }
+    if (reads.present) {
+      map['reads'] = Variable<int>(reads.value);
+    }
+    if (copies.present) {
+      map['copies'] = Variable<int>(copies.value);
+    }
+    if (readingSessions.present) {
+      map['reading_sessions'] = Variable<String>(
+        $BooksTable.$converterreadingSessions.toSql(readingSessions.value),
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1717,6 +1854,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
           ..write('imprintId: $imprintId, ')
           ..write('startedAt: $startedAt, ')
           ..write('finishedAt: $finishedAt, ')
+          ..write('reads: $reads, ')
+          ..write('copies: $copies, ')
+          ..write('readingSessions: $readingSessions, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -4070,7 +4210,7 @@ final class $$TagsTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.bookTags,
-    aliasName: $_aliasNameGenerator(db.tags.id, db.bookTags.tagId),
+    aliasName: 'tags__id__book_tags__tag_id',
   );
 
   $$BookTagsTableProcessedTableManager get bookTagsRefs {
@@ -4088,7 +4228,7 @@ final class $$TagsTableReferences
   static MultiTypedResultKey<$ShelfTagsTable, List<ShelfTag>>
   _shelfTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.shelfTags,
-    aliasName: $_aliasNameGenerator(db.tags.id, db.shelfTags.tagId),
+    aliasName: 'tags__id__shelf_tags__tag_id',
   );
 
   $$ShelfTagsTableProcessedTableManager get shelfTagsRefs {
@@ -4106,7 +4246,7 @@ final class $$TagsTableReferences
   static MultiTypedResultKey<$ReadingGoalsTable, List<ReadingGoal>>
   _readingGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.readingGoals,
-    aliasName: $_aliasNameGenerator(db.tags.id, db.readingGoals.collectionId),
+    aliasName: 'tags__id__reading_goals__collection_id',
   );
 
   $$ReadingGoalsTableProcessedTableManager get readingGoalsRefs {
@@ -4543,6 +4683,9 @@ typedef $$BooksTableCreateCompanionBuilder =
       Value<int?> imprintId,
       Value<DateTime?> startedAt,
       Value<DateTime?> finishedAt,
+      Value<int> reads,
+      Value<int> copies,
+      Value<Map<int, int>> readingSessions,
       Value<DateTime> createdAt,
     });
 typedef $$BooksTableUpdateCompanionBuilder =
@@ -4571,6 +4714,9 @@ typedef $$BooksTableUpdateCompanionBuilder =
       Value<int?> imprintId,
       Value<DateTime?> startedAt,
       Value<DateTime?> finishedAt,
+      Value<int> reads,
+      Value<int> copies,
+      Value<Map<int, int>> readingSessions,
       Value<DateTime> createdAt,
     });
 
@@ -4578,9 +4724,8 @@ final class $$BooksTableReferences
     extends BaseReferences<_$AppDatabase, $BooksTable, Book> {
   $$BooksTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $TagsTable _collectionIdTable(_$AppDatabase db) => db.tags.createAlias(
-    $_aliasNameGenerator(db.books.collectionId, db.tags.id),
-  );
+  static $TagsTable _collectionIdTable(_$AppDatabase db) =>
+      db.tags.createAlias('books__collection_id__tags__id');
 
   $$TagsTableProcessedTableManager? get collectionId {
     final $_column = $_itemColumn<int>('collection_id');
@@ -4597,7 +4742,7 @@ final class $$BooksTableReferences
   }
 
   static $TagsTable _imprintIdTable(_$AppDatabase db) =>
-      db.tags.createAlias($_aliasNameGenerator(db.books.imprintId, db.tags.id));
+      db.tags.createAlias('books__imprint_id__tags__id');
 
   $$TagsTableProcessedTableManager? get imprintId {
     final $_column = $_itemColumn<int>('imprint_id');
@@ -4617,7 +4762,7 @@ final class $$BooksTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.bookTags,
-    aliasName: $_aliasNameGenerator(db.books.id, db.bookTags.bookId),
+    aliasName: 'books__id__book_tags__book_id',
   );
 
   $$BookTagsTableProcessedTableManager get bookTagsRefs {
@@ -4635,7 +4780,7 @@ final class $$BooksTableReferences
   static MultiTypedResultKey<$ReadingLogTable, List<ReadingLogData>>
   _readingLogRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.readingLog,
-    aliasName: $_aliasNameGenerator(db.books.id, db.readingLog.bookId),
+    aliasName: 'books__id__reading_log__book_id',
   );
 
   $$ReadingLogTableProcessedTableManager get readingLogRefs {
@@ -4769,6 +4914,22 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
   ColumnFilters<DateTime> get finishedAt => $composableBuilder(
     column: $table.finishedAt,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reads => $composableBuilder(
+    column: $table.reads,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get copies => $composableBuilder(
+    column: $table.copies,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Map<int, int>, Map<int, int>, String>
+  get readingSessions => $composableBuilder(
+    column: $table.readingSessions,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
@@ -4992,6 +5153,21 @@ class $$BooksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get reads => $composableBuilder(
+    column: $table.reads,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get copies => $composableBuilder(
+    column: $table.copies,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get readingSessions => $composableBuilder(
+    column: $table.readingSessions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5137,6 +5313,18 @@ class $$BooksTableAnnotationComposer
     column: $table.finishedAt,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get reads =>
+      $composableBuilder(column: $table.reads, builder: (column) => column);
+
+  GeneratedColumn<int> get copies =>
+      $composableBuilder(column: $table.copies, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<Map<int, int>, String> get readingSessions =>
+      $composableBuilder(
+        column: $table.readingSessions,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5295,6 +5483,9 @@ class $$BooksTableTableManager
                 Value<int?> imprintId = const Value.absent(),
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> finishedAt = const Value.absent(),
+                Value<int> reads = const Value.absent(),
+                Value<int> copies = const Value.absent(),
+                Value<Map<int, int>> readingSessions = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => BooksCompanion(
                 id: id,
@@ -5321,6 +5512,9 @@ class $$BooksTableTableManager
                 imprintId: imprintId,
                 startedAt: startedAt,
                 finishedAt: finishedAt,
+                reads: reads,
+                copies: copies,
+                readingSessions: readingSessions,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -5349,6 +5543,9 @@ class $$BooksTableTableManager
                 Value<int?> imprintId = const Value.absent(),
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> finishedAt = const Value.absent(),
+                Value<int> reads = const Value.absent(),
+                Value<int> copies = const Value.absent(),
+                Value<Map<int, int>> readingSessions = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => BooksCompanion.insert(
                 id: id,
@@ -5375,6 +5572,9 @@ class $$BooksTableTableManager
                 imprintId: imprintId,
                 startedAt: startedAt,
                 finishedAt: finishedAt,
+                reads: reads,
+                copies: copies,
+                readingSessions: readingSessions,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -5525,9 +5725,8 @@ final class $$BookTagsTableReferences
     extends BaseReferences<_$AppDatabase, $BookTagsTable, BookTag> {
   $$BookTagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $BooksTable _bookIdTable(_$AppDatabase db) => db.books.createAlias(
-    $_aliasNameGenerator(db.bookTags.bookId, db.books.id),
-  );
+  static $BooksTable _bookIdTable(_$AppDatabase db) =>
+      db.books.createAlias('book_tags__book_id__books__id');
 
   $$BooksTableProcessedTableManager get bookId {
     final $_column = $_itemColumn<int>('book_id')!;
@@ -5544,7 +5743,7 @@ final class $$BookTagsTableReferences
   }
 
   static $TagsTable _tagIdTable(_$AppDatabase db) =>
-      db.tags.createAlias($_aliasNameGenerator(db.bookTags.tagId, db.tags.id));
+      db.tags.createAlias('book_tags__tag_id__tags__id');
 
   $$TagsTableProcessedTableManager get tagId {
     final $_column = $_itemColumn<int>('tag_id')!;
@@ -5896,7 +6095,7 @@ final class $$ShelvesTableReferences
   static MultiTypedResultKey<$ShelfTagsTable, List<ShelfTag>>
   _shelfTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.shelfTags,
-    aliasName: $_aliasNameGenerator(db.shelves.id, db.shelfTags.shelfId),
+    aliasName: 'shelves__id__shelf_tags__shelf_id',
   );
 
   $$ShelfTagsTableProcessedTableManager get shelfTagsRefs {
@@ -5914,7 +6113,7 @@ final class $$ShelvesTableReferences
   static MultiTypedResultKey<$ReadingGoalsTable, List<ReadingGoal>>
   _readingGoalsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.readingGoals,
-    aliasName: $_aliasNameGenerator(db.shelves.id, db.readingGoals.shelfId),
+    aliasName: 'shelves__id__reading_goals__shelf_id',
   );
 
   $$ReadingGoalsTableProcessedTableManager get readingGoalsRefs {
@@ -6475,8 +6674,8 @@ final class $$ShelfTagsTableReferences
     extends BaseReferences<_$AppDatabase, $ShelfTagsTable, ShelfTag> {
   $$ShelfTagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $ShelvesTable _shelfIdTable(_$AppDatabase db) => db.shelves
-      .createAlias($_aliasNameGenerator(db.shelfTags.shelfId, db.shelves.id));
+  static $ShelvesTable _shelfIdTable(_$AppDatabase db) =>
+      db.shelves.createAlias('shelf_tags__shelf_id__shelves__id');
 
   $$ShelvesTableProcessedTableManager get shelfId {
     final $_column = $_itemColumn<int>('shelf_id')!;
@@ -6493,7 +6692,7 @@ final class $$ShelfTagsTableReferences
   }
 
   static $TagsTable _tagIdTable(_$AppDatabase db) =>
-      db.tags.createAlias($_aliasNameGenerator(db.shelfTags.tagId, db.tags.id));
+      db.tags.createAlias('shelf_tags__tag_id__tags__id');
 
   $$TagsTableProcessedTableManager get tagId {
     final $_column = $_itemColumn<int>('tag_id')!;
@@ -6832,9 +7031,7 @@ final class $$ReadingGoalsTableReferences
   $$ReadingGoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $ShelvesTable _shelfIdTable(_$AppDatabase db) =>
-      db.shelves.createAlias(
-        $_aliasNameGenerator(db.readingGoals.shelfId, db.shelves.id),
-      );
+      db.shelves.createAlias('reading_goals__shelf_id__shelves__id');
 
   $$ShelvesTableProcessedTableManager? get shelfId {
     final $_column = $_itemColumn<int>('shelf_id');
@@ -6850,9 +7047,8 @@ final class $$ReadingGoalsTableReferences
     );
   }
 
-  static $TagsTable _collectionIdTable(_$AppDatabase db) => db.tags.createAlias(
-    $_aliasNameGenerator(db.readingGoals.collectionId, db.tags.id),
-  );
+  static $TagsTable _collectionIdTable(_$AppDatabase db) =>
+      db.tags.createAlias('reading_goals__collection_id__tags__id');
 
   $$TagsTableProcessedTableManager? get collectionId {
     final $_column = $_itemColumn<int>('collection_id');
@@ -6872,10 +7068,7 @@ final class $$ReadingGoalsTableReferences
   _statWidgetConfigsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.statWidgetConfigs,
-        aliasName: $_aliasNameGenerator(
-          db.readingGoals.id,
-          db.statWidgetConfigs.goalId,
-        ),
+        aliasName: 'reading_goals__id__stat_widget_configs__goal_id',
       );
 
   $$StatWidgetConfigsTableProcessedTableManager get statWidgetConfigsRefs {
@@ -7398,9 +7591,8 @@ final class $$ReadingLogTableReferences
     extends BaseReferences<_$AppDatabase, $ReadingLogTable, ReadingLogData> {
   $$ReadingLogTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $BooksTable _bookIdTable(_$AppDatabase db) => db.books.createAlias(
-    $_aliasNameGenerator(db.readingLog.bookId, db.books.id),
-  );
+  static $BooksTable _bookIdTable(_$AppDatabase db) =>
+      db.books.createAlias('reading_log__book_id__books__id');
 
   $$BooksTableProcessedTableManager get bookId {
     final $_column = $_itemColumn<int>('book_id')!;
@@ -7704,10 +7896,8 @@ final class $$StatWidgetConfigsTableReferences
     super.$_typedResult,
   );
 
-  static $ReadingGoalsTable _goalIdTable(_$AppDatabase db) =>
-      db.readingGoals.createAlias(
-        $_aliasNameGenerator(db.statWidgetConfigs.goalId, db.readingGoals.id),
-      );
+  static $ReadingGoalsTable _goalIdTable(_$AppDatabase db) => db.readingGoals
+      .createAlias('stat_widget_configs__goal_id__reading_goals__id');
 
   $$ReadingGoalsTableProcessedTableManager? get goalId {
     final $_column = $_itemColumn<int>('goal_id');

@@ -20,6 +20,7 @@ import 'widgets/last_added_tile.dart';
 import 'widgets/avg_pages_tile.dart';
 import 'widgets/read_list_tile.dart';
 import 'widgets/avg_completion_tile.dart';
+import 'widgets/daily_reading_tile.dart';
 
 class StatsView extends ConsumerStatefulWidget {
   const StatsView({super.key});
@@ -305,7 +306,8 @@ class _StatTile extends ConsumerWidget {
         return [StatWidgetSize.s2x1, StatWidgetSize.s1x2, StatWidgetSize.s1x1];
       case StatWidgetType.avgPages:
       case StatWidgetType.avgCompletionTime:
-        return [StatWidgetSize.s1x1];
+      case StatWidgetType.dailyReading:
+        return [StatWidgetSize.s1x1, StatWidgetSize.s2x1];
     }
   }
 
@@ -325,6 +327,7 @@ class _StatTile extends ConsumerWidget {
       case StatWidgetType.avgPages: return const AvgPagesTile();
       case StatWidgetType.readList: return ReadListTile(config: config, size: size);
       case StatWidgetType.avgCompletionTime: return const AvgCompletionTimeTile();
+      case StatWidgetType.dailyReading: return DailyReadingTile(size: size);
     }
   }
 }
@@ -359,6 +362,7 @@ class _AddWidgetSheet extends ConsumerWidget {
               _buildOption(context, ref, StatWidgetType.avgPages, context.l10n.statsOptAvgPagesTitle, context.l10n.statsOptAvgPagesSub, Icons.analytics, StatWidgetSize.s1x1),
               _buildOption(context, ref, StatWidgetType.readList, context.l10n.statsOptReadListTitle, context.l10n.statsOptReadListSub, Icons.checklist_rtl, StatWidgetSize.s2x2),
               _buildOption(context, ref, StatWidgetType.avgCompletionTime, context.l10n.statsOptAvgCompletionTitle, context.l10n.statsOptAvgCompletionSub, Icons.timer_outlined, StatWidgetSize.s1x1),
+              _buildOption(context, ref, StatWidgetType.dailyReading, context.l10n.statsOptDailyReadingTitle, context.l10n.statsOptDailyReadingSub, Icons.bar_chart, StatWidgetSize.s1x1),
             ],
           ),
         ),

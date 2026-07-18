@@ -49,6 +49,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   late final TextEditingController _collectionNameCtrl;
   late final TextEditingController _collectionNumberCtrl;
   late final TextEditingController _publishYearCtrl;
+  late final TextEditingController _readsCtrl;
+  late final TextEditingController _copiesCtrl;
 
   ReadingStatus _status = ReadingStatus.wantToRead;
   BookFormat? _format;
@@ -88,6 +90,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         TextEditingController(text: b?.collectionNumber?.toString() ?? '');
     _publishYearCtrl = TextEditingController(
         text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
+    _readsCtrl = TextEditingController(text: b?.reads.toString() ?? '0');
+    _copiesCtrl = TextEditingController(text: b?.copies.toString() ?? '1');
         
     _collectionNameCtrl.addListener(() {
       if (mounted) setState(() {});
@@ -111,6 +115,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     
     _currentPageCtrl.addListener(_updateStatusFromPages);
     _totalPagesCtrl.addListener(_updateStatusFromPages);
+    _readsCtrl.addListener(_handleReadsChange);
     
     // End initialization phase in the next frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -137,6 +142,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _publishYearCtrl.dispose();
     _currentPageCtrl.removeListener(_updateStatusFromPages);
     _totalPagesCtrl.removeListener(_updateStatusFromPages);
+    _readsCtrl.removeListener(_handleReadsChange);
+    _readsCtrl.dispose();
+    _copiesCtrl.dispose();
     super.dispose();
   }
 
@@ -169,6 +177,27 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       case ReadingStatus.abandoned:
       case ReadingStatus.paused:
         break;
+    }
+  }
+
+  void _handleReadsChange() {
+    if (_isInitializing) return;
+    final newReads = int.tryParse(_readsCtrl.text) ?? 0;
+    final oldReads = widget.existingBook?.reads ?? 0;
+    final total = int.tryParse(_totalPagesCtrl.text) ?? 0;
+    
+    if (newReads > oldReads) {
+      setState(() {
+        _currentPageCtrl.text = '1';
+        _status = ReadingStatus.reading;
+        _finishedAt = null;
+      });
+    } else if (newReads < oldReads) {
+      setState(() {
+        _currentPageCtrl.text = total.toString();
+        _status = ReadingStatus.read;
+        _finishedAt ??= DateTime.now();
+      });
     }
   }
 
@@ -325,6 +354,31 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     );
   }
 
+  Map<int, int> _calculateUpdatedSessions(int reads, int current, int total) {
+    final Map<int, int> sessions = widget.existingBook != null ? Map<int, int>.from(widget.existingBook!.readingSessions) : {};
+    
+    // Ensure all completed sessions are marked as finished
+    for (int i = 1; i <= reads; i++) {
+      sessions[i] = total;
+    }
+    
+    // If there is an active session (current > 0 and status is not read)
+    if (_status != ReadingStatus.read && current > 0) {
+      sessions[reads + 1] = current;
+    } else if (_status == ReadingStatus.read) {
+       // if we are in read status, ensure the last session is at total
+       sessions[reads] = total;
+       sessions.remove(reads + 1);
+    } else if (current == 0) {
+      sessions.remove(reads + 1);
+    }
+    
+    // Prune sessions above reads+1
+    sessions.removeWhere((key, value) => key > reads + 1);
+    
+    return sessions;
+  }
+
   /// Handles saving the book and all its associations (tags, imprints, collections) to the DB.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) {
@@ -372,6 +426,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final rawImprintId = _selectedImprint?.id;
     final imprintId = (rawImprintId != null && rawImprintId > 0) ? rawImprintId : null;
 
+    final currentReads = int.tryParse(_readsCtrl.text) ?? 0;
     final companion = BooksCompanion(
       title: Value(_titleCtrl.text.trim()),
       subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
@@ -392,6 +447,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       collectionId: Value(collectionId),
       collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
       publishYear: Value(int.tryParse(_publishYearCtrl.text)),
+      reads: Value(currentReads),
+      copies: Value(int.tryParse(_copiesCtrl.text) ?? 1),
+      readingSessions: Value(_calculateUpdatedSessions(currentReads, int.tryParse(_currentPageCtrl.text) ?? 0, int.tryParse(_totalPagesCtrl.text) ?? 0)),
       startedAt: Value(_startedAt),
       finishedAt: Value(_finishedAt),
       imprintId: Value(imprintId),
@@ -467,7 +525,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     }
   }
 
-  /// Automatically updates reading status based on page progress.
   void _updateStatusFromPages() {
     if (_isInitializing) return;
     
@@ -478,20 +535,30 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     // Do not auto-update if status is terminal or paused
     if (_status == ReadingStatus.abandoned || _status == ReadingStatus.paused) return;
 
-    ReadingStatus newStatus;
-    if (current == 0) {
-      newStatus = ReadingStatus.wantToRead;
-    } else if (current >= total) {
-      newStatus = ReadingStatus.read;
-      // Sync current page to total if exceeded
-      if (current > total) {
-        _currentPageCtrl.text = total.toString();
-        _currentPageCtrl.selection = TextSelection.fromPosition(
-          TextPosition(offset: _currentPageCtrl.text.length),
-        );
+    ReadingStatus newStatus = _status;
+    int newReads = int.tryParse(_readsCtrl.text) ?? 0;
+
+    if (current >= total) {
+      if (_status != ReadingStatus.read) {
+        newStatus = ReadingStatus.read;
+        newReads++;
+        _readsCtrl.text = newReads.toString();
+        // Sync current page to total if exceeded
+        if (current > total) {
+          _currentPageCtrl.text = total.toString();
+          _currentPageCtrl.selection = TextSelection.fromPosition(
+            TextPosition(offset: _currentPageCtrl.text.length),
+          );
+        }
       }
-    } else {
-      newStatus = ReadingStatus.reading;
+    } else if (current < total) {
+      if (_status == ReadingStatus.read) {
+        newStatus = ReadingStatus.reading;
+      } else if (current == 0) {
+        newStatus = ReadingStatus.wantToRead;
+      } else {
+        newStatus = ReadingStatus.reading;
+      }
     }
 
     if (newStatus != _status) {
@@ -581,6 +648,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
               onCollectionsChanged: (list) => setState(() => _selectedCollections = list),
               onImprintChanged: (tag) => setState(() => _selectedImprint = tag),
+              readsCtrl: _readsCtrl,
+              copiesCtrl: _copiesCtrl,
             ),
           ],
         ),
@@ -816,6 +885,8 @@ class _DetailsTab extends ConsumerWidget {
   final ValueChanged<DateTime?> onFinishedAtChanged;
   final ValueChanged<List<Tag>> onCollectionsChanged;
   final ValueChanged<Tag?> onImprintChanged;
+  final TextEditingController readsCtrl;
+  final TextEditingController copiesCtrl;
 
   const _DetailsTab({
     required this.notesCtrl,
@@ -833,6 +904,8 @@ class _DetailsTab extends ConsumerWidget {
     required this.onFinishedAtChanged,
     required this.onCollectionsChanged,
     required this.onImprintChanged,
+    required this.readsCtrl,
+    required this.copiesCtrl,
   });
 
   @override
@@ -927,6 +1000,28 @@ class _DetailsTab extends ConsumerWidget {
           value: finishedAt,
           onChanged: onFinishedAtChanged,
           icon: Icons.check_circle_outline,
+        ),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(
+              child: _FormField(
+                controller: readsCtrl,
+                label: context.l10n.fieldReads,
+                icon: Icons.repeat,
+                keyboardType: TextInputType.number,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _FormField(
+                controller: copiesCtrl,
+                label: context.l10n.fieldCopies,
+                icon: Icons.copy,
+                keyboardType: TextInputType.number,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 32),
       ],

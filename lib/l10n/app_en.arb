@@ -238,6 +238,12 @@
   "fieldTranslator": "Translator",
   "@fieldTranslator": { "description": "Translator field label" },
 
+  "fieldReads": "Reads",
+  "@fieldReads": { "description": "Name of the reads field" },
+
+  "fieldCopies": "Copies",
+  "@fieldCopies": { "description": "Name of the copies field" },
+
   "fieldTotalPages": "Total pages",
   "@fieldTotalPages": { "description": "Total pages field" },
 
@@ -1081,6 +1087,7 @@
   "statsReadByYearTitle": "BOOKS READ BY YEAR",
   "statsCollectionsTitle": "COLLECTIONS",
   "statsLastAddedTitle": "LAST ADDED",
+  "statsDailyReadingTitle": "DAILY READING",
   "statsAvgPagesTitle": "AVERAGE PAGES",
   "statsAvgPagesSub": "pages per book",
 
@@ -1114,6 +1121,9 @@
 
   "statsOptAvgCompletionTitle": "Completion time",
   "statsOptAvgCompletionSub": "Average time to finish a book",
+
+  "statsOptDailyReadingTitle": "Daily reading",
+  "statsOptDailyReadingSub": "Pages read per day",
 
   "statsAvgCompletionValue": "{days} days",
   "@statsAvgCompletionValue": {

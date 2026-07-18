@@ -68,32 +68,50 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     super.dispose();
   }
 
-  /// Updates the book's current page and intelligently adjusts reading status.
+  /// Updates the book's current page and intelligently adjusts reading status and reads count.
   Future<void> _updatePage(int newPage) async {
     final book = widget.book;
     final oldPage = book.currentPage ?? 0;
     final total = book.totalPages ?? 0;
-    ReadingStatus newStatus = book.status;
+    final oldStatus = book.status;
+    
+    ReadingStatus newStatus = oldStatus;
+    int newReads = book.reads;
     DateTime? newFinishedAt = book.finishedAt;
     DateTime? newStartedAt = book.startedAt;
+    final sessions = Map<int, int>.from(book.readingSessions);
 
     if (newPage == 0) {
       newStatus = ReadingStatus.wantToRead;
       newFinishedAt = null;
+      if (sessions.containsKey(newReads + 1)) sessions[newReads + 1] = 0;
     } else if (total > 0 && newPage >= total) {
-      newStatus = ReadingStatus.read;
-      newFinishedAt ??= DateTime.now();
-    } else {
-      if (book.status == ReadingStatus.wantToRead) {
-        newStartedAt ??= DateTime.now();
+      if (oldStatus != ReadingStatus.read) {
+        newReads++;
+        newStatus = ReadingStatus.read;
+        newFinishedAt = DateTime.now();
+        sessions[newReads] = total;
+      } else {
+        sessions[newReads] = total;
       }
-      newStatus = ReadingStatus.reading;
-      newFinishedAt = null;
+    } else {
+      if (oldStatus == ReadingStatus.read) {
+        newStatus = ReadingStatus.reading;
+        newFinishedAt = null;
+      } else {
+        if (oldStatus == ReadingStatus.wantToRead) {
+          newStatus = ReadingStatus.reading;
+          newStartedAt ??= DateTime.now();
+        }
+      }
+      sessions[newReads + 1] = newPage;
     }
 
     final updated = book.copyWith(
       currentPage: Value(newPage),
       status: newStatus,
+      reads: newReads,
+      readingSessions: sessions,
       finishedAt: Value(newFinishedAt),
       startedAt: Value(newStartedAt),
     );
@@ -102,6 +120,97 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     if (newPage > oldPage) {
       await ref.read(readingLogControllerProvider.notifier).logPages(book.id, newPage - oldPage);
     }
+  }
+
+  Future<void> _incrementReads() async {
+    final book = widget.book;
+    final total = book.totalPages ?? 0;
+    final sessions = Map<int, int>.from(book.readingSessions);
+    
+    // 1. Current session (if any) should be marked as finished
+    final currentSessionIdx = book.reads + 1;
+    sessions[currentSessionIdx] = total;
+
+    // 2. Increment completed reads
+    final newReads = book.reads + 1;
+    
+    // 3. Prepare next session
+    sessions[newReads + 1] = 1;
+
+    final updated = book.copyWith(
+      reads: newReads,
+      currentPage: const Value(1),
+      status: ReadingStatus.reading,
+      readingSessions: sessions,
+      finishedAt: const Value(null),
+    );
+    await ref.read(databaseProvider).bookDao.updateBook(updated);
+  }
+
+  Future<void> _decrementReads() async {
+    final book = widget.book;
+    final currentSessionPages = book.readingSessions[book.reads + 1] ?? 0;
+    
+    final sessions = Map<int, int>.from(book.readingSessions);
+    
+    // If we are at page 1 and decrementing, remove this session entry to save memory/avoid misclicks
+    if (currentSessionPages <= 1) {
+      sessions.remove(book.reads + 1);
+      
+      // If we still have completed reads, go back to the previous one
+      if (book.reads > 0) {
+        final newReads = book.reads - 1;
+        final updated = book.copyWith(
+          reads: newReads,
+          currentPage: Value(book.totalPages),
+          status: ReadingStatus.read,
+          readingSessions: sessions,
+        );
+        await ref.read(databaseProvider).bookDao.updateBook(updated);
+      } else {
+        // We were on the first read at page 1, reset to 'Want to Read'
+        final updated = book.copyWith(
+          currentPage: const Value(0),
+          status: ReadingStatus.wantToRead,
+          readingSessions: sessions,
+        );
+        await ref.read(databaseProvider).bookDao.updateBook(updated);
+      }
+      return;
+    }
+
+    // Normal decrement (when > 1 page): just go back to finished state of previous or remove current if it was finished?
+    // User specified: "If -1 is pressed and pages is 1, delete entry". 
+    // Otherwise, we just revert the completed read.
+    
+    if (book.reads > 0) {
+      sessions.remove(book.reads + 1);
+      final newReads = book.reads - 1;
+      sessions[newReads + 1] = book.totalPages ?? 0;
+
+      final updated = book.copyWith(
+        reads: newReads,
+        currentPage: Value(book.totalPages),
+        status: ReadingStatus.read,
+        readingSessions: sessions,
+      );
+      await ref.read(databaseProvider).bookDao.updateBook(updated);
+    }
+  }
+
+  Future<void> _incrementCopies() async {
+    final updated = widget.book.copyWith(
+      copies: widget.book.copies + 1,
+    );
+    await ref.read(databaseProvider).bookDao.updateBook(updated);
+  }
+
+  Future<void> _decrementCopies() async {
+    if (widget.book.copies <= 1) return;
+    final updated = widget.book.copyWith(
+      copies: widget.book.copies - 1,
+    );
+    await ref.read(databaseProvider).bookDao.updateBook(updated);
   }
 
   Future<void> _updateNotes(String notes) async {
@@ -270,6 +379,10 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                 _DetailsTab(
                   book: book,
                   onTapNotes: () => _showNotesEditor(context),
+                  onIncrementReads: _incrementReads,
+                  onDecrementReads: _decrementReads,
+                  onIncrementCopies: _incrementCopies,
+                  onDecrementCopies: _decrementCopies,
                 ),
               ],
             ),
@@ -783,7 +896,18 @@ class _MainTab extends StatelessWidget {
 class _DetailsTab extends StatelessWidget {
   final Book book;
   final VoidCallback onTapNotes;
-  const _DetailsTab({required this.book, required this.onTapNotes});
+  final VoidCallback onIncrementReads;
+  final VoidCallback onDecrementReads;
+  final VoidCallback onIncrementCopies;
+  final VoidCallback onDecrementCopies;
+  const _DetailsTab({
+    required this.book,
+    required this.onTapNotes,
+    required this.onIncrementReads,
+    required this.onDecrementReads,
+    required this.onIncrementCopies,
+    required this.onDecrementCopies,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -959,7 +1083,7 @@ class _DetailsTab extends StatelessWidget {
                               imprint.name,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w600,
-                              ),
+                                ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -1071,7 +1195,97 @@ class _DetailsTab extends StatelessWidget {
               ? '${book.finishedAt!.day}/${book.finishedAt!.month}/${book.finishedAt!.year}'
               : '—',
         ),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(
+              child: _StepControl(
+                label: context.l10n.fieldReads,
+                value: book.reads.toString(),
+                icon: Icons.repeat,
+                onDecrement: onDecrementReads,
+                onIncrement: onIncrementReads,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _StepControl(
+                label: context.l10n.fieldCopies,
+                value: book.copies.toString(),
+                icon: Icons.copy,
+                onDecrement: onDecrementCopies,
+                onIncrement: onIncrementCopies,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 32),
+      ],
+    );
+  }
+}
+
+class _StepControl extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+
+  const _StepControl({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.onIncrement,
+    required this.onDecrement,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.remove, size: 18),
+                onPressed: onDecrement,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 16, color: theme.colorScheme.outline),
+                  const SizedBox(width: 8),
+                  Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                ],
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.add, size: 18),
+                onPressed: onIncrement,
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -1084,7 +1298,8 @@ class _DetailsTab extends StatelessWidget {
 class _ReadOnlyField extends StatelessWidget {
   final String label;
   final String value;
-  const _ReadOnlyField({required this.label, required this.value});
+  final IconData? icon;
+  const _ReadOnlyField({required this.label, required this.value, this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -1100,9 +1315,17 @@ class _ReadOnlyField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyLarge,
+        Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 16, color: Theme.of(context).colorScheme.outline),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              value,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ],
         ),
       ],
     );

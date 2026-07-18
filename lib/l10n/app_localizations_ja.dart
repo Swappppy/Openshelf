@@ -249,6 +249,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fieldTranslator => 'Traducción';
 
   @override
+  String get fieldReads => 'Lecturas';
+
+  @override
+  String get fieldCopies => 'Copias';
+
+  @override
   String get fieldTotalPages => '';
 
   @override
@@ -1239,6 +1245,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get statsLastAddedTitle => 'ÚLTIMOS AÑADIDOS';
 
   @override
+  String get statsDailyReadingTitle => 'LECTURA DIARIA';
+
+  @override
   String get statsAvgPagesTitle => 'PÁGINAS PROMEDIO';
 
   @override
@@ -1327,6 +1336,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get statsOptAvgCompletionSub => 'Tiempo promedio en terminar un libro';
+
+  @override
+  String get statsOptDailyReadingTitle => 'Lectura diaria';
+
+  @override
+  String get statsOptDailyReadingSub => 'Páginas leídas por día';
 
   @override
   String statsAvgCompletionValue(String days) {

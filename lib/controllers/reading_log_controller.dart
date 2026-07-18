@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import 'package:rxdart/rxdart.dart';
@@ -81,31 +82,25 @@ final readingStreakProvider = StreamProvider<int>((ref) {
 final totalPagesReadProvider = StreamProvider<int>((ref) {
   final db = ref.watch(databaseProvider);
   
-  // Combine ReadingLog entries with the static progress of books 
-  // to account for legacy books that weren't tracked via logs.
-  return CombineLatestStream.combine2(
-    db.bookDao.watchAllBooks(),
-    db.logDao.watchLogs(),
-    (books, logs) {
-      // 1. Sum all logged activity
-      final loggedPages = logs.fold(0, (sum, l) => sum + l.pagesRead);
-      
-      // 2. Identify books that don't have ANY log entries yet
-      final loggedBookIds = logs.map((l) => l.bookId).toSet();
-      
-      // 3. Sum current progress of those un-logged books
-      int unloggedPages = 0;
-      for (final b in books) {
-        if (!loggedBookIds.contains(b.id)) {
-          if (b.status == ReadingStatus.read) {
-            unloggedPages += (b.totalPages ?? 0);
-          } else {
-            unloggedPages += (b.currentPage ?? 0);
-          }
-        }
+  return db.bookDao.watchAllBooks().map((books) {
+    int total = 0;
+    for (final b in books) {
+      for (final pages in b.readingSessions.values) {
+        total += pages;
       }
-      
-      return loggedPages + unloggedPages;
-    },
-  );
+    }
+    return total;
+  });
+});
+
+final dailyReadingProvider = StreamProvider<Map<DateTime, int>>((ref) {
+  final db = ref.watch(databaseProvider);
+  return db.logDao.watchLogs().map((logs) {
+    final Map<DateTime, int> daily = {};
+    for (final l in logs) {
+      final day = DateTime(l.date.year, l.date.month, l.date.day);
+      daily[day] = (daily[day] ?? 0) + l.pagesRead;
+    }
+    return daily;
+  });
 });

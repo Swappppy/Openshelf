@@ -30,6 +30,9 @@ class Books extends Table {
   IntColumn get imprintId => integer().nullable().references(Tags, #id)();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();
+  IntColumn get reads => integer().withDefault(const Constant(0))();
+  IntColumn get copies => integer().withDefault(const Constant(1))();
+  TextColumn get readingSessions => text().withDefault(const Constant('{}')).map(const ReadingSessionsConverter())();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 

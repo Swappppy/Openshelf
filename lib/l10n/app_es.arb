@@ -238,6 +238,12 @@
   "fieldTranslator": "Traducción",
   "@fieldTranslator": { "description": "Nombre del campo traductor" },
 
+  "fieldReads": "Lecturas",
+  "@fieldReads": { "description": "Nombre del campo lecturas" },
+
+  "fieldCopies": "Copias",
+  "@fieldCopies": { "description": "Nombre del campo copias" },
+
   "fieldTotalPages": "Páginas totales",
   "@fieldTotalPages": { "description": "Nombre del campo de páginas totales" },
 
@@ -1081,6 +1087,7 @@
   "statsReadByYearTitle": "LIBROS LEÍDOS POR AÑO",
   "statsCollectionsTitle": "COLECCIONES",
   "statsLastAddedTitle": "ÚLTIMOS AÑADIDOS",
+  "statsDailyReadingTitle": "LECTURA DIARIA",
   "statsAvgPagesTitle": "PÁGINAS PROMEDIO",
   "statsAvgPagesSub": "páginas por libro",
 
@@ -1114,6 +1121,9 @@
 
   "statsOptAvgCompletionTitle": "Tiempo de lectura",
   "statsOptAvgCompletionSub": "Tiempo promedio en terminar un libro",
+
+  "statsOptDailyReadingTitle": "Lectura diaria",
+  "statsOptDailyReadingSub": "Páginas leídas por día",
 
   "statsAvgCompletionValue": "{days} días",
   "@statsAvgCompletionValue": {

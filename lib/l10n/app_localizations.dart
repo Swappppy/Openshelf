@@ -576,6 +576,18 @@ abstract class AppLocalizations {
   /// **'Traducción'**
   String get fieldTranslator;
 
+  /// Nombre del campo lecturas
+  ///
+  /// In es, this message translates to:
+  /// **'Lecturas'**
+  String get fieldReads;
+
+  /// Nombre del campo copias
+  ///
+  /// In es, this message translates to:
+  /// **'Copias'**
+  String get fieldCopies;
+
   /// Nombre del campo de páginas totales
   ///
   /// In es, this message translates to:
@@ -2388,6 +2400,12 @@ abstract class AppLocalizations {
   /// **'ÚLTIMOS AÑADIDOS'**
   String get statsLastAddedTitle;
 
+  /// No description provided for @statsDailyReadingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'LECTURA DIARIA'**
+  String get statsDailyReadingTitle;
+
   /// No description provided for @statsAvgPagesTitle.
   ///
   /// In es, this message translates to:
@@ -2567,6 +2585,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tiempo promedio en terminar un libro'**
   String get statsOptAvgCompletionSub;
+
+  /// No description provided for @statsOptDailyReadingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lectura diaria'**
+  String get statsOptDailyReadingTitle;
+
+  /// No description provided for @statsOptDailyReadingSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas leídas por día'**
+  String get statsOptDailyReadingSub;
 
   /// No description provided for @statsAvgCompletionValue.
   ///

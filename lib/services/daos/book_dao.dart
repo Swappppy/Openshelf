@@ -57,6 +57,7 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
       final tagIds = linked.map((bt) => bt.tagId).toList();
 
       await (delete(bookTags)..where((bt) => bt.bookId.equals(id))).go();
+      await (delete(db.readingLog)..where((l) => l.bookId.equals(id))).go();
       await (delete(books)..where((b) => b.id.equals(id))).go();
 
       // Clean up orphan categories (tags)
