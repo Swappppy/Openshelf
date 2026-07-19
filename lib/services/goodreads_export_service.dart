@@ -68,7 +68,8 @@ class GoodreadsExportService {
       'Bookshelves': shelfNames,
       'Exclusive Shelf': _mapStatus(book.status),
       'My Review': book.notes ?? '',
-      'Read Count': book.status == ReadingStatus.read ? '1' : '0',
+      'Read Count': book.reads.toString(),
+      'Owned Copies': book.copies.toString(),
     };
   }
 

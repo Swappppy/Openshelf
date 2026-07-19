@@ -8,7 +8,9 @@ import 'roman_page_picker.dart';
 class SegmentedPagePicker extends StatefulWidget {
   final int initialPhysicalPage;
   final int totalPages;
+  final int currentReads;
   final PaginationConfig? config;
+  final Map<int, int> initialSessions;
   final Function(int, PaginationConfig) onSave;
 
   const SegmentedPagePicker({
@@ -16,6 +18,8 @@ class SegmentedPagePicker extends StatefulWidget {
     required this.initialPhysicalPage,
     required this.totalPages,
     required this.onSave,
+    this.currentReads = 0,
+    this.initialSessions = const {},
     this.config,
   });
 
@@ -35,7 +39,12 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
     
     // Sanitize segments: ensure they don't go past widget.totalPages
     final rawSegments = (widget.config?.segments.isEmpty ?? true)
-        ? [PaginationSegment(startPhysical: 1, endPhysical: widget.totalPages, type: PageNumberingType.arabic)]
+        ? [PaginationSegment(
+            startPhysical: 1, 
+            endPhysical: widget.totalPages, 
+            type: PageNumberingType.arabic,
+            sessions: widget.initialSessions,
+          )]
         : widget.config!.segments;
         
     _segments = [];
@@ -52,7 +61,12 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
        final last = _segments.removeLast();
        _segments.add(last.copyWith(endPhysical: widget.totalPages));
     } else if (_segments.isEmpty) {
-       _segments.add(PaginationSegment(startPhysical: 1, endPhysical: widget.totalPages, type: PageNumberingType.arabic));
+       _segments.add(PaginationSegment(
+         startPhysical: 1, 
+         endPhysical: widget.totalPages, 
+         type: PageNumberingType.arabic,
+         sessions: widget.initialSessions,
+       ));
     }
 
     // Determine initial segment to show: 
@@ -62,7 +76,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
     // 1. Try to find the first incomplete segment
     for (int i = 0; i < _segments.length; i++) {
       final s = _segments[i];
-      final currentInSegment = s.sessions[1] ?? 0;
+      final currentInSegment = s.sessions[widget.currentReads + 1] ?? 0;
       final maxInSegment = s.endPhysical - s.startPhysical + 1;
       if (currentInSegment < maxInSegment) {
         initialIdx = i;
@@ -89,7 +103,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
     final s = _segments[segmentIdx];
     final updatedSessions = Map<int, int>.from(s.sessions);
     
-    updatedSessions[1] = pagesInSegment;
+    updatedSessions[widget.currentReads + 1] = pagesInSegment;
 
     setState(() {
       _segments[segmentIdx] = s.copyWith(sessions: updatedSessions);
@@ -150,7 +164,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
               onPageChanged: (index) {
                 final s = _segments[index];
                 final maxInSegment = s.endPhysical - s.startPhysical + 1;
-                int currentInSegment = s.sessions[1] ?? 0;
+                int currentInSegment = s.sessions[widget.currentReads + 1] ?? 0;
                 
                 // If it's the first time entering this segment and it hasn't been started
                 if (currentInSegment == 0) {
@@ -177,7 +191,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
 
                 // Determine current physical page within this specific segment
                 // Source of truth: use the session map if it exists, otherwise initialPhysical
-                int currentInSegment = s.sessions[1] ?? 0;
+                int currentInSegment = s.sessions[widget.currentReads + 1] ?? 0;
                 if (currentInSegment == 0 && widget.initialPhysicalPage >= s.startPhysical) {
                    if (widget.initialPhysicalPage > s.endPhysical) {
                       currentInSegment = maxInSegment;
@@ -250,7 +264,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
             final localPhysical = _selectedPhysicalPage - activeSeg.startPhysical + 1;
             
             final updatedSessions = Map<int, int>.from(activeSeg.sessions);
-            updatedSessions[1] = localPhysical;
+            updatedSessions[widget.currentReads + 1] = localPhysical;
             
             _segments[targetIdx] = activeSeg.copyWith(sessions: updatedSessions);
 

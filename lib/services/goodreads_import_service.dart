@@ -35,6 +35,8 @@ class GoodreadsImportService {
   static const _colExclusiveShelf = 'Exclusive Shelf';
   static const _colMyReview = 'My Review';
   static const _colPrivateNotes = 'Private Notes';
+  static const _colReadCount = 'Read Count';
+  static const _colOwnedCopies = 'Owned Copies';
 
   static const _requiredColumns = [_colTitle, _colAuthor];
 
@@ -136,14 +138,27 @@ class GoodreadsImportService {
       }) {
     final finishedAt = ImportExportUtils.parseDate(_str(row, colIndex, _colDateRead));
     final isbn = isbn13.isNotEmpty ? isbn13 : (isbn10.isNotEmpty ? isbn10 : null);
+    final totalPages = ImportExportUtils.parseInt(_str(row, colIndex, _colPageCount));
+    final readCount = ImportExportUtils.parseInt(_str(row, colIndex, _colReadCount)) ?? 0;
+    final ownedCopies = ImportExportUtils.parseInt(_str(row, colIndex, _colOwnedCopies)) ?? 1;
+
+    final sessions = <int, int>{};
+    if (readCount > 0 && totalPages != null) {
+      for (int i = 1; i <= readCount; i++) {
+        sessions[i] = totalPages;
+      }
+    }
 
     return BooksCompanion.insert(
       title: _str(row, colIndex, _colTitle),
       author: _str(row, colIndex, _colAuthor).split(',').first.trim(),
       isbn: Value(isbn),
       publisher: Value(_str(row, colIndex, _colPublisher).nullIfEmpty()),
-      totalPages: Value(ImportExportUtils.parseInt(_str(row, colIndex, _colPageCount))),
+      totalPages: Value(totalPages),
       status: _parseStatus(row, colIndex, finishedAt),
+      reads: Value(readCount),
+      copies: Value(ownedCopies),
+      readingSessions: Value(sessions),
       rating: Value(ImportExportUtils.parseRating(_str(row, colIndex, _colMyRating))),
       bookFormat: Value(_parseBinding(_str(row, colIndex, _colBinding))),
       notes: Value(

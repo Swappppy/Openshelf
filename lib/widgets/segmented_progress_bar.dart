@@ -5,6 +5,7 @@ import '../utils/marker_layout_helper.dart';
 class SegmentedProgressBar extends StatelessWidget {
   final int currentPage;
   final int totalPages;
+  final int currentReads;
   final PaginationConfig? config;
   final double height;
 
@@ -12,6 +13,7 @@ class SegmentedProgressBar extends StatelessWidget {
     super.key,
     required this.currentPage,
     required this.totalPages,
+    this.currentReads = 0,
     this.config,
     this.height = 8.0,
   });
@@ -25,6 +27,7 @@ class SegmentedProgressBar extends StatelessWidget {
         painter: _SegmentedProgressPainter(
           currentPage: currentPage,
           totalPages: totalPages,
+          currentReads: currentReads,
           config: config,
           colorScheme: Theme.of(context).colorScheme,
           textTheme: Theme.of(context).textTheme,
@@ -37,6 +40,7 @@ class SegmentedProgressBar extends StatelessWidget {
 class _SegmentedProgressPainter extends CustomPainter {
   final int currentPage;
   final int totalPages;
+  final int currentReads;
   final PaginationConfig? config;
   final ColorScheme colorScheme;
   final TextTheme textTheme;
@@ -44,6 +48,7 @@ class _SegmentedProgressPainter extends CustomPainter {
   _SegmentedProgressPainter({
     required this.currentPage,
     required this.totalPages,
+    required this.currentReads,
     this.config,
     required this.colorScheme,
     required this.textTheme,
@@ -90,7 +95,7 @@ class _SegmentedProgressPainter extends CustomPainter {
 
       // Calculate progress width within this specific segment
       double progressInSegment = 0;
-      final sessionProgress = s.sessions[1] ?? 0;
+      final sessionProgress = s.sessions[currentReads + 1] ?? 0;
       final segmentTotal = s.endPhysical - s.startPhysical + 1;
 
       if (sessionProgress > 0) {

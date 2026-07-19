@@ -119,6 +119,7 @@ class MarkerLayoutHelper {
     required double labelSpacing,
     required bool useStaggering,
   }) {
+    if (totalPages <= 0) return [];
     final List<MarkerLayout> layouts = [];
 
     // First pass: Initial positions and levels

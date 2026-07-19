@@ -8,7 +8,7 @@ class ReadingLogController extends Notifier<void> {
   void build() {}
 
   Future<void> logPages(int bookId, int delta) async {
-    if (delta <= 0) return;
+    if (delta == 0) return;
 
     final db = ref.read(databaseProvider);
     final now = DateTime.now();
@@ -20,10 +20,12 @@ class ReadingLogController extends Notifier<void> {
         .getSingleOrNull();
 
     if (existing != null) {
+      final newPages = (existing.pagesRead + delta).clamp(0, 999999);
       await db.logDao.updateLog(
-        existing.copyWith(pagesRead: existing.pagesRead + delta),
+        existing.copyWith(pagesRead: newPages),
       );
     } else {
+      if (delta <= 0) return;
       await db.logDao.insertLog(
         ReadingLogCompanion.insert(
           bookId: bookId,

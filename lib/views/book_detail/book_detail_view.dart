@@ -85,11 +85,11 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     final PaginationConfig activeConfig = newConfig ?? (book.paginationConfig ?? PaginationConfig());
 
     // 2. Calculate the global 'reads' count based on the new segments state
-    // We consider a global 'read' completed only if all segments are finished in their session 1
+    // We consider a global 'read' completed only if all segments are finished in their current session
     bool allSegmentsFinished = true;
     if (activeConfig.segments.isNotEmpty) {
       for (final s in activeConfig.segments) {
-        final progress = s.sessions[1] ?? 0;
+        final progress = s.sessions[book.reads + 1] ?? 0;
         final segmentTotal = s.endPhysical - s.startPhysical + 1;
         if (progress < segmentTotal) {
           allSegmentsFinished = false;
@@ -139,6 +139,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
   Future<void> _incrementReads() async {
     final book = widget.book;
     final total = book.totalPages ?? 0;
+    final oldPage = book.currentPage ?? 0;
     final sessions = Map<int, int>.from(book.readingSessions);
     
     // 1. Current session (if any) should be marked as finished
@@ -155,11 +156,15 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     PaginationConfig? newConfig = book.paginationConfig;
     if (newConfig != null && newConfig.segments.isNotEmpty) {
       final newSegments = newConfig.segments.asMap().entries.map((e) {
-        final idx = e.key;
         final s = e.value;
         final updatedSess = Map<int, int>.from(s.sessions);
-        // Reset to first page of first segment, 0 for others
-        updatedSess[1] = (idx == 0) ? 1 : 0;
+        
+        // Mark current session as finished
+        updatedSess[currentSessionIdx] = s.endPhysical - s.startPhysical + 1;
+        
+        // Prepare next session
+        updatedSess[newReads + 1] = 1;
+        
         return s.copyWith(sessions: updatedSess);
       }).toList();
       newConfig = newConfig.copyWith(segments: newSegments);
@@ -174,28 +179,42 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       finishedAt: const Value(null),
     );
     await ref.read(databaseProvider).bookDao.updateBook(updated);
+
+    // 5. Log progress for the remaining pages in the session being finished
+    if (total > oldPage) {
+      await ref.read(readingLogControllerProvider.notifier).logPages(book.id, total - oldPage);
+    }
+    // Also log 1 page for the start of the new session
+    await ref.read(readingLogControllerProvider.notifier).logPages(book.id, 1);
   }
 
   Future<void> _decrementReads() async {
     final book = widget.book;
-    final currentSessionPages = book.readingSessions[book.reads + 1] ?? 0;
-    
+    final currentPage = book.currentPage ?? 0;
     final sessions = Map<int, int>.from(book.readingSessions);
     
     // If we are at page 1 and decrementing, remove this session entry to save memory/avoid misclicks
-    if (currentSessionPages <= 1) {
+    if (currentPage <= 1) {
+      // Log negative progress for the current session start
+      if (currentPage > 0) {
+        await ref.read(readingLogControllerProvider.notifier).logPages(book.id, -currentPage);
+      }
+
       sessions.remove(book.reads + 1);
       
       // If we still have completed reads, go back to the previous one
       if (book.reads > 0) {
         final newReads = book.reads - 1;
         
-        // Restore segments to fully read state
+        // Log negative progress for finishing the previous read (reverting it to "not finished")
+        // Actually, we are just moving back in time.
+        
+        // Restore segments to fully read state for the previous read
         PaginationConfig? newConfig = book.paginationConfig;
         if (newConfig != null && newConfig.segments.isNotEmpty) {
           final newSegments = newConfig.segments.map((s) {
             final updatedSess = Map<int, int>.from(s.sessions);
-            updatedSess[1] = s.endPhysical - s.startPhysical + 1;
+            updatedSess.remove(book.reads + 1); // Remove the session we just cancelled
             return s.copyWith(sessions: updatedSess);
           }).toList();
           newConfig = newConfig.copyWith(segments: newSegments);
@@ -215,7 +234,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
         if (newConfig != null && newConfig.segments.isNotEmpty) {
           final newSegments = newConfig.segments.map((s) {
             final updatedSess = Map<int, int>.from(s.sessions);
-            updatedSess[1] = 0;
+            updatedSess.remove(1);
             return s.copyWith(sessions: updatedSess);
           }).toList();
           newConfig = newConfig.copyWith(segments: newSegments);
@@ -232,18 +251,25 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       return;
     }
 
-    // Normal decrement (when > 1 page): revert current session back to total of previous
+    // Normal decrement (when > 1 page): just revert to page 1 of current session or similar?
+    // User requested: "decrementing, revert current session back to total of previous"
+    // Wait, the original code had: "Normal decrement (when > 1 page): revert current session back to total of previous"
+    // but the logic below it only handled if (book.reads > 0).
+    
     if (book.reads > 0) {
+      // Log negative progress for current session
+      await ref.read(readingLogControllerProvider.notifier).logPages(book.id, -currentPage);
+
       sessions.remove(book.reads + 1);
       final newReads = book.reads - 1;
-      sessions[newReads + 1] = book.totalPages ?? 0;
+      // No need to set sessions[newReads + 1] = book.totalPages here, it's already there as it was a finished session.
 
       // Restore segments to fully read state
       PaginationConfig? newConfig = book.paginationConfig;
       if (newConfig != null && newConfig.segments.isNotEmpty) {
         final newSegments = newConfig.segments.map((s) {
           final updatedSess = Map<int, int>.from(s.sessions);
-          updatedSess[1] = s.endPhysical - s.startPhysical + 1;
+          updatedSess.remove(book.reads + 1);
           return s.copyWith(sessions: updatedSess);
         }).toList();
         newConfig = newConfig.copyWith(segments: newSegments);
@@ -297,6 +323,8 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
         child: SegmentedPagePicker(
           initialPhysicalPage: book.currentPage ?? 0,
           totalPages: book.totalPages!,
+          currentReads: book.reads,
+          initialSessions: book.readingSessions,
           config: book.paginationConfig,
           onSave: (phys, newConfig) async {
             await _updatePage(phys, newConfig);
@@ -700,7 +728,7 @@ class _MainTab extends StatelessWidget {
       final endVisual = PaginationHelper.getVisualPageInSegment(s.endPhysical, s);
       
       // Use the segment's independent session progress
-      final currentInSegment = s.sessions[1] ?? 0;
+      final currentInSegment = s.sessions[book.reads + 1] ?? 0;
       
       // Calculate physical page within segment to get visual representation
       // if currentInSegment is 5, it means 5 pages read, so we are at startPhysical + 4
@@ -888,6 +916,7 @@ class _MainTab extends StatelessWidget {
                 SegmentedProgressBar(
                   currentPage: book.currentPage ?? 0,
                   totalPages: book.totalPages!,
+                  currentReads: book.reads,
                   config: book.paginationConfig,
                 ),
                 const SizedBox(height: 8),
