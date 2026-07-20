@@ -276,14 +276,30 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       }
     }
 
-    // 2. Prepare sessions - total progress for the session
+    // 2. Prepare sessions - total progress for the session.
+    // `totalReadInNewSess` is the absolute progress marker for the new session across
+    // ALL segments, including ones that simply carry over their previous progress -
+    // this is correct as stored state (Book.currentPage / ReadHistory.progress).
+    //
+    // `justReadDelta` is what was *actually* read by this action: only the segments
+    // being (re)read contribute, so carried-over totals from untouched segments are
+    // never counted as "read today". Logging `totalReadInNewSess` instead (as before)
+    // caused reading stats/streaks to spike by the full carried-over total of every
+    // untouched segment whenever a partial (per-section) reread was started.
     int totalReadInNewSess = 0;
+    int justReadDelta = 0;
     if (newSegProgress.isNotEmpty) {
-      for (final val in newSegProgress.values) {
+      for (int i = 0; i < book.paginationConfig!.segments.length; i++) {
+        final val = newSegProgress[i] ?? 0;
         totalReadInNewSess += val;
+        final isReReading = selectedIndices == null || selectedIndices.contains(i);
+        if (isReReading) {
+          justReadDelta += val;
+        }
       }
     } else {
       totalReadInNewSess = 1;
+      justReadDelta = 1;
     }
 
     // 3. Update Book
@@ -315,11 +331,11 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       segmentProgress: Value(newSegProgress.isEmpty ? null : jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
     ));
 
-    // 5. Log first page(s)
-    if (totalReadInNewSess > 0) {
+    // 5. Log first page(s) - only the delta actually read by this action.
+    if (justReadDelta > 0) {
       await ref.read(readingLogControllerProvider.notifier).logPages(
         bookId, 
-        totalReadInNewSess,
+        justReadDelta,
         selectedLabels.isEmpty ? null : selectedLabels,
       );
     }

@@ -163,8 +163,15 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(readHistory);
       }
       if (from < 21) {
-        await m.addColumn(readingLog, readingLog.sections as GeneratedColumn);
-        await m.addColumn(readHistory, readHistory.sections as GeneratedColumn);
+        // Guarded: if `from < 20` just ran in this same upgrade, createTable(readHistory)
+        // already created the table with the CURRENT class schema (sections/progress/
+        // segmentProgress included), so these columns may already exist.
+        try {
+          await m.addColumn(readingLog, readingLog.sections as GeneratedColumn);
+        } catch (_) {}
+        try {
+          await m.addColumn(readHistory, readHistory.sections as GeneratedColumn);
+        } catch (_) {}
       }
       if (from < 22) {
         // Skip alterTable here to avoid premature removal of columns like reading_sessions
@@ -173,8 +180,14 @@ class AppDatabase extends _$AppDatabase {
       if (from < 23) {
         await transaction(() async {
           // 1. Add new columns to ReadHistory
-          await m.addColumn(readHistory, readHistory.progress);
-          await m.addColumn(readHistory, readHistory.segmentProgress);
+          // Guarded for the same reason as above: a fresh createTable at `from < 20`
+          // already includes these columns.
+          try {
+            await m.addColumn(readHistory, readHistory.progress);
+          } catch (_) {}
+          try {
+            await m.addColumn(readHistory, readHistory.segmentProgress);
+          } catch (_) {}
 
           // 2. Migrate data from Books.readingSessions and PaginationConfig.segments.sessions
           List<QueryRow> allBooks;
