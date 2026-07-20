@@ -385,6 +385,19 @@
     "placeholders": { "title": { "type": "String" } }
   },
 
+  "bookDetailNewReadingWholeBook": "Todo el libro",
+  "bookDetailNewReadingSections": "Secciones específicas",
+  "bookDetailNewReadingSelectSections": "Seleccionar secciones para releer",
+  "bookDetailStartNewReadingPrompt": "¿Quieres empezar una nueva lectura?",
+  "bookDetailStartNewReadingButton": "Empezar nueva lectura",
+  "bookDetailDeleteReadPrompt": "¿Eliminar la última lectura en curso? Se perderán las fechas de esta sesión.",
+  "bookDetailReadHistoryTitle": "HISTORIAL DE LECTURAS",
+  "bookDetailReadOngoing": "en curso",
+  "bookDetailReadNumber": "Lectura {number}",
+  "bookDetailReadEditDialogTitle": "Editar lectura {number}",
+  "bookDetailReadDeleteConfirm": "¿Eliminar esta entrada del historial?",
+  "bookDetailReadNumberLabel": "Número de lectura",
+
   "bookDetailFieldPages": "PÁGINAS",
   "@bookDetailFieldPages": { "description": "Etiqueta de sección de páginas en detalle" },
 

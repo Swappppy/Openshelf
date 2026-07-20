@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:collection/collection.dart';
 import '../services/database.dart';
 
 class PaginationHelper {
@@ -16,6 +18,11 @@ class PaginationHelper {
   }
 
   static String getVisualPageInSegment(int physicalPage, PaginationSegment segment) {
+    // If physicalPage is exactly startPhysical - 1, it means 0 pages read in this segment
+    if (physicalPage < segment.startPhysical) {
+      return segment.type == PageNumberingType.roman ? '-' : '0';
+    }
+
     // Clamp physicalPage to segment bounds for calculation
     final clampedPhys = physicalPage.clamp(segment.startPhysical, segment.endPhysical);
     final pageInSegment = clampedPhys - segment.startPhysical + 1;
@@ -58,6 +65,40 @@ class PaginationHelper {
     });
 
     return result.toLowerCase();
+  }
+
+  static int getActiveSessionNumber(ReadingStatus status, int completedReads) {
+    if (status == ReadingStatus.read) {
+      return completedReads > 0 ? completedReads : 1;
+    }
+    // For Reading, Paused, Abandoned or WantToRead, we look at the next/ongoing session
+    return completedReads + 1;
+  }
+
+  static int getTotalReadPages(Book book, List<ReadHistoryData> history) {
+    if (book.totalPages == null || book.totalPages == 0) return 0;
+    
+    final completedReads = history.where((h) => h.finishedAt != null).length;
+    final activeSessionNum = getActiveSessionNumber(book.status, completedReads);
+    final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
+
+    if (book.paginationConfig == null || book.paginationConfig!.segments.isEmpty) {
+      return (activeSession?.progress ?? 0).clamp(0, book.totalPages!);
+    }
+    
+    int totalRead = 0;
+    Map<int, int> segProgress = {};
+    if (activeSession?.segmentProgress != null) {
+      try {
+        final Map<String, dynamic> decoded = jsonDecode(activeSession!.segmentProgress!);
+        segProgress = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+      } catch (_) {}
+    }
+
+    for (int i = 0; i < book.paginationConfig!.segments.length; i++) {
+      totalRead += segProgress[i] ?? 0;
+    }
+    return totalRead.clamp(0, book.totalPages!);
   }
 
   static int getPhysicalFromVisual(String visual, PaginationConfig config) {

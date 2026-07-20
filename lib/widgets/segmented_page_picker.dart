@@ -6,20 +6,20 @@ import 'page_picker.dart';
 import 'roman_page_picker.dart';
 
 class SegmentedPagePicker extends StatefulWidget {
-  final int initialPhysicalPage;
   final int totalPages;
-  final int currentReads;
+  final ReadingStatus? status;
   final PaginationConfig? config;
-  final Map<int, int> initialSessions;
-  final Function(int, PaginationConfig) onSave;
+  final int initialProgress;
+  final Map<int, int> initialSegmentProgress;
+  final Function(int, Map<int, int>, PaginationConfig) onSave;
 
   const SegmentedPagePicker({
     super.key,
-    required this.initialPhysicalPage,
     required this.totalPages,
     required this.onSave,
-    this.currentReads = 0,
-    this.initialSessions = const {},
+    this.initialProgress = 0,
+    this.initialSegmentProgress = const {},
+    this.status,
     this.config,
   });
 
@@ -31,11 +31,12 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
   late List<PaginationSegment> _segments;
   late PageController _pageController;
   late int _selectedPhysicalPage;
+  late Map<int, int> _segmentProgress;
 
   @override
   void initState() {
     super.initState();
-    _selectedPhysicalPage = widget.initialPhysicalPage;
+    _segmentProgress = Map<int, int>.from(widget.initialSegmentProgress);
     
     // Sanitize segments: ensure they don't go past widget.totalPages
     final rawSegments = (widget.config?.segments.isEmpty ?? true)
@@ -43,7 +44,6 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
             startPhysical: 1, 
             endPhysical: widget.totalPages, 
             type: PageNumberingType.arabic,
-            sessions: widget.initialSessions,
           )]
         : widget.config!.segments;
         
@@ -65,7 +65,6 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
          startPhysical: 1, 
          endPhysical: widget.totalPages, 
          type: PageNumberingType.arabic,
-         sessions: widget.initialSessions,
        ));
     }
 
@@ -75,9 +74,8 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
     
     // 1. Try to find the first incomplete segment
     for (int i = 0; i < _segments.length; i++) {
-      final s = _segments[i];
-      final currentInSegment = s.sessions[widget.currentReads + 1] ?? 0;
-      final maxInSegment = s.endPhysical - s.startPhysical + 1;
+      final currentInSegment = _segmentProgress[i] ?? 0;
+      final maxInSegment = _segments[i].endPhysical - _segments[i].startPhysical + 1;
       if (currentInSegment < maxInSegment) {
         initialIdx = i;
         break;
@@ -85,28 +83,33 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
     }
 
     // 2. Fallback to physical page logic if everything is finished or none found
-    if (initialIdx == -1 && widget.initialPhysicalPage > 0) {
-      for (int i = _segments.length - 1; i >= 0; i--) {
-        if (widget.initialPhysicalPage >= _segments[i].startPhysical) {
-          initialIdx = i;
-          break;
-        }
-      }
+    if (initialIdx == -1 && widget.initialProgress > 0) {
+      // Find segment containing the current physical page
+      // Current physical page calculation from total progress is complex if not mapped.
+      // We assume widget.initialProgress is absolute physical page if no segments,
+      // but here we have segments.
+      // Let's just use the first incomplete or first.
     }
 
     if (initialIdx == -1) initialIdx = 0;
 
     _pageController = PageController(initialPage: initialIdx);
+    
+    final initialSeg = _segments[initialIdx];
+    final initialPagesInSeg = _segmentProgress[initialIdx] ?? 0;
+    _selectedPhysicalPage = initialPagesInSeg > 0 
+        ? initialPagesInSeg + initialSeg.startPhysical - 1
+        : initialSeg.startPhysical - 1;
   }
 
   void _saveSegmentSession(int segmentIdx, int pagesInSegment) {
-    final s = _segments[segmentIdx];
-    final updatedSessions = Map<int, int>.from(s.sessions);
-    
-    updatedSessions[widget.currentReads + 1] = pagesInSegment;
-
     setState(() {
-      _segments[segmentIdx] = s.copyWith(sessions: updatedSessions);
+      _segmentProgress[segmentIdx] = pagesInSegment;
+      
+      final s = _segments[segmentIdx];
+      _selectedPhysicalPage = pagesInSegment > 0 
+          ? pagesInSegment + s.startPhysical - 1 
+          : s.startPhysical - 1;
     });
   }
 
@@ -163,24 +166,12 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
               itemCount: _segments.length,
               onPageChanged: (index) {
                 final s = _segments[index];
-                final maxInSegment = s.endPhysical - s.startPhysical + 1;
-                int currentInSegment = s.sessions[widget.currentReads + 1] ?? 0;
-                
-                // If it's the first time entering this segment and it hasn't been started
-                if (currentInSegment == 0) {
-                  if (widget.initialPhysicalPage >= s.startPhysical) {
-                    if (widget.initialPhysicalPage > s.endPhysical) {
-                      currentInSegment = maxInSegment;
-                    } else {
-                      currentInSegment = widget.initialPhysicalPage - s.startPhysical + 1;
-                    }
-                  } else {
-                    currentInSegment = 1;
-                  }
-                }
+                final currentInSegment = _segmentProgress[index] ?? 0;
                 
                 setState(() {
-                  _selectedPhysicalPage = currentInSegment + s.startPhysical - 1;
+                  _selectedPhysicalPage = currentInSegment > 0 
+                      ? currentInSegment + s.startPhysical - 1
+                      : s.startPhysical - 1;
                 });
               },
               itemBuilder: (context, index) {
@@ -190,15 +181,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
                 final maxInSegment = s.endPhysical - s.startPhysical + 1;
 
                 // Determine current physical page within this specific segment
-                // Source of truth: use the session map if it exists, otherwise initialPhysical
-                int currentInSegment = s.sessions[widget.currentReads + 1] ?? 0;
-                if (currentInSegment == 0 && widget.initialPhysicalPage >= s.startPhysical) {
-                   if (widget.initialPhysicalPage > s.endPhysical) {
-                      currentInSegment = maxInSegment;
-                   } else {
-                      currentInSegment = widget.initialPhysicalPage - s.startPhysical + 1;
-                   }
-                }
+                int currentInSegment = _segmentProgress[index] ?? 0;
 
                 // Visual value for the wheel
                 final localValueForWheel = currentInSegment + s.offset;
@@ -206,41 +189,48 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
 
                 return Column(
                   children: [
-                    Text(
-                      s.label ?? context.l10n.paginationSectionLabel(index + 1),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          s.label ?? context.l10n.paginationSectionLabel(index + 1),
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Expanded(
-                      child: s.type == PageNumberingType.roman
-                          ? RomanPagePicker(
-                              initialValue: currentInSegment > 0 ? currentInSegment : 1,
-                              maxValue: maxInSegment,
-                              onChanged: (val) {
-                                setState(() {
-                                  _saveSegmentSession(index, val);
-                                  _selectedPhysicalPage = val + s.startPhysical - 1;
-                                });
-                              },
-                            )
-                          : PagePicker(
-                              initialValue: localValueForWheel > 0 ? localValueForWheel : s.offset + 1,
-                              maxValue: maxInSegment + s.offset,
-                              minValue: s.offset,
-                              onChanged: (val) {
-                                final physicalInSegment = val - s.offset;
-                                setState(() {
-                                  _saveSegmentSession(index, physicalInSegment);
-                                  _selectedPhysicalPage = physicalInSegment + s.startPhysical - 1;
-                                });
-                              },
-                            ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          s.type == PageNumberingType.roman
+                              ? RomanPagePicker(
+                                  initialValue: currentInSegment > 0 ? currentInSegment : 0,
+                                  minValue: 0,
+                                  maxValue: maxInSegment,
+                                  onChanged: (val) {
+                                    _saveSegmentSession(index, val);
+                                  },
+                                )
+                              : PagePicker(
+                                  initialValue: localValueForWheel >= s.offset ? localValueForWheel : s.offset,
+                                  maxValue: maxInSegment + s.offset,
+                                  minValue: s.offset,
+                                  onChanged: (val) {
+                                    final physicalInSegment = val - s.offset;
+                                    _saveSegmentSession(index, physicalInSegment);
+                                  },
+                                ),
+                        ],
+                      ),
                     ),
                     Text(
-                      '${context.l10n.fieldCurrentPage.substring(0, 1).toUpperCase()}${context.l10n.fieldCurrentPage.substring(1).toLowerCase()}. ${PaginationHelper.getVisualPageInSegment(_selectedPhysicalPage, s)} / $visualMax',
+                      currentInSegment == 0
+                          ? '${s.type == PageNumberingType.roman ? '-' : '0'} / $visualMax'
+                          : '${context.l10n.fieldCurrentPage.substring(0, 1).toUpperCase()}${context.l10n.fieldCurrentPage.substring(1).toLowerCase()}. ${PaginationHelper.getVisualPageInSegment(s.startPhysical + currentInSegment - 1, s)} / $visualMax',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ],
@@ -252,28 +242,23 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
         const SizedBox(height: 24),
         FilledButton(
           onPressed: () {
-            // Find current active segment based on _selectedPhysicalPage
-            final activeIdx = _segments.indexWhere(
-              (s) => _selectedPhysicalPage >= s.startPhysical && _selectedPhysicalPage <= s.endPhysical,
-            );
-            
-            final activeSeg = activeIdx != -1 ? _segments[activeIdx] : _segments.last;
-            final targetIdx = activeIdx != -1 ? activeIdx : _segments.length - 1;
-            
-            // Ensure the active segment's session is updated to the latest physical selection
-            final localPhysical = _selectedPhysicalPage - activeSeg.startPhysical + 1;
-            
-            final updatedSessions = Map<int, int>.from(activeSeg.sessions);
-            updatedSessions[widget.currentReads + 1] = localPhysical;
-            
-            _segments[targetIdx] = activeSeg.copyWith(sessions: updatedSessions);
+            // Calculate total physical pages read across all segments for this session
+            int totalPhysRead = 0;
+            if (_segments.length > 1 || widget.config?.segments.isNotEmpty == true) {
+              for (final val in _segmentProgress.values) {
+                totalPhysRead += val;
+              }
+            } else {
+              // If no segments, _selectedPhysicalPage is the absolute page
+              totalPhysRead = _selectedPhysicalPage;
+            }
 
             final newConfig = PaginationConfig(
               segments: _segments,
               markers: widget.config?.markers ?? [],
             );
 
-            widget.onSave(_selectedPhysicalPage, newConfig);
+            widget.onSave(totalPhysRead, _segmentProgress, newConfig);
           },
           child: Text(context.l10n.paginationSaveProgress),
         ),

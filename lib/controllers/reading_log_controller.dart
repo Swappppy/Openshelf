@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import '../services/database.dart';
@@ -7,7 +8,7 @@ class ReadingLogController extends Notifier<void> {
   @override
   void build() {}
 
-  Future<void> logPages(int bookId, int delta) async {
+  Future<void> logPages(int bookId, int delta, [List<String>? sectionLabels]) async {
     if (delta == 0) return;
 
     final db = ref.read(databaseProvider);
@@ -21,16 +22,37 @@ class ReadingLogController extends Notifier<void> {
 
     if (existing != null) {
       final newPages = (existing.pagesRead + delta).clamp(0, 999999);
+      
+      // Merge section labels
+      String? updatedSections = existing.sections;
+      if (sectionLabels != null && sectionLabels.isNotEmpty) {
+        final List<String> current = updatedSections != null 
+            ? List<String>.from(jsonDecode(updatedSections)) 
+            : [];
+        final newSet = {...current, ...sectionLabels};
+        updatedSections = jsonEncode(newSet.toList());
+      }
+
       await db.logDao.updateLog(
-        existing.copyWith(pagesRead: newPages),
+        existing.copyWith(
+          pagesRead: newPages,
+          sections: Value(updatedSections),
+        ),
       );
     } else {
       if (delta <= 0) return;
+      
+      String? sectionsJson;
+      if (sectionLabels != null && sectionLabels.isNotEmpty) {
+        sectionsJson = jsonEncode(sectionLabels.toSet().toList());
+      }
+
       await db.logDao.insertLog(
         ReadingLogCompanion.insert(
           bookId: bookId,
           date: today,
           pagesRead: delta,
+          sections: Value(sectionsJson),
         ),
       );
     }
@@ -82,24 +104,8 @@ final readingStreakProvider = StreamProvider<int>((ref) {
 final totalPagesReadProvider = StreamProvider<int>((ref) {
   final db = ref.watch(databaseProvider);
   
-  return db.bookDao.watchAllBooks().map((books) {
-    int total = 0;
-    for (final b in books) {
-      if (b.paginationConfig == null || b.paginationConfig!.segments.isEmpty) {
-        // Simple books: sum global reading sessions
-        for (final pages in b.readingSessions.values) {
-          total += pages;
-        }
-      } else {
-        // Advanced books: sum independent sessions of every segment
-        for (final segment in b.paginationConfig!.segments) {
-          for (final pages in segment.sessions.values) {
-            total += pages;
-          }
-        }
-      }
-    }
-    return total;
+  return db.logDao.watchLogs().map((logs) {
+    return logs.fold(0, (sum, log) => sum + log.pagesRead);
   });
 });
 

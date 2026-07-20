@@ -5,6 +5,7 @@ import 'wheel_dial_picker.dart';
 class RomanPagePicker extends StatefulWidget {
   final int initialValue;
   final int maxValue;
+  final int minValue;
   final ValueChanged<int> onChanged;
 
   const RomanPagePicker({
@@ -12,6 +13,7 @@ class RomanPagePicker extends StatefulWidget {
     required this.initialValue,
     required this.maxValue,
     required this.onChanged,
+    this.minValue = 1,
   });
 
   @override
@@ -42,7 +44,7 @@ class _RomanPagePickerState extends State<RomanPagePicker> {
   }
 
   List<int> _toDigits(int value) {
-    final clamped = value.clamp(1, widget.maxValue);
+    final clamped = value.clamp(widget.minValue, widget.maxValue);
     return [
       (clamped ~/ 100) % 10,
       (clamped ~/ 10) % 10,
@@ -61,7 +63,7 @@ class _RomanPagePickerState extends State<RomanPagePicker> {
 
   void _onDigitChanged(int column, int value) {
     setState(() => _digits[column] = value);
-    final result = _toValue().clamp(1, widget.maxValue);
+    final result = _toValue().clamp(widget.minValue, widget.maxValue);
     widget.onChanged(result);
   }
 

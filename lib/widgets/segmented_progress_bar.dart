@@ -1,20 +1,19 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../services/database.dart';
 import '../utils/marker_layout_helper.dart';
 
+import '../utils/pagination_helper.dart';
+
 class SegmentedProgressBar extends StatelessWidget {
-  final int currentPage;
-  final int totalPages;
-  final int currentReads;
-  final PaginationConfig? config;
+  final Book book;
+  final List<ReadHistoryData> history;
   final double height;
 
   const SegmentedProgressBar({
     super.key,
-    required this.currentPage,
-    required this.totalPages,
-    this.currentReads = 0,
-    this.config,
+    required this.book,
+    required this.history,
     this.height = 8.0,
   });
 
@@ -25,10 +24,8 @@ class SegmentedProgressBar extends StatelessWidget {
       width: double.infinity,
       child: CustomPaint(
         painter: _SegmentedProgressPainter(
-          currentPage: currentPage,
-          totalPages: totalPages,
-          currentReads: currentReads,
-          config: config,
+          book: book,
+          history: history,
           colorScheme: Theme.of(context).colorScheme,
           textTheme: Theme.of(context).textTheme,
         ),
@@ -38,18 +35,14 @@ class SegmentedProgressBar extends StatelessWidget {
 }
 
 class _SegmentedProgressPainter extends CustomPainter {
-  final int currentPage;
-  final int totalPages;
-  final int currentReads;
-  final PaginationConfig? config;
+  final Book book;
+  final List<ReadHistoryData> history;
   final ColorScheme colorScheme;
   final TextTheme textTheme;
 
   _SegmentedProgressPainter({
-    required this.currentPage,
-    required this.totalPages,
-    required this.currentReads,
-    this.config,
+    required this.book,
+    required this.history,
     required this.colorScheme,
     required this.textTheme,
   });
@@ -58,11 +51,13 @@ class _SegmentedProgressPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final barY = size.height - 10; // Bar at the bottom area
     final totalW = size.width;
+    final totalPages = book.totalPages ?? 0;
+    if (totalPages == 0) return;
     
     // 1. Draw Background and segments
-    final List<PaginationSegment> segments = (config?.segments.isEmpty ?? true)
+    final List<PaginationSegment> segments = (book.paginationConfig?.segments.isEmpty ?? true)
         ? [PaginationSegment(startPhysical: 1, endPhysical: totalPages, type: PageNumberingType.arabic)]
-        : config!.segments;
+        : book.paginationConfig!.segments;
 
     final paintBg = Paint()
       ..color = colorScheme.surfaceContainerHighest
@@ -76,6 +71,19 @@ class _SegmentedProgressPainter extends CustomPainter {
       ),
       paintBg,
     );
+
+    // Get active session data
+    final completedReads = history.where((h) => h.finishedAt != null).length;
+    final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+    final activeSession = history.where((h) => h.readNumber == activeSessionNum).firstOrNull;
+    
+    Map<int, int> segProgress = {};
+    if (activeSession?.segmentProgress != null) {
+      try {
+        final Map<String, dynamic> decoded = jsonDecode(activeSession!.segmentProgress!);
+        segProgress = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+      } catch (_) {}
+    }
 
     // Draw segments one by one
     for (var i = 0; i < segments.length; i++) {
@@ -95,18 +103,11 @@ class _SegmentedProgressPainter extends CustomPainter {
 
       // Calculate progress width within this specific segment
       double progressInSegment = 0;
-      final sessionProgress = s.sessions[currentReads + 1] ?? 0;
+      final sessionProgress = segProgress[i] ?? 0;
       final segmentTotal = s.endPhysical - s.startPhysical + 1;
 
       if (sessionProgress > 0) {
         progressInSegment = (sessionProgress / segmentTotal) * segmentW;
-      } else if (currentPage >= s.startPhysical) {
-        // Fallback for global progress if session data is missing (legacy/simple)
-        if (currentPage >= s.endPhysical) {
-          progressInSegment = segmentW;
-        } else {
-          progressInSegment = ((currentPage - s.startPhysical + 1) / segmentTotal) * segmentW;
-        }
       }
 
       if (progressInSegment > 0) {
@@ -127,7 +128,7 @@ class _SegmentedProgressPainter extends CustomPainter {
 
     // 2. Draw Markers with Anti-Collision and Leader Lines
     final layouts = MarkerLayoutHelper.calculateLayout(
-      markers: config?.markers ?? [],
+      markers: book.paginationConfig?.markers ?? [],
       totalPages: totalPages,
       totalWidth: totalW,
       textTheme: textTheme,

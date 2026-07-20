@@ -32,7 +32,7 @@ class GoodreadsExportService {
     for (final book in books) {
       try {
         final tags = await _db.tagDao.watchTagsForBook(book.id).first;
-        rows.add(_toRow(_bookToFields(book, tags)));
+        rows.add(_toRow(await _bookToFields(book, tags)));
       } catch (e) {
         errors.add('Book "${book.title}" (id ${book.id}): $e');
       }
@@ -50,8 +50,9 @@ class GoodreadsExportService {
 
   /// Builds a name -> value map for one book. Any header not set here is
   /// exported as an empty string.
-  Map<String, String> _bookToFields(Book book, List<Tag> tags) {
+  Future<Map<String, String>> _bookToFields(Book book, List<Tag> tags) async {
     final shelfNames = tags.map((t) => t.name).join(',');
+    final history = await _db.readHistoryDao.watchHistoryForBook(book.id).first;
     return {
       'Book Id': book.id.toString(),
       'Title': book.title,
@@ -68,7 +69,7 @@ class GoodreadsExportService {
       'Bookshelves': shelfNames,
       'Exclusive Shelf': _mapStatus(book.status),
       'My Review': book.notes ?? '',
-      'Read Count': book.reads.toString(),
+      'Read Count': history.length.toString(),
       'Owned Copies': book.copies.toString(),
     };
   }

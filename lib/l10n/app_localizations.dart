@@ -858,6 +858,78 @@ abstract class AppLocalizations {
   /// **'¿Quieres crear una copia exacta de \"{title}\"?'**
   String bookDetailDuplicateConfirm(String title);
 
+  /// No description provided for @bookDetailNewReadingWholeBook.
+  ///
+  /// In es, this message translates to:
+  /// **'Todo el libro'**
+  String get bookDetailNewReadingWholeBook;
+
+  /// No description provided for @bookDetailNewReadingSections.
+  ///
+  /// In es, this message translates to:
+  /// **'Secciones específicas'**
+  String get bookDetailNewReadingSections;
+
+  /// No description provided for @bookDetailNewReadingSelectSections.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar secciones para releer'**
+  String get bookDetailNewReadingSelectSections;
+
+  /// No description provided for @bookDetailStartNewReadingPrompt.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres empezar una nueva lectura?'**
+  String get bookDetailStartNewReadingPrompt;
+
+  /// No description provided for @bookDetailStartNewReadingButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar nueva lectura'**
+  String get bookDetailStartNewReadingButton;
+
+  /// No description provided for @bookDetailDeleteReadPrompt.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar la última lectura en curso? Se perderán las fechas de esta sesión.'**
+  String get bookDetailDeleteReadPrompt;
+
+  /// No description provided for @bookDetailReadHistoryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'HISTORIAL DE LECTURAS'**
+  String get bookDetailReadHistoryTitle;
+
+  /// No description provided for @bookDetailReadOngoing.
+  ///
+  /// In es, this message translates to:
+  /// **'en curso'**
+  String get bookDetailReadOngoing;
+
+  /// No description provided for @bookDetailReadNumber.
+  ///
+  /// In es, this message translates to:
+  /// **'Lectura {number}'**
+  String bookDetailReadNumber(Object number);
+
+  /// No description provided for @bookDetailReadEditDialogTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar lectura {number}'**
+  String bookDetailReadEditDialogTitle(Object number);
+
+  /// No description provided for @bookDetailReadDeleteConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar esta entrada del historial?'**
+  String get bookDetailReadDeleteConfirm;
+
+  /// No description provided for @bookDetailReadNumberLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Número de lectura'**
+  String get bookDetailReadNumberLabel;
+
   /// Etiqueta de sección de páginas en detalle
   ///
   /// In es, this message translates to:

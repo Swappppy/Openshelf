@@ -395,6 +395,48 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get bookDetailNewReadingWholeBook => 'Whole book';
+
+  @override
+  String get bookDetailNewReadingSections => 'Specific sections';
+
+  @override
+  String get bookDetailNewReadingSelectSections => 'Select sections to re-read';
+
+  @override
+  String get bookDetailStartNewReadingPrompt =>
+      'Do you want to start a new reading session?';
+
+  @override
+  String get bookDetailStartNewReadingButton => 'Start new reading';
+
+  @override
+  String get bookDetailDeleteReadPrompt =>
+      'Delete the latest ongoing reading? Session dates will be lost.';
+
+  @override
+  String get bookDetailReadHistoryTitle => 'READING HISTORY';
+
+  @override
+  String get bookDetailReadOngoing => 'ongoing';
+
+  @override
+  String bookDetailReadNumber(Object number) {
+    return 'Reading $number';
+  }
+
+  @override
+  String bookDetailReadEditDialogTitle(Object number) {
+    return 'Edit reading $number';
+  }
+
+  @override
+  String get bookDetailReadDeleteConfirm => 'Delete this history entry?';
+
+  @override
+  String get bookDetailReadNumberLabel => 'Reading number';
+
+  @override
   String get bookDetailFieldPages => 'PAGES';
 
   @override

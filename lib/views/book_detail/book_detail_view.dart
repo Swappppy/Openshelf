@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:drift/drift.dart' hide Column;
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/database.dart';
@@ -7,8 +9,8 @@ import '../../controllers/database_provider.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/reading_log_controller.dart';
 import '../../controllers/book_operations_controller.dart';
+import '../../controllers/read_history_controller.dart';
 import '../book_form/book_form_view.dart';
-import '../../widgets/tag_chip.dart';
 import '../../l10n/l10n_extension.dart';
 import '../shelves/shelf_books_view.dart';
 import '../../widgets/segmented_progress_bar.dart';
@@ -70,60 +72,133 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     super.dispose();
   }
 
-  /// Updates the book's current page and intelligently adjusts reading status and reads count.
-  Future<void> _updatePage(int newPage, [PaginationConfig? newConfig]) async {
+  /// Updates the book's current page and intelligently adjusts reading status.
+  Future<void> _updatePage(int newPage, Map<int, int> newSegProgress, [PaginationConfig? newConfig]) async {
     final book = widget.book;
-    final oldPage = book.currentPage ?? 0;
     final total = book.totalPages ?? 0;
     final oldStatus = book.status;
+    final l10n = context.l10n; // Capture l10n at the beginning
+    final db = ref.read(databaseProvider);
+
+    // Get current completed reads from history
+    final history = await db.readHistoryDao.watchHistoryForBook(book.id).first;
+    final completedReads = history.where((h) => h.finishedAt != null).length;
     
-    ReadingStatus newStatus = oldStatus;
-    DateTime? newFinishedAt = book.finishedAt;
-    DateTime? newStartedAt = book.startedAt;
-    
+    // Determine which session we are updating based on status
+    final int sessionIdx = (oldStatus == ReadingStatus.read) ? (completedReads > 0 ? completedReads : 1) : completedReads + 1;
+
     // 1. Use the new config (which contains the independent session data)
     final PaginationConfig activeConfig = newConfig ?? (book.paginationConfig ?? PaginationConfig());
 
-    // 2. Calculate the global 'reads' count based on the new segments state
-    // We consider a global 'read' completed only if all segments are finished in their current session
-    bool allSegmentsFinished = true;
-    if (activeConfig.segments.isNotEmpty) {
-      for (final s in activeConfig.segments) {
-        final progress = s.sessions[book.reads + 1] ?? 0;
-        final segmentTotal = s.endPhysical - s.startPhysical + 1;
-        if (progress < segmentTotal) {
-          allSegmentsFinished = false;
-          break;
-        }
-      }
-    }
+    // 2. Calculate true total read pages from all segments for the current session
+    final currentHistoryEntry = history.firstWhereOrNull((h) => h.readNumber == sessionIdx);
+    int oldTotalRead = currentHistoryEntry?.progress ?? 0;
+    int newTotalRead = newPage; // Already calculated in SegmentedPagePicker if segments exist
 
-    int newReads = book.reads;
-    if (newPage == 0) {
+    bool allSegmentsFinished = (total > 0 && newTotalRead >= total);
+
+    ReadingStatus newStatus = oldStatus;
+    DateTime? newFinishedAt = book.finishedAt;
+    DateTime? newStartedAt = book.startedAt;
+    int targetPage = newTotalRead; // Use the sum of pages read in the session
+
+    if (newTotalRead == 0) {
       newStatus = ReadingStatus.wantToRead;
       newFinishedAt = null;
-    } else if (total > 0 && newPage >= total && allSegmentsFinished) {
+      newStartedAt = null;
+
+      // Delete the session we just reset to 0 in ReadHistory
+      await db.readHistoryDao.deleteReadByNumber(book.id, sessionIdx);
+    } else if (allSegmentsFinished) {
+      // Automatic completion: Transition to 'Read' status
       if (oldStatus != ReadingStatus.read) {
-        newReads++;
         newStatus = ReadingStatus.read;
         newFinishedAt = DateTime.now();
+        targetPage = total; // Cap current page to total
+        
+    // Update ReadHistory entries
+    final currentHistoryEntry = history.firstWhereOrNull((h) => h.readNumber == sessionIdx);
+    if (currentHistoryEntry != null) {
+      await db.readHistoryDao.updateRead(currentHistoryEntry.copyWith(
+        finishedAt: Value(newFinishedAt),
+        progress: newTotalRead,
+        segmentProgress: Value(jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
+      ));
+    } else {
+       await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+         bookId: book.id,
+         readNumber: sessionIdx,
+         startedAt: Value(newStartedAt ?? DateTime.now()),
+         finishedAt: Value(newFinishedAt),
+         progress: Value(targetPage),
+         segmentProgress: Value(jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
+       ));
+    }
       }
     } else {
       if (oldStatus == ReadingStatus.read) {
-        newStatus = ReadingStatus.reading;
-        newFinishedAt = null;
-      } else {
-        if (oldStatus == ReadingStatus.wantToRead) {
+        // If we were at 100% and reduced progress in ANY section
+        if (newTotalRead < total) {
           newStatus = ReadingStatus.reading;
-          newStartedAt ??= DateTime.now();
+          newFinishedAt = null;
+
+          // Sync ReadHistory: remove finishedAt from the session that was just "unfinished"
+          if (currentHistoryEntry != null) {
+             await db.readHistoryDao.updateRead(currentHistoryEntry.copyWith(
+               finishedAt: const Value(null),
+               progress: newTotalRead,
+               segmentProgress: Value(jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
+             ));
+          }
         }
+      } else if (oldStatus == ReadingStatus.wantToRead || oldStatus == ReadingStatus.abandoned || oldStatus == ReadingStatus.paused || (oldStatus == ReadingStatus.reading && oldTotalRead == 0)) {
+        // If we move from 0 (or inactive status) to something in any section, start the reading session logic
+        if (newTotalRead > 0) {
+          newStatus = ReadingStatus.reading;
+          if (newStartedAt == null) {
+            newStartedAt = DateTime.now();
+            
+            final existing = await db.readHistoryDao.getRead(book.id, sessionIdx);
+            if (existing == null) {
+              await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+                bookId: book.id,
+                readNumber: sessionIdx,
+                startedAt: Value(newStartedAt),
+                finishedAt: const Value(null),
+                progress: Value(newTotalRead),
+                segmentProgress: Value(jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
+              ));
+            } else {
+               await db.readHistoryDao.updateRead(existing.copyWith(
+                 progress: newTotalRead,
+                 segmentProgress: Value(jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
+               ));
+            }
+          } else {
+             final existing = await db.readHistoryDao.getRead(book.id, sessionIdx);
+             if (existing != null) {
+                await db.readHistoryDao.updateRead(existing.copyWith(
+                  progress: newTotalRead,
+                  segmentProgress: Value(jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
+                ));
+             }
+          }
+        }
+      } else {
+         // Reading status, just update progress
+         final existing = await db.readHistoryDao.getRead(book.id, sessionIdx);
+         if (existing != null) {
+            await db.readHistoryDao.updateRead(existing.copyWith(
+              progress: newTotalRead,
+              segmentProgress: Value(jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
+            ));
+         }
       }
     }
 
     final updated = book.copyWith(
-      currentPage: Value(newPage),
+      currentPage: Value(targetPage),
       status: newStatus,
-      reads: newReads,
       paginationConfig: Value(activeConfig),
       finishedAt: Value(newFinishedAt),
       startedAt: Value(newStartedAt),
@@ -131,186 +206,418 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
 
     await ref.read(databaseProvider).bookDao.updateBook(updated);
 
-    if (newPage > oldPage) {
-      await ref.read(readingLogControllerProvider.notifier).logPages(book.id, newPage - oldPage);
+    // Use the delta of true total read pages for the log
+    if (newTotalRead != oldTotalRead) {
+      // Determine which sections changed
+      final changedSectionLabels = <String>[];
+      if (activeConfig.segments.isNotEmpty && book.paginationConfig != null) {
+        Map<int, int> oldSegProgress = {};
+        if (currentHistoryEntry?.segmentProgress != null) {
+          try {
+            final Map<String, dynamic> decoded = jsonDecode(currentHistoryEntry!.segmentProgress!);
+            oldSegProgress = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+          } catch (_) {}
+        }
+
+        for (int i = 0; i < activeConfig.segments.length; i++) {
+          final newSeg = activeConfig.segments[i];
+          final newVal = newSegProgress[i] ?? 0;
+          final oldVal = oldSegProgress[i] ?? 0;
+          
+          if (newVal != oldVal) {
+            changedSectionLabels.add(newSeg.label ?? l10n.paginationSectionLabel(i + 1));
+          }
+        }
+      }
+
+      await ref.read(readingLogControllerProvider.notifier).logPages(
+        book.id, 
+        newTotalRead - oldTotalRead,
+        changedSectionLabels.isEmpty ? null : changedSectionLabels,
+      );
     }
   }
 
-  Future<void> _incrementReads() async {
+  Future<void> _startNewReading([List<int>? selectedIndices]) async {
+    final l10n = context.l10n; // Capture l10n early
     final book = widget.book;
-    final total = book.totalPages ?? 0;
-    final oldPage = book.currentPage ?? 0;
-    final sessions = Map<int, int>.from(book.readingSessions);
-    
-    // 1. Current session (if any) should be marked as finished
-    final currentSessionIdx = book.reads + 1;
-    sessions[currentSessionIdx] = total;
+    final db = ref.read(databaseProvider);
+    final history = await db.readHistoryDao.watchHistoryForBook(book.id).first;
+    final int newReadNumber = history.isEmpty 
+        ? 1 
+        : history.map((h) => h.readNumber).reduce((a, b) => a > b ? a : b) + 1;
+    final now = DateTime.now();
+    final bookId = book.id;
+    final config = book.paginationConfig;
 
-    // 2. Increment completed reads
-    final newReads = book.reads + 1;
-    
-    // 3. Prepare next session
-    sessions[newReads + 1] = 1;
+    // 1. Prepare segments progress
+    final newSegProgress = <int, int>{};
+    if (book.paginationConfig != null && book.paginationConfig!.segments.isNotEmpty) {
+      // Get previous progress from the last history entry
+      final lastEntry = history.lastOrNull;
+      Map<int, int> lastSegProgress = {};
+      if (lastEntry?.segmentProgress != null) {
+        try {
+          final Map<String, dynamic> decoded = jsonDecode(lastEntry!.segmentProgress!);
+          lastSegProgress = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+        } catch (_) {}
+      }
 
-    // 4. Synchronize Advanced Pagination Config if exists
-    PaginationConfig? newConfig = book.paginationConfig;
-    if (newConfig != null && newConfig.segments.isNotEmpty) {
-      final newSegments = newConfig.segments.asMap().entries.map((e) {
-        final s = e.value;
-        final updatedSess = Map<int, int>.from(s.sessions);
-        
-        // Mark current session as finished
-        updatedSess[currentSessionIdx] = s.endPhysical - s.startPhysical + 1;
-        
-        // Prepare next session
-        updatedSess[newReads + 1] = 1;
-        
-        return s.copyWith(sessions: updatedSess);
-      }).toList();
-      newConfig = newConfig.copyWith(segments: newSegments);
+      for (int i = 0; i < book.paginationConfig!.segments.length; i++) {
+        bool isReReading = selectedIndices == null || selectedIndices.contains(i);
+        if (isReReading) {
+          // Reset progress for segments that are part of the new reading session
+          bool isFirstReRead = selectedIndices == null ? i == 0 : i == selectedIndices.first;
+          newSegProgress[i] = isFirstReRead ? 1 : 0;
+        } else {
+          // If not re-reading, maintain previous progress
+          newSegProgress[i] = lastSegProgress[i] ?? 0;
+        }
+      }
     }
 
+    // 2. Prepare sessions - total progress for the session
+    int totalReadInNewSess = 0;
+    if (newSegProgress.isNotEmpty) {
+      for (final val in newSegProgress.values) {
+        totalReadInNewSess += val;
+      }
+    } else {
+      totalReadInNewSess = 1;
+    }
+
+    // 3. Update Book
     final updated = book.copyWith(
-      reads: newReads,
-      currentPage: const Value(1),
+      currentPage: Value(totalReadInNewSess),
       status: ReadingStatus.reading,
-      readingSessions: sessions,
-      paginationConfig: Value(newConfig),
+      startedAt: Value(now),
       finishedAt: const Value(null),
     );
     await ref.read(databaseProvider).bookDao.updateBook(updated);
 
-    // 5. Log progress for the remaining pages in the session being finished
-    if (total > oldPage) {
-      await ref.read(readingLogControllerProvider.notifier).logPages(book.id, total - oldPage);
+    // 4. Create ReadHistory entry
+    final selectedLabels = <String>[];
+    if (selectedIndices != null && config != null) {
+      for (final idx in selectedIndices) {
+        if (idx < config.segments.length) {
+          selectedLabels.add(config.segments[idx].label ?? l10n.paginationSectionLabel(idx + 1));
+        }
+      }
     }
-    // Also log 1 page for the start of the new session
-    await ref.read(readingLogControllerProvider.notifier).logPages(book.id, 1);
+
+    await ref.read(databaseProvider).readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+      bookId: bookId,
+      readNumber: newReadNumber,
+      startedAt: Value(now),
+      finishedAt: const Value(null),
+      sections: Value(selectedLabels.isEmpty ? null : jsonEncode(selectedLabels)),
+      progress: Value(totalReadInNewSess),
+      segmentProgress: Value(newSegProgress.isEmpty ? null : jsonEncode(newSegProgress.map((k, v) => MapEntry(k.toString(), v)))),
+    ));
+
+    // 5. Log first page(s)
+    if (totalReadInNewSess > 0) {
+      await ref.read(readingLogControllerProvider.notifier).logPages(
+        bookId, 
+        totalReadInNewSess,
+        selectedLabels.isEmpty ? null : selectedLabels,
+      );
+    }
   }
 
-  Future<void> _decrementReads() async {
+  void _showStartNewReadingDialog() {
     final book = widget.book;
-    final currentPage = book.currentPage ?? 0;
-    final sessions = Map<int, int>.from(book.readingSessions);
-    
-    // If we are at page 1 and decrementing, remove this session entry to save memory/avoid misclicks
-    if (currentPage <= 1) {
-      // Log negative progress for the current session start
-      if (currentPage > 0) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(book.id, -currentPage);
-      }
+    final segments = book.paginationConfig?.segments ?? [];
 
-      sessions.remove(book.reads + 1);
-      
-      // If we still have completed reads, go back to the previous one
-      if (book.reads > 0) {
-        final newReads = book.reads - 1;
-        
-        // Log negative progress for finishing the previous read (reverting it to "not finished")
-        // Actually, we are just moving back in time.
-        
-        // Restore segments to fully read state for the previous read
-        PaginationConfig? newConfig = book.paginationConfig;
-        if (newConfig != null && newConfig.segments.isNotEmpty) {
-          final newSegments = newConfig.segments.map((s) {
-            final updatedSess = Map<int, int>.from(s.sessions);
-            updatedSess.remove(book.reads + 1); // Remove the session we just cancelled
-            return s.copyWith(sessions: updatedSess);
-          }).toList();
-          newConfig = newConfig.copyWith(segments: newSegments);
-        }
-
-        final updated = book.copyWith(
-          reads: newReads,
-          currentPage: Value(book.totalPages),
-          status: ReadingStatus.read,
-          readingSessions: sessions,
-          paginationConfig: Value(newConfig),
-        );
-        await ref.read(databaseProvider).bookDao.updateBook(updated);
-      } else {
-        // We were on the first read at page 1, reset to 'Want to Read'
-        PaginationConfig? newConfig = book.paginationConfig;
-        if (newConfig != null && newConfig.segments.isNotEmpty) {
-          final newSegments = newConfig.segments.map((s) {
-            final updatedSess = Map<int, int>.from(s.sessions);
-            updatedSess.remove(1);
-            return s.copyWith(sessions: updatedSess);
-          }).toList();
-          newConfig = newConfig.copyWith(segments: newSegments);
-        }
-
-        final updated = book.copyWith(
-          currentPage: const Value(0),
-          status: ReadingStatus.wantToRead,
-          readingSessions: sessions,
-          paginationConfig: Value(newConfig),
-        );
-        await ref.read(databaseProvider).bookDao.updateBook(updated);
-      }
+    if (segments.isEmpty) {
+      _startNewReading();
       return;
     }
 
-    // Normal decrement (when > 1 page): just revert to page 1 of current session or similar?
-    // User requested: "decrementing, revert current session back to total of previous"
-    // Wait, the original code had: "Normal decrement (when > 1 page): revert current session back to total of previous"
-    // but the logic below it only handled if (book.reads > 0).
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        bool selectSections = false;
+        final selectedIndices = <int>[];
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(context.l10n.bookDetailStartNewReadingButton),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    RadioGroup<bool>(
+                      groupValue: selectSections,
+                      onChanged: (v) => setState(() => selectSections = v!),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          RadioListTile<bool>(
+                            title: Text(context.l10n.bookDetailNewReadingWholeBook),
+                            value: false,
+                          ),
+                          RadioListTile<bool>(
+                            title: Text(context.l10n.bookDetailNewReadingSections),
+                            value: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (selectSections) ...[
+                      const Divider(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          context.l10n.bookDetailNewReadingSelectSections,
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ),
+                      ...segments.asMap().entries.map((entry) {
+                        final i = entry.key;
+                        final s = entry.value;
+                        return CheckboxListTile(
+                          title: Text(s.label ?? 'Sección ${i + 1}'),
+                          value: selectedIndices.contains(i),
+                          onChanged: (checked) {
+                            setState(() {
+                              if (checked == true) {
+                                selectedIndices.add(i);
+                                selectedIndices.sort();
+                              } else {
+                                selectedIndices.remove(i);
+                              }
+                            });
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                          dense: true,
+                        );
+                      }),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(context.l10n.cancel),
+                ),
+                FilledButton(
+                  onPressed: selectSections && selectedIndices.isEmpty
+                      ? null
+                      : () {
+                          Navigator.pop(ctx);
+                          _startNewReading(selectSections ? selectedIndices : null);
+                        },
+                  child: Text(context.l10n.save),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _updateReadHistory(ReadHistoryData history, {DateTime? startedAt, DateTime? finishedAt, int? readNumber}) async {
+    final db = ref.read(databaseProvider);
+    await db.readHistoryDao.updateRead(history.copyWith(
+      startedAt: Value(startedAt),
+      finishedAt: Value(finishedAt),
+      readNumber: readNumber,
+    ));
+  }
+
+  Future<void> _deleteReadHistory(int readNumber) async {
+    final book = widget.book;
+    final db = ref.read(databaseProvider);
     
-    if (book.reads > 0) {
-      // Log negative progress for current session
-      await ref.read(readingLogControllerProvider.notifier).logPages(book.id, -currentPage);
+    // Delete the entry
+    await db.readHistoryDao.deleteReadByNumber(book.id, readNumber);
+    
+    // Renumber subsequent entries
+    final remainingHistory = await db.readHistoryDao.watchHistoryForBook(book.id).first;
+    
+    ReadHistoryData? lastFinished;
+    ReadHistoryData? ongoing;
 
-      sessions.remove(book.reads + 1);
-      final newReads = book.reads - 1;
-      // No need to set sessions[newReads + 1] = book.totalPages here, it's already there as it was a finished session.
-
-      // Restore segments to fully read state
-      PaginationConfig? newConfig = book.paginationConfig;
-      if (newConfig != null && newConfig.segments.isNotEmpty) {
-        final newSegments = newConfig.segments.map((s) {
-          final updatedSess = Map<int, int>.from(s.sessions);
-          updatedSess.remove(book.reads + 1);
-          return s.copyWith(sessions: updatedSess);
-        }).toList();
-        newConfig = newConfig.copyWith(segments: newSegments);
+    for (int i = 0; i < remainingHistory.length; i++) {
+      final h = remainingHistory[i];
+      final newNumber = i + 1;
+      
+      if (h.readNumber != newNumber) {
+        await db.readHistoryDao.updateRead(h.copyWith(readNumber: newNumber));
       }
-
-      final updated = book.copyWith(
-        reads: newReads,
-        currentPage: Value(book.totalPages),
-        status: ReadingStatus.read,
-        readingSessions: sessions,
-        paginationConfig: Value(newConfig),
-      );
-      await ref.read(databaseProvider).bookDao.updateBook(updated);
+      
+      if (h.finishedAt != null) {
+        lastFinished = h;
+      } else {
+        ongoing = h;
+      }
     }
+
+    // Update the book's status based on remaining history
+    ReadingStatus newStatus = book.status;
+    int newCurrentPage = 0;
+    DateTime? newStartedAt;
+    DateTime? newFinishedAt;
+
+    if (ongoing != null) {
+      newStatus = ReadingStatus.reading;
+      newStartedAt = ongoing.startedAt;
+      newFinishedAt = null;
+      newCurrentPage = ongoing.progress;
+    } else if (lastFinished != null) {
+      newStatus = ReadingStatus.read;
+      newStartedAt = lastFinished.startedAt;
+      newFinishedAt = lastFinished.finishedAt;
+      newCurrentPage = book.totalPages ?? 0;
+    } else {
+      newStatus = ReadingStatus.wantToRead;
+      newStartedAt = null;
+      newFinishedAt = null;
+      newCurrentPage = 0;
+    }
+
+    final updated = book.copyWith(
+      status: newStatus,
+      currentPage: Value(newCurrentPage),
+      startedAt: Value(newStartedAt),
+      finishedAt: Value(newFinishedAt),
+    );
+    
+    await db.bookDao.updateBook(updated);
   }
 
-  Future<void> _incrementCopies() async {
-    final updated = widget.book.copyWith(
-      copies: widget.book.copies + 1,
+  void _showEditHistoryDialog(ReadHistoryData h) {
+    DateTime? startedAt = h.startedAt;
+    DateTime? finishedAt = h.finishedAt;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(context.l10n.bookDetailReadEditDialogTitle(h.readNumber)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  title: Text(context.l10n.bookDetailFieldStarted),
+                  subtitle: Text(startedAt != null ? '${startedAt!.day}/${startedAt!.month}/${startedAt!.year}' : '—'),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: startedAt ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) setState(() => startedAt = picked);
+                  },
+                ),
+                ListTile(
+                  title: Text(context.l10n.bookDetailFieldFinished),
+                  subtitle: Text(finishedAt != null ? '${finishedAt!.day}/${finishedAt!.month}/${finishedAt!.year}' : '—'),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: finishedAt ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) setState(() => finishedAt = picked);
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: Text(context.l10n.cancel)),
+              FilledButton(
+                onPressed: () {
+                  _updateReadHistory(h, startedAt: startedAt, finishedAt: finishedAt);
+                  Navigator.pop(ctx);
+                },
+                child: Text(context.l10n.save),
+              ),
+            ],
+          );
+        },
+      ),
     );
-    await ref.read(databaseProvider).bookDao.updateBook(updated);
   }
 
-  Future<void> _decrementCopies() async {
-    if (widget.book.copies <= 1) return;
-    final updated = widget.book.copyWith(
-      copies: widget.book.copies - 1,
+  void _showHistoryOptions(ReadHistoryData h) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: Text(context.l10n.edit),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showEditHistoryDialog(h);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: Text(context.l10n.delete),
+              onTap: () {
+                Navigator.pop(ctx);
+                showDialog(
+                  context: context,
+                  builder: (ctx2) => AlertDialog(
+                    title: Text(context.l10n.delete),
+                    content: Text(context.l10n.bookDetailReadDeleteConfirm),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx2), child: Text(context.l10n.cancel)),
+                      FilledButton(
+                        onPressed: () {
+                          _deleteReadHistory(h.readNumber);
+                          Navigator.pop(ctx2);
+                        },
+                        child: Text(context.l10n.delete),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
-    await ref.read(databaseProvider).bookDao.updateBook(updated);
   }
 
   Future<void> _updateNotes(String notes) async {
-    final updated = widget.book.copyWith(
-      notes: Value(notes.trim().isEmpty ? null : notes.trim()),
-    );
+    final updated = widget.book.copyWith(notes: Value(notes));
     await ref.read(databaseProvider).bookDao.updateBook(updated);
   }
 
-  void _showPagePicker(BuildContext context) {
+  void _showPagePicker(BuildContext context) async {
     final book = widget.book;
     if (book.totalPages == null) return;
+
+    final db = ref.read(databaseProvider);
+    final history = await db.readHistoryDao.watchHistoryForBook(book.id).first;
+    final completedReads = history.where((h) => h.finishedAt != null).length;
+    final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+    final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
+
+    if (!context.mounted) return;
+
+    Map<int, int> initialSegProgress = {};
+    if (activeSession?.segmentProgress != null) {
+      try {
+        final Map<String, dynamic> decoded = jsonDecode(activeSession!.segmentProgress!);
+        initialSegProgress = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+      } catch (_) {}
+    }
 
     showModalBottomSheet(
       context: context,
@@ -321,13 +628,13 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       builder: (ctx) => Container(
         padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
         child: SegmentedPagePicker(
-          initialPhysicalPage: book.currentPage ?? 0,
           totalPages: book.totalPages!,
-          currentReads: book.reads,
-          initialSessions: book.readingSessions,
+          status: book.status,
+          initialProgress: activeSession?.progress ?? 0,
+          initialSegmentProgress: initialSegProgress,
           config: book.paginationConfig,
-          onSave: (phys, newConfig) async {
-            await _updatePage(phys, newConfig);
+          onSave: (phys, newSegProgress, newConfig) async {
+            await _updatePage(phys, newSegProgress, newConfig);
             if (ctx.mounted) Navigator.pop(ctx);
           },
         ),
@@ -346,36 +653,32 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          24,
-          24,
-          MediaQuery.of(ctx).viewInsets.bottom + 24,
-        ),
+        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               context.l10n.bookDetailNotesTitle,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
-              maxLines: 6,
+              maxLines: 10,
+              autofocus: true,
               decoration: InputDecoration(
-                border: const OutlineInputBorder(),
                 hintText: context.l10n.bookDetailNotesHint,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             FilledButton(
-              onPressed: () async {
-                await _updateNotes(controller.text);
-                if (ctx.mounted) Navigator.pop(ctx);
+              onPressed: () {
+                _updateNotes(controller.text);
+                Navigator.pop(ctx);
               },
               child: Text(context.l10n.save),
             ),
@@ -391,40 +694,27 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 40,
-        title: null,
+        title: const Text(''),
+        scrolledUnderElevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => Navigator.push(
               context,
-              PageRouteBuilder(
-                pageBuilder: (_, animation, _) =>
-                    BookFormView(existingBook: book),
-                transitionsBuilder: (_, animation, _, child) =>
-                    SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 1),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOutCubic,
-                      )),
-                      child: child,
-                    ),
-                transitionDuration: const Duration(milliseconds: 350),
+              MaterialPageRoute(
+                builder: (_) => BookFormView(existingBook: book),
               ),
             ),
           ),
           IconButton(
             icon: const Icon(Icons.copy_outlined),
-            tooltip: context.l10n.duplicate,
             onPressed: () => _confirmDuplicate(context),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: () => _confirmDelete(context),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
@@ -432,6 +722,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           _BookHeader(book: book),
           TabBar(
             controller: _tabController,
+            dividerColor: Colors.transparent,
             tabs: [
               Tab(icon: const Icon(Icons.menu_book_outlined), text: context.l10n.tabMain),
               Tab(icon: const Icon(Icons.label_outline), text: context.l10n.tabDetails),
@@ -448,10 +739,8 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                 _DetailsTab(
                   book: book,
                   onTapNotes: () => _showNotesEditor(context),
-                  onIncrementReads: _incrementReads,
-                  onDecrementReads: _decrementReads,
-                  onIncrementCopies: _incrementCopies,
-                  onDecrementCopies: _decrementCopies,
+                  onStartNewReading: _showStartNewReadingDialog,
+                  onLongPressHistory: _showHistoryOptions,
                 ),
               ],
             ),
@@ -473,16 +762,15 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
             child: Text(context.l10n.cancel),
           ),
           FilledButton(
+            onPressed: () {
+              ref.read(databaseProvider).bookDao.deleteBook(widget.book.id);
+              Navigator.pop(ctx); // Close dialog
+              Navigator.pop(context); // Go back to library
+            },
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
             ),
-            onPressed: () async {
-              await ref
-                  .read(databaseProvider)
-                  .bookDao.deleteBook(widget.book.id);
-              if (ctx.mounted) Navigator.pop(ctx);
-              if (context.mounted) Navigator.pop(context);
-            },
             child: Text(context.l10n.delete),
           ),
         ],
@@ -504,12 +792,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           FilledButton(
             onPressed: () async {
               await ref.read(bookOperationsProvider).duplicate(widget.book.id);
-              if (ctx.mounted) Navigator.pop(ctx);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.l10n.addedToLibrary)),
-                );
-              }
+              if (context.mounted) Navigator.pop(ctx);
             },
             child: Text(context.l10n.duplicate),
           ),
@@ -519,93 +802,71 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
   }
 }
 
-/// Header section displaying the large cover and a summary column (Title, Author, Rating, Tags).
-class _BookHeader extends ConsumerWidget {
+class _BookHeader extends StatelessWidget {
   final Book book;
   const _BookHeader({required this.book});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final tagsAsync = ref.watch(bookTagsProvider(book.id));
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cover image
           Hero(
-            tag: 'book_cover_${book.id}',
+            tag: 'book-cover-${book.id}',
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               child: book.coverPath != null
                   ? Image.file(
                 File(book.coverPath!),
                 width: 100,
                 height: 150,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const _CoverPlaceholder(width: 100, height: 150),
               )
-                  : const _CoverPlaceholder(width: 100, height: 150),
+                  : _CoverPlaceholder(width: 100, height: 150),
             ),
           ),
           const SizedBox(width: 20),
-
-          // Summary Column
+          // Titles and Author
           Expanded(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 150), // Ensures alignment for short content
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        book.title,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Serif',
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (book.subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          book.subtitle!,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface.withValues(alpha: 0.7),
-                            fontStyle: FontStyle.italic,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                      const SizedBox(height: 2),
-                      Text(
-                        book.author,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  book.title,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Serif',
                   ),
-
-                  // Tags display (Limited to 2 rows with +N counter)
-                  tagsAsync.maybeWhen(
-                    data: (tagList) => tagList.isEmpty 
-                      ? const SizedBox.shrink() 
-                      : _CompactTagsDisplay(tags: tagList),
-                    orElse: () => const SizedBox.shrink(),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (book.subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    book.subtitle!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.outline,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  book.author,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _StatusChip(status: book.status),
+              ],
             ),
           ),
         ],
@@ -614,80 +875,44 @@ class _BookHeader extends ConsumerWidget {
   }
 }
 
-/// A smart tag display that fits tags within two rows and adds a counter for hidden ones.
-class _CompactTagsDisplay extends StatelessWidget {
-  final List<Tag> tags;
-  const _CompactTagsDisplay({required this.tags});
+class _StatusChip extends StatelessWidget {
+  final ReadingStatus status;
+  const _StatusChip({required this.status});
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final colorScheme = Theme.of(context).colorScheme;
-        final textStyle = const TextStyle(fontSize: 12, fontWeight: FontWeight.w500);
-        
-        final rows = <List<Tag>>[];
-        var currentContext = <Tag>[];
-        double currentRowWidth = 0;
-        const spacing = 8.0;
-        const chipPadding = 20.0; // horizontal total
+    final color = switch (status) {
+      ReadingStatus.wantToRead => Colors.orange,
+      ReadingStatus.reading => Colors.blue,
+      ReadingStatus.read => Colors.green,
+      ReadingStatus.abandoned => Colors.red,
+      ReadingStatus.paused => Colors.deepPurpleAccent,
+    };
 
-        for (var i = 0; i < tags.length; i++) {
-          final tag = tags[i];
-          final painter = TextPainter(
-            text: TextSpan(text: tag.name, style: textStyle),
-            textDirection: TextDirection.ltr,
-          )..layout();
-          
-          final tagWidth = painter.width + chipPadding;
-          
-          if (currentRowWidth + tagWidth <= constraints.maxWidth) {
-            currentContext.add(tag);
-            currentRowWidth += tagWidth + spacing;
-          } else {
-            rows.add(currentContext);
-            currentContext = [tag];
-            currentRowWidth = tagWidth + spacing;
-          }
-          
-          if (rows.length == 2) break;
-        }
-        
-        if (rows.length < 2) rows.add(currentContext);
-        
-        final visibleTags = rows.take(2).expand((r) => r).toList();
-        final hiddenCount = tags.length - visibleTags.length;
+    final label = switch (status) {
+      ReadingStatus.wantToRead => context.l10n.statusWantToRead,
+      ReadingStatus.reading => context.l10n.statusReading,
+      ReadingStatus.read => context.l10n.statusRead,
+      ReadingStatus.abandoned => context.l10n.statusAbandoned,
+      ReadingStatus.paused => context.l10n.statusPaused,
+    };
 
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            ...visibleTags.map((tag) {
-              return TagChip(
-                label: tag.name,
-                colorHex: tag.color,
-                heroTag: 'tag_title_${tag.id}',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => TagBooksView(tag: tag)),
-                ),
-              );
-            }),
-            if (hiddenCount > 0)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: colorScheme.surfaceContainerHighest,
-                ),
-                child: Text(
-                  '+$hiddenCount',
-                  style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-                ),
-              ),
-          ],
-        );
-      },
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.0,
+        ),
+      ),
     );
   }
 }
@@ -698,7 +923,11 @@ class _CompactTagsDisplay extends StatelessWidget {
 class _MainTab extends StatelessWidget {
   final Book book;
   final VoidCallback onTapPages;
-  const _MainTab({required this.book, required this.onTapPages});
+
+  const _MainTab({
+    required this.book,
+    required this.onTapPages,
+  });
 
   String _formatLabel(BuildContext context, BookFormat? format) {
     switch (format) {
@@ -719,24 +948,41 @@ class _MainTab extends StatelessWidget {
     }
   }
 
-  String _getMultiBlockProgress(Book book) {
+  String _getMultiBlockProgress(Book book, List<ReadHistoryData> history) {
     if (book.paginationConfig == null || book.paginationConfig!.segments.isEmpty) {
       return '';
     }
     
-    return book.paginationConfig!.segments.map((s) {
+    final completedReads = history.where((h) => h.finishedAt != null).length;
+    final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+    final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
+    
+    Map<int, int> segProgress = {};
+    if (activeSession?.segmentProgress != null) {
+      try {
+        final Map<String, dynamic> decoded = jsonDecode(activeSession!.segmentProgress!);
+        segProgress = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+      } catch (_) {}
+    }
+
+    return book.paginationConfig!.segments.asMap().entries.map((entry) {
+      final i = entry.key;
+      final s = entry.value;
       final endVisual = PaginationHelper.getVisualPageInSegment(s.endPhysical, s);
       
-      // Use the segment's independent session progress
-      final currentInSegment = s.sessions[book.reads + 1] ?? 0;
+      final currentInSegment = segProgress[i] ?? 0;
       
-      // Calculate physical page within segment to get visual representation
-      // if currentInSegment is 5, it means 5 pages read, so we are at startPhysical + 4
-      final physForVisual = s.startPhysical + (currentInSegment > 0 ? currentInSegment - 1 : 0);
-      final currentVisualInSegment = PaginationHelper.getVisualPageInSegment(physForVisual, s);
+      String visualProgress = '';
+      if (currentInSegment == 0) {
+        visualProgress = s.type == PageNumberingType.roman ? '-' : '0';
+      } else {
+        // Calculate physical page within segment to get visual representation
+        final physForVisual = s.startPhysical + currentInSegment - 1;
+        visualProgress = PaginationHelper.getVisualPageInSegment(physForVisual, s);
+      }
       
-      return '$currentVisualInSegment/$endVisual';
-    }).join(', ');
+      return '${s.label ?? 'Sección ${i + 1}'}: $visualProgress/$endVisual';
+    }).join('  •  ');
   }
 
   void _showFullDescription(BuildContext context, String description) {
@@ -848,42 +1094,6 @@ class _MainTab extends StatelessWidget {
           ),
           const SizedBox(height: 20),
         ],
-        
-        // Full Category list
-        Text(
-          context.l10n.bookDetailFieldCategories,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Consumer(builder: (context, ref, _) {
-          final tagsAsync = ref.watch(bookTagsProvider(book.id));
-          return tagsAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const Text('—'),
-            data: (tagList) => tagList.isEmpty
-                ? Text(
-              '—',
-              style: Theme.of(context).textTheme.bodyLarge,
-            )
-                : Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: tagList.map((tag) => TagChip(
-                label: tag.name,
-                colorHex: tag.color,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => TagBooksView(tag: tag)),
-                ),
-              )).toList(),
-            ),
-          );
-        }),
-        const SizedBox(height: 20),
 
         // Progress Section - Tap to edit
         GestureDetector(
@@ -911,51 +1121,56 @@ class _MainTab extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 4),
-              if (book.totalPages != null) ...[
-                const SizedBox(height: 8),
-                SegmentedProgressBar(
-                  currentPage: book.currentPage ?? 0,
-                  totalPages: book.totalPages!,
-                  currentReads: book.reads,
-                  config: book.paginationConfig,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _getMultiBlockProgress(book),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.outline,
-                          fontSize: 11,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+        Consumer(builder: (context, ref, _) {
+          final historyAsync = ref.watch(readHistoryProvider(book.id));
+          return historyAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const Text('—'),
+            data: (history) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (book.totalPages != null) ...[
+                    const SizedBox(height: 8),
+                    SegmentedProgressBar(
+                      book: book,
+                      history: history,
                     ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    const SizedBox(height: 8),
+                    Row(
                       children: [
-                        Text(
-                          'Pág. ${book.currentPage ?? 0} / ${book.totalPages ?? 0}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Text(
+                            _getMultiBlockProgress(book, history),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.outline,
+                                  fontSize: 11,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Text(
-                          '${(((book.currentPage ?? 0) / book.totalPages!) * 100).toStringAsFixed(0)}%',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
+                        const SizedBox(width: 8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Pág. ${PaginationHelper.getTotalReadPages(book, history)} / ${book.totalPages ?? 0}',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ] else
-                Text('—', style: Theme.of(context).textTheme.bodyLarge),
+                  ] else
+                    Text('—', style: Theme.of(context).textTheme.bodyLarge),
+                ],
+              );
+            },
+          );
+        }),
               
               if (book.paginationConfig != null && book.paginationConfig!.markers.isNotEmpty) ...[
                 const SizedBox(height: 16),
@@ -1009,357 +1224,485 @@ class _MainTab extends StatelessWidget {
 // -------------------------------------------------------
 // Details Tab
 // -------------------------------------------------------
-class _DetailsTab extends StatelessWidget {
+class _DetailsTab extends ConsumerWidget {
   final Book book;
   final VoidCallback onTapNotes;
-  final VoidCallback onIncrementReads;
-  final VoidCallback onDecrementReads;
-  final VoidCallback onIncrementCopies;
-  final VoidCallback onDecrementCopies;
+  final VoidCallback onStartNewReading;
+  final Function(ReadHistoryData) onLongPressHistory;
   const _DetailsTab({
     required this.book,
     required this.onTapNotes,
-    required this.onIncrementReads,
-    required this.onDecrementReads,
-    required this.onIncrementCopies,
-    required this.onDecrementCopies,
+    required this.onStartNewReading,
+    required this.onLongPressHistory,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final historyAsync = ref.watch(readHistoryProvider(book.id));
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _ReadOnlyField(
-          label: context.l10n.fieldYear,
-          value: book.publishYear?.toString() ?? '—',
-        ),
-        const SizedBox(height: 20),
-        _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
-        const SizedBox(height: 20),
-        _ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
-        const SizedBox(height: 24),
+    return historyAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text(e.toString())),
+      data: (history) {
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _ReadOnlyField(
+              label: context.l10n.fieldYear,
+              value: book.publishYear?.toString() ?? '—',
+            ),
+            const SizedBox(height: 20),
+            _ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
+            const SizedBox(height: 20),
+            _ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
+            const SizedBox(height: 24),
 
-        // Collection section
-        Text(
-          context.l10n.fieldCollection.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (book.collectionName != null && book.collectionName!.isNotEmpty)
-          Consumer(builder: (context, ref, _) {
-            final tagsAsync = ref.watch(allCollectionsProvider);
-            return tagsAsync.maybeWhen(
-              data: (allCols) {
-                final collection = allCols.where((t) => t.id == book.collectionId).firstOrNull;
-                if (collection == null) return Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge);
-                
-                return GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => TagBooksView(tag: collection),
-                    ),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      border: Border.all(
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        // Collection number placeholder
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Text(
-                              book.collectionNumber?.toString() ?? '#',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurface.withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ),
+            // Collection section
+            Text(
+              context.l10n.fieldCollection.toUpperCase(),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            if (book.collectionName != null && book.collectionName!.isNotEmpty)
+              Consumer(builder: (context, ref, _) {
+                final tagsAsync = ref.watch(allCollectionsProvider);
+                return tagsAsync.maybeWhen(
+                  data: (allCols) {
+                    final collection = allCols.where((t) => t.id == book.collectionId).firstOrNull;
+                    if (collection == null) return Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge);
+                    
+                    return GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TagBooksView(tag: collection),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                collection.name,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Consumer(builder: (context, ref, _) {
-                                final countAsync = ref.watch(booksByCollectionProvider(collection.id));
-                                return countAsync.maybeWhen(
-                                  data: (list) => Text(
-                                    context.l10n.imprintBookCount(list.length),
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: colorScheme.outline,
-                                    ),
-                                  ),
-                                  orElse: () => const SizedBox.shrink(),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                        Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
-                      ],
-                    ),
-                  ),
-                );
-              },
-              orElse: () => Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge),
-            );
-          })
-        else
-          Text('—', style: Theme.of(context).textTheme.bodyLarge),
-
-        const SizedBox(height: 24),
-
-        // Imprint section
-        Text(
-          context.l10n.bookDetailFieldImprintSection,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Consumer(builder: (context, ref, _) {
-          final imprintAsync = ref.watch(bookImprintProvider(book.id));
-          return imprintAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const Text('—'),
-            data: (imprint) {
-              if (imprint == null) {
-                return Text('—', style: Theme.of(context).textTheme.bodyLarge);
-              }
-              return GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TagBooksView(tag: imprint),
-                  ),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    border: Border.all(
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      // Thumbnail or initials
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: imprint.imagePath != null
-                            ? Image.file(
-                          File(imprint.imagePath!),
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.topCenter,
-                          errorBuilder: (context, error, stackTrace) => _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
-                        )
-                            : _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          border: Border.all(
+                            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
                           children: [
-                            Text(
-                              imprint.name,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Consumer(builder: (context, ref, _) {
-                              final countAsync =
-                              ref.watch(imprintBookCountProvider(imprint.id));
-                              return countAsync.maybeWhen(
-                                data: (count) => Text(
-                                  context.l10n.imprintBookCount(count),
-                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: colorScheme.outline,
+                            // Collection number placeholder
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  book.collectionNumber?.toString() ?? '#',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onSurface.withValues(alpha: 0.5),
                                   ),
                                 ),
-                                orElse: () => const SizedBox.shrink(),
-                              );
-                            }),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    collection.name,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Consumer(builder: (context, ref, _) {
+                                    final countAsync = ref.watch(booksByCollectionProvider(collection.id));
+                                    return countAsync.maybeWhen(
+                                      data: (list) => Text(
+                                        context.l10n.imprintBookCount(list.length),
+                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                          color: colorScheme.outline,
+                                        ),
+                                      ),
+                                      orElse: () => const SizedBox.shrink(),
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
                           ],
                         ),
                       ),
-                      Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
+                    );
+                  },
+                  orElse: () => Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge),
+                );
+              })
+            else
+              Text('—', style: Theme.of(context).textTheme.bodyLarge),
+
+            const SizedBox(height: 24),
+
+            // Imprint section
+            Text(
+              context.l10n.bookDetailFieldImprintSection,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Consumer(builder: (context, ref, _) {
+              final imprintAsync = ref.watch(bookImprintProvider(book.id));
+              return imprintAsync.when(
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const Text('—'),
+                data: (imprint) {
+                  if (imprint == null) {
+                    return Text('—', style: Theme.of(context).textTheme.bodyLarge);
+                  }
+                  return GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TagBooksView(tag: imprint),
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        border: Border.all(
+                          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          // Thumbnail or initials
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: imprint.imagePath != null
+                                ? Image.file(
+                              File(imprint.imagePath!),
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
+                              errorBuilder: (context, error, stackTrace) => _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
+                            )
+                                : _ImprintPlaceholder(size: 40, iconSize: 20, name: imprint.name),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  imprint.name,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Consumer(builder: (context, ref, _) {
+                                  final countAsync =
+                                  ref.watch(imprintBookCountProvider(imprint.id));
+                                  return countAsync.maybeWhen(
+                                    data: (count) => Text(
+                                      context.l10n.imprintBookCount(count),
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.outline,
+                                      ),
+                                    ),
+                                    orElse: () => const SizedBox.shrink(),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            }),
+
+            const SizedBox(height: 20),
+
+            _ReadOnlyField(
+              label: context.l10n.fieldTranslator,
+              value: book.translator ?? '—',
+            ),
+            const SizedBox(height: 20),
+
+            // Personal Notes
+            GestureDetector(
+              onTap: onTapNotes,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        context.l10n.bookDetailFieldPersonalNotes,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 12,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ],
                   ),
-                ),
-              );
-            },
-          );
-        }),
-
-        const SizedBox(height: 20),
-
-        _ReadOnlyField(
-          label: context.l10n.fieldTranslator,
-          value: book.translator ?? '—',
-        ),
-        const SizedBox(height: 20),
-
-        // Personal Notes
-        GestureDetector(
-          onTap: onTapNotes,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    context.l10n.bookDetailFieldPersonalNotes,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    constraints: const BoxConstraints(minHeight: 100),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.edit_outlined,
-                    size: 12,
-                    color: Theme.of(context).colorScheme.primary,
+                    child: Text(
+                      book.notes ?? context.l10n.bookDetailNotesEmpty,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: book.notes == null
+                            ? Theme.of(context).colorScheme.outline
+                            : null,
+                      ),
+                    ),
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _ReadOnlyField(
+                    label: context.l10n.bookDetailFieldAdded,
+                    value:
+                    '${book.createdAt.day}/${book.createdAt.month}/${book.createdAt.year}',
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _ReadOnlyField(
+                    label: 'Copias',
+                    value: '${book.copies}',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Independent Sections Summary
+            if (book.paginationConfig != null && book.paginationConfig!.segments.isNotEmpty) ...[
+              Text(
+                'SECCIONES INDEPENDIENTES',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
               const SizedBox(height: 8),
               Container(
-                width: double.infinity,
-                constraints: const BoxConstraints(minHeight: 100),
-                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest
-                      .withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
                 ),
-                child: Text(
-                  book.notes ?? context.l10n.bookDetailNotesEmpty,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: book.notes == null
-                        ? Theme.of(context).colorScheme.outline
-                        : null,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
+                child: Column(
+                  children: book.paginationConfig!.segments.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final s = entry.value;
+                    final isLast = i == book.paginationConfig!.segments.length - 1;
+                    
+                    final completedReads = history.where((h) => h.finishedAt != null).length;
+                    final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+                    final activeSession = history.lastWhereOrNull((h) => h.readNumber == activeSessionNum);
+                    
+                    Map<int, int> segProgress = {};
+                    if (activeSession?.segmentProgress != null) {
+                      try {
+                        final Map<String, dynamic> decoded = jsonDecode(activeSession!.segmentProgress!);
+                        segProgress = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+                      } catch (_) {}
+                    }
 
-        // Timestamps Section
-        const SizedBox(height: 12),
-        _ReadOnlyField(
-          label: context.l10n.bookDetailFieldAdded,
-          value:
-          '${book.createdAt.day}/${book.createdAt.month}/${book.createdAt.year}',
-        ),
-        const SizedBox(height: 20),
-        _ReadOnlyField(
-          label: context.l10n.bookDetailFieldStarted,
-          value: book.startedAt != null
-              ? '${book.startedAt!.day}/${book.startedAt!.month}/${book.startedAt!.year}'
-              : '—',
-        ),
-        const SizedBox(height: 20),
-        _ReadOnlyField(
-          label: context.l10n.bookDetailFieldFinished,
-          value: book.finishedAt != null
-              ? '${book.finishedAt!.day}/${book.finishedAt!.month}/${book.finishedAt!.year}'
-              : '—',
-        ),
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(
-              child: _StepControl(
-                label: context.l10n.fieldReads,
-                value: book.reads.toString(),
-                icon: Icons.repeat,
-                onDecrement: onDecrementReads,
-                onIncrement: onIncrementReads,
+                    final currentInSegment = segProgress[i] ?? 0;
+                    final segmentTotal = s.endPhysical - s.startPhysical + 1;
+
+                    return Column(
+                      children: [
+                        ListTile(
+                          dense: true,
+                          visualDensity: VisualDensity.compact,
+                          title: Text(s.label ?? 'Sección ${i+1}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text('Lectura actual: $activeSessionNum'),
+                          trailing: Text(
+                            '${(segmentTotal > 0 ? (currentInSegment / segmentTotal * 100) : 0).toStringAsFixed(0)}%',
+                            style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        if (!isLast) Divider(height: 1, indent: 16, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                      ],
+                    );
+                  }).toList(),
+                ),
               ),
+              const SizedBox(height: 24),
+            ],
+
+            // Reading History Section
+            Text(
+              context.l10n.bookDetailReadHistoryTitle,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _StepControl(
-                label: context.l10n.fieldCopies,
-                value: book.copies.toString(),
-                icon: Icons.copy,
-                onDecrement: onDecrementCopies,
-                onIncrement: onIncrementCopies,
+            const SizedBox(height: 8),
+            if (history.isEmpty)
+              Text('—', style: Theme.of(context).textTheme.bodyLarge)
+            else
+              Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                ),
+                child: Column(
+                  children: history.asMap().entries.map((entry) {
+                    final h = entry.value;
+                    final isLast = entry.key == history.length - 1;
+                    
+                    String dateRange = '';
+                    if (h.startedAt != null) {
+                      dateRange = '${h.startedAt!.day}/${h.startedAt!.month}/${h.startedAt!.year}';
+                      if (h.finishedAt != null) {
+                        dateRange += ' – ${h.finishedAt!.day}/${h.finishedAt!.month}/${h.finishedAt!.year}';
+                      } else {
+                        dateRange += ' – ${context.l10n.bookDetailReadOngoing}';
+                      }
+                    } else {
+                      dateRange = '—';
+                    }
+
+                    return Column(
+                      children: [
+                        ListTile(
+                          dense: true,
+                          visualDensity: VisualDensity.compact,
+                          onLongPress: () => onLongPressHistory(h),
+                          title: Text(
+                            context.l10n.bookDetailReadNumber(h.readNumber),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                dateRange,
+                                style: TextStyle(color: colorScheme.outline, fontSize: 12),
+                              ),
+                              if (h.sections != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  (jsonDecode(h.sections!) as List).join(' • '),
+                                  style: TextStyle(
+                                    color: colorScheme.primary.withValues(alpha: 0.8),
+                                    fontSize: 11,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          leading: Icon(
+                            h.finishedAt != null ? Icons.check_circle_outline : Icons.play_circle_outline,
+                            size: 18,
+                            color: h.finishedAt != null ? Colors.green : colorScheme.primary,
+                          ),
+                        ),
+                        if (!isLast) Divider(height: 1, indent: 56, color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                      ],
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
+
+            const SizedBox(height: 24),
+
+            // Start New Reading Button
+            if (book.status != ReadingStatus.reading)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: OutlinedButton.icon(
+                  onPressed: onStartNewReading,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(context.l10n.bookDetailStartNewReadingButton),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 32),
           ],
-        ),
-        const SizedBox(height: 32),
-      ],
+        );
+      },
     );
   }
 }
 
-class _StepControl extends StatelessWidget {
+class _ReadOnlyField extends StatelessWidget {
   final String label;
   final String value;
-  final IconData icon;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
 
-  const _StepControl({
-    required this.label,
+  const _ReadOnlyField({
+    required this.label, 
     required this.value,
-    required this.icon,
-    required this.onIncrement,
-    required this.onDecrement,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
+    
+    Widget content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -1370,72 +1713,15 @@ class _StepControl extends StatelessWidget {
             letterSpacing: 1.2,
           ),
         ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.remove, size: 18),
-                onPressed: onDecrement,
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, size: 16, color: theme.colorScheme.outline),
-                  const SizedBox(width: 8),
-                  Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                ],
-              ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.add, size: 18),
-                onPressed: onIncrement,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// -------------------------------------------------------
-// Helper Widgets
-// -------------------------------------------------------
-
-class _ReadOnlyField extends StatelessWidget {
-  final String label;
-  final String value;
-  const _ReadOnlyField({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: Theme.of(context).textTheme.bodyLarge,
+          style: theme.textTheme.bodyLarge,
         ),
       ],
     );
+
+    return content;
   }
 }
 
@@ -1457,7 +1743,6 @@ class _CoverPlaceholder extends StatelessWidget {
       color: colorScheme.surfaceContainerHighest,
       child: Icon(
         Icons.menu_book,
-        size: 40,
         color: colorScheme.outline,
       ),
     );

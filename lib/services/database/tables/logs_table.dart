@@ -7,4 +7,5 @@ class ReadingLog extends Table {
   IntColumn get bookId => integer().references(Books, #id)();
   DateTimeColumn get date => dateTime()();
   IntColumn get pagesRead => integer()();
+  TextColumn get sections => text().nullable()();
 }

@@ -385,6 +385,19 @@
     "placeholders": { "title": { "type": "String" } }
   },
 
+  "bookDetailNewReadingWholeBook": "Whole book",
+  "bookDetailNewReadingSections": "Specific sections",
+  "bookDetailNewReadingSelectSections": "Select sections to re-read",
+  "bookDetailStartNewReadingPrompt": "Do you want to start a new reading session?",
+  "bookDetailStartNewReadingButton": "Start new reading",
+  "bookDetailDeleteReadPrompt": "Delete the latest ongoing reading? Session dates will be lost.",
+  "bookDetailReadHistoryTitle": "READING HISTORY",
+  "bookDetailReadOngoing": "ongoing",
+  "bookDetailReadNumber": "Reading {number}",
+  "bookDetailReadEditDialogTitle": "Edit reading {number}",
+  "bookDetailReadDeleteConfirm": "Delete this history entry?",
+  "bookDetailReadNumberLabel": "Reading number",
+
   "bookDetailFieldPages": "PAGES",
   "@bookDetailFieldPages": { "description": "Pages field label" },
 

@@ -50,7 +50,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   late final TextEditingController _collectionNameCtrl;
   late final TextEditingController _collectionNumberCtrl;
   late final TextEditingController _publishYearCtrl;
-  late final TextEditingController _readsCtrl;
   late final TextEditingController _copiesCtrl;
 
   ReadingStatus _status = ReadingStatus.wantToRead;
@@ -92,7 +91,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         TextEditingController(text: b?.collectionNumber?.toString() ?? '');
     _publishYearCtrl = TextEditingController(
         text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
-    _readsCtrl = TextEditingController(text: b?.reads.toString() ?? '0');
     _copiesCtrl = TextEditingController(text: b?.copies.toString() ?? '1');
         
     _collectionNameCtrl.addListener(() {
@@ -118,7 +116,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     
     _currentPageCtrl.addListener(_updateStatusFromPages);
     _totalPagesCtrl.addListener(_updateStatusFromPages);
-    _readsCtrl.addListener(_handleReadsChange);
     
     // End initialization phase in the next frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -145,8 +142,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _publishYearCtrl.dispose();
     _currentPageCtrl.removeListener(_updateStatusFromPages);
     _totalPagesCtrl.removeListener(_updateStatusFromPages);
-    _readsCtrl.removeListener(_handleReadsChange);
-    _readsCtrl.dispose();
     _copiesCtrl.dispose();
     super.dispose();
   }
@@ -180,27 +175,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       case ReadingStatus.abandoned:
       case ReadingStatus.paused:
         break;
-    }
-  }
-
-  void _handleReadsChange() {
-    if (_isInitializing) return;
-    final newReads = int.tryParse(_readsCtrl.text) ?? 0;
-    final oldReads = widget.existingBook?.reads ?? 0;
-    final total = int.tryParse(_totalPagesCtrl.text) ?? 0;
-    
-    if (newReads > oldReads) {
-      setState(() {
-        _currentPageCtrl.text = '1';
-        _status = ReadingStatus.reading;
-        _finishedAt = null;
-      });
-    } else if (newReads < oldReads) {
-      setState(() {
-        _currentPageCtrl.text = total.toString();
-        _status = ReadingStatus.read;
-        _finishedAt ??= DateTime.now();
-      });
     }
   }
 
@@ -357,55 +331,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     );
   }
 
-  Map<int, int> _calculateUpdatedSessions(int reads, int current, int total) {
-    final Map<int, int> sessions = widget.existingBook != null ? Map<int, int>.from(widget.existingBook!.readingSessions) : {};
-    
-    // Ensure all completed global sessions are marked as finished with the NEW total
-    for (int i = 1; i <= reads; i++) {
-      sessions[i] = total;
-    }
-    
-    // If there is an active session (current > 0 and status is not read)
-    if (_status != ReadingStatus.read && current > 0) {
-      sessions[reads + 1] = current;
-    } else if (_status == ReadingStatus.read) {
-       // if we are in read status, ensure the last session is at total
-       sessions[reads] = total;
-       sessions.remove(reads + 1);
-    } else if (current == 0) {
-      sessions.remove(reads + 1);
-    }
-    
-    // Prune sessions above reads+1
-    sessions.removeWhere((key, value) => key > reads + 1);
-    
-    return sessions;
-  }
-
-  PaginationConfig? _syncBlockSessions(PaginationConfig? config, int reads, int current, int total) {
-    if (config == null || config.segments.isEmpty) return config;
-
-    final newSegments = config.segments.map((s) {
-       final updatedSessions = Map<int, int>.from(s.sessions);
-       final segmentLength = s.endPhysical - s.startPhysical + 1;
-
-       // Any segment physically before the current global page is marked as completed
-       if (current > s.endPhysical) {
-          updatedSessions[1] = segmentLength;
-       } else if (current >= s.startPhysical && current <= s.endPhysical) {
-          // This is the active segment
-          updatedSessions[1] = current - s.startPhysical + 1;
-       } else if (current < s.startPhysical) {
-          // This segment hasn't been reached yet in the current read
-          updatedSessions[1] = 0;
-       }
-
-       return s.copyWith(sessions: updatedSessions);
-    }).toList();
-
-    return PaginationConfig(segments: newSegments, markers: config.markers);
-  }
-
   /// Handles saving the book and all its associations (tags, imprints, collections) to the DB.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) {
@@ -453,7 +378,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final rawImprintId = _selectedImprint?.id;
     final imprintId = (rawImprintId != null && rawImprintId > 0) ? rawImprintId : null;
 
-    final currentReads = int.tryParse(_readsCtrl.text) ?? 0;
     final total = int.tryParse(_totalPagesCtrl.text) ?? 0;
     
     // Auto-adjust and sanitize pagination config if total pages changed
@@ -502,10 +426,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       collectionId: Value(collectionId),
       collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
       publishYear: Value(int.tryParse(_publishYearCtrl.text)),
-      reads: Value(currentReads),
       copies: Value(int.tryParse(_copiesCtrl.text) ?? 1),
-      readingSessions: Value(_calculateUpdatedSessions(currentReads, int.tryParse(_currentPageCtrl.text) ?? 0, total)),
-      paginationConfig: Value(_syncBlockSessions(finalConfig, currentReads, int.tryParse(_currentPageCtrl.text) ?? 0, total)),
+      paginationConfig: Value(finalConfig),
       startedAt: Value(_startedAt),
       finishedAt: Value(_finishedAt),
       imprintId: Value(imprintId),
@@ -524,6 +446,25 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       }
     } else {
       bookId = await db.bookDao.insertBook(companion);
+      
+      // Create initial history entry if needed
+      if (_status == ReadingStatus.read) {
+        await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+          bookId: bookId,
+          readNumber: 1,
+          startedAt: Value(_startedAt ?? DateTime.now()),
+          finishedAt: Value(_finishedAt ?? DateTime.now()),
+          progress: Value(total),
+        ));
+      } else if (newPage > 0 || _status == ReadingStatus.reading) {
+        await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+          bookId: bookId,
+          readNumber: 1,
+          startedAt: Value(_startedAt ?? DateTime.now()),
+          progress: Value(newPage),
+        ));
+      }
+
       if (newPage > 0) {
         await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage);
       }
@@ -592,13 +533,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (_status == ReadingStatus.abandoned || _status == ReadingStatus.paused) return;
 
     ReadingStatus newStatus = _status;
-    int newReads = int.tryParse(_readsCtrl.text) ?? 0;
 
     if (current >= total) {
       if (_status != ReadingStatus.read) {
         newStatus = ReadingStatus.read;
-        newReads++;
-        _readsCtrl.text = newReads.toString();
         // Sync current page to total if exceeded
         if (current > total) {
           _currentPageCtrl.text = total.toString();
@@ -690,7 +628,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               paginationConfig: _paginationConfig,
               onPaginationConfigChanged: (cfg) => setState(() => _paginationConfig = cfg),
             ),
-            _DetailsTab(
+        _DetailsTab(
               notesCtrl: _notesCtrl,
               isbnCtrl: _isbnCtrl,
               languageCtrl: _languageCtrl,
@@ -706,7 +644,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
               onCollectionsChanged: (list) => setState(() => _selectedCollections = list),
               onImprintChanged: (tag) => setState(() => _selectedImprint = tag),
-              readsCtrl: _readsCtrl,
               copiesCtrl: _copiesCtrl,
             ),
           ],
@@ -972,7 +909,6 @@ class _DetailsTab extends ConsumerWidget {
   final ValueChanged<DateTime?> onFinishedAtChanged;
   final ValueChanged<List<Tag>> onCollectionsChanged;
   final ValueChanged<Tag?> onImprintChanged;
-  final TextEditingController readsCtrl;
   final TextEditingController copiesCtrl;
 
   const _DetailsTab({
@@ -991,7 +927,6 @@ class _DetailsTab extends ConsumerWidget {
     required this.onFinishedAtChanged,
     required this.onCollectionsChanged,
     required this.onImprintChanged,
-    required this.readsCtrl,
     required this.copiesCtrl,
   });
 
@@ -1093,15 +1028,6 @@ class _DetailsTab extends ConsumerWidget {
           children: [
             Expanded(
               child: _FormField(
-                controller: readsCtrl,
-                label: context.l10n.fieldReads,
-                icon: Icons.repeat,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _FormField(
                 controller: copiesCtrl,
                 label: context.l10n.fieldCopies,
                 icon: Icons.copy,
@@ -1141,6 +1067,8 @@ class _FormField extends StatelessWidget {
   final TextInputType keyboardType;
   final int maxLines;
 
+  final bool readOnly;
+
   const _FormField({
     required this.controller,
     required this.label,
@@ -1148,7 +1076,7 @@ class _FormField extends StatelessWidget {
     this.required = false,
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
-  });
+  }) : readOnly = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1156,10 +1084,13 @@ class _FormField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
+      readOnly: readOnly,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: icon != null ? Icon(icon) : null,
         border: const OutlineInputBorder(),
+        filled: readOnly,
+        fillColor: readOnly ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : null,
       ),
       validator: required
           ? (v) =>

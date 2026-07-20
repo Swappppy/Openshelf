@@ -15,6 +15,7 @@ import 'daos/shelf_dao.dart';
 import 'daos/goal_dao.dart';
 import 'daos/log_dao.dart';
 import 'daos/stat_dao.dart';
+import 'daos/read_history_dao.dart';
 
 import 'database/converters.dart';
 import 'database/tables/books_table.dart';
@@ -24,6 +25,7 @@ import 'database/tables/shelf_tags_table.dart';
 import 'database/tables/goals_table.dart';
 import 'database/tables/logs_table.dart';
 import 'database/tables/stats_table.dart';
+import 'database/tables/read_history_table.dart';
 
 export 'database/converters.dart';
 export 'database/tables/books_table.dart';
@@ -33,18 +35,19 @@ export 'database/tables/shelf_tags_table.dart';
 export 'database/tables/goals_table.dart';
 export 'database/tables/logs_table.dart';
 export 'database/tables/stats_table.dart';
+export 'database/tables/read_history_table.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs],
-  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao],
+  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs, ReadHistory],
+  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao, ReadHistoryDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -140,21 +143,103 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 17) {
         try {
-          await m.addColumn(books, books.reads as GeneratedColumn);
+          await customStatement('ALTER TABLE books ADD COLUMN reads INTEGER DEFAULT 0');
         } catch (_) {}
         try {
-          await m.addColumn(books, books.copies as GeneratedColumn);
+          await m.addColumn(books, books.copies);
         } catch (_) {}
       }
       if (from < 18) {
         try {
-          await m.addColumn(books, books.readingSessions as GeneratedColumn);
+          await customStatement("ALTER TABLE books ADD COLUMN reading_sessions TEXT DEFAULT '{}'");
         } catch (_) {}
       }
       if (from < 19) {
         try {
           await m.addColumn(books, books.paginationConfig as GeneratedColumn);
         } catch (_) {}
+      }
+      if (from < 20) {
+        await m.createTable(readHistory);
+      }
+      if (from < 21) {
+        await m.addColumn(readingLog, readingLog.sections as GeneratedColumn);
+        await m.addColumn(readHistory, readHistory.sections as GeneratedColumn);
+      }
+      if (from < 22) {
+        // Skip alterTable here to avoid premature removal of columns like reading_sessions
+        // which are needed for the version 23 migration.
+      }
+      if (from < 23) {
+        await transaction(() async {
+          // 1. Add new columns to ReadHistory
+          await m.addColumn(readHistory, readHistory.progress);
+          await m.addColumn(readHistory, readHistory.segmentProgress);
+
+          // 2. Migrate data from Books.readingSessions and PaginationConfig.segments.sessions
+          List<QueryRow> allBooks;
+          try {
+            allBooks = await customSelect('SELECT id, reading_sessions, pagination_config FROM books').get();
+          } catch (e) {
+            // If reading_sessions is already missing, we can't migrate its data
+            allBooks = [];
+          }
+
+          for (final row in allBooks) {
+            final bookId = row.read<int>('id');
+            final readingSessionsRaw = row.readNullable<String>('reading_sessions');
+            final paginationConfigRaw = row.readNullable<String>('pagination_config');
+
+            Map<int, int> readingSessions = {};
+            if (readingSessionsRaw != null) {
+              try {
+                final Map<String, dynamic> decoded = jsonDecode(readingSessionsRaw);
+                readingSessions = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+              } catch (_) {}
+            }
+
+            // Extract segment progress per session
+            final segmentProgressPerSession = <int, Map<int, int>>{}; // readNumber -> {segmentIndex -> pagesRead}
+            if (paginationConfigRaw != null) {
+              try {
+                // We use custom logic to extract 'sessions' from raw JSON if needed,
+                // but during migration PaginationConfig.fromJson will fail if 'sessions' is missing in model.
+                // Wait, if I changed the model, fromJson won't see 'sessions'.
+                // I should parse the raw JSON manually here.
+                final Map<String, dynamic> rawConfig = jsonDecode(paginationConfigRaw);
+                final List<dynamic> rawSegments = rawConfig['segments'] ?? [];
+                for (int i = 0; i < rawSegments.length; i++) {
+                  final s = rawSegments[i];
+                  final Map<String, dynamic> segmentSessionsRaw = s['sessions'] ?? {};
+                  segmentSessionsRaw.forEach((sessionKey, progress) {
+                    final sessionNum = int.tryParse(sessionKey);
+                    if (sessionNum != null) {
+                      segmentProgressPerSession.putIfAbsent(sessionNum, () => {})[i] = progress as int;
+                    }
+                  });
+                }
+              } catch (_) {}
+            }
+
+            // Update ReadHistory entries
+            final history = await (select(readHistory)..where((h) => h.bookId.equals(bookId))).get();
+            for (final h in history) {
+              final sessionProgress = readingSessions[h.readNumber] ?? 0;
+              final segProgress = segmentProgressPerSession[h.readNumber];
+              
+              await (update(readHistory)..where((rh) => rh.id.equals(h.id))).write(
+                ReadHistoryCompanion(
+                  progress: Value(sessionProgress),
+                  segmentProgress: Value(segProgress != null ? jsonEncode(segProgress.map((k, v) => MapEntry(k.toString(), v))) : null),
+                ),
+              );
+            }
+          }
+
+          // 3. Drop and recreate books table to remove the column (SQLite doesn't support DROP COLUMN easily via drift alterTable for all cases)
+          // Drift's alterTable handles column removal by recreating the table if necessary.
+          await m.alterTable(TableMigration(books));
+        });
       }
     },
     beforeOpen: (details) async {
@@ -234,40 +319,6 @@ class AppDatabase extends _$AppDatabase {
              ), mode: InsertMode.insertOrIgnore);
           }
         }
-      }
-
-      if (details.hadUpgrade && details.versionBefore! < 18) {
-        // Data migration for sessions and reads
-        await transaction(() async {
-          final allBooks = await select(books).get();
-          for (final b in allBooks) {
-            final sessions = <int, int>{};
-            int newReads = b.reads;
-            
-            // If it was already migrated to version 17 (but failed 18)
-            // or if we are doing a fresh upgrade from 16
-            if (b.status == ReadingStatus.read && newReads == 0) {
-               newReads = 1;
-            }
-
-            if (newReads > 0) {
-              for (int i = 1; i <= newReads; i++) {
-                sessions[i] = b.totalPages ?? 0;
-              }
-            }
-            
-            if (b.status != ReadingStatus.read && (b.currentPage ?? 0) > 0) {
-              sessions[newReads + 1] = b.currentPage!;
-            }
-            
-            await (update(books)..where((book) => book.id.equals(b.id))).write(
-              BooksCompanion(
-                readingSessions: Value(sessions),
-                reads: Value(newReads),
-              )
-            );
-          }
-        });
       }
 
       // Default stats widgets are no longer initialized here to allow showing an empty state for new users

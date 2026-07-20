@@ -26,13 +26,13 @@ class Books extends Table {
   TextColumn get notes => text().nullable()();
   TextColumn get description => text().nullable()();
   IntColumn get publishYear => integer().nullable()();
+  @ReferenceName('bookCollection')
   IntColumn get collectionId => integer().nullable().references(Tags, #id)();
+  @ReferenceName('bookImprint')
   IntColumn get imprintId => integer().nullable().references(Tags, #id)();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();
-  IntColumn get reads => integer().withDefault(const Constant(0))();
   IntColumn get copies => integer().withDefault(const Constant(1))();
-  TextColumn get readingSessions => text().withDefault(const Constant('{}')).map(const ReadingSessionsConverter())();
   TextColumn get paginationConfig => text().nullable().map(const PaginationConfigConverter())();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

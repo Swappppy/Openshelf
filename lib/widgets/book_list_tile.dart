@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/database.dart';
 import '../models/display_preferences.dart';
+import '../controllers/read_history_controller.dart';
 import 'status_chip.dart';
 import 'book_cover.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/books_controller.dart';
 import '../l10n/l10n_extension.dart';
+
+import '../utils/pagination_helper.dart';
+
 
 /// A comprehensive list tile for displaying book information in the Library list view.
 /// Supports reorderable fields, custom status highlighting, and progress bars.
@@ -210,11 +214,21 @@ class BookListTile extends ConsumerWidget {
                   if (prefs.showProgress &&
                       book.totalPages != null &&
                       book.totalPages! > 0)
-                    _ProgressBar(
-                      current: book.currentPage ?? 0,
-                      total: book.totalPages!,
-                      status: book.status,
-                    ),
+                    Consumer(builder: (context, ref, _) {
+                      final historyAsync = ref.watch(readHistoryProvider(book.id));
+                      return historyAsync.maybeWhen(
+                        data: (history) => _ProgressBar(
+                          current: PaginationHelper.getTotalReadPages(book, history),
+                          total: book.totalPages!,
+                          status: book.status,
+                        ),
+                        orElse: () => _ProgressBar(
+                          current: 0,
+                          total: book.totalPages!,
+                          status: book.status,
+                        ),
+                      );
+                    }),
                 ],
               ),
             ),

@@ -103,6 +103,31 @@ class GoodreadsImportService {
         final companion = _rowToCompanion(row, colIndex, isbn13: isbn13, isbn10: isbn10);
         final bookId = await _db.bookDao.insertBook(companion);
 
+        // Link History
+        final totalPages = ImportExportUtils.parseInt(_str(row, colIndex, _colPageCount));
+        final readCount = ImportExportUtils.parseInt(_str(row, colIndex, _colReadCount)) ?? 0;
+        final finishedAt = ImportExportUtils.parseDate(_str(row, colIndex, _colDateRead));
+        final createdAt = ImportExportUtils.parseDate(_str(row, colIndex, _colDateAdded)) ?? DateTime.now();
+
+        if (readCount > 0) {
+          for (int n = 1; n <= readCount; n++) {
+            await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+              bookId: bookId,
+              readNumber: n,
+              startedAt: Value(createdAt),
+              finishedAt: Value(n == readCount ? finishedAt : createdAt),
+              progress: Value(totalPages ?? 0),
+            ));
+          }
+        } else if (companion.status.value == ReadingStatus.reading) {
+          await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+            bookId: bookId,
+            readNumber: 1,
+            startedAt: Value(createdAt),
+            progress: const Value(1),
+          ));
+        }
+
         // Link Imprint (Publisher)
         final publisher = _str(row, colIndex, _colPublisher).nullIfEmpty();
         if (publisher != null) {
@@ -139,15 +164,7 @@ class GoodreadsImportService {
     final finishedAt = ImportExportUtils.parseDate(_str(row, colIndex, _colDateRead));
     final isbn = isbn13.isNotEmpty ? isbn13 : (isbn10.isNotEmpty ? isbn10 : null);
     final totalPages = ImportExportUtils.parseInt(_str(row, colIndex, _colPageCount));
-    final readCount = ImportExportUtils.parseInt(_str(row, colIndex, _colReadCount)) ?? 0;
     final ownedCopies = ImportExportUtils.parseInt(_str(row, colIndex, _colOwnedCopies)) ?? 1;
-
-    final sessions = <int, int>{};
-    if (readCount > 0 && totalPages != null) {
-      for (int i = 1; i <= readCount; i++) {
-        sessions[i] = totalPages;
-      }
-    }
 
     return BooksCompanion.insert(
       title: _str(row, colIndex, _colTitle),
@@ -156,9 +173,7 @@ class GoodreadsImportService {
       publisher: Value(_str(row, colIndex, _colPublisher).nullIfEmpty()),
       totalPages: Value(totalPages),
       status: _parseStatus(row, colIndex, finishedAt),
-      reads: Value(readCount),
       copies: Value(ownedCopies),
-      readingSessions: Value(sessions),
       rating: Value(ImportExportUtils.parseRating(_str(row, colIndex, _colMyRating))),
       bookFormat: Value(_parseBinding(_str(row, colIndex, _colBinding))),
       notes: Value(
