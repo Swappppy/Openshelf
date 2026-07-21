@@ -10,11 +10,13 @@ import '../../../controllers/read_history_controller.dart';
 class MainTab extends StatelessWidget {
   final Book book;
   final VoidCallback onTapPages;
+  final Function(int) onTapSection;
 
   const MainTab({
     super.key,
     required this.book,
     required this.onTapPages,
+    required this.onTapSection,
   });
 
   String _formatLabel(BuildContext context, BookFormat? format) {
@@ -34,38 +36,6 @@ class MainTab extends StatelessWidget {
       case null:
         return '—';
     }
-  }
-
-  String _getMultiBlockProgress(BuildContext context, Book book, List<ReadHistoryData> history) {
-    if (book.paginationConfig == null || book.paginationConfig!.segments.isEmpty) {
-      return '';
-    }
-    
-    final completedReads = history.where((h) => h.finishedAt != null).length;
-    final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
-    final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
-    
-    final Map<int, int> segProgress = activeSession?.segmentProgress ?? {};
-
-    return book.paginationConfig!.segments.asMap().entries.map((entry) {
-      final i = entry.key;
-      final s = entry.value;
-      final endVisual = PaginationHelper.getVisualPageInSegment(s.endPhysical, s);
-      
-      final currentInSegment = segProgress[i] ?? 0;
-      
-      String visualProgress = '';
-      if (currentInSegment == 0) {
-        visualProgress = s.type == PageNumberingType.roman ? '-' : '0';
-      } else {
-        // Calculate physical page within segment to get visual representation
-        final physForVisual = s.startPhysical + currentInSegment - 1;
-        visualProgress = PaginationHelper.getVisualPageInSegment(physForVisual, s);
-      }
-      
-      final sectionLabel = s.label ?? context.l10n.paginationSectionLabel(i + 1);
-      return '$sectionLabel: $visualProgress/$endVisual';
-    }).join('  •  ');
   }
 
   void _showFullDescription(BuildContext context, String description) {
@@ -220,56 +190,34 @@ class MainTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Expanded(
-                          child: Text(
-                            _getMultiBlockProgress(context, book, history),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.outline,
-                                  fontSize: 11,
-                                ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Pág. ${PaginationHelper.getTotalReadPages(book, history)} / ${book.totalPages ?? 0}',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ],
+                        Text(
+                          '${context.l10n.paginationCurrentPageShort} ${PaginationHelper.getTotalReadPages(book, history)} / ${book.totalPages ?? 0}',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ],
                     ),
                   ] else
                     Text('—', style: Theme.of(context).textTheme.bodyLarge),
+
+                  if (book.paginationConfig != null &&
+                      (book.paginationConfig!.markers.isNotEmpty ||
+                          book.paginationConfig!.segments.isNotEmpty)) ...[
+                    const SizedBox(height: 16),
+                    _MarkersAndSegmentsTile(
+                      book: book,
+                      history: history,
+                      onTapSection: onTapSection,
+                    ),
+                  ],
                 ],
               );
             },
           );
         }),
-              
-              if (book.paginationConfig != null && book.paginationConfig!.markers.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                ExpansionTile(
-                  title: Text(context.l10n.paginationMarkersAndIndices, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.outline, fontWeight: FontWeight.bold)),
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: EdgeInsets.zero,
-                  visualDensity: VisualDensity.compact,
-                  children: book.paginationConfig!.markers.map((m) => ListTile(
-                    leading: Icon(Icons.location_on_outlined, size: 16, color: m.color != null ? Color(int.parse('0xFF${m.color}')) : null),
-                    title: Text(m.label, style: const TextStyle(fontSize: 13)),
-                    trailing: Text('${context.l10n.fieldCurrentPage.substring(0, 1).toUpperCase()}${context.l10n.fieldCurrentPage.substring(1).toLowerCase()}. ${PaginationHelper.getVisualPage(m.physicalPage, book.paginationConfig)}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                    visualDensity: VisualDensity.compact,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  )).toList(),
-                ),
-              ],
             ],
           ),
         ),
@@ -334,6 +282,218 @@ class ReadOnlyField extends StatelessWidget {
           style: theme.textTheme.bodyLarge,
         ),
       ],
+    );
+  }
+}
+
+class _MarkersAndSegmentsTile extends StatefulWidget {
+  final Book book;
+  final List<ReadHistoryData> history;
+  final Function(int) onTapSection;
+
+  const _MarkersAndSegmentsTile({
+    required this.book,
+    required this.history,
+    required this.onTapSection,
+  });
+
+  @override
+  State<_MarkersAndSegmentsTile> createState() => _MarkersAndSegmentsTileState();
+}
+
+class _MarkersAndSegmentsTileState extends State<_MarkersAndSegmentsTile> {
+  late final PageController _pageController;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final segments = widget.book.paginationConfig?.segments ?? [];
+    final markers = widget.book.paginationConfig?.markers ?? [];
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final pages = <Widget>[];
+    if (segments.isNotEmpty) pages.add(_buildSegmentsPage(context, segments));
+    if (markers.isNotEmpty) pages.add(_buildMarkersPage(context, markers));
+
+    if (pages.isEmpty) return const SizedBox.shrink();
+
+    return ExpansionTile(
+      title: Text(
+        context.l10n.paginationMarkersAndIndices,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: colorScheme.outline,
+              fontWeight: FontWeight.bold,
+            ),
+      ),
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      children: [
+        SizedBox(
+          height: 200, // Fixed height for scrolling content
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (v) => setState(() => _currentPage = v),
+                  children: pages,
+                ),
+              ),
+              if (pages.length > 1) ...[
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    pages.length,
+                    (index) => Container(
+                      width: 6,
+                      height: 6,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _currentPage == index
+                            ? colorScheme.primary
+                            : colorScheme.outlineVariant,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSegmentsPage(BuildContext context, List<PaginationSegment> segments) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final history = widget.history;
+    final book = widget.book;
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      itemCount: segments.length,
+      separatorBuilder: (_, _) => Divider(
+        height: 1,
+        color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+      ),
+      itemBuilder: (context, i) {
+        final s = segments[i];
+        final completedReads = history.where((h) => h.finishedAt != null).length;
+        final sectionLabel = s.label ?? context.l10n.paginationSectionLabel(i + 1);
+
+        final activeSessionForSegment = history.lastWhereOrNull(
+            (h) => h.sections == null || h.sections!.contains(sectionLabel));
+
+        final sessionNumToShow = activeSessionForSegment?.readNumber ??
+            PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+
+        final Map<int, int> segProgress = activeSessionForSegment?.segmentProgress ?? {};
+        final currentInSegment = segProgress[i] ?? 0;
+        final segmentTotal = s.endPhysical - s.startPhysical + 1;
+
+        final curVisual = PaginationHelper.getVisualPageInSegment(s.startPhysical + currentInSegment - 1, s);
+        final totVisual = PaginationHelper.getVisualPageInSegment(s.endPhysical, s);
+
+        final segmentColor = s.color != null
+            ? Color(int.parse('0xFF${s.color}'))
+            : colorScheme.primary.withValues(alpha: 0.2);
+
+        return IntrinsicHeight(
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: segmentColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                margin: const EdgeInsets.symmetric(vertical: 8),
+              ),
+              Expanded(
+                child: ListTile(
+                  onTap: () => widget.onTapSection(i),
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  title: Text(
+                    sectionLabel,
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text('${context.l10n.statusReading}: $sessionNumToShow',
+                      style: const TextStyle(fontSize: 11)),
+                  trailing: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '$curVisual / $totVisual  ',
+                          style: TextStyle(
+                            color: colorScheme.outline,
+                            fontSize: 10,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              '${(segmentTotal > 0 ? (currentInSegment / segmentTotal * 100) : 0).toStringAsFixed(0)}%',
+                          style: TextStyle(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMarkersPage(BuildContext context, List<PaginationMarker> markers) {
+    final book = widget.book;
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      itemCount: markers.length,
+      itemBuilder: (context, i) {
+        final m = markers[i];
+        return ListTile(
+          leading: Icon(
+            Icons.location_on_outlined,
+            size: 16,
+            color: m.color != null ? Color(int.parse('0xFF${m.color}')) : null,
+          ),
+          title: Text(m.label, style: const TextStyle(fontSize: 13)),
+          trailing: Text(
+            '${context.l10n.paginationCurrentPageShort} ${PaginationHelper.getVisualPage(m.physicalPage, book.paginationConfig)}',
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+          visualDensity: VisualDensity.compact,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        );
+      },
     );
   }
 }

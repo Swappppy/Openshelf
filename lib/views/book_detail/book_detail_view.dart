@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../services/database.dart';
 import '../../controllers/database_provider.dart';
 import '../../controllers/books_controller.dart';
@@ -70,7 +71,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     super.dispose();
   }
 
-  void _showPagePicker(BuildContext context) async {
+  void _showPagePicker(BuildContext context, {int? initialSegmentIndex}) async {
     final book = widget.book;
     if (book.totalPages == null) return;
 
@@ -97,6 +98,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           status: book.status,
           initialProgress: activeSession?.progress ?? 0,
           initialSegmentProgress: initialSegProgress,
+          initialSegmentIndex: initialSegmentIndex,
           config: book.paginationConfig,
           onSave: (phys, newSegProgress, newConfig) async {
             await ref.read(readingSessionControllerProvider).updatePageProgress(
@@ -216,7 +218,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                         final i = entry.key;
                         final s = entry.value;
                         return CheckboxListTile(
-                          title: Text(s.label ?? 'Sección ${i + 1}'),
+                          title: Text(s.label ?? context.l10n.paginationSectionLabel(i + 1)),
                           value: selectedIndices.contains(i),
                           onChanged: (checked) {
                             setState(() {
@@ -277,7 +279,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
               children: [
                 ListTile(
                   title: Text(context.l10n.bookDetailFieldStarted),
-                  subtitle: Text(startedAt != null ? '${startedAt!.day}/${startedAt!.month}/${startedAt!.year}' : '—'),
+                  subtitle: Text(startedAt != null ? DateFormat.yMd(Localizations.localeOf(context).toString()).format(startedAt!) : '—'),
                   trailing: const Icon(Icons.calendar_today),
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -291,7 +293,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                 ),
                 ListTile(
                   title: Text(context.l10n.bookDetailFieldFinished),
-                  subtitle: Text(finishedAt != null ? '${finishedAt!.day}/${finishedAt!.month}/${finishedAt!.year}' : '—'),
+                  subtitle: Text(finishedAt != null ? DateFormat.yMd(Localizations.localeOf(context).toString()).format(finishedAt!) : '—'),
                   trailing: const Icon(Icons.calendar_today),
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -377,6 +379,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
+            tooltip: context.l10n.edit,
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -386,10 +389,12 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           ),
           IconButton(
             icon: const Icon(Icons.copy_outlined),
+            tooltip: context.l10n.duplicate,
             onPressed: () => _confirmDuplicate(context),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
+            tooltip: context.l10n.delete,
             onPressed: () => _confirmDelete(context),
           ),
           const SizedBox(width: 8),
@@ -413,6 +418,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                 MainTab(
                   book: book,
                   onTapPages: () => _showPagePicker(context),
+                  onTapSection: (idx) => _showPagePicker(context, initialSegmentIndex: idx),
                 ),
                 DetailsTab(
                   book: book,

@@ -2727,7 +2727,7 @@ abstract class AppLocalizations {
   /// No description provided for @paginationMarkersAndIndices.
   ///
   /// In es, this message translates to:
-  /// **'Marcadores e Índices'**
+  /// **'Secciones y marcadores'**
   String get paginationMarkersAndIndices;
 
   /// No description provided for @paginationSaveProgress.
@@ -2764,7 +2764,13 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Segmento {index}: Los valores exceden el total de páginas ({total}).'**
-  String paginationSegmentExceedsTotal(Object index, Object total);
+  String paginationSegmentExceedsTotal(int index, int total);
+
+  /// No description provided for @paginationSegmentOverlap.
+  ///
+  /// In es, this message translates to:
+  /// **'El segmento {index1} se solapa con el segmento {index2}'**
+  String paginationSegmentOverlap(int index1, int index2);
 
   /// No description provided for @paginationAdvancedConfig.
   ///
@@ -2800,7 +2806,13 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Aviso: Quedan {count} páginas físicas sin asignar.'**
-  String paginationPagesRemainingWarning(Object count);
+  String paginationPagesRemainingWarning(int count);
+
+  /// No description provided for @paginationPhysicalTotalNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Nota: El total de páginas se refiere a las páginas físicas del libro (hojas totales).'**
+  String get paginationPhysicalTotalNote;
 
   /// No description provided for @paginationCorrectErrors.
   ///
@@ -2902,13 +2914,25 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Equivale a físicas: {start} - {end}'**
-  String paginationEquivalentPhysical(Object end, Object start);
+  String paginationEquivalentPhysical(int start, int end);
 
   /// No description provided for @paginationSectionLabel.
   ///
   /// In es, this message translates to:
   /// **'Sección {index}'**
-  String paginationSectionLabel(Object index);
+  String paginationSectionLabel(int index);
+
+  /// No description provided for @paginationProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'{current} / {total}'**
+  String paginationProgress(String current, String total);
+
+  /// No description provided for @paginationCurrentPageShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Pág.'**
+  String get paginationCurrentPageShort;
 
   /// No description provided for @paginationStartPhysical.
   ///

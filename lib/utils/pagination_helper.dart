@@ -63,7 +63,7 @@ class PaginationHelper {
       }
     });
 
-    return result.toLowerCase();
+    return result;
   }
 
   static int getActiveSessionNumber(ReadingStatus status, int completedReads) {
@@ -85,13 +85,20 @@ class PaginationHelper {
       return (activeSession?.progress ?? 0).clamp(0, book.totalPages!);
     }
     
-    int totalRead = 0;
+    int maxPhysicalReached = 0;
     final Map<int, int> segProgress = activeSession?.segmentProgress ?? {};
 
     for (int i = 0; i < book.paginationConfig!.segments.length; i++) {
-      totalRead += segProgress[i] ?? 0;
+      final s = book.paginationConfig!.segments[i];
+      final logicalProgress = segProgress[i] ?? 0;
+      if (logicalProgress > 0) {
+        final physicalReached = s.startPhysical + logicalProgress - 1;
+        if (physicalReached > maxPhysicalReached) {
+          maxPhysicalReached = physicalReached;
+        }
+      }
     }
-    return totalRead.clamp(0, book.totalPages!);
+    return maxPhysicalReached.clamp(0, book.totalPages!);
   }
 
   static int getPhysicalFromVisual(String visual, PaginationConfig config) {
@@ -122,7 +129,25 @@ class PaginationHelper {
     return visualInt ?? 1;
   }
 
+  static int getPhysicalFromVisualInSegment(String visual, PaginationSegment segment) {
+    final visualLower = visual.toLowerCase().trim();
+    if (visualLower.isEmpty) return segment.startPhysical;
+
+    int value;
+    if (segment.type == PageNumberingType.roman) {
+      value = _fromRoman(visualLower);
+    } else {
+      value = int.tryParse(visualLower) ?? 1;
+    }
+    
+    // phys = visual - offset - 1 + startPhysical
+    return value - segment.offset - 1 + segment.startPhysical;
+  }
+
   static int _fromRoman(String roman) {
+    var input = roman.toUpperCase().trim();
+    if (input.isEmpty) return 0;
+    
     final romanMap = {
       'M': 1000,
       'CM': 900,
@@ -140,8 +165,6 @@ class PaginationHelper {
     };
 
     var result = 0;
-    var input = roman;
-    
     for (final entry in romanMap.entries) {
       while (input.startsWith(entry.key)) {
         result += entry.value;

@@ -76,6 +76,7 @@ class _PagePickerState extends State<PagePicker> {
   }
 
   /// Calculates the maximum allowed digit for the first column to prevent exceeding maxValue.
+  /// Calculates the maximum allowed digit for the first column to prevent exceeding maxValue.
   int _maxDigit(int column) {
     if (_columnCount == 4) {
       if (column == 0) return (widget.maxValue ~/ 1000).clamp(0, 9);

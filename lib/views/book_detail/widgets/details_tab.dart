@@ -2,11 +2,11 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../controllers/read_history_controller.dart';
 import '../../../controllers/books_controller.dart';
-import '../../../utils/pagination_helper.dart';
 import '../../shelves/shelf_books_view.dart';
 import 'main_tab.dart';
 
@@ -298,8 +298,7 @@ class DetailsTab extends ConsumerWidget {
                 Expanded(
                   child: ReadOnlyField(
                     label: context.l10n.bookDetailFieldAdded,
-                    value:
-                    '${book.createdAt.day}/${book.createdAt.month}/${book.createdAt.year}',
+                    value: DateFormat.yMd(Localizations.localeOf(context).toString()).format(book.createdAt),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -312,65 +311,6 @@ class DetailsTab extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 24),
-
-            // Independent Sections Summary
-            if (book.paginationConfig != null && book.paginationConfig!.segments.isNotEmpty) ...[
-              Text(
-                context.l10n.paginationBlocksSegments.toUpperCase(),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                ),
-                child: Column(
-                  children: book.paginationConfig!.segments.asMap().entries.map((entry) {
-                    final i = entry.key;
-                    final s = entry.value;
-                    final isLast = i == book.paginationConfig!.segments.length - 1;
-                    
-                    final completedReads = history.where((h) => h.finishedAt != null).length;
-                    final sectionLabel = s.label ?? context.l10n.paginationSectionLabel(i + 1);
-                    
-                    final activeSessionForSegment = history.lastWhereOrNull((h) =>
-                      h.sections == null || h.sections!.contains(sectionLabel)
-                    );
-                    
-                    final sessionNumToShow = activeSessionForSegment?.readNumber ?? 
-                        PaginationHelper.getActiveSessionNumber(book.status, completedReads);
-                    
-                    final Map<int, int> segProgress = activeSessionForSegment?.segmentProgress ?? {};
-
-                    final currentInSegment = segProgress[i] ?? 0;
-                    final segmentTotal = s.endPhysical - s.startPhysical + 1;
-
-                    return Column(
-                      children: [
-                        ListTile(
-                          dense: true,
-                          visualDensity: VisualDensity.compact,
-                          title: Text(sectionLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text('${context.l10n.statusReading}: $sessionNumToShow'),
-                          trailing: Text(
-                            '${(segmentTotal > 0 ? (currentInSegment / segmentTotal * 100) : 0).toStringAsFixed(0)}%',
-                            style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        if (!isLast) Divider(height: 1, indent: 16, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
 
             // Reading History Section
             Text(
@@ -397,10 +337,11 @@ class DetailsTab extends ConsumerWidget {
                     final isLast = entry.key == history.length - 1;
                     
                     String dateRange = '';
+                    final locale = Localizations.localeOf(context).toString();
                     if (h.startedAt != null) {
-                      dateRange = '${h.startedAt!.day}/${h.startedAt!.month}/${h.startedAt!.year}';
+                      dateRange = DateFormat.yMd(locale).format(h.startedAt!);
                       if (h.finishedAt != null) {
-                        dateRange += ' – ${h.finishedAt!.day}/${h.finishedAt!.month}/${h.finishedAt!.year}';
+                        dateRange += ' – ${DateFormat.yMd(locale).format(h.finishedAt!)}';
                       } else {
                         dateRange += ' – ${context.l10n.bookDetailReadOngoing}';
                       }

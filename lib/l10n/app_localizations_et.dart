@@ -1417,7 +1417,7 @@ class AppLocalizationsEt extends AppLocalizations {
   String get permissionRequired => 'Permiso necesario';
 
   @override
-  String get paginationMarkersAndIndices => 'Marcadores e Índices';
+  String get paginationMarkersAndIndices => 'Secciones y marcadores';
 
   @override
   String get paginationSaveProgress => 'Guardar Progreso';
@@ -1440,8 +1440,13 @@ class AppLocalizationsEt extends AppLocalizations {
   }
 
   @override
-  String paginationSegmentExceedsTotal(Object index, Object total) {
+  String paginationSegmentExceedsTotal(int index, int total) {
     return 'Segmento $index: Los valores exceden el total de páginas ($total).';
+  }
+
+  @override
+  String paginationSegmentOverlap(int index1, int index2) {
+    return 'El segmento $index1 se solapa con el segmento $index2';
   }
 
   @override
@@ -1462,9 +1467,13 @@ class AppLocalizationsEt extends AppLocalizations {
       'Nota: Ya has asignado todas las páginas disponibles.';
 
   @override
-  String paginationPagesRemainingWarning(Object count) {
+  String paginationPagesRemainingWarning(int count) {
     return 'Aviso: Quedan $count páginas físicas sin asignar.';
   }
+
+  @override
+  String get paginationPhysicalTotalNote =>
+      'Nota: El total de páginas se refiere a las páginas físicas del libro (hojas totales).';
 
   @override
   String get paginationCorrectErrors => 'CORRIJA LOS SIGUIENTES ERRORES:';
@@ -1517,14 +1526,22 @@ class AppLocalizationsEt extends AppLocalizations {
   String get paginationVisualMode => 'Modo visual';
 
   @override
-  String paginationEquivalentPhysical(Object end, Object start) {
+  String paginationEquivalentPhysical(int start, int end) {
     return 'Equivale a físicas: $start - $end';
   }
 
   @override
-  String paginationSectionLabel(Object index) {
+  String paginationSectionLabel(int index) {
     return 'Sección $index';
   }
+
+  @override
+  String paginationProgress(String current, String total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get paginationCurrentPageShort => 'Pág.';
 
   @override
   String get paginationStartPhysical => 'Inicio (Físico)';

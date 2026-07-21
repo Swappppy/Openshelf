@@ -1447,8 +1447,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String paginationSegmentExceedsTotal(Object index, Object total) {
+  String paginationSegmentExceedsTotal(int index, int total) {
     return 'Segment $index: Values exceed total pages ($total).';
+  }
+
+  @override
+  String paginationSegmentOverlap(int index1, int index2) {
+    return 'Segment $index1 overlaps with Segment $index2';
   }
 
   @override
@@ -1469,9 +1474,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Note: You have already assigned all available pages.';
 
   @override
-  String paginationPagesRemainingWarning(Object count) {
+  String paginationPagesRemainingWarning(int count) {
     return 'Warning: $count physical pages remain unassigned.';
   }
+
+  @override
+  String get paginationPhysicalTotalNote =>
+      'Note: Total pages refer to the physical pages of the book (total sheets).';
 
   @override
   String get paginationCorrectErrors => 'PLEASE CORRECT THE FOLLOWING ERRORS:';
@@ -1524,14 +1533,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paginationVisualMode => 'Visual mode';
 
   @override
-  String paginationEquivalentPhysical(Object end, Object start) {
+  String paginationEquivalentPhysical(int start, int end) {
     return 'Equivalent to physical: $start - $end';
   }
 
   @override
-  String paginationSectionLabel(Object index) {
+  String paginationSectionLabel(int index) {
     return 'Section $index';
   }
+
+  @override
+  String paginationProgress(String current, String total) {
+    return '$current / $total';
+  }
+
+  @override
+  String get paginationCurrentPageShort => 'Pg.';
 
   @override
   String get paginationStartPhysical => 'Start (Physical)';

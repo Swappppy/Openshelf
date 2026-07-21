@@ -11,6 +11,7 @@ class SegmentedPagePicker extends StatefulWidget {
   final PaginationConfig? config;
   final int initialProgress;
   final Map<int, int> initialSegmentProgress;
+  final int? initialSegmentIndex;
   final Function(int, Map<int, int>, PaginationConfig) onSave;
 
   const SegmentedPagePicker({
@@ -19,6 +20,7 @@ class SegmentedPagePicker extends StatefulWidget {
     required this.onSave,
     this.initialProgress = 0,
     this.initialSegmentProgress = const {},
+    this.initialSegmentIndex,
     this.status,
     this.config,
   });
@@ -69,16 +71,19 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
     }
 
     // Determine initial segment to show: 
-    // "the first incomplete one, or the first one, or the last one if it has been started"
-    int initialIdx = -1;
+    // 1. If explicit index provided, use it
+    // 2. Otherwise, find the first incomplete one, or the first one
+    int initialIdx = widget.initialSegmentIndex ?? -1;
     
-    // 1. Try to find the first incomplete segment
-    for (int i = 0; i < _segments.length; i++) {
-      final currentInSegment = _segmentProgress[i] ?? 0;
-      final maxInSegment = _segments[i].endPhysical - _segments[i].startPhysical + 1;
-      if (currentInSegment < maxInSegment) {
-        initialIdx = i;
-        break;
+    if (initialIdx == -1) {
+      // Try to find the first incomplete segment
+      for (int i = 0; i < _segments.length; i++) {
+        final currentInSegment = _segmentProgress[i] ?? 0;
+        final maxInSegment = _segments[i].endPhysical - _segments[i].startPhysical + 1;
+        if (currentInSegment < maxInSegment) {
+          initialIdx = i;
+          break;
+        }
       }
     }
 
@@ -208,11 +213,12 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
                         children: [
                           s.type == PageNumberingType.roman
                               ? RomanPagePicker(
-                                  initialValue: currentInSegment > 0 ? currentInSegment : 0,
-                                  minValue: 0,
-                                  maxValue: maxInSegment,
+                                  initialValue: currentInSegment > 0 ? currentInSegment + s.offset : s.offset,
+                                  minValue: s.offset,
+                                  maxValue: maxInSegment + s.offset,
                                   onChanged: (val) {
-                                    _saveSegmentSession(index, val);
+                                    final physicalInSegment = val - s.offset;
+                                    _saveSegmentSession(index, physicalInSegment);
                                   },
                                 )
                               : PagePicker(
@@ -229,8 +235,8 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
                     ),
                     Text(
                       currentInSegment == 0
-                          ? '${s.type == PageNumberingType.roman ? '-' : '0'} / $visualMax'
-                          : '${context.l10n.fieldCurrentPage.substring(0, 1).toUpperCase()}${context.l10n.fieldCurrentPage.substring(1).toLowerCase()}. ${PaginationHelper.getVisualPageInSegment(s.startPhysical + currentInSegment - 1, s)} / $visualMax',
+                          ? context.l10n.paginationProgress(s.type == PageNumberingType.roman ? '-' : '0', visualMax)
+                          : '${context.l10n.paginationCurrentPageShort} ${PaginationHelper.getVisualPageInSegment(s.startPhysical + currentInSegment - 1, s)} / $visualMax',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ],
@@ -242,12 +248,30 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
         const SizedBox(height: 24),
         FilledButton(
           onPressed: () {
-            // Calculate total physical pages read across all segments for this session
+            // Clean up _segmentProgress to only include current segments
+            final Map<int, int> cleanedProgress = {};
+            int maxPhysReached = 0;
+            bool allCompleted = true;
+
+            for (int i = 0; i < _segments.length; i++) {
+              final s = _segments[i];
+              final progress = _segmentProgress[i] ?? 0;
+              cleanedProgress[i] = progress;
+              
+              if (progress > 0) {
+                final phys = s.startPhysical + progress - 1;
+                if (phys > maxPhysReached) maxPhysReached = phys;
+              }
+
+              final maxInSeg = s.endPhysical - s.startPhysical + 1;
+              if (progress < maxInSeg) {
+                allCompleted = false;
+              }
+            }
+
             int totalPhysRead = 0;
             if (_segments.length > 1 || widget.config?.segments.isNotEmpty == true) {
-              for (final val in _segmentProgress.values) {
-                totalPhysRead += val;
-              }
+              totalPhysRead = allCompleted ? widget.totalPages : maxPhysReached;
             } else {
               // If no segments, _selectedPhysicalPage is the absolute page
               totalPhysRead = _selectedPhysicalPage;
@@ -258,7 +282,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
               markers: widget.config?.markers ?? [],
             );
 
-            widget.onSave(totalPhysRead, _segmentProgress, newConfig);
+            widget.onSave(totalPhysRead, cleanedProgress, newConfig);
           },
           child: Text(context.l10n.paginationSaveProgress),
         ),

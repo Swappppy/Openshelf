@@ -78,9 +78,10 @@ class _RomanPagePickerState extends State<RomanPagePicker> {
       columnLabels: labels,
       maxDigitProvider: _maxDigit,
       digitLabelProvider: (col, index, isSelected) {
-        if (index == 0) return "—";
         final multiplier = col == 0 ? 100 : (col == 1 ? 10 : 1);
-        return PaginationHelper.getVisualPage(index * multiplier, null, forceRoman: true);
+        final value = index * multiplier;
+        if (value == 0) return "—";
+        return PaginationHelper.getVisualPage(value, null, forceRoman: true);
       },
       onDigitChanged: _onDigitChanged,
     );

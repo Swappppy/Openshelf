@@ -1158,19 +1158,36 @@
   "permissionRequired": "Permiso necesario",
   "@permissionRequired": { "description": "Título del diálogo de permiso denegado permanentemente" },
 
-  "paginationMarkersAndIndices": "Marcadores e Índices",
+  "paginationMarkersAndIndices": "Secciones y marcadores",
   "paginationSaveProgress": "Guardar Progreso",
   "paginationAllPagesAssigned": "Todas las páginas ya han sido asignadas.",
   "paginationChooseColor": "Elegir color",
   "paginationSegmentRequired": "Segmento {index}: Todos los campos de página son obligatorios.",
   "paginationSegmentStartGreater": "Segmento {index}: El inicio no puede ser mayor que el fin.",
   "paginationSegmentExceedsTotal": "Segmento {index}: Los valores exceden el total de páginas ({total}).",
+  "@paginationSegmentExceedsTotal": {
+    "placeholders": {
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "paginationSegmentOverlap": "El segmento {index1} se solapa con el segmento {index2}",
+  "@paginationSegmentOverlap": {
+    "placeholders": {
+      "index1": { "type": "int" },
+      "index2": { "type": "int" }
+    }
+  },
   "paginationAdvancedConfig": "Configuración avanzada",
   "paginationBlocksSegments": "BLOQUES / SEGMENTOS",
   "paginationNoSegmentsDefined": "No hay segmentos definidos. Se usa el rango 1-N por defecto.",
   "paginationAddBlock": "Añadir bloque",
   "paginationAllPagesAssignedNote": "Nota: Ya has asignado todas las páginas disponibles.",
   "paginationPagesRemainingWarning": "Aviso: Quedan {count} páginas físicas sin asignar.",
+  "@paginationPagesRemainingWarning": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "paginationPhysicalTotalNote": "Nota: El total de páginas se refiere a las páginas físicas del libro (hojas totales).",
   "paginationCorrectErrors": "CORRIJA LOS SIGUIENTES ERRORES:",
   "paginationMarkersLabels": "MARCADORES / ETIQUETAS",
   "paginationMarkerDefaultName": "Marcador",
@@ -1188,7 +1205,24 @@
   "paginationAdjustsAutomatically": "Se ajusta automáticamente",
   "paginationVisualMode": "Modo visual",
   "paginationEquivalentPhysical": "Equivale a físicas: {start} - {end}",
+  "@paginationEquivalentPhysical": {
+    "placeholders": {
+      "start": { "type": "int" },
+      "end": { "type": "int" }
+    }
+  },
   "paginationSectionLabel": "Sección {index}",
+  "@paginationSectionLabel": {
+    "placeholders": { "index": { "type": "int" } }
+  },
+  "paginationProgress": "{current} / {total}",
+  "@paginationProgress": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "paginationCurrentPageShort": "Pág.",
   "paginationStartPhysical": "Inicio (Físico)",
   "paginationEndPhysical": "Fin (Físico)",
   "paginationStartVisual": "Inicio (Visual)",

@@ -1165,12 +1165,29 @@
   "paginationSegmentRequired": "Segment {index}: All page fields are required.",
   "paginationSegmentStartGreater": "Segment {index}: Start cannot be greater than end.",
   "paginationSegmentExceedsTotal": "Segment {index}: Values exceed total pages ({total}).",
+  "@paginationSegmentExceedsTotal": {
+    "placeholders": {
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "paginationSegmentOverlap": "Segment {index1} overlaps with Segment {index2}",
+  "@paginationSegmentOverlap": {
+    "placeholders": {
+      "index1": { "type": "int" },
+      "index2": { "type": "int" }
+    }
+  },
   "paginationAdvancedConfig": "Advanced Configuration",
   "paginationBlocksSegments": "BLOCKS / SEGMENTS",
   "paginationNoSegmentsDefined": "No segments defined. Defaulting to 1-N range.",
   "paginationAddBlock": "Add block",
   "paginationAllPagesAssignedNote": "Note: You have already assigned all available pages.",
   "paginationPagesRemainingWarning": "Warning: {count} physical pages remain unassigned.",
+  "@paginationPagesRemainingWarning": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "paginationPhysicalTotalNote": "Note: Total pages refer to the physical pages of the book (total sheets).",
   "paginationCorrectErrors": "PLEASE CORRECT THE FOLLOWING ERRORS:",
   "paginationMarkersLabels": "MARKERS / LABELS",
   "paginationMarkerDefaultName": "Marker",
@@ -1188,7 +1205,24 @@
   "paginationAdjustsAutomatically": "Adjusts automatically",
   "paginationVisualMode": "Visual mode",
   "paginationEquivalentPhysical": "Equivalent to physical: {start} - {end}",
+  "@paginationEquivalentPhysical": {
+    "placeholders": {
+      "start": { "type": "int" },
+      "end": { "type": "int" }
+    }
+  },
   "paginationSectionLabel": "Section {index}",
+  "@paginationSectionLabel": {
+    "placeholders": { "index": { "type": "int" } }
+  },
+  "paginationProgress": "{current} / {total}",
+  "@paginationProgress": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "paginationCurrentPageShort": "Pg.",
   "paginationStartPhysical": "Start (Physical)",
   "paginationEndPhysical": "End (Physical)",
   "paginationStartVisual": "Start (Visual)",
