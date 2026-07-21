@@ -36,7 +36,7 @@ class MainTab extends StatelessWidget {
     }
   }
 
-  String _getMultiBlockProgress(Book book, List<ReadHistoryData> history) {
+  String _getMultiBlockProgress(BuildContext context, Book book, List<ReadHistoryData> history) {
     if (book.paginationConfig == null || book.paginationConfig!.segments.isEmpty) {
       return '';
     }
@@ -63,7 +63,8 @@ class MainTab extends StatelessWidget {
         visualProgress = PaginationHelper.getVisualPageInSegment(physForVisual, s);
       }
       
-      return '${s.label ?? 'Sección ${i + 1}'}: $visualProgress/$endVisual';
+      final sectionLabel = s.label ?? context.l10n.paginationSectionLabel(i + 1);
+      return '$sectionLabel: $visualProgress/$endVisual';
     }).join('  •  ');
   }
 
@@ -222,7 +223,7 @@ class MainTab extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            _getMultiBlockProgress(book, history),
+                            _getMultiBlockProgress(context, book, history),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.outline,
                                   fontSize: 11,

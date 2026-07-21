@@ -305,7 +305,7 @@ class DetailsTab extends ConsumerWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ReadOnlyField(
-                    label: 'Copias',
+                    label: context.l10n.fieldCopies,
                     value: '${book.copies}',
                   ),
                 ),
@@ -316,7 +316,7 @@ class DetailsTab extends ConsumerWidget {
             // Independent Sections Summary
             if (book.paginationConfig != null && book.paginationConfig!.segments.isNotEmpty) ...[
               Text(
-                'SECCIONES INDEPENDIENTES',
+                context.l10n.paginationBlocksSegments.toUpperCase(),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -337,10 +337,16 @@ class DetailsTab extends ConsumerWidget {
                     final isLast = i == book.paginationConfig!.segments.length - 1;
                     
                     final completedReads = history.where((h) => h.finishedAt != null).length;
-                    final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
-                    final activeSession = history.lastWhereOrNull((h) => h.readNumber == activeSessionNum);
+                    final sectionLabel = s.label ?? context.l10n.paginationSectionLabel(i + 1);
                     
-                    final Map<int, int> segProgress = activeSession?.segmentProgress ?? {};
+                    final activeSessionForSegment = history.lastWhereOrNull((h) =>
+                      h.sections == null || h.sections!.contains(sectionLabel)
+                    );
+                    
+                    final sessionNumToShow = activeSessionForSegment?.readNumber ?? 
+                        PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+                    
+                    final Map<int, int> segProgress = activeSessionForSegment?.segmentProgress ?? {};
 
                     final currentInSegment = segProgress[i] ?? 0;
                     final segmentTotal = s.endPhysical - s.startPhysical + 1;
@@ -350,8 +356,8 @@ class DetailsTab extends ConsumerWidget {
                         ListTile(
                           dense: true,
                           visualDensity: VisualDensity.compact,
-                          title: Text(s.label ?? 'Sección ${i+1}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text('Lectura actual: $activeSessionNum'),
+                          title: Text(sectionLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text('${context.l10n.statusReading}: $sessionNumToShow'),
                           trailing: Text(
                             '${(segmentTotal > 0 ? (currentInSegment / segmentTotal * 100) : 0).toStringAsFixed(0)}%',
                             style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),

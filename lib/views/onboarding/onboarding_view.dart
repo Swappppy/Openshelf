@@ -26,49 +26,51 @@ class _OnboardingViewState extends ConsumerState<OnboardingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          PageView(
-            controller: _pageController,
-            onPageChanged: (idx) => setState(() => _currentPage = idx),
-            children: [
-              _buildStep(
-                icon: OpenshelfLogoIcon(size: 80, color: Theme.of(context).colorScheme.primary),
-                title: context.l10n.onboardingWelcomeTitle,
-                subtitle: context.l10n.onboardingWelcomeSub,
-              ),
-              _buildStep(
-                iconData: Icons.bookmarks_outlined,
-                title: context.l10n.onboardingOrganizeTitle,
-                subtitle: context.l10n.onboardingOrganizeSub,
-                color: Colors.purple,
-              ),
-              _buildStep(
-                iconData: Icons.bar_chart_outlined,
-                title: context.l10n.onboardingProgressTitle,
-                subtitle: context.l10n.onboardingProgressSub,
-                color: Colors.blue,
-              ),
-              _buildStep(
-                iconData: Icons.qr_code_scanner,
-                title: context.l10n.onboardingAddTitle,
-                subtitle: context.l10n.onboardingAddSub,
-                color: Colors.teal,
-                isLast: true,
-              ),
-            ],
-          ),
-          // Dot indicator
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(4, (i) => _buildDot(i)),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            PageView(
+              controller: _pageController,
+              onPageChanged: (idx) => setState(() => _currentPage = idx),
+              children: [
+                _buildStep(
+                  icon: OpenshelfLogoIcon(size: 80, color: Theme.of(context).colorScheme.primary),
+                  title: context.l10n.onboardingWelcomeTitle,
+                  subtitle: context.l10n.onboardingWelcomeSub,
+                ),
+                _buildStep(
+                  iconData: Icons.bookmarks_outlined,
+                  title: context.l10n.onboardingOrganizeTitle,
+                  subtitle: context.l10n.onboardingOrganizeSub,
+                  color: Colors.purple,
+                ),
+                _buildStep(
+                  iconData: Icons.bar_chart_outlined,
+                  title: context.l10n.onboardingProgressTitle,
+                  subtitle: context.l10n.onboardingProgressSub,
+                  color: Colors.blue,
+                ),
+                _buildStep(
+                  iconData: Icons.qr_code_scanner,
+                  title: context.l10n.onboardingAddTitle,
+                  subtitle: context.l10n.onboardingAddSub,
+                  color: Colors.teal,
+                  isLast: true,
+                ),
+              ],
             ),
-          ),
-        ],
+            // Dot indicator
+            Positioned(
+              bottom: 24,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(4, (i) => _buildDot(i)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

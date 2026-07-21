@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:collection/collection.dart';
 import '../services/database.dart';
 import '../services/cover_service.dart';
 import '../services/permission_service.dart';
@@ -104,15 +105,15 @@ class BookFormController {
       final history = await _db.readHistoryDao.watchHistoryForBook(bookId).first;
       final completedReads = history.where((h) => h.finishedAt != null).length;
       final activeSessionNum = PaginationHelper.getActiveSessionNumber(status, completedReads);
-      final activeSession = history.firstWhere((h) => h.readNumber == activeSessionNum, orElse: () => history.lastOrNull ?? ReadHistoryData(id: -1, bookId: -1, readNumber: -1, progress: 0));
+      final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
 
-      if (activeSession.id != -1) {
+      if (activeSession != null) {
         await _db.readHistoryDao.updateRead(activeSession.copyWith(
           progress: newPage ?? 0,
           finishedAt: Value(finishedAt),
           startedAt: Value(startedAt),
         ));
-      } else {
+      } else if (status == ReadingStatus.reading || (newPage ?? 0) > 0 || status == ReadingStatus.read) {
         await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
           bookId: bookId,
           readNumber: activeSessionNum,
