@@ -1,23 +1,15 @@
-import 'dart:io';
-import 'package:collection/collection.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../services/database.dart';
-import '../../services/cover_service.dart';
-import '../../services/permission_service.dart';
 import '../../controllers/database_provider.dart';
-import '../../controllers/shelf_automation_controller.dart';
-import '../../controllers/reading_log_controller.dart';
-import '../../widgets/entity_field_selector.dart';
-import '../../widgets/tag_grid_selector.dart';
+import '../../controllers/book_form_controller.dart';
 import '../../models/book_search_result.dart';
 import '../../models/tag_type.dart';
 import '../../l10n/l10n_extension.dart';
-import '../../widgets/os_permission_dialog.dart';
 import 'cover_picker_sheet.dart';
-import 'advanced_pagination_view.dart';
+import 'widgets/main_tab.dart';
+import 'widgets/details_tab.dart';
 
 /// Form for adding a new book or editing an existing one.
 /// Supports prefilling from external search results and handling M:M relationships.
@@ -179,14 +171,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _prefillCoverFromUrl(String url) async {
-    if (!mounted) return;
-    final title = context.l10n.cropCoverTitle;
-    final l10n = context.l10n;
-    final saved = await CoverService.saveCoverFromUrl(
-      url, 
-      cropTitle: title,
-      doneButtonTitle: l10n.done,
-      cancelButtonTitle: l10n.cancel,
+    final saved = await ref.read(bookFormControllerProvider).downloadCover(
+      url,
+      cropTitle: context.l10n.cropCoverTitle,
+      doneTitle: context.l10n.done,
+      cancelTitle: context.l10n.cancel,
     );
     if (saved != null && mounted) {
       setState(() => _coverPath = saved);
@@ -194,68 +183,23 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _pickCover() async {
-    final result = await PermissionService.requestGallery();
-
-    if (result == GalleryPermissionResult.permanentlyDenied || result == GalleryPermissionResult.denied) {
-      if (!mounted) return;
-      await OsPermissionDialog.show(
-        context,
-        title: context.l10n.permissionRequired,
-        content: context.l10n.storagePermissionExplanation,
-      );
-      return;
-    }
-
-    if (result != GalleryPermissionResult.granted) return;
-    if (!mounted) return;
-
-    final l10n = context.l10n;
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked == null) return;
-
-    final cropped = await CoverService.cropCover(
-      picked.path,
-      title: l10n.cropCoverTitle,
-      doneButtonTitle: l10n.done,
-      cancelButtonTitle: l10n.cancel,
+    final saved = await ref.read(bookFormControllerProvider).pickCoverFromGallery(
+      cropTitle: context.l10n.cropCoverTitle,
+      doneTitle: context.l10n.done,
+      cancelTitle: context.l10n.cancel,
     );
-
-    if (cropped != null) {
-      final saved = await CoverService.saveLocalCover(cropped);
+    if (saved != null && mounted) {
       setState(() => _coverPath = saved);
     }
   }
 
   Future<void> _takePhoto() async {
-    final granted = await PermissionService.requestCamera();
-
-    if (!granted) {
-      if (!mounted) return;
-      await OsPermissionDialog.show(
-        context,
-        title: context.l10n.permissionRequired,
-        content: context.l10n.cameraPermissionExplanation,
-      );
-      return;
-    }
-
-    if (!mounted) return;
-
-    final l10n = context.l10n;
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.camera);
-    if (picked == null) return;
-
-    final cropped = await CoverService.cropCover(
-      picked.path,
-      title: l10n.cropCoverTitle,
-      doneButtonTitle: l10n.done,
-      cancelButtonTitle: l10n.cancel,
+    final saved = await ref.read(bookFormControllerProvider).takePhoto(
+      cropTitle: context.l10n.cropCoverTitle,
+      doneTitle: context.l10n.done,
+      cancelTitle: context.l10n.cancel,
     );
-
-    if (cropped != null) {
-      final saved = await CoverService.saveLocalCover(cropped);
+    if (saved != null && mounted) {
       setState(() => _coverPath = saved);
     }
   }
@@ -291,13 +235,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (!mounted) return;
     
     setState(() => _isSaving = true);
-    final l10n = context.l10n;
-    final title = l10n.cropCoverTitle;
-    final saved = await CoverService.saveCoverFromUrl(
-      url, 
-      cropTitle: title,
-      doneButtonTitle: l10n.done,
-      cancelButtonTitle: l10n.cancel,
+    final saved = await ref.read(bookFormControllerProvider).downloadCover(
+      url,
+      cropTitle: context.l10n.cropCoverTitle,
+      doneTitle: context.l10n.done,
+      cancelTitle: context.l10n.cancel,
     );
     if (!mounted) return;
     setState(() {
@@ -306,7 +248,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     });
     if (saved == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.coverDownloadError)),
+        SnackBar(content: Text(context.l10n.coverDownloadError)),
       );
     }
   }
@@ -345,20 +287,19 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (widget.existingBook == null && isbn.isNotEmpty) {
       final existing = await db.bookDao.getBookByIsbn(isbn);
       if (existing != null && mounted) {
-        final l10n = context.l10n;
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(l10n.bookDuplicateTitle),
-            content: Text(l10n.bookDuplicateContent(isbn)),
+            title: Text(context.l10n.bookDuplicateTitle),
+            content: Text(context.l10n.bookDuplicateContent(isbn)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: Text(l10n.cancel),
+                child: Text(context.l10n.cancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l10n.addBook),
+                child: Text(context.l10n.addBook),
               ),
             ],
           ),
@@ -371,13 +312,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     setState(() => _isSaving = true);
 
     final newPage = int.tryParse(_currentPageCtrl.text) ?? 0;
-    final rawCollectionId = _selectedCollections.firstOrNull?.id;
-    final collectionId = (rawCollectionId != null && rawCollectionId > 0) ? rawCollectionId : null;
+    final collectionId = _selectedCollections.firstOrNull?.id;
     final collectionName = _selectedCollections.firstOrNull?.name;
-    
-    final rawImprintId = _selectedImprint?.id;
-    final imprintId = (rawImprintId != null && rawImprintId > 0) ? rawImprintId : null;
-
+    final imprintId = _selectedImprint?.id;
     final total = int.tryParse(_totalPagesCtrl.text) ?? 0;
     
     // Auto-adjust and sanitize pagination config if total pages changed
@@ -423,60 +360,29 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
       coverPath: Value(_coverPath),
       collectionName: Value(collectionName),
-      collectionId: Value(collectionId),
+      collectionId: Value(collectionId != null && collectionId > 0 ? collectionId : null),
       collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
       publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       copies: Value(int.tryParse(_copiesCtrl.text) ?? 1),
       paginationConfig: Value(finalConfig),
       startedAt: Value(_startedAt),
       finishedAt: Value(_finishedAt),
-      imprintId: Value(imprintId),
+      imprintId: Value(imprintId != null && imprintId > 0 ? imprintId : null),
     );
 
-    int bookId;
-    if (widget.existingBook != null) {
-      final oldPage = widget.existingBook!.currentPage ?? 0;
-      bookId = widget.existingBook!.id;
-      
-      // Update the main book record INCLUDING imprintId
-      await (db.update(db.books)..where((b) => b.id.equals(bookId))).write(companion);
-
-      if (newPage > oldPage) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage - oldPage);
-      }
-    } else {
-      bookId = await db.bookDao.insertBook(companion);
-      
-      // Create initial history entry if needed
-      if (_status == ReadingStatus.read) {
-        await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
-          bookId: bookId,
-          readNumber: 1,
-          startedAt: Value(_startedAt ?? DateTime.now()),
-          finishedAt: Value(_finishedAt ?? DateTime.now()),
-          progress: Value(total),
-        ));
-      } else if (newPage > 0 || _status == ReadingStatus.reading) {
-        await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
-          bookId: bookId,
-          readNumber: 1,
-          startedAt: Value(_startedAt ?? DateTime.now()),
-          progress: Value(newPage),
-        ));
-      }
-
-      if (newPage > 0) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage);
-      }
-    }
-
     final tagIds = _selectedTags.map((t) => t.id).toList();
-    await db.tagDao.setBookTags(bookId, tagIds);
-    // REMOVED redundant setBookImprint call as it's now handled directly in the companion
-    await db.tagDao.pruneOrphanTags();
 
-    // Trigger shelf automation check
-    ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
+    await ref.read(bookFormControllerProvider).saveBook(
+      existingBook: widget.existingBook,
+      companion: companion,
+      tagIds: tagIds,
+      newPage: newPage,
+      oldPage: widget.existingBook?.currentPage,
+      status: _status,
+      totalPages: total,
+      startedAt: _startedAt,
+      finishedAt: _finishedAt,
+    );
 
     if (mounted) Navigator.pop(context);
   }
@@ -604,7 +510,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         child: TabBarView(
           controller: _tabController,
           children: [
-            _MainTab(
+            MainTab(
               titleCtrl: _titleCtrl,
               subtitleCtrl: _subtitleCtrl,
               authorCtrl: _authorCtrl,
@@ -628,14 +534,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               paginationConfig: _paginationConfig,
               onPaginationConfigChanged: (cfg) => setState(() => _paginationConfig = cfg),
             ),
-        _DetailsTab(
+            DetailsTab(
               notesCtrl: _notesCtrl,
               isbnCtrl: _isbnCtrl,
               languageCtrl: _languageCtrl,
               publishYearCtrl: _publishYearCtrl,
               translatorCtrl: _translatorCtrl,
-              collectionNameCtrl: _collectionNameCtrl,
-              collectionNumberCtrl: _collectionNumberCtrl,
               selectedCollections: _selectedCollections,
               selectedImprint: _selectedImprint,
               startedAt: _startedAt,
@@ -647,643 +551,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               copiesCtrl: _copiesCtrl,
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// -------------------------------------------------------
-// Main Tab
-// -------------------------------------------------------
-class _MainTab extends ConsumerWidget {
-  final TextEditingController titleCtrl;
-  final TextEditingController subtitleCtrl;
-  final TextEditingController authorCtrl;
-  final TextEditingController descriptionCtrl;
-  final TextEditingController publisherCtrl;
-  final TextEditingController totalPagesCtrl;
-  final TextEditingController currentPageCtrl;
-  final ReadingStatus status;
-  final BookFormat? format;
-  final double? rating;
-  final String? coverPath;
-  final ValueChanged<ReadingStatus> onStatusChanged;
-  final ValueChanged<BookFormat?> onFormatChanged;
-  final ValueChanged<double?> onRatingChanged;
-  final VoidCallback onPickCover;
-  final VoidCallback onTakePhoto;
-  final List<Tag> selectedTags;
-  final ValueChanged<List<Tag>> onTagsChanged;
-  final VoidCallback onPickCoverFromUrl;
-  final VoidCallback onSearchCovers;
-  final PaginationConfig? paginationConfig;
-  final ValueChanged<PaginationConfig> onPaginationConfigChanged;
-
-  const _MainTab({
-    required this.titleCtrl,
-    required this.subtitleCtrl,
-    required this.authorCtrl,
-    required this.descriptionCtrl,
-    required this.publisherCtrl,
-    required this.totalPagesCtrl,
-    required this.currentPageCtrl,
-    required this.status,
-    required this.format,
-    required this.rating,
-    this.coverPath,
-    required this.onStatusChanged,
-    required this.onFormatChanged,
-    required this.onRatingChanged,
-    required this.onPickCover,
-    required this.onTakePhoto,
-    required this.selectedTags,
-    required this.onTagsChanged,
-    required this.onPickCoverFromUrl,
-    required this.onSearchCovers,
-    required this.onPaginationConfigChanged,
-    this.paginationConfig,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // --- Cover Image Selection ---
-        Center(
-          child: Column(
-            children: [
-              GestureDetector(
-                onTap: onPickCover,
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: coverPath != null
-                          ? Image.file(
-                        File(coverPath!),
-                        width: 100,
-                        height: 150,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const _CoverPlaceholder(width: 100, height: 150, iconSize: 48),
-                      )
-                          : const _CoverPlaceholder(width: 100, height: 150, iconSize: 48),
-                    ),
-                    Positioned(
-                      bottom: 4,
-                      right: 4,
-                      child: CircleAvatar(
-                        radius: 14,
-                        backgroundColor: colorScheme.primary,
-                        child: Icon(
-                            Icons.photo_library_outlined,
-                            size: 14,
-                            color: colorScheme.onPrimary),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextButton.icon(
-                    icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                    label: Text(context.l10n.photo),
-                    onPressed: onTakePhoto,
-                  ),
-                  const SizedBox(width: 4),
-                  TextButton.icon(
-                    icon: const Icon(Icons.link, size: 16),
-                    label: Text(context.l10n.url),
-                    onPressed: onPickCoverFromUrl,
-                  ),
-                  const SizedBox(width: 4),
-                  TextButton.icon(
-                    icon: const Icon(Icons.image_search, size: 16),
-                    label: Text(context.l10n.coverSearch),
-                    onPressed: onSearchCovers,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // --- Basic Info Section ---
-        _SectionHeader(label: context.l10n.sectionBasicInfo),
-        const SizedBox(height: 12),
-        _FormField(
-            controller: titleCtrl, label: context.l10n.fieldTitle, required: true,
-            icon: Icons.title),
-        const SizedBox(height: 12),
-        _FormField(
-            controller: subtitleCtrl, label: context.l10n.fieldSubtitle,
-            icon: Icons.subtitles_outlined),
-        const SizedBox(height: 12),
-        _FormField(
-            controller: authorCtrl, label: context.l10n.fieldAuthor, required: true,
-            icon: Icons.person_outline),
-        const SizedBox(height: 12),
-        _FormField(
-            controller: publisherCtrl,
-            label: context.l10n.fieldPublisher,
-            icon: Icons.business_outlined),
-        const SizedBox(height: 12),
-        _FormField(
-          controller: descriptionCtrl,
-          label: context.l10n.fieldDescription,
-          icon: Icons.description_outlined,
-          maxLines: 5,
-        ),
-        const SizedBox(height: 24),
-
-
-        EntityFieldSelector(
-          selected: selectedTags,
-          onChanged: onTagsChanged,
-          type: TagType.tag,
-          label: context.l10n.tagSearchOrCreate,
-          icon: Icons.label_outline,
-          trailing: TagGridSelector(
-            selected: selectedTags,
-            type: TagType.tag,
-            onChanged: onTagsChanged,
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        // --- Reading Progress Section ---
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _SectionHeader(label: context.l10n.fieldReadingProgress),
-            TextButton.icon(
-              onPressed: () {
-                final total = int.tryParse(totalPagesCtrl.text) ?? 0;
-                if (total <= 0) return;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AdvancedPaginationView(
-                      initialConfig: paginationConfig ?? PaginationConfig(),
-                      totalPages: total,
-                      onSave: onPaginationConfigChanged,
-                    ),
-                  ),
-                );
-              },
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-              icon: const Icon(Icons.settings_suggest_outlined, size: 16),
-              label: Text(context.l10n.paginationAdvancedButton, style: const TextStyle(fontSize: 12)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _FormField(
-                controller: totalPagesCtrl,
-                label: context.l10n.fieldTotalPages,
-                icon: Icons.menu_book_outlined,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _FormField(
-                controller: currentPageCtrl,
-                label: context.l10n.fieldCurrentPage,
-                icon: Icons.bookmark_outline,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        ),
-        // --- Status Section ---
-        const SizedBox(height: 24),
-        _SectionHeader(label: context.l10n.sectionReadingStatus),
-        const SizedBox(height: 12),
-        _StatusSelector(selected: status, onChanged: onStatusChanged),
-        const SizedBox(height: 24),
-
-        // --- Format Section ---
-        _SectionHeader(label: context.l10n.sectionFormat),
-        const SizedBox(height: 12),
-        _FormatSelector(selected: format, onChanged: onFormatChanged),
-        const SizedBox(height: 24),
-
-        // --- Rating Section ---
-        _SectionHeader(label: context.l10n.sectionRating),
-        const SizedBox(height: 12),
-        _RatingSelector(rating: rating, onChanged: onRatingChanged),
-        const SizedBox(height: 32),
-      ],
-    );
-  }
-}
-
-// -------------------------------------------------------
-// Details Tab
-// -------------------------------------------------------
-class _DetailsTab extends ConsumerWidget {
-  final TextEditingController notesCtrl;
-  final TextEditingController isbnCtrl;
-  final TextEditingController languageCtrl;
-  final TextEditingController publishYearCtrl;
-  final TextEditingController translatorCtrl;
-  final TextEditingController collectionNameCtrl;
-  final TextEditingController collectionNumberCtrl;
-  final List<Tag> selectedCollections;
-  final Tag? selectedImprint;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
-  final ValueChanged<DateTime?> onStartedAtChanged;
-  final ValueChanged<DateTime?> onFinishedAtChanged;
-  final ValueChanged<List<Tag>> onCollectionsChanged;
-  final ValueChanged<Tag?> onImprintChanged;
-  final TextEditingController copiesCtrl;
-
-  const _DetailsTab({
-    required this.notesCtrl,
-    required this.isbnCtrl,
-    required this.languageCtrl,
-    required this.publishYearCtrl,
-    required this.translatorCtrl,
-    required this.collectionNameCtrl,
-    required this.collectionNumberCtrl,
-    required this.selectedCollections,
-    required this.selectedImprint,
-    this.startedAt,
-    this.finishedAt,
-    required this.onStartedAtChanged,
-    required this.onFinishedAtChanged,
-    required this.onCollectionsChanged,
-    required this.onImprintChanged,
-    required this.copiesCtrl,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _SectionHeader(label: context.l10n.sectionBasicInfo),
-        const SizedBox(height: 12),
-        _FormField(
-          controller: publishYearCtrl,
-          label: context.l10n.fieldYear,
-          icon: Icons.calendar_today_outlined,
-          keyboardType: TextInputType.number,
-        ),
-        const SizedBox(height: 12),
-        _FormField(
-            controller: isbnCtrl,
-            label: context.l10n.fieldIsbn,
-            icon: Icons.barcode_reader,
-            keyboardType: TextInputType.number),
-        const SizedBox(height: 12),
-        _FormField(
-            controller: languageCtrl,
-            label: context.l10n.fieldLanguage,
-            icon: Icons.language_outlined),
-        const SizedBox(height: 24),
-
-        _SectionHeader(label: context.l10n.fieldCollection),
-        const SizedBox(height: 12),
-        EntityFieldSelector(
-          selected: selectedCollections,
-          onChanged: onCollectionsChanged,
-          type: TagType.collection,
-          label: context.l10n.fieldCollection,
-          icon: Icons.collections_bookmark_outlined,
-          multiSelection: false,
-        ),
-        const SizedBox(height: 12),
-        _FormField(
-          controller: collectionNumberCtrl,
-          label: context.l10n.fieldCollectionNumber,
-          icon: Icons.tag,
-          keyboardType: TextInputType.number,
-        ),
-        const SizedBox(height: 24),
-
-        _SectionHeader(label: context.l10n.sectionImprint),
-        const SizedBox(height: 12),
-        EntityFieldSelector(
-          selected: selectedImprint != null ? [selectedImprint!] : [],
-          onChanged: (list) {
-            onImprintChanged(list.firstOrNull);
-          },
-          type: TagType.imprint,
-          label: context.l10n.imprintSearch,
-          icon: Icons.business_outlined,
-          multiSelection: false,
-        ),
-        const SizedBox(height: 24),
-
-        _SectionHeader(label: context.l10n.fieldTranslator),
-        const SizedBox(height: 12),
-        _FormField(
-          controller: translatorCtrl,
-          label: context.l10n.fieldTranslator,
-          icon: Icons.translate_outlined,
-        ),
-        const SizedBox(height: 24),
-
-        _SectionHeader(label: context.l10n.bookDetailNotesTitle),
-        const SizedBox(height: 12),
-        _FormField(
-          controller: notesCtrl,
-          label: context.l10n.fieldNotes,
-          icon: Icons.notes_outlined,
-          maxLines: 6,
-        ),
-        const SizedBox(height: 24),
-
-        _SectionHeader(label: context.l10n.tabDetails),
-        const SizedBox(height: 12),
-        _DatePickerField(
-          label: context.l10n.bookDetailFieldStarted,
-          value: startedAt,
-          onChanged: onStartedAtChanged,
-          icon: Icons.play_circle_outline,
-        ),
-        const SizedBox(height: 12),
-        _DatePickerField(
-          label: context.l10n.bookDetailFieldFinished,
-          value: finishedAt,
-          onChanged: onFinishedAtChanged,
-          icon: Icons.check_circle_outline,
-        ),
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(
-              child: _FormField(
-                controller: copiesCtrl,
-                label: context.l10n.fieldCopies,
-                icon: Icons.copy,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 32),
-      ],
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String label;
-  const _SectionHeader({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label.toUpperCase(),
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: Theme.of(context).colorScheme.primary,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.2,
-      ),
-    );
-  }
-}
-
-class _FormField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final IconData? icon;
-  final bool required;
-  final TextInputType keyboardType;
-  final int maxLines;
-
-  final bool readOnly;
-
-  const _FormField({
-    required this.controller,
-    required this.label,
-    this.icon,
-    this.required = false,
-    this.keyboardType = TextInputType.text,
-    this.maxLines = 1,
-  }) : readOnly = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      readOnly: readOnly,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: icon != null ? Icon(icon) : null,
-        border: const OutlineInputBorder(),
-        filled: readOnly,
-        fillColor: readOnly ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : null,
-      ),
-      validator: required
-          ? (v) =>
-      (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null
-          : null,
-    );
-  }
-}
-
-class _StatusSelector extends StatelessWidget {
-  final ReadingStatus selected;
-  final ValueChanged<ReadingStatus> onChanged;
-
-  const _StatusSelector({required this.selected, required this.onChanged});
-
-  static const _options = [
-    (ReadingStatus.wantToRead, Icons.bookmark_outline, Colors.orange),
-    (ReadingStatus.reading, Icons.auto_stories, Colors.blue),
-    (ReadingStatus.read, Icons.check_circle_outline, Colors.green),
-    (ReadingStatus.abandoned, Icons.close, Colors.red),
-    (ReadingStatus.paused, Icons.pause_circle_outline, Color(0xFFB39DDB)),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: _options.map((opt) {
-        final (status, icon, color) = opt;
-        final isSelected = selected == status;
-        final label = switch (status) {
-          ReadingStatus.wantToRead => context.l10n.statusWantToRead,
-          ReadingStatus.reading => context.l10n.statusReading,
-          ReadingStatus.read => context.l10n.statusRead,
-          ReadingStatus.abandoned => context.l10n.statusAbandoned,
-          ReadingStatus.paused => context.l10n.statusPaused,
-        };
-        return ChoiceChip(
-          avatar: Icon(icon, size: 16, color: isSelected ? color : null),
-          label: Text(label),
-          selected: isSelected,
-          selectedColor: color.withValues(alpha: 0.15),
-          onSelected: (_) => onChanged(status),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class _FormatSelector extends StatelessWidget {
-  final BookFormat? selected;
-  final ValueChanged<BookFormat?> onChanged;
-
-  const _FormatSelector({this.selected, required this.onChanged});
-
-  static const _options = [
-    BookFormat.paperback,
-    BookFormat.hardcover,
-    BookFormat.leatherbound,
-    BookFormat.rustic,
-    BookFormat.digital,
-    BookFormat.other,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: _options.map((format) {
-        final label = switch (format) {
-          BookFormat.paperback => context.l10n.formatPaperback,
-          BookFormat.hardcover => context.l10n.formatHardcover,
-          BookFormat.leatherbound => context.l10n.formatLeatherbound,
-          BookFormat.rustic => context.l10n.formatRustic,
-          BookFormat.digital => context.l10n.formatDigital,
-          BookFormat.other => context.l10n.formatOther,
-        };
-        final isSelected = selected == format;
-        final color = Theme.of(context).colorScheme.primary;
-        return ChoiceChip(
-          label: Text(label),
-          selected: isSelected,
-          selectedColor: color.withValues(alpha: 0.15),
-          onSelected: (_) => onChanged(isSelected ? null : format),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class _RatingSelector extends StatelessWidget {
-  final double? rating;
-  final ValueChanged<double?> onChanged;
-
-  const _RatingSelector({this.rating, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        ...List.generate(5, (i) {
-          final star = i + 1;
-          return IconButton(
-            icon: Icon(
-              rating != null && rating! >= star
-                  ? Icons.star
-                  : Icons.star_border,
-              color: Colors.amber[700],
-            ),
-            onPressed: () => onChanged(
-                rating == star.toDouble() ? null : star.toDouble()),
-          );
-        }),
-        if (rating != null)
-          Text(
-            rating!.toStringAsFixed(0),
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-      ],
-    );
-  }
-}
-
-class _CoverPlaceholder extends StatelessWidget {
-  final double width;
-  final double height;
-  final double iconSize;
-
-  const _CoverPlaceholder({
-    this.width = 90,
-    this.height = 130,
-    this.iconSize = 40,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Icon(
-        Icons.menu_book,
-        size: iconSize,
-        color: Theme.of(context).colorScheme.outline,
-      ),
-    );
-  }
-}
-
-class _DatePickerField extends StatelessWidget {
-  final String label;
-  final DateTime? value;
-  final ValueChanged<DateTime?> onChanged;
-  final IconData icon;
-
-  const _DatePickerField({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: value ?? DateTime.now(),
-          firstDate: DateTime(1900),
-          lastDate: DateTime(2100),
-        );
-        if (picked != null) onChanged(picked);
-      },
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: const OutlineInputBorder(),
-          suffixIcon: value != null
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () => onChanged(null),
-                )
-              : null,
-        ),
-        child: Text(
-          value != null
-              ? '${value!.day}/${value!.month}/${value!.year}'
-              : '—',
-          style: Theme.of(context).textTheme.bodyLarge,
         ),
       ),
     );

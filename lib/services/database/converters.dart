@@ -165,3 +165,36 @@ class PaginationConfigConverter extends TypeConverter<PaginationConfig, String> 
   @override
   String toSql(PaginationConfig value) => jsonEncode(value.toJson());
 }
+
+class StringListConverter extends TypeConverter<List<String>, String> {
+  const StringListConverter();
+
+  @override
+  List<String> fromSql(String fromDb) {
+    try {
+      return (jsonDecode(fromDb) as List).cast<String>();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  @override
+  String toSql(List<String> value) => jsonEncode(value);
+}
+
+class IntMapConverter extends TypeConverter<Map<int, int>, String> {
+  const IntMapConverter();
+
+  @override
+  Map<int, int> fromSql(String fromDb) {
+    try {
+      final Map<String, dynamic> decoded = jsonDecode(fromDb);
+      return decoded.map((k, v) => MapEntry(int.parse(k), v as int));
+    } catch (_) {
+      return {};
+    }
+  }
+
+  @override
+  String toSql(Map<int, int> value) => jsonEncode(value.map((k, v) => MapEntry(k.toString(), v)));
+}

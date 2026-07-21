@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import '../services/database.dart';
@@ -24,13 +23,11 @@ class ReadingLogController extends Notifier<void> {
       final newPages = (existing.pagesRead + delta).clamp(0, 999999);
       
       // Merge section labels
-      String? updatedSections = existing.sections;
+      List<String>? updatedSections = existing.sections;
       if (sectionLabels != null && sectionLabels.isNotEmpty) {
-        final List<String> current = updatedSections != null 
-            ? List<String>.from(jsonDecode(updatedSections)) 
-            : [];
+        final List<String> current = updatedSections ?? [];
         final newSet = {...current, ...sectionLabels};
-        updatedSections = jsonEncode(newSet.toList());
+        updatedSections = newSet.toList();
       }
 
       await db.logDao.updateLog(
@@ -42,9 +39,9 @@ class ReadingLogController extends Notifier<void> {
     } else {
       if (delta <= 0) return;
       
-      String? sectionsJson;
+      List<String>? finalSections;
       if (sectionLabels != null && sectionLabels.isNotEmpty) {
-        sectionsJson = jsonEncode(sectionLabels.toSet().toList());
+        finalSections = sectionLabels.toSet().toList();
       }
 
       await db.logDao.insertLog(
@@ -52,7 +49,7 @@ class ReadingLogController extends Notifier<void> {
           bookId: bookId,
           date: today,
           pagesRead: delta,
-          sections: Value(sectionsJson),
+          sections: Value(finalSections),
         ),
       );
     }

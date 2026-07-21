@@ -3432,17 +3432,15 @@ class $ReadingLogTable extends ReadingLog
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _sectionsMeta = const VerificationMeta(
-    'sections',
-  );
   @override
-  late final GeneratedColumn<String> sections = GeneratedColumn<String>(
-    'sections',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+  late final GeneratedColumnWithTypeConverter<List<String>?, String> sections =
+      GeneratedColumn<String>(
+        'sections',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<List<String>?>($ReadingLogTable.$convertersectionsn);
   @override
   List<GeneratedColumn> get $columns => [id, bookId, date, pagesRead, sections];
   @override
@@ -3484,12 +3482,6 @@ class $ReadingLogTable extends ReadingLog
     } else if (isInserting) {
       context.missing(_pagesReadMeta);
     }
-    if (data.containsKey('sections')) {
-      context.handle(
-        _sectionsMeta,
-        sections.isAcceptableOrUnknown(data['sections']!, _sectionsMeta),
-      );
-    }
     return context;
   }
 
@@ -3515,9 +3507,11 @@ class $ReadingLogTable extends ReadingLog
         DriftSqlType.int,
         data['${effectivePrefix}pages_read'],
       )!,
-      sections: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}sections'],
+      sections: $ReadingLogTable.$convertersectionsn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}sections'],
+        ),
       ),
     );
   }
@@ -3526,6 +3520,11 @@ class $ReadingLogTable extends ReadingLog
   $ReadingLogTable createAlias(String alias) {
     return $ReadingLogTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<List<String>, String> $convertersections =
+      const StringListConverter();
+  static TypeConverter<List<String>?, String?> $convertersectionsn =
+      NullAwareTypeConverter.wrap($convertersections);
 }
 
 class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
@@ -3533,7 +3532,7 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
   final int bookId;
   final DateTime date;
   final int pagesRead;
-  final String? sections;
+  final List<String>? sections;
   const ReadingLogData({
     required this.id,
     required this.bookId,
@@ -3549,7 +3548,9 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
     map['date'] = Variable<DateTime>(date);
     map['pages_read'] = Variable<int>(pagesRead);
     if (!nullToAbsent || sections != null) {
-      map['sections'] = Variable<String>(sections);
+      map['sections'] = Variable<String>(
+        $ReadingLogTable.$convertersectionsn.toSql(sections),
+      );
     }
     return map;
   }
@@ -3576,7 +3577,7 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       bookId: serializer.fromJson<int>(json['bookId']),
       date: serializer.fromJson<DateTime>(json['date']),
       pagesRead: serializer.fromJson<int>(json['pagesRead']),
-      sections: serializer.fromJson<String?>(json['sections']),
+      sections: serializer.fromJson<List<String>?>(json['sections']),
     );
   }
   @override
@@ -3587,7 +3588,7 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       'bookId': serializer.toJson<int>(bookId),
       'date': serializer.toJson<DateTime>(date),
       'pagesRead': serializer.toJson<int>(pagesRead),
-      'sections': serializer.toJson<String?>(sections),
+      'sections': serializer.toJson<List<String>?>(sections),
     };
   }
 
@@ -3596,7 +3597,7 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
     int? bookId,
     DateTime? date,
     int? pagesRead,
-    Value<String?> sections = const Value.absent(),
+    Value<List<String>?> sections = const Value.absent(),
   }) => ReadingLogData(
     id: id ?? this.id,
     bookId: bookId ?? this.bookId,
@@ -3644,7 +3645,7 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
   final Value<int> bookId;
   final Value<DateTime> date;
   final Value<int> pagesRead;
-  final Value<String?> sections;
+  final Value<List<String>?> sections;
   const ReadingLogCompanion({
     this.id = const Value.absent(),
     this.bookId = const Value.absent(),
@@ -3682,7 +3683,7 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     Value<int>? bookId,
     Value<DateTime>? date,
     Value<int>? pagesRead,
-    Value<String?>? sections,
+    Value<List<String>?>? sections,
   }) {
     return ReadingLogCompanion(
       id: id ?? this.id,
@@ -3709,7 +3710,9 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
       map['pages_read'] = Variable<int>(pagesRead.value);
     }
     if (sections.present) {
-      map['sections'] = Variable<String>(sections.value);
+      map['sections'] = Variable<String>(
+        $ReadingLogTable.$convertersectionsn.toSql(sections.value),
+      );
     }
     return map;
   }
@@ -4194,17 +4197,15 @@ class $ReadHistoryTable extends ReadHistory
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _sectionsMeta = const VerificationMeta(
-    'sections',
-  );
   @override
-  late final GeneratedColumn<String> sections = GeneratedColumn<String>(
-    'sections',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+  late final GeneratedColumnWithTypeConverter<List<String>?, String> sections =
+      GeneratedColumn<String>(
+        'sections',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<List<String>?>($ReadHistoryTable.$convertersectionsn);
   static const VerificationMeta _progressMeta = const VerificationMeta(
     'progress',
   );
@@ -4217,17 +4218,15 @@ class $ReadHistoryTable extends ReadHistory
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _segmentProgressMeta = const VerificationMeta(
-    'segmentProgress',
-  );
   @override
-  late final GeneratedColumn<String> segmentProgress = GeneratedColumn<String>(
+  late final GeneratedColumnWithTypeConverter<Map<int, int>?, String>
+  segmentProgress = GeneratedColumn<String>(
     'segment_progress',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-  );
+  ).withConverter<Map<int, int>?>($ReadHistoryTable.$convertersegmentProgressn);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4282,25 +4281,10 @@ class $ReadHistoryTable extends ReadHistory
         finishedAt.isAcceptableOrUnknown(data['finished_at']!, _finishedAtMeta),
       );
     }
-    if (data.containsKey('sections')) {
-      context.handle(
-        _sectionsMeta,
-        sections.isAcceptableOrUnknown(data['sections']!, _sectionsMeta),
-      );
-    }
     if (data.containsKey('progress')) {
       context.handle(
         _progressMeta,
         progress.isAcceptableOrUnknown(data['progress']!, _progressMeta),
-      );
-    }
-    if (data.containsKey('segment_progress')) {
-      context.handle(
-        _segmentProgressMeta,
-        segmentProgress.isAcceptableOrUnknown(
-          data['segment_progress']!,
-          _segmentProgressMeta,
-        ),
       );
     }
     return context;
@@ -4332,17 +4316,21 @@ class $ReadHistoryTable extends ReadHistory
         DriftSqlType.dateTime,
         data['${effectivePrefix}finished_at'],
       ),
-      sections: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}sections'],
+      sections: $ReadHistoryTable.$convertersectionsn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}sections'],
+        ),
       ),
       progress: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}progress'],
       )!,
-      segmentProgress: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}segment_progress'],
+      segmentProgress: $ReadHistoryTable.$convertersegmentProgressn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}segment_progress'],
+        ),
       ),
     );
   }
@@ -4351,6 +4339,15 @@ class $ReadHistoryTable extends ReadHistory
   $ReadHistoryTable createAlias(String alias) {
     return $ReadHistoryTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<List<String>, String> $convertersections =
+      const StringListConverter();
+  static TypeConverter<List<String>?, String?> $convertersectionsn =
+      NullAwareTypeConverter.wrap($convertersections);
+  static TypeConverter<Map<int, int>, String> $convertersegmentProgress =
+      const IntMapConverter();
+  static TypeConverter<Map<int, int>?, String?> $convertersegmentProgressn =
+      NullAwareTypeConverter.wrap($convertersegmentProgress);
 }
 
 class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
@@ -4359,9 +4356,9 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
   final int readNumber;
   final DateTime? startedAt;
   final DateTime? finishedAt;
-  final String? sections;
+  final List<String>? sections;
   final int progress;
-  final String? segmentProgress;
+  final Map<int, int>? segmentProgress;
   const ReadHistoryData({
     required this.id,
     required this.bookId,
@@ -4385,11 +4382,15 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
       map['finished_at'] = Variable<DateTime>(finishedAt);
     }
     if (!nullToAbsent || sections != null) {
-      map['sections'] = Variable<String>(sections);
+      map['sections'] = Variable<String>(
+        $ReadHistoryTable.$convertersectionsn.toSql(sections),
+      );
     }
     map['progress'] = Variable<int>(progress);
     if (!nullToAbsent || segmentProgress != null) {
-      map['segment_progress'] = Variable<String>(segmentProgress);
+      map['segment_progress'] = Variable<String>(
+        $ReadHistoryTable.$convertersegmentProgressn.toSql(segmentProgress),
+      );
     }
     return map;
   }
@@ -4426,9 +4427,11 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
       readNumber: serializer.fromJson<int>(json['readNumber']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
       finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
-      sections: serializer.fromJson<String?>(json['sections']),
+      sections: serializer.fromJson<List<String>?>(json['sections']),
       progress: serializer.fromJson<int>(json['progress']),
-      segmentProgress: serializer.fromJson<String?>(json['segmentProgress']),
+      segmentProgress: serializer.fromJson<Map<int, int>?>(
+        json['segmentProgress'],
+      ),
     );
   }
   @override
@@ -4440,9 +4443,9 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
       'readNumber': serializer.toJson<int>(readNumber),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
       'finishedAt': serializer.toJson<DateTime?>(finishedAt),
-      'sections': serializer.toJson<String?>(sections),
+      'sections': serializer.toJson<List<String>?>(sections),
       'progress': serializer.toJson<int>(progress),
-      'segmentProgress': serializer.toJson<String?>(segmentProgress),
+      'segmentProgress': serializer.toJson<Map<int, int>?>(segmentProgress),
     };
   }
 
@@ -4452,9 +4455,9 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
     int? readNumber,
     Value<DateTime?> startedAt = const Value.absent(),
     Value<DateTime?> finishedAt = const Value.absent(),
-    Value<String?> sections = const Value.absent(),
+    Value<List<String>?> sections = const Value.absent(),
     int? progress,
-    Value<String?> segmentProgress = const Value.absent(),
+    Value<Map<int, int>?> segmentProgress = const Value.absent(),
   }) => ReadHistoryData(
     id: id ?? this.id,
     bookId: bookId ?? this.bookId,
@@ -4532,9 +4535,9 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
   final Value<int> readNumber;
   final Value<DateTime?> startedAt;
   final Value<DateTime?> finishedAt;
-  final Value<String?> sections;
+  final Value<List<String>?> sections;
   final Value<int> progress;
-  final Value<String?> segmentProgress;
+  final Value<Map<int, int>?> segmentProgress;
   const ReadHistoryCompanion({
     this.id = const Value.absent(),
     this.bookId = const Value.absent(),
@@ -4584,9 +4587,9 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
     Value<int>? readNumber,
     Value<DateTime?>? startedAt,
     Value<DateTime?>? finishedAt,
-    Value<String?>? sections,
+    Value<List<String>?>? sections,
     Value<int>? progress,
-    Value<String?>? segmentProgress,
+    Value<Map<int, int>?>? segmentProgress,
   }) {
     return ReadHistoryCompanion(
       id: id ?? this.id,
@@ -4619,13 +4622,19 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
       map['finished_at'] = Variable<DateTime>(finishedAt.value);
     }
     if (sections.present) {
-      map['sections'] = Variable<String>(sections.value);
+      map['sections'] = Variable<String>(
+        $ReadHistoryTable.$convertersectionsn.toSql(sections.value),
+      );
     }
     if (progress.present) {
       map['progress'] = Variable<int>(progress.value);
     }
     if (segmentProgress.present) {
-      map['segment_progress'] = Variable<String>(segmentProgress.value);
+      map['segment_progress'] = Variable<String>(
+        $ReadHistoryTable.$convertersegmentProgressn.toSql(
+          segmentProgress.value,
+        ),
+      );
     }
     return map;
   }
@@ -8367,7 +8376,7 @@ typedef $$ReadingLogTableCreateCompanionBuilder =
       required int bookId,
       required DateTime date,
       required int pagesRead,
-      Value<String?> sections,
+      Value<List<String>?> sections,
     });
 typedef $$ReadingLogTableUpdateCompanionBuilder =
     ReadingLogCompanion Function({
@@ -8375,7 +8384,7 @@ typedef $$ReadingLogTableUpdateCompanionBuilder =
       Value<int> bookId,
       Value<DateTime> date,
       Value<int> pagesRead,
-      Value<String?> sections,
+      Value<List<String>?> sections,
     });
 
 final class $$ReadingLogTableReferences
@@ -8424,9 +8433,10 @@ class $$ReadingLogTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get sections => $composableBuilder(
+  ColumnWithTypeConverterFilters<List<String>?, List<String>, String>
+  get sections => $composableBuilder(
     column: $table.sections,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   $$BooksTableFilterComposer get bookId {
@@ -8524,7 +8534,7 @@ class $$ReadingLogTableAnnotationComposer
   GeneratedColumn<int> get pagesRead =>
       $composableBuilder(column: $table.pagesRead, builder: (column) => column);
 
-  GeneratedColumn<String> get sections =>
+  GeneratedColumnWithTypeConverter<List<String>?, String> get sections =>
       $composableBuilder(column: $table.sections, builder: (column) => column);
 
   $$BooksTableAnnotationComposer get bookId {
@@ -8583,7 +8593,7 @@ class $$ReadingLogTableTableManager
                 Value<int> bookId = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
                 Value<int> pagesRead = const Value.absent(),
-                Value<String?> sections = const Value.absent(),
+                Value<List<String>?> sections = const Value.absent(),
               }) => ReadingLogCompanion(
                 id: id,
                 bookId: bookId,
@@ -8597,7 +8607,7 @@ class $$ReadingLogTableTableManager
                 required int bookId,
                 required DateTime date,
                 required int pagesRead,
-                Value<String?> sections = const Value.absent(),
+                Value<List<String>?> sections = const Value.absent(),
               }) => ReadingLogCompanion.insert(
                 id: id,
                 bookId: bookId,
@@ -9025,9 +9035,9 @@ typedef $$ReadHistoryTableCreateCompanionBuilder =
       required int readNumber,
       Value<DateTime?> startedAt,
       Value<DateTime?> finishedAt,
-      Value<String?> sections,
+      Value<List<String>?> sections,
       Value<int> progress,
-      Value<String?> segmentProgress,
+      Value<Map<int, int>?> segmentProgress,
     });
 typedef $$ReadHistoryTableUpdateCompanionBuilder =
     ReadHistoryCompanion Function({
@@ -9036,9 +9046,9 @@ typedef $$ReadHistoryTableUpdateCompanionBuilder =
       Value<int> readNumber,
       Value<DateTime?> startedAt,
       Value<DateTime?> finishedAt,
-      Value<String?> sections,
+      Value<List<String>?> sections,
       Value<int> progress,
-      Value<String?> segmentProgress,
+      Value<Map<int, int>?> segmentProgress,
     });
 
 final class $$ReadHistoryTableReferences
@@ -9092,9 +9102,10 @@ class $$ReadHistoryTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get sections => $composableBuilder(
+  ColumnWithTypeConverterFilters<List<String>?, List<String>, String>
+  get sections => $composableBuilder(
     column: $table.sections,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<int> get progress => $composableBuilder(
@@ -9102,9 +9113,10 @@ class $$ReadHistoryTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get segmentProgress => $composableBuilder(
+  ColumnWithTypeConverterFilters<Map<int, int>?, Map<int, int>, String>
+  get segmentProgress => $composableBuilder(
     column: $table.segmentProgress,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   $$BooksTableFilterComposer get bookId {
@@ -9224,13 +9236,14 @@ class $$ReadHistoryTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get sections =>
+  GeneratedColumnWithTypeConverter<List<String>?, String> get sections =>
       $composableBuilder(column: $table.sections, builder: (column) => column);
 
   GeneratedColumn<int> get progress =>
       $composableBuilder(column: $table.progress, builder: (column) => column);
 
-  GeneratedColumn<String> get segmentProgress => $composableBuilder(
+  GeneratedColumnWithTypeConverter<Map<int, int>?, String>
+  get segmentProgress => $composableBuilder(
     column: $table.segmentProgress,
     builder: (column) => column,
   );
@@ -9292,9 +9305,9 @@ class $$ReadHistoryTableTableManager
                 Value<int> readNumber = const Value.absent(),
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> finishedAt = const Value.absent(),
-                Value<String?> sections = const Value.absent(),
+                Value<List<String>?> sections = const Value.absent(),
                 Value<int> progress = const Value.absent(),
-                Value<String?> segmentProgress = const Value.absent(),
+                Value<Map<int, int>?> segmentProgress = const Value.absent(),
               }) => ReadHistoryCompanion(
                 id: id,
                 bookId: bookId,
@@ -9312,9 +9325,9 @@ class $$ReadHistoryTableTableManager
                 required int readNumber,
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> finishedAt = const Value.absent(),
-                Value<String?> sections = const Value.absent(),
+                Value<List<String>?> sections = const Value.absent(),
                 Value<int> progress = const Value.absent(),
-                Value<String?> segmentProgress = const Value.absent(),
+                Value<Map<int, int>?> segmentProgress = const Value.absent(),
               }) => ReadHistoryCompanion.insert(
                 id: id,
                 bookId: bookId,

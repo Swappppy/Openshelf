@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'books_table.dart';
+import '../converters.dart';
 
 /// Reading Log table for tracking daily activity
 class ReadingLog extends Table {
@@ -7,5 +8,5 @@ class ReadingLog extends Table {
   IntColumn get bookId => integer().references(Books, #id)();
   DateTimeColumn get date => dateTime()();
   IntColumn get pagesRead => integer()();
-  TextColumn get sections => text().nullable()();
+  TextColumn get sections => text().nullable().map(const StringListConverter())();
 }

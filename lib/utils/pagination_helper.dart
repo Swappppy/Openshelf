@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:collection/collection.dart';
 import '../services/database.dart';
 
@@ -87,13 +86,7 @@ class PaginationHelper {
     }
     
     int totalRead = 0;
-    Map<int, int> segProgress = {};
-    if (activeSession?.segmentProgress != null) {
-      try {
-        final Map<String, dynamic> decoded = jsonDecode(activeSession!.segmentProgress!);
-        segProgress = decoded.map((k, v) => MapEntry(int.parse(k), v as int));
-      } catch (_) {}
-    }
+    final Map<int, int> segProgress = activeSession?.segmentProgress ?? {};
 
     for (int i = 0; i < book.paginationConfig!.segments.length; i++) {
       totalRead += segProgress[i] ?? 0;

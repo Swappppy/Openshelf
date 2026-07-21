@@ -243,7 +243,7 @@ class AppDatabase extends _$AppDatabase {
               await (update(readHistory)..where((rh) => rh.id.equals(h.id))).write(
                 ReadHistoryCompanion(
                   progress: Value(sessionProgress),
-                  segmentProgress: Value(segProgress != null ? jsonEncode(segProgress.map((k, v) => MapEntry(k.toString(), v))) : null),
+                  segmentProgress: Value(segProgress),
                 ),
               );
             }
