@@ -135,6 +135,14 @@ Built on **Drift**, the database uses a polymorphic tag system. A single `Tags` 
 
 ---
 
+## Known Issues
+
+- [Crash on launch on GrapheneOS](KNOWN_ISSUES.md#crash-on-launch-on-grapheneos)
+
+See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for details and workarounds.
+
+---
+
 ## Translations
 
 Openshelf uses **[Weblate](https://hosted.weblate.org/projects/openshelf/)** for community translations. English and Spanish are built-in.
