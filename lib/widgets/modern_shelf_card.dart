@@ -39,6 +39,10 @@ class ModernShelfCard extends ConsumerWidget {
           activeStatus = ReadingStatus.values.firstWhere((s) => s.name == shelf.filterStatus);
         }
 
+        final displayName = (shelf.filterNoCover || shelf.name == '__auto_no_cover__')
+            ? context.l10n.noCoverShelfTitle
+            : shelf.name;
+
         return GestureDetector(
           onTap: () => Navigator.push(
             context,
@@ -95,7 +99,7 @@ class ModernShelfCard extends ConsumerWidget {
                               child: Material(
                                 color: Colors.transparent,
                                 child: Text(
-                                  shelf.name,
+                                  displayName,
                                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                               ),

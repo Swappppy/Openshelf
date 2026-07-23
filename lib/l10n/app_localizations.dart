@@ -1698,6 +1698,12 @@ abstract class AppLocalizations {
   /// **'Goodreads'**
   String get dataManagementGoodreads;
 
+  /// No description provided for @dataManagementLibraryThing.
+  ///
+  /// In es, this message translates to:
+  /// **'LibraryThing'**
+  String get dataManagementLibraryThing;
+
   /// No description provided for @dataManagementImport.
   ///
   /// In es, this message translates to:
@@ -1716,11 +1722,23 @@ abstract class AppLocalizations {
   /// **'Importar desde CSV de {source}'**
   String dataManagementImportHint(String source);
 
+  /// No description provided for @dataManagementImportHintJson.
+  ///
+  /// In es, this message translates to:
+  /// **'Importar desde JSON de {source}'**
+  String dataManagementImportHintJson(Object source);
+
   /// No description provided for @dataManagementExportHint.
   ///
   /// In es, this message translates to:
   /// **'Exportar a CSV de {source}'**
   String dataManagementExportHint(String source);
+
+  /// No description provided for @dataManagementExportHintJson.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar a JSON de {source}'**
+  String dataManagementExportHintJson(Object source);
 
   /// No description provided for @dataManagementRestoreBackup.
   ///

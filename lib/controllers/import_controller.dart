@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 
 import '../services/bookshelf_import_service.dart';
 import '../services/goodreads_import_service.dart';
+import '../services/librarything_import_service.dart';
 import '../services/data_migration_service.dart';
 import '../l10n/l10n_extension.dart';
 import 'database_provider.dart';
@@ -148,6 +149,44 @@ class ImportController {
       final db = ref.read(databaseProvider);
       final file = File(result.files.single.path!);
       final importService = GoodreadsImportService(db);
+      final importResult = await importService.importFromFile(file);
+
+      _refreshAllProviders(ref);
+
+      if (context.mounted) {
+        final message = importResult.skipped == 0
+            ? context.l10n.importSuccess(importResult.imported)
+            : context.l10n.importPartial(importResult.imported, importResult.skipped);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), duration: const Duration(seconds: 4)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  static Future<void> importLibraryThing(BuildContext context, WidgetRef ref, Function(bool, [String?]) setLoading) async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.single.path == null) return;
+
+      if (!context.mounted) return;
+      setLoading(true, context.l10n.loadingImport);
+      final db = ref.read(databaseProvider);
+      final file = File(result.files.single.path!);
+      final importService = LibrarythingImportService(db);
       final importResult = await importService.importFromFile(file);
 
       _refreshAllProviders(ref);

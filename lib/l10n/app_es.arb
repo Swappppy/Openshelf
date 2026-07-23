@@ -775,13 +775,16 @@
   "dataManagementOpenShelf": "OpenShelf",
   "dataManagementBookshelf": "Bookshelf",
   "dataManagementGoodreads": "Goodreads",
+  "dataManagementLibraryThing": "LibraryThing",
   "dataManagementImport": "Importar libros",
   "dataManagementExport": "Exportar libros",
   "dataManagementImportHint": "Importar desde CSV de {source}",
+  "dataManagementImportHintJson": "Importar desde JSON de {source}",
   "@dataManagementImportHint": {
     "placeholders": { "source": { "type": "String" } }
   },
   "dataManagementExportHint": "Exportar a CSV de {source}",
+  "dataManagementExportHintJson": "Exportar a JSON de {source}",
   "@dataManagementExportHint": {
     "placeholders": { "source": { "type": "String" } }
   },

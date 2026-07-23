@@ -840,6 +840,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dataManagementGoodreads => 'Goodreads';
 
   @override
+  String get dataManagementLibraryThing => 'LibraryThing';
+
+  @override
   String get dataManagementImport => 'Importar libros';
 
   @override
@@ -851,8 +854,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String dataManagementImportHintJson(Object source) {
+    return 'Importar desde JSON de $source';
+  }
+
+  @override
   String dataManagementExportHint(String source) {
     return 'Exportar a CSV de $source';
+  }
+
+  @override
+  String dataManagementExportHintJson(Object source) {
+    return 'Exportar a JSON de $source';
   }
 
   @override
@@ -898,7 +911,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Crea automáticamente una estantería si faltan portadas';
 
   @override
-  String get noCoverShelfTitle => 'Libros sin portada';
+  String get noCoverShelfTitle => 'Книги без обложки';
 
   @override
   String get settingsCompressImagesTitle =>

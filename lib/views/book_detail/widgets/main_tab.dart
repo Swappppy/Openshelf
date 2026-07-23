@@ -6,6 +6,9 @@ import '../../../l10n/l10n_extension.dart';
 import '../../../utils/pagination_helper.dart';
 import '../../../widgets/segmented_progress_bar.dart';
 import '../../../controllers/read_history_controller.dart';
+import '../../../controllers/books_controller.dart';
+import '../../../widgets/tag_chip.dart';
+import '../../shelves/shelf_books_view.dart';
 
 class MainTab extends StatelessWidget {
   final Book book;
@@ -224,6 +227,45 @@ class MainTab extends StatelessWidget {
 
         const SizedBox(height: 20),
         ReadOnlyField(label: context.l10n.bookDetailFieldFormat, value: _formatLabel(context, book.bookFormat)),
+        const SizedBox(height: 20),
+
+        // Categories (Tags)
+        Text(
+          context.l10n.bookDetailFieldCategories.toUpperCase(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Consumer(
+          builder: (context, ref, _) {
+            final tagsAsync = ref.watch(bookTagsProvider(book.id));
+            return tagsAsync.maybeWhen(
+              data: (tags) {
+                if (tags.isEmpty) {
+                  return Text('—', style: Theme.of(context).textTheme.bodyLarge);
+                }
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: tags.map((tag) => TagChip(
+                    label: tag.name,
+                    colorHex: tag.color,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TagBooksView(tag: tag),
+                      ),
+                    ),
+                  )).toList(),
+                );
+              },
+              orElse: () => const Text('—'),
+            );
+          },
+        ),
         const SizedBox(height: 20),
 
         // Star Rating

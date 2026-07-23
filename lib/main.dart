@@ -8,6 +8,7 @@ import 'theme/app_theme.dart';
 import 'views/onboarding/onboarding_view.dart';
 import 'views/library/library_view.dart';
 import 'controllers/app_settings_controller.dart';
+import 'controllers/shelf_automation_controller.dart';
 import 'controllers/shared_prefs_provider.dart';
 
 void main() async {
@@ -55,6 +56,8 @@ class OpenshelfApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(appSettingsProvider);
+    // Force initialization of the bookshelf automation listener
+    ref.watch(shelfAutomationProvider);
 
     return MaterialApp(
       onGenerateTitle: (context) => context.l10n.appTitle,

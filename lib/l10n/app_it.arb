@@ -1,4 +1,5 @@
 {
+    "noCoverShelfTitle": "Libri senza copertina",
     "shelfWantToRead": "",
     "@shelfWantToRead": {
         "description": "Estantería de libros por leer"

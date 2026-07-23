@@ -47,7 +47,14 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
     final s = widget.existing;
     final f = widget.initialFilters;
 
-    _nameCtrl = TextEditingController(text: s?.name ?? '');
+    String initialName = s?.name ?? '';
+    if (s != null && (s.filterNoCover || s.name == '__auto_no_cover__')) {
+       // Note: We don't have context.l10n in initState, but we can resolve it in build 
+       // or just keep the internal name if we want to be strict.
+       // Actually, it's better to resolve the localized name in build for the display.
+    }
+
+    _nameCtrl = TextEditingController(text: initialName);
     _queryCtrl = TextEditingController(text: s?.filterQuery ?? f?.query ?? '');
     _subtitleCtrl = TextEditingController(text: s?.filterSubtitle ?? '');
     _authorCtrl = TextEditingController(text: s?.filterAuthor ?? f?.author ?? '');
@@ -157,6 +164,14 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+
+    // If it's an auto-shelf and the name is still the internal one, 
+    // we show the localized name in the controller.
+    if (widget.existing != null && 
+        (widget.existing!.filterNoCover || widget.existing!.name == '__auto_no_cover__') &&
+        _nameCtrl.text == '__auto_no_cover__') {
+      _nameCtrl.text = context.l10n.noCoverShelfTitle;
+    }
 
     return DraggableScrollableSheet(
       expand: false, initialChildSize: 0.85, maxChildSize: 0.95, minChildSize: 0.5,

@@ -1,4 +1,5 @@
 {
+    "noCoverShelfTitle": "Cărți fără copertă",
     "shelfWantToRead": "",
     "@shelfWantToRead": {
         "description": "Estantería de libros por leer"

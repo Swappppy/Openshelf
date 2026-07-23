@@ -74,6 +74,22 @@ class DataSection extends ConsumerWidget {
               ),
               const Divider(height: 1, indent: 56),
               ListTile(
+                leading: const Icon(Icons.account_balance_outlined),
+                title: Text(l10n.dataManagementLibraryThing),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _showServiceOptions(
+                  context,
+                  title: l10n.dataManagementLibraryThing,
+                  importLabel: l10n.dataManagementImport,
+                  importHint: l10n.dataManagementImportHintJson(l10n.dataManagementLibraryThing),
+                  onImport: () => ImportController.importLibraryThing(context, ref, onLoading),
+                  exportLabel: l10n.dataManagementExport,
+                  exportHint: l10n.dataManagementExportHintJson(l10n.dataManagementLibraryThing),
+                  onExport: () => ExportController.exportToLibraryThing(context, ref, onLoading),
+                ),
+              ),
+              const Divider(height: 1, indent: 56),
+              ListTile(
                 leading: const Icon(Icons.bug_report_outlined, color: Colors.red),
                 title: Text(l10n.devDeleteAllBooks, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                 subtitle: Text(l10n.settingsDevClearDbSub),

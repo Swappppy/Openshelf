@@ -842,6 +842,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataManagementGoodreads => 'Goodreads';
 
   @override
+  String get dataManagementLibraryThing => 'LibraryThing';
+
+  @override
   String get dataManagementImport => 'Import books';
 
   @override
@@ -853,8 +856,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String dataManagementImportHintJson(Object source) {
+    return 'Import from $source JSON';
+  }
+
+  @override
   String dataManagementExportHint(String source) {
     return 'Export to $source CSV';
+  }
+
+  @override
+  String dataManagementExportHintJson(Object source) {
+    return 'Export to $source JSON';
   }
 
   @override

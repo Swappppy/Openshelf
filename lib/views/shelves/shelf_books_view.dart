@@ -5,6 +5,7 @@ import '../../models/tag_type.dart';
 import '../../services/database.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/display_preferences_controller.dart';
+import '../../l10n/l10n_extension.dart';
 import '../../models/display_preferences.dart';
 import '../../widgets/books_list_or_grid.dart';
 import '../../widgets/cover_mosaic.dart';
@@ -18,8 +19,12 @@ class ShelfBooksView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booksAsync = ref.watch(shelfBooksProvider(shelf));
-
     final theme = Theme.of(context);
+
+    final displayName = (shelf.filterNoCover || shelf.name == '__auto_no_cover__')
+        ? context.l10n.noCoverShelfTitle
+        : shelf.name;
+
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
@@ -44,7 +49,7 @@ class ShelfBooksView extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  shelf.name,
+                  displayName,
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

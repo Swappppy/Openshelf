@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../controllers/app_settings_controller.dart';
-import '../../../controllers/shelf_automation_controller.dart';
 import '../../../controllers/app_icon_controller.dart';
 import '../../../controllers/ui_tweaks_controller.dart';
 import '../../../l10n/l10n_extension.dart';
@@ -224,7 +223,6 @@ class AppearanceSection extends ConsumerWidget {
                   value: autoNoCover,
                   onChanged: (val) {
                     controller.setAutoNoCoverShelf(val);
-                    ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
                   },
                 ),
                 SwitchListTile(

@@ -362,14 +362,23 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> clearAllData() async {
     await transaction(() async {
+      // 1. Delete tables that reference other tables but are not referenced themselves (Leaf nodes)
+      await delete(statWidgetConfigs).go();
+      await delete(readingLog).go();
+
+      // 2. Delete tables with foreign keys to main entities
+      await delete(readingGoals).go();
+      await delete(readHistory).go();
+
+      // 3. Delete relationship tables (Many-to-Many)
       await delete(shelfTags).go();
       await delete(bookTags).go();
+
+      // 4. Delete main entities (Parents)
+      // Note: books has references to tags (collectionId, imprintId)
       await delete(books).go();
       await delete(shelves).go();
       await delete(tags).go(); // Clears Categories, Imprints, and Collections
-      await delete(readingGoals).go();
-      await delete(readingLog).go();
-      await delete(statWidgetConfigs).go();
     });
   }
 }
