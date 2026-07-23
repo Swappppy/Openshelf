@@ -76,7 +76,7 @@ class LibrarythingExportService {
       if (book.isbn != null && book.isbn!.trim().isNotEmpty) 'isbn': _isbnKeyed(book.isbn!),
       if (book.language != null && book.language!.trim().isNotEmpty) 'language': [book.language],
       if (collectionName != null) 'series': [collectionName],
-      if (publication != null) 'publication': publication,
+      'publication': ?publication,
       if (book.publishYear != null) 'date': book.publishYear.toString(),
       'summary': '${book.title} by $primaryAuthorLf${book.publishYear != null ? ' (${book.publishYear})' : ''}',
       if (book.totalPages != null) 'pages': book.totalPages.toString(),
