@@ -10,16 +10,6 @@ class BookHeader extends StatelessWidget {
   final Book book;
   const BookHeader({super.key, required this.book});
 
-  Color _getStatusColor(ReadingStatus status) {
-    return switch (status) {
-      ReadingStatus.wantToRead => Colors.orange,
-      ReadingStatus.reading => Colors.blue,
-      ReadingStatus.read => Colors.green,
-      ReadingStatus.abandoned => Colors.red,
-      ReadingStatus.paused => Colors.deepPurpleAccent,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -29,38 +19,19 @@ class BookHeader extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cover image with status indicator as a shadow behind
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Status color "shadow" peeking from behind
-              Positioned(
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: -1, // Peek 1px to the right
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(book.status),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              Hero(
-                tag: 'book-cover-${book.id}',
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: book.coverPath != null
-                      ? Image.file(
-                    File(book.coverPath!),
-                    width: 100,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  )
-                      : const CoverPlaceholder(width: 100, height: 150),
-                ),
-              ),
-            ],
+          Hero(
+            tag: 'book-cover-${book.id}',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: book.coverPath != null
+                  ? Image.file(
+                File(book.coverPath!),
+                width: 100,
+                height: 150,
+                fit: BoxFit.cover,
+              )
+                  : const CoverPlaceholder(width: 100, height: 150),
+            ),
           ),
           const SizedBox(width: 20),
           // Titles and Author

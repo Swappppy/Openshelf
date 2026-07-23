@@ -236,6 +236,9 @@ class AppDatabase extends _$AppDatabase {
 
             // Update ReadHistory entries
             final history = await (select(readHistory)..where((h) => h.bookId.equals(bookId))).get();
+            final existingReadNumbers = history.map((h) => h.readNumber).toSet();
+
+            // 1. Update existing
             for (final h in history) {
               final sessionProgress = readingSessions[h.readNumber] ?? 0;
               final segProgress = segmentProgressPerSession[h.readNumber];
@@ -246,6 +249,20 @@ class AppDatabase extends _$AppDatabase {
                   segmentProgress: Value(segProgress),
                 ),
               );
+            }
+
+            // 2. Insert missing sessions that were only in JSON
+            final allSessionNumbers = {...readingSessions.keys, ...segmentProgressPerSession.keys};
+            for (final sessionNum in allSessionNumbers) {
+              if (!existingReadNumbers.contains(sessionNum)) {
+                await into(readHistory).insert(ReadHistoryCompanion.insert(
+                  bookId: bookId,
+                  readNumber: sessionNum,
+                  progress: Value(readingSessions[sessionNum] ?? 0),
+                  segmentProgress: Value(segmentProgressPerSession[sessionNum]),
+                  // We don't have dates in the old JSON map, so they remain null
+                ));
+              }
             }
           }
 

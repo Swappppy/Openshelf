@@ -30,7 +30,7 @@ class DataMigrationService {
       'rating', 'bookFormat', 'collectionName', 'collectionNumber',
       'notes', 'startedAt', 'finishedAt', 'createdAt', 'coverUrl', 'coverPath',
       'categories', 'categoryColors', 'imprintName', 'imprintColor', 'imprintImage',
-      'collectionId', 'imprintId'
+      'collectionId', 'imprintId', 'paginationConfig'
     ]];
 
     for (final b in books) {
@@ -55,7 +55,8 @@ class DataMigrationService {
         tags.map((t) => t.name).join('|'),
         tags.map((t) => t.color ?? '').join('|'),
         imprint?.name, imprint?.color, imprint?.imagePath,
-        b.collectionId, b.imprintId
+        b.collectionId, b.imprintId,
+        b.paginationConfig != null ? jsonEncode(b.paginationConfig!.toJson()) : null,
       ]);
     }
     return Csv().encode(rows);
@@ -91,6 +92,61 @@ class DataMigrationService {
     return Csv().encode(rows);
   }
 
+  Future<String> exportHistoryToCsv() async {
+    final history = await _db.readHistoryDao.select(_db.readHistoryDao.readHistory).get();
+    final rows = <List<dynamic>>[[
+      'bookId', 'readNumber', 'startedAt', 'finishedAt', 'sections', 'progress', 'segmentProgress'
+    ]];
+
+    for (final h in history) {
+      rows.add([
+        h.bookId,
+        h.readNumber,
+        h.startedAt?.toIso8601String(),
+        h.finishedAt?.toIso8601String(),
+        h.sections != null ? jsonEncode(h.sections) : null,
+        h.progress,
+        h.segmentProgress != null ? jsonEncode(h.segmentProgress!.map((k, v) => MapEntry(k.toString(), v))) : null,
+      ]);
+    }
+    return Csv().encode(rows);
+  }
+
+  Future<String> exportLogsToCsv() async {
+    final logs = await _db.logDao.select(_db.logDao.readingLog).get();
+    final rows = <List<dynamic>>[['bookId', 'date', 'pagesRead', 'sections']];
+
+    for (final l in logs) {
+      rows.add([
+        l.bookId,
+        l.date.toIso8601String(),
+        l.pagesRead,
+        l.sections != null ? jsonEncode(l.sections) : null,
+      ]);
+    }
+    return Csv().encode(rows);
+  }
+
+  Future<String> exportGoalsToCsv() async {
+    final goals = await _db.goalDao.select(_db.goalDao.readingGoals).get();
+    final rows = <List<dynamic>>[[
+      'title', 'type', 'targetValue', 'startDate', 'endDate', 'shelfId', 'collectionId'
+    ]];
+
+    for (final g in goals) {
+      rows.add([
+        g.title,
+        g.type,
+        g.targetValue,
+        g.startDate.toIso8601String(),
+        g.endDate.toIso8601String(),
+        g.shelfId,
+        g.collectionId,
+      ]);
+    }
+    return Csv().encode(rows);
+  }
+
   Future<List<String>> _getNamesFromIds(String? jsonIds) async {
     if (jsonIds == null) return [];
     try {
@@ -113,6 +169,15 @@ class DataMigrationService {
 
     final tagsCsv = await exportTagsToCsv();
     archive.addFile(ArchiveFile('tags.csv', tagsCsv.length, utf8.encode(tagsCsv)));
+
+    final historyCsv = await exportHistoryToCsv();
+    archive.addFile(ArchiveFile('history.csv', historyCsv.length, utf8.encode(historyCsv)));
+
+    final logsCsv = await exportLogsToCsv();
+    archive.addFile(ArchiveFile('logs.csv', logsCsv.length, utf8.encode(logsCsv)));
+
+    final goalsCsv = await exportGoalsToCsv();
+    archive.addFile(ArchiveFile('goals.csv', goalsCsv.length, utf8.encode(goalsCsv)));
 
     if (includeCovers) {
       onProgress?.call('media');
@@ -171,7 +236,7 @@ class DataMigrationService {
     final docDir = await getApplicationDocumentsDirectory();
     final tempDir = await getTemporaryDirectory();
 
-    ArchiveFile? booksF, shelvesF, tagsF;
+    ArchiveFile? booksF, shelvesF, tagsF, historyF, logsF, goalsF;
 
     for (final file in archive) {
       if (!file.isFile) continue;
@@ -181,6 +246,12 @@ class DataMigrationService {
         shelvesF = file;
       } else if (file.name == 'tags.csv') {
         tagsF = file;
+      } else if (file.name == 'history.csv') {
+        historyF = file;
+      } else if (file.name == 'logs.csv') {
+        logsF = file;
+      } else if (file.name == 'goals.csv') {
+        goalsF = file;
       } else {
         final data = file.content as List<int>;
         final target = p.join(docDir.path, file.name);
@@ -199,8 +270,13 @@ class DataMigrationService {
     if (booksF == null) throw Exception('books.csv missing');
     if (tagsF != null) await _importTagsCsvContent(utf8.decode(tagsF.content as List<int>), localBaseDir: docDir.path);
     
-    final count = await _importBooksCsvContent(utf8.decode(booksF.content as List<int>), localBaseDir: docDir.path);
+    final bookIdMap = <int, int>{};
+    final count = await _importBooksCsvContent(utf8.decode(booksF.content as List<int>), localBaseDir: docDir.path, bookIdMap: bookIdMap);
+    
     if (shelvesF != null) await _importShelvesCsvContent(utf8.decode(shelvesF.content as List<int>));
+    if (historyF != null) await _importHistoryCsvContent(utf8.decode(historyF.content as List<int>), bookIdMap);
+    if (logsF != null) await _importLogsCsvContent(utf8.decode(logsF.content as List<int>), bookIdMap);
+    if (goalsF != null) await _importGoalsCsvContent(utf8.decode(goalsF.content as List<int>));
     
     return count;
   }
@@ -234,7 +310,7 @@ class DataMigrationService {
     }
   }
 
-  Future<int> _importBooksCsvContent(String content, {required String localBaseDir}) async {
+  Future<int> _importBooksCsvContent(String content, {required String localBaseDir, Map<int, int>? bookIdMap}) async {
     final rows = Csv().decode(content);
     if (rows.length < 2) return 0;
     final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
@@ -247,6 +323,9 @@ class DataMigrationService {
           
         int bookId = exist?.id ?? await _db.bookDao.into(_db.bookDao.books).insert(comp);
         if (exist == null) imported++;
+
+        final oldId = ImportExportUtils.parseInt(_get(head, row, 'id'));
+        if (oldId != null) bookIdMap?[oldId] = bookId;
 
         // Tags
         final cats = _get(head, row, 'categories')?.split('|') ?? [];
@@ -421,6 +500,92 @@ class DataMigrationService {
       coverPath: Value(localCp),
       collectionId: const Value.absent(), // Resolved by name in _importBooksCsvContent
       imprintId: const Value.absent(), // Resolved by name in _importBooksCsvContent
+      paginationConfig: s('paginationConfig') != null ? Value(PaginationConfig.fromJson(jsonDecode(s('paginationConfig')!))) : const Value.absent(),
     );
+  }
+
+  Future<void> _importHistoryCsvContent(String content, Map<int, int> bookIdMap) async {
+    final rows = Csv().decode(content);
+    if (rows.length < 2) return;
+    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
+
+    for (final row in rows.skip(1)) {
+      final oldBookId = ImportExportUtils.parseInt(_get(head, row, 'bookId'));
+      final newBookId = bookIdMap[oldBookId];
+      if (newBookId == null) continue;
+
+      final readNum = ImportExportUtils.parseInt(_get(head, row, 'readNumber')) ?? 1;
+      
+      // Check if entry already exists (title/author check in _importBooksCsvContent ensures newBookId is unique-ish)
+      final exist = await _db.readHistoryDao.getRead(newBookId, readNum);
+      if (exist != null) continue;
+
+      final sectionsRaw = _get(head, row, 'sections');
+      final segProgressRaw = _get(head, row, 'segmentProgress');
+
+      await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: newBookId,
+        readNumber: readNum,
+        startedAt: Value(ImportExportUtils.parseDate(_get(head, row, 'startedAt'))),
+        finishedAt: Value(ImportExportUtils.parseDate(_get(head, row, 'finishedAt'))),
+        sections: Value(sectionsRaw != null ? (jsonDecode(sectionsRaw) as List).cast<String>() : null),
+        progress: Value(ImportExportUtils.parseInt(_get(head, row, 'progress')) ?? 0),
+        segmentProgress: Value(segProgressRaw != null ? (jsonDecode(segProgressRaw) as Map).map((k, v) => MapEntry(int.parse(k.toString()), v as int)) : null),
+      ));
+    }
+  }
+
+  Future<void> _importLogsCsvContent(String content, Map<int, int> bookIdMap) async {
+    final rows = Csv().decode(content);
+    if (rows.length < 2) return;
+    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
+
+    for (final row in rows.skip(1)) {
+      final oldBookId = ImportExportUtils.parseInt(_get(head, row, 'bookId'));
+      final newBookId = bookIdMap[oldBookId];
+      if (newBookId == null) continue;
+
+      final date = ImportExportUtils.parseDate(_get(head, row, 'date'));
+      if (date == null) continue;
+
+      final sectionsRaw = _get(head, row, 'sections');
+
+      await _db.logDao.insertLog(ReadingLogCompanion.insert(
+        bookId: newBookId,
+        date: date,
+        pagesRead: ImportExportUtils.parseInt(_get(head, row, 'pagesRead')) ?? 0,
+        sections: Value(sectionsRaw != null ? (jsonDecode(sectionsRaw) as List).cast<String>() : null),
+      ));
+    }
+  }
+
+  Future<void> _importGoalsCsvContent(String content) async {
+    final rows = Csv().decode(content);
+    if (rows.length < 2) return;
+    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
+
+    for (final row in rows.skip(1)) {
+      final title = _get(head, row, 'title');
+      if (title == null) continue;
+
+      // Deduplicate by title and start date
+      final startDate = ImportExportUtils.parseDate(_get(head, row, 'startDate'));
+      if (startDate == null) continue;
+
+      final exist = await (_db.goalDao.select(_db.goalDao.readingGoals)
+        ..where((t) => t.title.equals(title) & t.startDate.equals(startDate))).getSingleOrNull();
+      
+      if (exist != null) continue;
+
+      await _db.goalDao.insertGoal(ReadingGoalsCompanion.insert(
+        title: title,
+        type: _get(head, row, 'type') ?? 'books',
+        targetValue: ImportExportUtils.parseInt(_get(head, row, 'targetValue')) ?? 1,
+        startDate: startDate,
+        endDate: ImportExportUtils.parseDate(_get(head, row, 'endDate')) ?? DateTime.now(),
+        // shelfId and collectionId are harder to map correctly across DBs without more complex logic,
+        // we omit them for now or they will stay null.
+      ));
+    }
   }
 }
