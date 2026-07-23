@@ -254,11 +254,12 @@ class _TagsRow extends StatelessWidget {
           color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
         );
 
+        final availableWidth = constraints.maxWidth - 6.0; // Subtract 6px safety buffer
         final visibleTags = <Tag>[];
         double totalWidth = 0;
         const spacing = 6.0;
         const padding = 12.0; 
-        const moreWidth = 32.0; // Increased reserved width for the "+N" indicator
+        const moreWidth = 36.0; // Increased reserved width for the "+N" indicator
 
         for (int i = 0; i < tags.length; i++) {
           final tag = tags[i];
@@ -273,9 +274,9 @@ class _TagsRow extends StatelessWidget {
           // Use moreWidth even for the last item if it's almost at the edge
           // to ensure we don't overflow when the tag is just slightly shorter than constraints
           final neededWidth = totalWidth + tagWidth + (isLast ? 0 : spacing + moreWidth);
-          final safetyMargin = isLast ? 8.0 : 0.0;
+          final safetyMargin = isLast ? 12.0 : 0.0;
 
-          if (neededWidth + safetyMargin <= constraints.maxWidth) {
+          if (neededWidth + safetyMargin <= availableWidth) {
             visibleTags.add(tag);
             totalWidth += tagWidth + spacing;
           } else {

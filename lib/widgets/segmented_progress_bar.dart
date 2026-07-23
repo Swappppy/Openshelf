@@ -18,8 +18,9 @@ class SegmentedProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasMarkers = book.paginationConfig?.markers.isNotEmpty ?? false;
     return SizedBox(
-      height: height + 55, // Increased from 45 to support 2 levels
+      height: height,
       width: double.infinity,
       child: CustomPaint(
         painter: _SegmentedProgressPainter(
@@ -27,6 +28,7 @@ class SegmentedProgressBar extends StatelessWidget {
           history: history,
           colorScheme: Theme.of(context).colorScheme,
           textTheme: Theme.of(context).textTheme,
+          hasMarkers: hasMarkers,
         ),
       ),
     );
@@ -38,17 +40,19 @@ class _SegmentedProgressPainter extends CustomPainter {
   final List<ReadHistoryData> history;
   final ColorScheme colorScheme;
   final TextTheme textTheme;
+  final bool hasMarkers;
 
   _SegmentedProgressPainter({
     required this.book,
     required this.history,
     required this.colorScheme,
     required this.textTheme,
+    required this.hasMarkers,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final barY = size.height - 10; // Bar at the bottom area
+    final barY = size.height / 2; // Bar centered
     final totalW = size.width;
     final totalPages = book.totalPages ?? 0;
     if (totalPages == 0) return;
@@ -62,7 +66,7 @@ class _SegmentedProgressPainter extends CustomPainter {
       ..color = colorScheme.surfaceContainerHighest
       ..style = PaintingStyle.fill;
 
-    // Draw background first
+    // Draw background first with rounded corners
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(0, barY - 3, totalW, 6),
@@ -78,7 +82,16 @@ class _SegmentedProgressPainter extends CustomPainter {
     
     final Map<int, int> segProgress = activeSession?.segmentProgress ?? {};
 
-    // Draw segments one by one
+    // 2. Draw Progress Segments
+    // We'll use a ClipRRect or manual clipping to ensure the overall progress also has rounded ends
+    canvas.save();
+    canvas.clipRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, barY - 3, totalW, 6),
+        const Radius.circular(3),
+      ),
+    );
+
     for (var i = 0; i < segments.length; i++) {
       final s = segments[i];
       final startX = (s.startPhysical - 1) / totalPages * totalW;
@@ -89,12 +102,10 @@ class _SegmentedProgressPainter extends CustomPainter {
           ? Color(int.parse('0xFF${s.color}')) 
           : colorScheme.primary;
 
-      // Use a separate paint object for each segment to ensure color is applied
       final segmentPaint = Paint()
         ..color = segmentColor
         ..style = PaintingStyle.fill;
 
-      // Calculate progress width within this specific segment
       double progressInSegment = 0;
       final sessionProgress = segProgress[i] ?? 0;
       final segmentTotal = s.endPhysical - s.startPhysical + 1;
@@ -110,16 +121,17 @@ class _SegmentedProgressPainter extends CustomPainter {
         );
       }
 
-      // Draw segment divider (gap) if not last and within bounds
+      // Draw segment divider (gap)
       if (i < segments.length - 1 && endX < totalW) {
         canvas.drawRect(
-          Rect.fromLTWH(endX - 1, barY - 4, 2, 8),
+          Rect.fromLTWH(endX - 0.5, barY - 4, 1, 8), // Thinner gap
           Paint()..color = colorScheme.surface,
         );
       }
     }
+    canvas.restore();
 
-    // 2. Draw Markers with Anti-Collision and Leader Lines
+    // 3. Draw Markers with Anti-Collision and Leader Lines
     final layouts = MarkerLayoutHelper.calculateLayout(
       markers: book.paginationConfig?.markers ?? [],
       totalPages: totalPages,
@@ -136,9 +148,9 @@ class _SegmentedProgressPainter extends CustomPainter {
       // 1. Draw small dot on the bar
       canvas.drawCircle(Offset(layout.markerX, barY), 2, Paint()..color = markerColor);
 
-      // Y-coordinates based on level
-      final double endY = layout.level == 0 ? 12 : 26;
-      final double labelTop = layout.level == 0 ? 2 : 16;
+      // Y-coordinates relative to barY
+      final double endY = layout.level == 0 ? barY - 41 : barY - 27;
+      final double labelTop = layout.level == 0 ? barY - 51 : barY - 37;
       final double cp1Y = layout.level == 0 ? barY - 15 : barY - 10;
       final double cp2Y = layout.level == 0 ? barY - 12 : barY - 8;
 

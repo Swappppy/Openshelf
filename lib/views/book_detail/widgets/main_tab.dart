@@ -150,86 +150,7 @@ class MainTab extends StatelessWidget {
           const SizedBox(height: 20),
         ],
 
-        // Progress Section - Tap to edit
-        GestureDetector(
-          onTap: onTapPages,
-          behavior: HitTestBehavior.opaque,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    context.l10n.bookDetailFieldPages,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.edit_outlined,
-                    size: 12,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-        Consumer(builder: (context, ref, _) {
-          final historyAsync = ref.watch(readHistoryProvider(book.id));
-          return historyAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const Text('—'),
-            data: (history) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (book.totalPages != null) ...[
-                    const SizedBox(height: 8),
-                    SegmentedProgressBar(
-                      book: book,
-                      history: history,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${context.l10n.paginationCurrentPageShort} ${PaginationHelper.getTotalReadPages(book, history)} / ${book.totalPages ?? 0}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ] else
-                    Text('—', style: Theme.of(context).textTheme.bodyLarge),
-
-                  if (book.paginationConfig != null &&
-                      (book.paginationConfig!.markers.isNotEmpty ||
-                          book.paginationConfig!.segments.isNotEmpty)) ...[
-                    const SizedBox(height: 16),
-                    _MarkersAndSegmentsTile(
-                      book: book,
-                      history: history,
-                      onTapSection: onTapSection,
-                    ),
-                  ],
-                ],
-              );
-            },
-          );
-        }),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 20),
-        ReadOnlyField(label: context.l10n.bookDetailFieldFormat, value: _formatLabel(context, book.bookFormat)),
-        const SizedBox(height: 20),
-
-        // Categories (Tags)
+        // Categories (Tags) - Moved up
         Text(
           context.l10n.bookDetailFieldCategories.toUpperCase(),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -268,9 +189,107 @@ class MainTab extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
+        // Progress Section - Tap to edit
+        GestureDetector(
+          onTap: onTapPages,
+          behavior: HitTestBehavior.opaque,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    context.l10n.bookDetailFieldPages.toUpperCase(),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.edit_outlined,
+                    size: 12,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Consumer(builder: (context, ref, _) {
+                final historyAsync = ref.watch(readHistoryProvider(book.id));
+                return historyAsync.when(
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, _) => const Text('—'),
+                  data: (history) {
+                    final totalRead = PaginationHelper.getTotalReadPages(book, history);
+                    final totalPages = book.totalPages ?? 0;
+                    
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (book.totalPages != null) ...[
+                          if (book.paginationConfig?.markers.isNotEmpty ?? false)
+                            const SizedBox(height: 55),
+                          const SizedBox(height: 8),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: SegmentedProgressBar(
+                                  book: book,
+                                  history: history,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '$totalRead / $totalPages',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                  Text(
+                                    '${(totalPages > 0 ? (totalRead / totalPages * 100) : 0).toStringAsFixed(0)}%',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.outline,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ] else
+                          Text('—', style: Theme.of(context).textTheme.bodyLarge),
+
+                        if (book.paginationConfig != null &&
+                            (book.paginationConfig!.markers.isNotEmpty ||
+                                book.paginationConfig!.segments.length > 1)) ...[
+                          const SizedBox(height: 16),
+                          _MarkersAndSegmentsTile(
+                            book: book,
+                            history: history,
+                            onTapSection: onTapSection,
+                          ),
+                        ],
+                      ],
+                    );
+                  },
+                );
+              }),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+        ReadOnlyField(label: context.l10n.bookDetailFieldFormat, value: _formatLabel(context, book.bookFormat)),
+        const SizedBox(height: 20),
+
         // Star Rating
         Text(
-          context.l10n.bookDetailFieldRating,
+          context.l10n.bookDetailFieldRating.toUpperCase(),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -366,7 +385,7 @@ class _MarkersAndSegmentsTileState extends State<_MarkersAndSegmentsTile> {
     final colorScheme = Theme.of(context).colorScheme;
 
     final pages = <Widget>[];
-    if (segments.isNotEmpty) pages.add(_buildSegmentsPage(context, segments));
+    if (segments.length > 1) pages.add(_buildSegmentsPage(context, segments));
     if (markers.isNotEmpty) pages.add(_buildMarkersPage(context, markers));
 
     if (pages.isEmpty) return const SizedBox.shrink();

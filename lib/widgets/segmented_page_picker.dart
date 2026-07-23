@@ -250,7 +250,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
           onPressed: () {
             // Clean up _segmentProgress to only include current segments
             final Map<int, int> cleanedProgress = {};
-            int maxPhysReached = 0;
+            int sumProgress = 0;
             bool allCompleted = true;
 
             for (int i = 0; i < _segments.length; i++) {
@@ -258,10 +258,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
               final progress = _segmentProgress[i] ?? 0;
               cleanedProgress[i] = progress;
               
-              if (progress > 0) {
-                final phys = s.startPhysical + progress - 1;
-                if (phys > maxPhysReached) maxPhysReached = phys;
-              }
+              sumProgress += progress;
 
               final maxInSeg = s.endPhysical - s.startPhysical + 1;
               if (progress < maxInSeg) {
@@ -271,7 +268,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
 
             int totalPhysRead = 0;
             if (_segments.length > 1 || widget.config?.segments.isNotEmpty == true) {
-              totalPhysRead = allCompleted ? widget.totalPages : maxPhysReached;
+              totalPhysRead = allCompleted ? widget.totalPages : sumProgress;
             } else {
               // If no segments, _selectedPhysicalPage is the absolute page
               totalPhysRead = _selectedPhysicalPage;

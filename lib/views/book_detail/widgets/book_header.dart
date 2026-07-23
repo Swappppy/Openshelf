@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/database.dart';
-import '../../../l10n/l10n_extension.dart';
 import '../../../controllers/books_controller.dart';
 import '../../../widgets/tag_chip.dart';
 import '../../shelves/shelf_books_view.dart';

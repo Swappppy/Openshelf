@@ -76,6 +76,7 @@ class PaginationHelper {
 
   static int getTotalReadPages(Book book, List<ReadHistoryData> history) {
     if (book.totalPages == null || book.totalPages == 0) return 0;
+    if (book.status == ReadingStatus.read) return book.totalPages!;
     
     final completedReads = history.where((h) => h.finishedAt != null).length;
     final activeSessionNum = getActiveSessionNumber(book.status, completedReads);
@@ -85,20 +86,14 @@ class PaginationHelper {
       return (activeSession?.progress ?? 0).clamp(0, book.totalPages!);
     }
     
-    int maxPhysicalReached = 0;
+    int sumProgress = 0;
     final Map<int, int> segProgress = activeSession?.segmentProgress ?? {};
 
     for (int i = 0; i < book.paginationConfig!.segments.length; i++) {
-      final s = book.paginationConfig!.segments[i];
       final logicalProgress = segProgress[i] ?? 0;
-      if (logicalProgress > 0) {
-        final physicalReached = s.startPhysical + logicalProgress - 1;
-        if (physicalReached > maxPhysicalReached) {
-          maxPhysicalReached = physicalReached;
-        }
-      }
+      sumProgress += logicalProgress;
     }
-    return maxPhysicalReached.clamp(0, book.totalPages!);
+    return sumProgress.clamp(0, book.totalPages!);
   }
 
   static int getPhysicalFromVisual(String visual, PaginationConfig config) {

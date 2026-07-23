@@ -39,7 +39,17 @@ class ReadingSessionController {
     int oldTotalRead = currentHistoryEntry?.progress ?? 0;
     int newTotalRead = newPage; // Already calculated in SegmentedPagePicker if segments exist
 
-    bool allSegmentsFinished = (total > 0 && newTotalRead >= total);
+    bool allSegmentsFinished;
+    if (activeConfig.segments.isNotEmpty) {
+      allSegmentsFinished = activeConfig.segments.asMap().entries.every((entry) {
+        final i = entry.key;
+        final s = entry.value;
+        final progress = newSegProgress[i] ?? 0;
+        return progress >= (s.endPhysical - s.startPhysical + 1);
+      });
+    } else {
+      allSegmentsFinished = (total > 0 && newTotalRead >= total);
+    }
 
     ReadingStatus newStatus = oldStatus;
     DateTime? newFinishedAt = book.finishedAt;
