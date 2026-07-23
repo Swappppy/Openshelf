@@ -864,11 +864,29 @@ abstract class AppLocalizations {
   /// **'Todo el libro'**
   String get bookDetailNewReadingWholeBook;
 
+  /// No description provided for @bookDetailNewReadingWholeBookDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Se registrará una relectura completa a partir de hoy.'**
+  String get bookDetailNewReadingWholeBookDescription;
+
   /// No description provided for @bookDetailNewReadingSections.
   ///
   /// In es, this message translates to:
-  /// **'Secciones específicas'**
+  /// **'Secciones'**
   String get bookDetailNewReadingSections;
+
+  /// No description provided for @bookDetailNewReadingSectionsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 sección} other{{count} secciones}}'**
+  String bookDetailNewReadingSectionsCount(num count);
+
+  /// No description provided for @bookDetailNewReadingReadCount.
+  ///
+  /// In es, this message translates to:
+  /// **'Leída {count}x'**
+  String bookDetailNewReadingReadCount(Object count);
 
   /// No description provided for @bookDetailNewReadingSelectSections.
   ///
@@ -882,11 +900,23 @@ abstract class AppLocalizations {
   /// **'¿Quieres empezar una nueva lectura?'**
   String get bookDetailStartNewReadingPrompt;
 
+  /// No description provided for @bookDetailStartNewReadingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva lectura'**
+  String get bookDetailStartNewReadingTitle;
+
   /// No description provided for @bookDetailStartNewReadingButton.
   ///
   /// In es, this message translates to:
   /// **'Empezar nueva lectura'**
   String get bookDetailStartNewReadingButton;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar todo'**
+  String get selectAll;
 
   /// No description provided for @bookDetailDeleteReadPrompt.
   ///

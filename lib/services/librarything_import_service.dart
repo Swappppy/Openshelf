@@ -155,55 +155,7 @@ class LibrarythingImportService {
       collectionName: Value(seriesName),
       publishYear: Value(year),
       createdAt: Value(createdAt),
-      notes: Value(_formatSubjectHeadings(raw['subject'])),
     );
-  }
-
-  /// Formats LT's `subject` field (Library of Congress Subject Headings)
-  /// into a compact reference block using the standard "--" subdivision
-  /// separator, stashed in `notes`.
-  ///
-  /// These are catalog-supplied LCSH headings, not personal categories --
-  /// a single book can carry a dozen or more, freely mixing topical terms
-  /// ("Philosophy"), named people/characters ("Shakespeare, William,
-  /// 1564-1616"), places ("Rome", "Iceland"), and form/period subdivisions
-  /// ("Biography", "20th century"). Importing them as tags would flood the
-  /// category list with mostly one-off, overly narrow labels, so they're
-  /// kept out of the tag system entirely and preserved here instead, where
-  /// they're still full-text searchable but don't clutter Categories.
-  String? _formatSubjectHeadings(dynamic raw) {
-    final headings = _extractHeadings(raw);
-    if (headings.isEmpty) return null;
-    final lines = headings.map((h) => h.join(' -- '));
-    return 'Encabezamientos de materia (LCSH):\n${lines.map((l) => '- $l').join('\n')}';
-  }
-
-  /// Unlike [_flattenToStrings], this keeps each heading's internal
-  /// heading/subdivision order intact instead of flattening everything
-  /// into one bag of strings, since that order is what makes an LCSH
-  /// heading readable (e.g. "Piano music -- Arranged").
-  List<List<String>> _extractHeadings(dynamic raw) {
-    final out = <List<String>>[];
-    void add(dynamic h) {
-      if (h is List) {
-        final parts = h.map((e) => e.toString().trim()).where((s) => s.isNotEmpty).toList();
-        if (parts.isNotEmpty) out.add(parts);
-      } else if (h is String) {
-        final s = h.trim();
-        if (s.isNotEmpty) out.add([s]);
-      }
-    }
-
-    if (raw is List) {
-      for (final h in raw) {
-        add(h);
-      }
-    } else if (raw is Map) {
-      for (final h in raw.values) {
-        add(h);
-      }
-    }
-    return out;
   }
 
   _AuthorInfo _extractAuthors(Map<String, dynamic> raw) {

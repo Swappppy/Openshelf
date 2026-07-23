@@ -397,7 +397,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bookDetailNewReadingWholeBook => 'Todo el libro';
 
   @override
-  String get bookDetailNewReadingSections => 'Secciones específicas';
+  String get bookDetailNewReadingWholeBookDescription =>
+      'Se registrará una relectura completa a partir de hoy.';
+
+  @override
+  String get bookDetailNewReadingSections => 'Secciones';
+
+  @override
+  String bookDetailNewReadingSectionsCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count secciones',
+      one: '1 sección',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bookDetailNewReadingReadCount(Object count) {
+    return 'Leída ${count}x';
+  }
 
   @override
   String get bookDetailNewReadingSelectSections =>
@@ -408,7 +428,13 @@ class AppLocalizationsEs extends AppLocalizations {
       '¿Quieres empezar una nueva lectura?';
 
   @override
+  String get bookDetailStartNewReadingTitle => 'Nueva lectura';
+
+  @override
   String get bookDetailStartNewReadingButton => 'Empezar nueva lectura';
+
+  @override
+  String get selectAll => 'Seleccionar todo';
 
   @override
   String get bookDetailDeleteReadPrompt =>

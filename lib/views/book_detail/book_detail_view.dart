@@ -15,6 +15,8 @@ import '../../widgets/segmented_page_picker.dart';
 import 'widgets/book_header.dart';
 import 'widgets/main_tab.dart';
 import 'widgets/details_tab.dart';
+import 'widgets/new_reading_bottom_sheet.dart';
+import '../../controllers/read_history_controller.dart';
 
 /// Comprehensive detailed view for a specific book.
 /// Provides access to all metadata, reading progress, and management options (edit/delete).
@@ -164,103 +166,16 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
 
   void _showStartNewReadingDialog() {
     final book = widget.book;
-    final segments = book.paginationConfig?.segments ?? [];
+    final history = ref.read(readHistoryProvider(book.id)).value ?? [];
 
-    if (segments.isEmpty) {
-      ref.read(readingSessionControllerProvider).startNewReading(
-        book: book,
-        sectionLabelGetter: (idx) => context.l10n.paginationSectionLabel(idx),
-      );
-      return;
-    }
-
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) {
-        bool selectSections = false;
-        final selectedIndices = <int>[];
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text(context.l10n.bookDetailStartNewReadingButton),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    RadioGroup<bool>(
-                      groupValue: selectSections,
-                      onChanged: (v) => setState(() => selectSections = v!),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          RadioListTile<bool>(
-                            title: Text(context.l10n.bookDetailNewReadingWholeBook),
-                            value: false,
-                          ),
-                          RadioListTile<bool>(
-                            title: Text(context.l10n.bookDetailNewReadingSections),
-                            value: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (selectSections) ...[
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          context.l10n.bookDetailNewReadingSelectSections,
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
-                      ),
-                      ...segments.asMap().entries.map((entry) {
-                        final i = entry.key;
-                        final s = entry.value;
-                        return CheckboxListTile(
-                          title: Text(s.label ?? context.l10n.paginationSectionLabel(i + 1)),
-                          value: selectedIndices.contains(i),
-                          onChanged: (checked) {
-                            setState(() {
-                              if (checked == true) {
-                                selectedIndices.add(i);
-                                selectedIndices.sort();
-                              } else {
-                                selectedIndices.remove(i);
-                              }
-                            });
-                          },
-                          controlAffinity: ListTileControlAffinity.leading,
-                          dense: true,
-                        );
-                      }),
-                    ],
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: Text(context.l10n.cancel),
-                ),
-                FilledButton(
-                  onPressed: selectSections && selectedIndices.isEmpty
-                      ? null
-                      : () {
-                          Navigator.pop(ctx);
-                          ref.read(readingSessionControllerProvider).startNewReading(
-                            book: book,
-                            selectedIndices: selectSections ? selectedIndices : null,
-                            sectionLabelGetter: (idx) => context.l10n.paginationSectionLabel(idx),
-                          );
-                        },
-                  child: Text(context.l10n.save),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => NewReadingBottomSheet(
+        book: book,
+        history: history,
+      ),
     );
   }
 
