@@ -8,7 +8,7 @@
 
 **Your library. Your data. Your app.**
 
-Openshelf is a free, open-source personal library manager. It functions as a comprehensive reading tracker, organizer (by category, collection, imprint, or any combination), and book archival tool. Everything stays on your device—no account required, and no data ever leaves your phone.
+Openshelf is a free, open-source personal library manager. It functions as a comprehensive reading tracker, organizer (by category, collection, imprint, or any combination), and book archival tool. Everything stays on your device, no account required, and no data ever leaves your phone.
 
 ---
 
