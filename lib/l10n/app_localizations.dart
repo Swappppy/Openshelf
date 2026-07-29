@@ -696,6 +696,12 @@ abstract class AppLocalizations {
   /// **'No se pudo descargar la imagen'**
   String get coverDownloadError;
 
+  /// Error cuando falla el procesamiento de la imagen
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo procesar la imagen'**
+  String get imageProcessError;
+
   /// Título de la pantalla de recorte de portada
   ///
   /// In es, this message translates to:

@@ -91,8 +91,7 @@ configurations.all {
     exclude(group = "androidx.camera", module = "camera-mlkit-vision")
     
     resolutionStrategy {
-        force("androidx.core:core:1.13.1")
-        force("androidx.core:core-ktx:1.13.1")
+        // Removed forced versions to allow ucrop to use newer APIs (like ProtectionLayout)
     }
 }
 

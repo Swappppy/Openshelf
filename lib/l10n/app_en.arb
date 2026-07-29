@@ -298,6 +298,9 @@
   "coverDownloadError": "Could not download image",
   "@coverDownloadError": { "description": "Download error message" },
 
+  "imageProcessError": "Could not process image",
+  "@imageProcessError": { "description": "Error when image processing fails" },
+
   "cropCoverTitle": "Crop cover",
   "@cropCoverTitle": { "description": "Title for cover cropping screen" },
 

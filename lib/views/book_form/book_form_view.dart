@@ -183,24 +183,40 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _pickCover() async {
-    final saved = await ref.read(bookFormControllerProvider).pickCoverFromGallery(
-      cropTitle: context.l10n.cropCoverTitle,
-      doneTitle: context.l10n.done,
-      cancelTitle: context.l10n.cancel,
-    );
-    if (saved != null && mounted) {
-      setState(() => _coverPath = saved);
+    try {
+      final saved = await ref.read(bookFormControllerProvider).pickCoverFromGallery(
+        cropTitle: context.l10n.cropCoverTitle,
+        doneTitle: context.l10n.done,
+        cancelTitle: context.l10n.cancel,
+      );
+      if (saved != null && mounted) {
+        setState(() => _coverPath = saved);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.imageProcessError)),
+        );
+      }
     }
   }
 
   Future<void> _takePhoto() async {
-    final saved = await ref.read(bookFormControllerProvider).takePhoto(
-      cropTitle: context.l10n.cropCoverTitle,
-      doneTitle: context.l10n.done,
-      cancelTitle: context.l10n.cancel,
-    );
-    if (saved != null && mounted) {
-      setState(() => _coverPath = saved);
+    try {
+      final saved = await ref.read(bookFormControllerProvider).takePhoto(
+        cropTitle: context.l10n.cropCoverTitle,
+        doneTitle: context.l10n.done,
+        cancelTitle: context.l10n.cancel,
+      );
+      if (saved != null && mounted) {
+        setState(() => _coverPath = saved);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.imageProcessError)),
+        );
+      }
     }
   }
 
@@ -235,20 +251,28 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (!mounted) return;
     
     setState(() => _isSaving = true);
-    final saved = await ref.read(bookFormControllerProvider).downloadCover(
-      url,
-      cropTitle: context.l10n.cropCoverTitle,
-      doneTitle: context.l10n.done,
-      cancelTitle: context.l10n.cancel,
-    );
-    if (!mounted) return;
-    setState(() {
-      _isSaving = false;
-      if (saved != null) _coverPath = saved;
-    });
-    if (saved == null) {
+    try {
+      final saved = await ref.read(bookFormControllerProvider).downloadCover(
+        url,
+        cropTitle: context.l10n.cropCoverTitle,
+        doneTitle: context.l10n.done,
+        cancelTitle: context.l10n.cancel,
+      );
+      if (!mounted) return;
+      setState(() {
+        _isSaving = false;
+        if (saved != null) _coverPath = saved;
+      });
+      if (saved == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.coverDownloadError)),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.coverDownloadError)),
+        SnackBar(content: Text(context.l10n.imageProcessError)),
       );
     }
   }

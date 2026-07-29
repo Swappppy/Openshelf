@@ -298,6 +298,9 @@
   "coverDownloadError": "No se pudo descargar la imagen",
   "@coverDownloadError": { "description": "Error al descargar portada desde URL" },
 
+  "imageProcessError": "No se pudo procesar la imagen",
+  "@imageProcessError": { "description": "Error cuando falla el procesamiento de la imagen" },
+
   "cropCoverTitle": "Recortar portada",
   "@cropCoverTitle": { "description": "Título de la pantalla de recorte de portada" },
 

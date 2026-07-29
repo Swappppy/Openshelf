@@ -327,6 +327,27 @@ class DataMigrationService {
         final oldId = ImportExportUtils.parseInt(_get(head, row, 'id'));
         if (oldId != null) bookIdMap?[oldId] = bookId;
 
+        // Auto-create history if reading or read and we're not expecting a separate history import
+        // or as a safety measure (idempotent due to getRead check in _importHistoryCsvContent if we added it there too)
+        final status = comp.status.value;
+        if (status == ReadingStatus.reading || status == ReadingStatus.read) {
+          final historyExist = await _db.readHistoryDao.getRead(bookId, 1);
+          if (historyExist == null) {
+            final total = comp.totalPages.value ?? 0;
+            final current = comp.currentPage.value ?? 0;
+            final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
+
+            await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+              bookId: bookId,
+              readNumber: 1,
+              startedAt: comp.startedAt,
+              finishedAt: comp.finishedAt,
+              progress: Value(progress),
+              segmentProgress: Value(progress > 0 ? {0: progress} : null),
+            ));
+          }
+        }
+
         // Tags
         final cats = _get(head, row, 'categories')?.split('|') ?? [];
         final clrs = _get(head, row, 'categoryColors')?.split('|') ?? [];
@@ -522,6 +543,7 @@ class DataMigrationService {
 
       final sectionsRaw = _get(head, row, 'sections');
       final segProgressRaw = _get(head, row, 'segmentProgress');
+      final progress = ImportExportUtils.parseInt(_get(head, row, 'progress')) ?? 0;
 
       await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
         bookId: newBookId,
@@ -529,8 +551,10 @@ class DataMigrationService {
         startedAt: Value(ImportExportUtils.parseDate(_get(head, row, 'startedAt'))),
         finishedAt: Value(ImportExportUtils.parseDate(_get(head, row, 'finishedAt'))),
         sections: Value(sectionsRaw != null ? (jsonDecode(sectionsRaw) as List).cast<String>() : null),
-        progress: Value(ImportExportUtils.parseInt(_get(head, row, 'progress')) ?? 0),
-        segmentProgress: Value(segProgressRaw != null ? (jsonDecode(segProgressRaw) as Map).map((k, v) => MapEntry(int.parse(k.toString()), v as int)) : null),
+        progress: Value(progress),
+        segmentProgress: Value(segProgressRaw != null 
+            ? (jsonDecode(segProgressRaw) as Map).map((k, v) => MapEntry(int.parse(k.toString()), v as int)) 
+            : (progress > 0 ? {0: progress} : null)),
       ));
     }
   }

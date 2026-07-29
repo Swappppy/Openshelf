@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:collection/collection.dart';
@@ -23,22 +24,27 @@ class BookFormController {
     required String doneTitle,
     required String cancelTitle,
   }) async {
-    final result = await PermissionService.requestGallery();
-    if (result != GalleryPermissionResult.granted) return null;
+    try {
+      final result = await PermissionService.requestGallery();
+      if (result != GalleryPermissionResult.granted) return null;
 
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked == null) return null;
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return null;
 
-    final cropped = await CoverService.cropCover(
-      picked.path,
-      title: cropTitle,
-      doneButtonTitle: doneTitle,
-      cancelButtonTitle: cancelTitle,
-    );
+      final cropped = await CoverService.cropCover(
+        picked.path,
+        title: cropTitle,
+        doneButtonTitle: doneTitle,
+        cancelButtonTitle: cancelTitle,
+      );
 
-    if (cropped != null) {
-      return await CoverService.saveLocalCover(cropped);
+      if (cropped != null) {
+        return await CoverService.saveLocalCover(cropped);
+      }
+    } catch (e) {
+      debugPrint('BookFormController: Error picking cover from gallery: $e');
+      rethrow;
     }
     return null;
   }
@@ -48,22 +54,27 @@ class BookFormController {
     required String doneTitle,
     required String cancelTitle,
   }) async {
-    final granted = await PermissionService.requestCamera();
-    if (!granted) return null;
+    try {
+      final granted = await PermissionService.requestCamera();
+      if (!granted) return null;
 
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.camera);
-    if (picked == null) return null;
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.camera);
+      if (picked == null) return null;
 
-    final cropped = await CoverService.cropCover(
-      picked.path,
-      title: cropTitle,
-      doneButtonTitle: doneTitle,
-      cancelButtonTitle: cancelTitle,
-    );
+      final cropped = await CoverService.cropCover(
+        picked.path,
+        title: cropTitle,
+        doneButtonTitle: doneTitle,
+        cancelButtonTitle: cancelTitle,
+      );
 
-    if (cropped != null) {
-      return await CoverService.saveLocalCover(cropped);
+      if (cropped != null) {
+        return await CoverService.saveLocalCover(cropped);
+      }
+    } catch (e) {
+      debugPrint('BookFormController: Error taking photo: $e');
+      rethrow;
     }
     return null;
   }

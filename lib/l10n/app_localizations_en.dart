@@ -310,6 +310,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coverDownloadError => 'Could not download image';
 
   @override
+  String get imageProcessError => 'Could not process image';
+
+  @override
   String get cropCoverTitle => 'Crop cover';
 
   @override

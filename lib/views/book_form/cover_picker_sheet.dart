@@ -131,33 +131,43 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
 
     setState(() => _saving = index);
 
-    // Smart Crop: check if the aspect ratio is already close to 2:3
-    final isGood = await CoverService.isRatioCorrect(previewPath, 2 / 3);
-    
-    String finalPath;
-    if (isGood) {
-      finalPath = await CoverService.saveCover(previewPath);
-    } else {
-      if (!mounted) return;
-      final l10n = context.l10n;
-      // Manual crop is standard for consistent library appearance.
-      final croppedPath = await CoverService.cropCover(
-        previewPath, 
-        title: l10n.cropCoverTitle,
-        doneButtonTitle: l10n.done,
-        cancelButtonTitle: l10n.cancel,
-      );
-      if (croppedPath == null) {
-        if (mounted) setState(() => _saving = null);
-        return;
-      }
+    try {
+      // Smart Crop: check if the aspect ratio is already close to 2:3
+      final isGood = await CoverService.isRatioCorrect(previewPath, 2 / 3);
       
-      finalPath = await CoverService.saveCover(croppedPath);
-    }
+      String finalPath;
+      if (isGood) {
+        finalPath = await CoverService.saveCover(previewPath);
+      } else {
+        if (!mounted) return;
+        final l10n = context.l10n;
+        // Manual crop is standard for consistent library appearance.
+        final croppedPath = await CoverService.cropCover(
+          previewPath, 
+          title: l10n.cropCoverTitle,
+          doneButtonTitle: l10n.done,
+          cancelButtonTitle: l10n.cancel,
+        );
+        if (croppedPath == null) {
+          if (mounted) setState(() => _saving = null);
+          return;
+        }
+        
+        finalPath = await CoverService.saveCover(croppedPath);
+      }
 
-    if (mounted) {
-      widget.onCoverSelected(finalPath);
-      Navigator.of(context).pop();
+      if (mounted) {
+        widget.onCoverSelected(finalPath);
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      debugPrint('CoverPickerSheet: Error selecting cover: $e');
+      if (mounted) {
+        setState(() => _saving = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.imageProcessError)),
+        );
+      }
     }
   }
 

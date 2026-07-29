@@ -223,24 +223,60 @@ class CoverService {
     String? doneButtonTitle,
     String? cancelButtonTitle,
   }) async {
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: path,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: title,
-          toolbarColor: Colors.black,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false,
-        ),
-        IOSUiSettings(
-          title: title,
-          doneButtonTitle: doneButtonTitle,
-          cancelButtonTitle: cancelButtonTitle,
-        ),
-      ],
-    );
-    return croppedFile?.path;
+    try {
+      final preparedPath = await _prepareImageForCropper(path);
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: preparedPath,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: title,
+            toolbarColor: Colors.black,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            title: title,
+            doneButtonTitle: doneButtonTitle,
+            cancelButtonTitle: cancelButtonTitle,
+          ),
+        ],
+      );
+
+      // Cleanup temp file if it was created
+      if (preparedPath != path) {
+        try { await File(preparedPath).delete(); } catch (_) {}
+      }
+
+      return croppedFile?.path;
+    } catch (e) {
+      debugPrint('CoverService: Error during cropCover: $e');
+      return null;
+    }
+  }
+
+  /// Helper to re-encode image to baseline JPEG on Android to avoid UCrop crashes with progressive JPEGs.
+  static Future<String> _prepareImageForCropper(String sourcePath) async {
+    if (!Platform.isAndroid) return sourcePath;
+
+    try {
+      final bytes = await File(sourcePath).readAsBytes();
+      final image = img.decodeImage(bytes);
+      if (image == null) return sourcePath;
+
+      final directory = await getTemporaryDirectory();
+      final tempPath = p.join(directory.path, 'crop_prep_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      
+      // package:image encodeJpg produces baseline JPEGs which BitmapRegionDecoder can handle.
+      final encoded = img.encodeJpg(image);
+      await File(tempPath).writeAsBytes(encoded);
+      
+      debugPrint('CoverService: Pre-processed image for Android cropper: $tempPath');
+      return tempPath;
+    } catch (e) {
+      debugPrint('CoverService: Failed to pre-process image for cropper: $e');
+      return sourcePath;
+    }
   }
 
   /// Copies a local file to the app's permanent storage directory with compression.
@@ -282,24 +318,36 @@ class CoverService {
     String? doneButtonTitle,
     String? cancelButtonTitle,
   }) async {
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: path,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: title,
-          toolbarColor: Colors.black,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.square,
-          lockAspectRatio: true,
-        ),
-        IOSUiSettings(
-          title: title,
-          doneButtonTitle: doneButtonTitle,
-          cancelButtonTitle: cancelButtonTitle,
-        ),
-      ],
-    );
-    return croppedFile?.path;
+    try {
+      final preparedPath = await _prepareImageForCropper(path);
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: preparedPath,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: title,
+            toolbarColor: Colors.black,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(
+            title: title,
+            doneButtonTitle: doneButtonTitle,
+            cancelButtonTitle: cancelButtonTitle,
+          ),
+        ],
+      );
+
+      // Cleanup temp file if it was created
+      if (preparedPath != path) {
+        try { await File(preparedPath).delete(); } catch (_) {}
+      }
+
+      return croppedFile?.path;
+    } catch (e) {
+      debugPrint('CoverService: Error during cropImprint: $e');
+      return null;
+    }
   }
 
   /// Saves an imprint image and returns the local path.
