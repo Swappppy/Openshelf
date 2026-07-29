@@ -64,14 +64,16 @@ class PaginationSegment {
     int? offset,
     String? label,
     String? color,
+    bool clearLabel = false,
+    bool clearColor = false,
   }) {
     return PaginationSegment(
       startPhysical: startPhysical ?? this.startPhysical,
       endPhysical: endPhysical ?? this.endPhysical,
       type: type ?? this.type,
       offset: offset ?? this.offset,
-      label: label ?? this.label,
-      color: color ?? this.color,
+      label: clearLabel ? null : (label ?? this.label),
+      color: clearColor ? null : (color ?? this.color),
     );
   }
 
@@ -112,6 +114,19 @@ class PaginationMarker {
     'label': label,
     'color': color,
   };
+
+  PaginationMarker copyWith({
+    int? physicalPage,
+    String? label,
+    String? color,
+    bool clearColor = false,
+  }) {
+    return PaginationMarker(
+      physicalPage: physicalPage ?? this.physicalPage,
+      label: label ?? this.label,
+      color: clearColor ? null : (color ?? this.color),
+    );
+  }
 
   factory PaginationMarker.fromJson(Map<String, dynamic> json) => PaginationMarker(
     physicalPage: json['physicalPage'],

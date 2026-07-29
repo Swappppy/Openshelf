@@ -114,41 +114,6 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
     });
   }
 
-  // Remove the old _ensureContinuity as it's now integrated and safer
-  
-  void _showColorPicker(BuildContext context, String? initialColor, Function(String?) onSelected) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(context.l10n.paginationChooseColor, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const SizedBox(height: 24),
-            AppColorPicker(
-              selectedColor: (initialColor != null && initialColor.isNotEmpty) 
-                  ? Color(int.parse('0xFF$initialColor')) 
-                  : null,
-              allowNoColor: true,
-              onColorSelected: (color) {
-                if (color == null) {
-                  onSelected(null);
-                } else {
-                  final hex = color.toARGB32().toRadixString(16).substring(2).toUpperCase();
-                  onSelected(hex);
-                }
-                Navigator.pop(ctx);
-              },
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _addMarker() {
     setState(() {
       _markers.add(PaginationMarker(
@@ -241,7 +206,26 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
           if (_segments.isEmpty)
              Text(context.l10n.paginationNoSegmentsDefined, style: const TextStyle(color: Colors.grey, fontSize: 12)),
           
-          ..._segments.asMap().entries.map((e) => _buildSegmentItem(e.key, e.value)),
+          ..._segments.asMap().entries.map((e) => _SegmentItem(
+            index: e.key,
+            segment: e.value,
+            totalPages: widget.totalPages,
+            useVisual: _useVisual,
+            onColorTap: (c) => setState(() => _segments[e.key] = e.value.copyWith(color: c, clearColor: c == null)),
+            onDelete: () {
+              setState(() {
+                _segments.removeAt(e.key);
+                if (_segments.isNotEmpty && e.key < _segments.length) {
+                  final triggerIdx = e.key > 0 ? e.key - 1 : 0;
+                  _updateSegment(triggerIdx, _segments[triggerIdx]);
+                }
+              });
+            },
+            onLabelChanged: (v) => setState(() => _segments[e.key] = e.value.copyWith(label: v)),
+            onRangeChanged: (newSeg) => _updateSegment(e.key, newSeg),
+            onTypeChanged: (type) => _updateSegment(e.key, e.value.copyWith(type: type)),
+            onOffsetChanged: (v) => _updateSegment(e.key, e.value.copyWith(offset: v)),
+          )),
           
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -325,84 +309,6 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
     );
   }
 
-  Widget _buildSegmentItem(int index, PaginationSegment segment) {
-    return Card(
-      key: ValueKey('segment_$index'),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    decoration: InputDecoration(labelText: context.l10n.paginationLabelOptional, isDense: true),
-                    initialValue: segment.label,
-                    onChanged: (v) => _segments[index] = segment.copyWith(label: v),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.circle, color: (segment.color != null && segment.color!.isNotEmpty) ? Color(int.parse('0xFF${segment.color}')) : Colors.grey[600]),
-                  onPressed: () => _showColorPicker(context, segment.color, (c) => setState(() => _segments[index] = segment.copyWith(color: c))),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () {
-                    setState(() {
-                      _segments.removeAt(index);
-                      if (_segments.isNotEmpty && index < _segments.length) {
-                        // Trigger cascade starting from the previous segment or the new one at the same index
-                        final triggerIdx = index > 0 ? index - 1 : 0;
-                        _updateSegment(triggerIdx, _segments[triggerIdx]);
-                      }
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _SegmentRangeInput(
-              index: index,
-              segment: segment,
-              useVisual: _useVisual,
-              onChanged: (newSeg) => _updateSegment(index, newSeg),
-              totalPages: widget.totalPages,
-              isFirst: index == 0,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Text(context.l10n.paginationType),
-                const SizedBox(width: 12),
-                ChoiceChip(
-                  label: Text(context.l10n.paginationArabic),
-                  selected: segment.type == PageNumberingType.arabic,
-                  onSelected: (v) => _updateSegment(index, segment.copyWith(type: PageNumberingType.arabic)),
-                ),
-                const SizedBox(width: 8),
-                ChoiceChip(
-                  label: Text(context.l10n.paginationRoman),
-                  selected: segment.type == PageNumberingType.roman,
-                  onSelected: (v) => _updateSegment(index, segment.copyWith(type: PageNumberingType.roman)),
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: 80,
-                  child: _OffsetField(
-                    value: segment.offset,
-                    enabled: index == 0,
-                    onChanged: (v) => _updateSegment(index, segment.copyWith(offset: v)),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildMarkerItem(int index, PaginationMarker marker) {
     // Only calculate visual page if segments are valid to avoid internal crashes
     String visualPage = '—';
@@ -420,15 +326,141 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       visualPage: visualPage,
       useVisual: _useVisual,
       segments: _segments,
-      onColorTap: () => _showColorPicker(context, marker.color, (c) => setState(() => _markers[index] = PaginationMarker(physicalPage: marker.physicalPage, label: marker.label, color: c))),
+      onColorTap: () => _showGlobalColorPicker(context, marker.color, (c) => setState(() => _markers[index] = marker.copyWith(color: c, clearColor: c == null))),
       onDelete: () => setState(() => _markers.removeAt(index)),
-      onLabelChanged: (v) => setState(() => _markers[index] = PaginationMarker(physicalPage: marker.physicalPage, label: v, color: marker.color)),
+      onLabelChanged: (v) => setState(() => _markers[index] = marker.copyWith(label: v)),
       onVisualPageChanged: (v) {
         final trimmed = v.trim();
         if (trimmed.isEmpty) return;
         final phys = PaginationHelper.getPhysicalFromVisual(trimmed, PaginationConfig(segments: _segments));
-        setState(() => _markers[index] = PaginationMarker(physicalPage: phys, label: _markers[index].label, color: _markers[index].color));
+        setState(() => _markers[index] = marker.copyWith(physicalPage: phys));
       },
+    );
+  }
+}
+
+class _SegmentItem extends StatefulWidget {
+  final int index;
+  final PaginationSegment segment;
+  final int totalPages;
+  final bool useVisual;
+  final Function(String?) onColorTap;
+  final VoidCallback onDelete;
+  final ValueChanged<String> onLabelChanged;
+  final ValueChanged<PaginationSegment> onRangeChanged;
+  final ValueChanged<PageNumberingType> onTypeChanged;
+  final ValueChanged<int> onOffsetChanged;
+
+  const _SegmentItem({
+    required this.index,
+    required this.segment,
+    required this.totalPages,
+    required this.useVisual,
+    required this.onColorTap,
+    required this.onDelete,
+    required this.onLabelChanged,
+    required this.onRangeChanged,
+    required this.onTypeChanged,
+    required this.onOffsetChanged,
+  });
+
+  @override
+  State<_SegmentItem> createState() => _SegmentItemState();
+}
+
+class _SegmentItemState extends State<_SegmentItem> {
+  late TextEditingController _labelCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _labelCtrl = TextEditingController(text: widget.segment.label);
+  }
+
+  @override
+  void didUpdateWidget(_SegmentItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.segment.label != widget.segment.label && _labelCtrl.text != widget.segment.label) {
+      _labelCtrl.text = widget.segment.label ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _labelCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final segment = widget.segment;
+    final index = widget.index;
+
+    return Card(
+      key: ValueKey('segment_$index'),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _labelCtrl,
+                    decoration: InputDecoration(labelText: context.l10n.paginationLabelOptional, isDense: true),
+                    onChanged: widget.onLabelChanged,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.circle, color: (segment.color != null && segment.color!.isNotEmpty) ? Color(int.parse('0xFF${segment.color}')) : Colors.grey[600]),
+                  onPressed: () => _showGlobalColorPicker(context, segment.color, widget.onColorTap),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: widget.onDelete,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _SegmentRangeInput(
+              index: index,
+              segment: segment,
+              useVisual: widget.useVisual,
+              onChanged: widget.onRangeChanged,
+              totalPages: widget.totalPages,
+              isFirst: index == 0,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Text(context.l10n.paginationType),
+                const SizedBox(width: 12),
+                ChoiceChip(
+                  label: Text(context.l10n.paginationArabic),
+                  selected: segment.type == PageNumberingType.arabic,
+                  onSelected: (v) => widget.onTypeChanged(PageNumberingType.arabic),
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: Text(context.l10n.paginationRoman),
+                  selected: segment.type == PageNumberingType.roman,
+                  onSelected: (v) => widget.onTypeChanged(PageNumberingType.roman),
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: 80,
+                  child: _OffsetField(
+                    value: segment.offset,
+                    enabled: index == 0,
+                    onChanged: widget.onOffsetChanged,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -748,7 +780,7 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
                    Text(context.l10n.paginationAdjustsAutomatically, style: const TextStyle(fontSize: 8, color: Colors.grey)),
                 if (widget.useVisual)
                   Text(
-                    context.l10n.paginationEquivalentPhysical(s.endPhysical, s.startPhysical),
+                    context.l10n.paginationEquivalentPhysical(s.startPhysical, s.endPhysical),
                     style: const TextStyle(fontSize: 9, color: Colors.grey),
                   ),
               ],
@@ -759,3 +791,35 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
   }
 }
 
+void _showGlobalColorPicker(BuildContext context, String? initialColor, Function(String?) onSelected) {
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+    builder: (ctx) => Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(context.l10n.paginationChooseColor, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const SizedBox(height: 24),
+          AppColorPicker(
+            selectedColor: (initialColor != null && initialColor.isNotEmpty) 
+                ? Color(int.parse('0xFF$initialColor')) 
+                : null,
+            allowNoColor: true,
+            onColorSelected: (color) {
+              if (color == null) {
+                onSelected(null);
+              } else {
+                final hex = color.toARGB32().toRadixString(16).substring(2).toUpperCase();
+                onSelected(hex);
+              }
+              Navigator.pop(ctx);
+            },
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    ),
+  );
+}
