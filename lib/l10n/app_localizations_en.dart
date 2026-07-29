@@ -138,6 +138,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportProgressFinalize => 'Opening share menu...';
 
   @override
+  String exportSaveSuccess(String path) {
+    return 'Backup saved to $path';
+  }
+
+  @override
   String get cancel => 'Cancel';
 
   @override
@@ -166,6 +171,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get saveToDevice => 'Save to device';
 
   @override
   String get addBookModalTitle => 'Add book';

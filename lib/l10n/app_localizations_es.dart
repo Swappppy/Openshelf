@@ -137,6 +137,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get exportProgressFinalize => 'Abriendo menú de compartir...';
 
   @override
+  String exportSaveSuccess(String path) {
+    return 'Copia de seguridad guardada en $path';
+  }
+
+  @override
   String get cancel => 'Cancelar';
 
   @override
@@ -165,6 +170,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get retry => 'Reintentar';
+
+  @override
+  String get share => 'Compartir';
+
+  @override
+  String get saveToDevice => 'Guardar en dispositivo';
 
   @override
   String get addBookModalTitle => 'Añadir libro';

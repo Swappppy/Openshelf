@@ -127,6 +127,11 @@
   "exportProgressCompress": "Compressing backup...",
   "exportProgressFinalize": "Opening share menu...",
 
+  "exportSaveSuccess": "Backup saved to {path}",
+  "@exportSaveSuccess": {
+    "placeholders": { "path": { "type": "String" } }
+  },
+
   "cancel": "Cancel",
   "@cancel": { "description": "Generic cancel button" },
 
@@ -156,6 +161,12 @@
 
   "retry": "Retry",
   "@retry": { "description": "Retry button" },
+
+  "share": "Share",
+  "@share": { "description": "Share action" },
+
+  "saveToDevice": "Save to device",
+  "@saveToDevice": { "description": "Save to device action" },
 
   "addBookModalTitle": "Add book",
   "@addBookModalTitle": { "description": "Add book modal title" },

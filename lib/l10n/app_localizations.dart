@@ -354,6 +354,12 @@ abstract class AppLocalizations {
   /// **'Abriendo menú de compartir...'**
   String get exportProgressFinalize;
 
+  /// No description provided for @exportSaveSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Copia de seguridad guardada en {path}'**
+  String exportSaveSuccess(String path);
+
   /// Botón genérico de cancelar
   ///
   /// In es, this message translates to:
@@ -413,6 +419,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Reintentar'**
   String get retry;
+
+  /// Acción de compartir
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir'**
+  String get share;
+
+  /// Acción de guardar en el dispositivo
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar en dispositivo'**
+  String get saveToDevice;
 
   /// Título del modal de añadir libro
   ///

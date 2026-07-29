@@ -127,6 +127,11 @@
   "exportProgressCompress": "Comprimiendo copia de seguridad...",
   "exportProgressFinalize": "Abriendo menú de compartir...",
 
+  "exportSaveSuccess": "Copia de seguridad guardada en {path}",
+  "@exportSaveSuccess": {
+    "placeholders": { "path": { "type": "String" } }
+  },
+
   "cancel": "Cancelar",
   "@cancel": { "description": "Botón genérico de cancelar" },
 
@@ -156,6 +161,12 @@
 
   "retry": "Reintentar",
   "@retry": { "description": "Botón para reintentar una operación fallida" },
+
+  "share": "Compartir",
+  "@share": { "description": "Acción de compartir" },
+
+  "saveToDevice": "Guardar en dispositivo",
+  "@saveToDevice": { "description": "Acción de guardar en el dispositivo" },
 
   "addBookModalTitle": "Añadir libro",
   "@addBookModalTitle": { "description": "Título del modal de añadir libro" },

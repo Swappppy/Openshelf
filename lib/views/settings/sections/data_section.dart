@@ -189,7 +189,32 @@ class DataSection extends ConsumerWidget {
       ),
     );
     if (includeCovers != null && context.mounted) {
-      ExportController.exportToNative(context, ref, onLoading, includeCovers: includeCovers);
+      final mode = await showModalBottomSheet<String>(
+        context: context,
+        builder: (ctx) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.share_outlined),
+                title: Text(context.l10n.share),
+                onTap: () => Navigator.pop(ctx, 'share'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.save_alt_outlined),
+                title: Text(context.l10n.saveToDevice),
+                onTap: () => Navigator.pop(ctx, 'save'),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (mode == 'share' && context.mounted) {
+        ExportController.exportToNative(context, ref, onLoading, includeCovers: includeCovers);
+      } else if (mode == 'save' && context.mounted) {
+        ExportController.saveToDevice(context, ref, onLoading, includeCovers: includeCovers);
+      }
     }
   }
 

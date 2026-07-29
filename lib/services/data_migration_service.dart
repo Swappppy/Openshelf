@@ -22,6 +22,40 @@ class DataMigrationService {
 
   // --- Export ---
 
+  Future<File> createBackupFile({bool includeCovers = true, void Function(String)? onProgress}) async {
+    final tempDir = await getTemporaryDirectory();
+    final archive = Archive();
+
+    onProgress?.call('data');
+    final booksCsv = await exportBooksToCsv();
+    archive.addFile(ArchiveFile('books.csv', booksCsv.length, utf8.encode(booksCsv)));
+
+    final shelvesCsv = await exportShelvesToCsv();
+    archive.addFile(ArchiveFile('shelves.csv', shelvesCsv.length, utf8.encode(shelvesCsv)));
+
+    final tagsCsv = await exportTagsToCsv();
+    archive.addFile(ArchiveFile('tags.csv', tagsCsv.length, utf8.encode(tagsCsv)));
+
+    final historyCsv = await exportHistoryToCsv();
+    archive.addFile(ArchiveFile('history.csv', historyCsv.length, utf8.encode(historyCsv)));
+
+    final logsCsv = await exportLogsToCsv();
+    archive.addFile(ArchiveFile('logs.csv', logsCsv.length, utf8.encode(logsCsv)));
+
+    final goalsCsv = await exportGoalsToCsv();
+    archive.addFile(ArchiveFile('goals.csv', goalsCsv.length, utf8.encode(goalsCsv)));
+
+    if (includeCovers) {
+      onProgress?.call('media');
+      await _bundleMedia(archive);
+    }
+
+    onProgress?.call('compress');
+    final zipData = await Future.microtask(() => ZipEncoder().encode(archive));
+    final zipFile = File(p.join(tempDir.path, 'openshelf_full_backup.zip'));
+    return await zipFile.writeAsBytes(zipData);
+  }
+
   Future<String> exportBooksToCsv() async {
     final books = await _db.bookDao.select(_db.bookDao.books).get();
     final rows = <List<dynamic>>[[
@@ -156,42 +190,15 @@ class DataMigrationService {
     } catch (_) { return []; }
   }
 
+
   Future<void> shareBackup({bool includeCovers = true, void Function(String)? onProgress}) async {
-    final tempDir = await getTemporaryDirectory();
-    final archive = Archive();
-
-    onProgress?.call('data');
-    final booksCsv = await exportBooksToCsv();
-    archive.addFile(ArchiveFile('books.csv', booksCsv.length, utf8.encode(booksCsv)));
-
-    final shelvesCsv = await exportShelvesToCsv();
-    archive.addFile(ArchiveFile('shelves.csv', shelvesCsv.length, utf8.encode(shelvesCsv)));
-
-    final tagsCsv = await exportTagsToCsv();
-    archive.addFile(ArchiveFile('tags.csv', tagsCsv.length, utf8.encode(tagsCsv)));
-
-    final historyCsv = await exportHistoryToCsv();
-    archive.addFile(ArchiveFile('history.csv', historyCsv.length, utf8.encode(historyCsv)));
-
-    final logsCsv = await exportLogsToCsv();
-    archive.addFile(ArchiveFile('logs.csv', logsCsv.length, utf8.encode(logsCsv)));
-
-    final goalsCsv = await exportGoalsToCsv();
-    archive.addFile(ArchiveFile('goals.csv', goalsCsv.length, utf8.encode(goalsCsv)));
-
-    if (includeCovers) {
-      onProgress?.call('media');
-      await _bundleMedia(archive);
-    }
-
-    onProgress?.call('compress');
-    final zipData = await Future.microtask(() => ZipEncoder().encode(archive));
-    final zipFile = File(p.join(tempDir.path, 'openshelf_full_backup.zip'));
-    await zipFile.writeAsBytes(zipData);
-
-    onProgress?.call('finalize');
-    // ignore: deprecated_member_use
-    await Share.shareXFiles([XFile(zipFile.path)], subject: 'Openshelf Full Backup');
+    final zipFile = await createBackupFile(includeCovers: includeCovers, onProgress: onProgress);
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(zipFile.path, mimeType: 'application/zip')],
+        subject: 'Openshelf Full Backup',
+      ),
+    );
   }
 
   Future<void> _bundleMedia(Archive archive) async {
@@ -328,9 +335,10 @@ class DataMigrationService {
         if (oldId != null) bookIdMap?[oldId] = bookId;
 
         // Auto-create history if reading or read and we're not expecting a separate history import
-        // or as a safety measure (idempotent due to getRead check in _importHistoryCsvContent if we added it there too)
+        // (standalone CSV import). If bookIdMap is not null, we are in a ZIP import and
+        // history.csv will provide the detailed records.
         final status = comp.status.value;
-        if (status == ReadingStatus.reading || status == ReadingStatus.read) {
+        if (bookIdMap == null && (status == ReadingStatus.reading || status == ReadingStatus.read)) {
           final historyExist = await _db.readHistoryDao.getRead(bookId, 1);
           if (historyExist == null) {
             final total = comp.totalPages.value ?? 0;

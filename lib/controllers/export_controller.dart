@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../services/bookshelf_export_service.dart';
 import '../services/goodreads_export_service.dart';
@@ -48,6 +49,54 @@ class ExportController {
     }
   }
 
+  static Future<void> saveToDevice(
+    BuildContext context, 
+    WidgetRef ref, 
+    void Function(bool, [String?]) onLoading,
+    {required bool includeCovers}
+  ) async {
+    final db = ref.read(databaseProvider);
+    final l10n = context.l10n;
+    try {
+      final String? selectedDirectory = await FilePicker.getDirectoryPath();
+      if (selectedDirectory == null) return;
+
+      onLoading(true, l10n.loadingExport);
+      final migration = DataMigrationService(db);
+      
+      final zipFile = await migration.createBackupFile(
+        includeCovers: includeCovers,
+        onProgress: (step) {
+          final msg = switch (step) {
+            'data' => l10n.exportProgressData,
+            'media' => l10n.exportProgressMedia,
+            'compress' => l10n.exportProgressCompress,
+            _ => l10n.loadingExport,
+          };
+          onLoading(true, msg);
+        },
+      );
+
+      final String fileName = 'openshelf_backup_${DateTime.now().millisecondsSinceEpoch}.zip';
+      final String destPath = p.join(selectedDirectory, fileName);
+      await zipFile.copy(destPath);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.exportSaveSuccess(destPath))),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.errorPrefix(e.toString()))),
+        );
+      }
+    } finally {
+      onLoading(false);
+    }
+  }
+
   static Future<void> exportToBookshelf(
     BuildContext context, 
     WidgetRef ref,
@@ -63,8 +112,12 @@ class ExportController {
       final file = File(p.join(tempDir.path, 'bookshelf_export_${DateTime.now().millisecondsSinceEpoch}.csv'));
       await exportService.writeToFile(result, file);
 
-      // ignore: deprecated_member_use
-      await Share.shareXFiles([XFile(file.path)], subject: 'Bookshelf Export');
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'text/csv')],
+          subject: 'Bookshelf Export',
+        ),
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -91,8 +144,12 @@ class ExportController {
       final file = File(p.join(tempDir.path, 'goodreads_export_${DateTime.now().millisecondsSinceEpoch}.csv'));
       await exportService.writeToFile(result, file);
 
-      // ignore: deprecated_member_use
-      await Share.shareXFiles([XFile(file.path)], subject: 'Goodreads Export');
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'text/csv')],
+          subject: 'Goodreads Export',
+        ),
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,8 +176,12 @@ class ExportController {
       final file = File(p.join(tempDir.path, 'librarything_export_${DateTime.now().millisecondsSinceEpoch}.json'));
       await exportService.writeToFile(result, file);
 
-      // ignore: deprecated_member_use
-      await Share.shareXFiles([XFile(file.path)], subject: 'LibraryThing Export');
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'application/json')],
+          subject: 'LibraryThing Export',
+        ),
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
