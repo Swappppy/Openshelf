@@ -1,8 +1,0 @@
-- [x] Add `imageProcessError` to localization files
-- [x] Implement `_prepareImageForCropper` in `CoverService`
-- [x] Wrap `cropImage` in `try/catch` in `CoverService`
-- [x] Add error handling in `BookFormController`
-- [x] Add error handling in `BookFormView`
-- [x] Add error handling in `CoverPickerSheet`
-- [x] Verify changes
-- [x] Fix missing `debugPrint` import in `BookFormController`
