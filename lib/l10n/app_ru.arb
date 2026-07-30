@@ -108,15 +108,6 @@
     "@shelvesSectionManagement": {
         "description": "Encabezado de sección de gestión"
     },
-    "bookSearchFallbackNotice": "",
-    "@bookSearchFallbackNotice": {
-        "description": "Aviso de fallback en búsqueda",
-        "placeholders": {
-            "provider": {
-                "type": "String"
-            }
-        }
-    },
     "shelfStatusLabelReading": "",
     "@shelfStatusLabelReading": {
         "description": "Etiqueta de estado: leyendo en subtítulo de estantería"
