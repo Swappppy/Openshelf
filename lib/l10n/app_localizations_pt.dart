@@ -4,9 +4,9 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for Spanish Castilian (`es`).
-class AppLocalizationsEs extends AppLocalizations {
-  AppLocalizationsEs([String locale = 'es']) : super(locale);
+/// The translations for Portuguese (`pt`).
+class AppLocalizationsPt extends AppLocalizations {
+  AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
   String get appTitle => 'Openshelf';
@@ -18,7 +18,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String errorGeneric(String error) {
-    return 'Error: $error';
+    return 'Erro';
   }
 
   @override
@@ -30,37 +30,37 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navLibrary => 'Biblioteca';
 
   @override
-  String get navShelves => 'Estanterías';
+  String get navShelves => 'Estantes';
 
   @override
-  String get navStats => 'Estadísticas';
+  String get navStats => 'Estatísticas';
 
   @override
   String get libraryTitle => 'Biblioteca';
 
   @override
-  String get libraryEmpty => 'Tu biblioteca está vacía';
+  String get libraryEmpty => 'Sua biblioteca está vazia';
 
   @override
-  String get libraryEmptyHint => '¿Cuál será tu primer libro?';
+  String get libraryEmptyHint => 'Qual será seu primeiro livro?';
 
   @override
-  String get libraryAddFirstBook => 'Añadir primer libro';
+  String get libraryAddFirstBook => 'Adicionar primeiro livro';
 
   @override
-  String get libraryNoResults => 'Sin resultados';
+  String get libraryNoResults => 'Sem resultados';
 
   @override
-  String get libraryNoResultsHint => 'Prueba con otros filtros';
+  String get libraryNoResultsHint => 'Tente outros filtros';
 
   @override
-  String get addBook => 'Añadir libro';
+  String get addBook => 'Adicionar livro';
 
   @override
-  String get displaySettings => 'Mostrar en la biblioteca';
+  String get displaySettings => 'Mostrar na biblioteca';
 
   @override
-  String get displaySettingsDragHint => 'Arrastra para reordenar';
+  String get displaySettingsDragHint => 'Arraste para reordenar';
 
   @override
   String get settingsButton => 'Ajustes';
@@ -69,13 +69,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get fieldAuthor => 'Autor';
 
   @override
-  String get fieldPublisher => 'Editorial';
+  String get fieldPublisher => 'Editora';
 
   @override
-  String get fieldYear => 'Año de publicación';
+  String get fieldYear => 'Ano de Publicação';
 
   @override
-  String get fieldRating => 'Valoración';
+  String get fieldRating => 'Avaliação';
 
   @override
   String get fieldTags => 'Etiquetas';
@@ -218,10 +218,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Se requiere permiso de cámara para escanear códigos';
 
   @override
-  String get scanBatch => 'Escanear en lote';
+  String get scanBatch => 'Escanear em lote';
 
   @override
-  String get scanBatchSubtitle => 'Escanea varios libros seguidos';
+  String get scanBatchSubtitle => 'Escanear vários livros seguidos';
 
   @override
   String get scanModeBarcode => 'Código de barras';
@@ -230,10 +230,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get scanModeIsbn => 'Número ISBN';
 
   @override
-  String get bookFormNewTitle => 'Nuevo libro';
+  String get bookFormNewTitle => 'Novo livro';
 
   @override
-  String get bookFormEditTitle => 'Editar libro';
+  String get bookFormEditTitle => 'Editar livro';
 
   @override
   String get tabMain => 'Principal';
@@ -257,7 +257,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get fieldLanguage => 'Idioma';
 
   @override
-  String get fieldTranslator => 'Traducción';
+  String get fieldTranslator => 'Tradução';
 
   @override
   String get fieldReads => 'Lecturas';
@@ -1638,4 +1638,394 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.';
+}
+
+/// The translations for Portuguese, as used in Brazil (`pt_BR`).
+class AppLocalizationsPtBr extends AppLocalizationsPt {
+  AppLocalizationsPtBr() : super('pt_BR');
+
+  @override
+  String get appTitle => 'Openshelf';
+
+  @override
+  String errorPrefix(String message) {
+    return 'Erro: $message';
+  }
+
+  @override
+  String errorGeneric(String error) {
+    return 'Erro:$error';
+  }
+
+  @override
+  String criticalStartError(String error) {
+    return 'Erro ao iniciar o aplicativo: $error';
+  }
+
+  @override
+  String get navLibrary => 'Biblioteca';
+
+  @override
+  String get navShelves => 'Estantes';
+
+  @override
+  String get navStats => 'Estatísticas';
+
+  @override
+  String get libraryTitle => 'Biblioteca';
+
+  @override
+  String get libraryEmpty => 'Sua biblioteca está vazia';
+
+  @override
+  String get libraryEmptyHint => 'Qual vai ser seu primeiro livro?';
+
+  @override
+  String get libraryAddFirstBook => 'Adicionar primeiro livro';
+
+  @override
+  String get libraryNoResults => 'Sem resultados';
+
+  @override
+  String get libraryNoResultsHint => 'Teste com outros filtros';
+
+  @override
+  String get addBook => 'Adicionar livro';
+
+  @override
+  String get displaySettings => 'Mostrar na biblioteca';
+
+  @override
+  String get displaySettingsDragHint => 'Arrastar para reordenar';
+
+  @override
+  String get settingsButton => 'Configurações';
+
+  @override
+  String get fieldAuthor => 'Autor';
+
+  @override
+  String get fieldPublisher => 'Editora';
+
+  @override
+  String get fieldYear => 'Ano de publicação';
+
+  @override
+  String get fieldRating => 'Avaliação';
+
+  @override
+  String get fieldTags => 'Etiquetas';
+
+  @override
+  String get fieldReadingProgress => 'Progresso de leitura';
+
+  @override
+  String get fieldStatusChip => 'Marcador de status';
+
+  @override
+  String get searchHint => 'Buscar por título';
+
+  @override
+  String get filterAuthor => 'Autor';
+
+  @override
+  String get filterIsbn => 'ISBN';
+
+  @override
+  String get filterPublisher => 'Editora';
+
+  @override
+  String get filterCollection => 'Coleção';
+
+  @override
+  String get filterImprintLabel => 'Selo editorial';
+
+  @override
+  String imprintBookCount(int count, Object Contagem) {
+    return '$Contagem livros';
+  }
+
+  @override
+  String get filterTagsLabel => 'Categorias';
+
+  @override
+  String get done => 'Feito';
+
+  @override
+  String get loading => 'Carregando...';
+
+  @override
+  String get loadingImport => 'Importando os livros, espere um pouco...';
+
+  @override
+  String get loadingExport => 'Exportando os livros, espere um pouco...';
+
+  @override
+  String get exportProgressData => 'Exportando dados...';
+
+  @override
+  String get exportProgressMedia => 'Preparando os arquivos multimídia...';
+
+  @override
+  String get exportProgressCompress => 'Exportando cópia de segurança...';
+
+  @override
+  String get exportProgressFinalize => 'Abrindo o menu de compartilhar...';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get save => 'Salvar';
+
+  @override
+  String get delete => 'Apagar';
+
+  @override
+  String get create => 'Criar';
+
+  @override
+  String get edit => 'Editar';
+
+  @override
+  String get duplicate => 'Duplicar';
+
+  @override
+  String get photo => 'Foto';
+
+  @override
+  String get url => 'URL';
+
+  @override
+  String get download => 'Baixar';
+
+  @override
+  String get retry => 'Tentar novamente';
+
+  @override
+  String get addBookModalTitle => 'Adicionar livro';
+
+  @override
+  String get addBookModalSubtitle => 'Como você quer adicionar seu livro';
+
+  @override
+  String get addManually => 'Adicionar manualmente';
+
+  @override
+  String get addManuallySubtitle => 'Preencha os dados manualmente';
+
+  @override
+  String get searchBook => 'Buscar livro';
+
+  @override
+  String get searchBookSubtitle => 'Por título, autor ou ISBN';
+
+  @override
+  String get scanBarcode => 'Escanear o código de barras';
+
+  @override
+  String get scanBarcodeSubtitle => 'Escanear código de barras';
+
+  @override
+  String get scanIsbnText => 'Escanear o número ISBN';
+
+  @override
+  String get scanIsbnTextSubtitle => 'Aponte o número impresso';
+
+  @override
+  String get scanIsbnSelect => 'Toque em um ISBN para selecioná-lo';
+
+  @override
+  String get scanOcrHoldMessage =>
+      'Deixe o celular parado por alguns segundos...';
+
+  @override
+  String get scanBarcodePermission =>
+      'Requer permissão da câmera para escanear códigos';
+
+  @override
+  String get scanBatch => 'Escanear em lote';
+
+  @override
+  String get scanBatchSubtitle => 'Escanear vários livros seguidos';
+
+  @override
+  String get scanModeBarcode => 'Código de barras';
+
+  @override
+  String get scanModeIsbn => 'Número ISBN';
+
+  @override
+  String get bookFormNewTitle => 'Novo livro';
+
+  @override
+  String get bookFormEditTitle => 'Editar livro';
+
+  @override
+  String get tabMain => 'Início';
+
+  @override
+  String get tabDetails => 'Detalhes';
+
+  @override
+  String get fieldTitle => 'Título';
+
+  @override
+  String get fieldSubtitle => 'Subtítulo';
+
+  @override
+  String get fieldDescription => 'Sinopse';
+
+  @override
+  String get fieldIsbn => 'ISBN';
+
+  @override
+  String get fieldLanguage => 'Idioma';
+
+  @override
+  String get fieldTranslator => 'Tradução';
+
+  @override
+  String get fieldTotalPages => 'Total de páginas';
+
+  @override
+  String get fieldTotalBooks => 'Todos os livros';
+
+  @override
+  String get fieldCurrentPage => 'Página atual';
+
+  @override
+  String get fieldNotes => 'Notas';
+
+  @override
+  String get fieldCollection => 'Coleção / Série';
+
+  @override
+  String get fieldCollectionNumber => 'Número da coleção';
+
+  @override
+  String get sectionBasicInfo => 'Informação básica';
+
+  @override
+  String get sectionCategories => 'Categorias';
+
+  @override
+  String get sectionReadingStatus => 'Progresso de leitura';
+
+  @override
+  String get sectionFormat => 'Formato';
+
+  @override
+  String get sectionRating => 'Avaliação';
+
+  @override
+  String get sectionImprint => 'Selo editorial';
+
+  @override
+  String get coverPickPhoto => 'Tirar foto';
+
+  @override
+  String get coverPickUrl => 'URL';
+
+  @override
+  String get coverSearch => 'Buscar';
+
+  @override
+  String get coverDownloadError => 'Não deu para baixar a imagem';
+
+  @override
+  String get cropCoverTitle => 'Cortar a imagem';
+
+  @override
+  String get tagSearchOrCreate => 'Procurar ou criar etiqueta';
+
+  @override
+  String get tagCreateHint => 'Escreva e aperte Enter para adicionar ou criar';
+
+  @override
+  String get tagNoCategories => 'Não há categorias criadas';
+
+  @override
+  String get statusWantToRead => 'Quero ler';
+
+  @override
+  String get statusReading => 'Lendo';
+
+  @override
+  String get statusRead => 'Lido';
+
+  @override
+  String get statusAbandoned => 'Abandonado';
+
+  @override
+  String get statusPaused => 'Pausado';
+
+  @override
+  String get formatDigital => 'Digital';
+
+  @override
+  String get formatOther => 'Outros';
+
+  @override
+  String get bookDetailNotFound => 'Livro não encontrado';
+
+  @override
+  String get bookDetailPagePickerTitle => 'Página atual';
+
+  @override
+  String get bookDetailNotesTitle => 'Notas pessoais';
+
+  @override
+  String get bookDetailNotesHint => 'Escreva suas notas aqui...';
+
+  @override
+  String get bookDetailNotesEmpty => 'Toque para adicionar notas...';
+
+  @override
+  String get bookDetailDeleteTitle => 'Apagar livro';
+
+  @override
+  String bookDetailDeleteConfirm(String title) {
+    return 'Eliminar \"$title\"? Esta ação não pode ser desfeita.';
+  }
+
+  @override
+  String get bookDetailDuplicateTitle => 'Duplicar livro';
+
+  @override
+  String bookDetailDuplicateConfirm(String title) {
+    return 'Quer criar uma cópia exata de \"$title\"?';
+  }
+
+  @override
+  String get bookDetailFieldPages => 'Páginas';
+
+  @override
+  String get bookDetailFieldCategories => 'Categorias';
+
+  @override
+  String get bookDetailFieldFormat => 'Formato';
+
+  @override
+  String get bookDetailFieldRating => 'Avaliação';
+
+  @override
+  String get bookDetailFieldPersonalNotes => 'Notas pessoais';
+
+  @override
+  String get bookDetailFieldAdded => 'Adicionado';
+
+  @override
+  String get bookDetailFieldStarted => 'Iniciar leitura';
+
+  @override
+  String get bookDetailFieldFinished => 'Fim da leitura';
+
+  @override
+  String pageProgress(int current, int total, String percent) {
+    return '$current / $total págs · $percent%';
+  }
+
+  @override
+  String get permissionRequired => 'Permissão necessária';
 }

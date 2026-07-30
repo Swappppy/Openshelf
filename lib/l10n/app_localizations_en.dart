@@ -106,7 +106,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterImprintLabel => 'Imprint';
 
   @override
-  String imprintBookCount(int count) {
+  String imprintBookCount(int count, Object Contagem) {
     return '$count books';
   }
 

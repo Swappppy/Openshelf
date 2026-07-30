@@ -13,8 +13,10 @@ import 'app_localizations_et.dart';
 import 'app_localizations_fr.dart';
 import 'app_localizations_it.dart';
 import 'app_localizations_ja.dart';
+import 'app_localizations_pt.dart';
 import 'app_localizations_ro.dart';
 import 'app_localizations_ru.dart';
+import 'app_localizations_tr.dart';
 
 // ignore_for_file: type=lint
 
@@ -110,8 +112,11 @@ abstract class AppLocalizations {
     Locale('fr'),
     Locale('it'),
     Locale('ja'),
+    Locale('pt'),
+    Locale('pt', 'BR'),
     Locale('ro'),
     Locale('ru'),
+    Locale('tr'),
   ];
 
   /// Nombre de la aplicación
@@ -298,7 +303,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'{count} libros'**
-  String imprintBookCount(int count);
+  String imprintBookCount(int count, Object Contagem);
 
   /// Etiqueta de sección de categorías en filtros
   ///
@@ -3074,8 +3079,10 @@ class _AppLocalizationsDelegate
     'fr',
     'it',
     'ja',
+    'pt',
     'ro',
     'ru',
+    'tr',
   ].contains(locale.languageCode);
 
   @override
@@ -3083,6 +3090,18 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'pt':
+      {
+        switch (locale.countryCode) {
+          case 'BR':
+            return AppLocalizationsPtBr();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'ca':
@@ -3101,10 +3120,14 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsIt();
     case 'ja':
       return AppLocalizationsJa();
+    case 'pt':
+      return AppLocalizationsPt();
     case 'ro':
       return AppLocalizationsRo();
     case 'ru':
       return AppLocalizationsRu();
+    case 'tr':
+      return AppLocalizationsTr();
   }
 
   throw FlutterError(

@@ -4,81 +4,81 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for Spanish Castilian (`es`).
-class AppLocalizationsEs extends AppLocalizations {
-  AppLocalizationsEs([String locale = 'es']) : super(locale);
+/// The translations for Turkish (`tr`).
+class AppLocalizationsTr extends AppLocalizations {
+  AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
   String get appTitle => 'Openshelf';
 
   @override
   String errorPrefix(String message) {
-    return 'Error: $message';
+    return 'Hata: $message';
   }
 
   @override
   String errorGeneric(String error) {
-    return 'Error: $error';
+    return 'Hata: $error';
   }
 
   @override
   String criticalStartError(String error) {
-    return 'Error al iniciar la aplicación: $error';
+    return 'Uygulamayı başlatırken bir hata meydana geldi: $error';
   }
 
   @override
-  String get navLibrary => 'Biblioteca';
+  String get navLibrary => 'Kütüphane';
 
   @override
-  String get navShelves => 'Estanterías';
+  String get navShelves => 'Raflar';
 
   @override
-  String get navStats => 'Estadísticas';
+  String get navStats => 'İstatistikler';
 
   @override
-  String get libraryTitle => 'Biblioteca';
+  String get libraryTitle => 'Kütüphane';
 
   @override
-  String get libraryEmpty => 'Tu biblioteca está vacía';
+  String get libraryEmpty => 'Kütüphaneniz henüz boş';
 
   @override
-  String get libraryEmptyHint => '¿Cuál será tu primer libro?';
+  String get libraryEmptyHint => 'Ekleyeceğiniz ilk kitap ne olacak?';
 
   @override
-  String get libraryAddFirstBook => 'Añadir primer libro';
+  String get libraryAddFirstBook => 'İlk kitabı ekle';
 
   @override
-  String get libraryNoResults => 'Sin resultados';
+  String get libraryNoResults => 'Sonuç bulunamadı';
 
   @override
-  String get libraryNoResultsHint => 'Prueba con otros filtros';
+  String get libraryNoResultsHint => 'Başka bir filtre deneyin';
 
   @override
-  String get addBook => 'Añadir libro';
+  String get addBook => 'Kitap ekle';
 
   @override
-  String get displaySettings => 'Mostrar en la biblioteca';
+  String get displaySettings => 'Kütüphanede göster';
 
   @override
-  String get displaySettingsDragHint => 'Arrastra para reordenar';
+  String get displaySettingsDragHint => 'Sırayı değiştirmek için sürükleyin';
 
   @override
-  String get settingsButton => 'Ajustes';
+  String get settingsButton => 'Ayarlar';
 
   @override
-  String get fieldAuthor => 'Autor';
+  String get fieldAuthor => 'Yazar';
 
   @override
-  String get fieldPublisher => 'Editorial';
+  String get fieldPublisher => 'Editör';
 
   @override
-  String get fieldYear => 'Año de publicación';
+  String get fieldYear => 'Yayın yılı';
 
   @override
-  String get fieldRating => 'Valoración';
+  String get fieldRating => 'Değerlendirme';
 
   @override
-  String get fieldTags => 'Etiquetas';
+  String get fieldTags => 'Etiketler';
 
   @override
   String get fieldReadingProgress => 'Progreso de lectura';
