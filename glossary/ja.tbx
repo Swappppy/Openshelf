@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE martif PUBLIC "ISO 12200:1999A//DTD MARTIF core (DXFcdV04)//EN" "TBXcdv04.dtd">
-<martif type="TBX">
+<martif type="TBX" xml:lang="es">
     <martifHeader>
         <fileDesc>
             <sourceDesc>
@@ -10,6 +10,26 @@
     </martifHeader>
     <text>
         <body>
+            <termEntry id="Unidad de almacenamiento de Openshelf">
+                <langSet xml:lang="es"><tig><term>Estantería</term></tig></langSet>
+                <langSet xml:lang="ja"><tig><term></term></tig></langSet>
+            </termEntry>
+            <termEntry id="Un tipo de tag que marca las categorias específicas del libro">
+                <langSet xml:lang="es"><tig><term>Categorías</term></tig></langSet>
+                <langSet xml:lang="ja"><tig><term></term></tig></langSet>
+            </termEntry>
+            <termEntry id="Un tipo de tag que contiene una serie de libros ordenados pro número de colección">
+                <langSet xml:lang="es"><tig><term>Colecciones</term></tig></langSet>
+                <langSet xml:lang="ja"><tig><term></term></tig></langSet>
+            </termEntry>
+            <termEntry id="Sello editorial específico dentro de una editorial">
+                <langSet xml:lang="es"><tig><term>Sello editrorial</term></tig></langSet>
+                <langSet xml:lang="ja"><tig><term></term></tig></langSet>
+            </termEntry>
+            <termEntry id="Placeholder para integers">
+                <langSet xml:lang="es"><tig><term>{count}</term></tig></langSet>
+                <langSet xml:lang="ja"><tig><term></term></tig></langSet>
+            </termEntry>
         </body>
     </text>
 </martif>
