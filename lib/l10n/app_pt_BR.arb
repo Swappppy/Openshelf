@@ -118,7 +118,7 @@
     "@filterCollection": {
         "description": "Placeholder del filtro de colección"
     },
-    "imprintBookCount": "{Contagem} livros",
+    "imprintBookCount": "{count} livros",
     "@imprintBookCount": {
         "placeholders": {
             "count": {
