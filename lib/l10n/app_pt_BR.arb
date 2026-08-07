@@ -397,10 +397,10 @@
         "description": "Progreso de lectura en formato páginas",
         "placeholders": {
             "current": {
-                "type": "int"
+                "type": "String"
             },
             "total": {
-                "type": "int"
+                "type": "String"
             },
             "percent": {
                 "type": "String"

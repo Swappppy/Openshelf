@@ -909,7 +909,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'{count, plural, =1{1 sección} other{{count} secciones}}'**
-  String bookDetailNewReadingSectionsCount(num count);
+  String bookDetailNewReadingSectionsCount(int count);
 
   /// No description provided for @bookDetailNewReadingReadCount.
   ///
@@ -969,7 +969,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Lectura {number}'**
-  String bookDetailReadNumber(Object number);
+  String bookDetailReadNumber(int number);
 
   /// No description provided for @bookDetailReadEditDialogTitle.
   ///
@@ -1053,7 +1053,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'{current} / {total}'**
-  String pageProgressShort(int current, int total);
+  String pageProgressShort(String current, String total);
 
   /// Número de páginas con sufijo
   ///
@@ -2847,7 +2847,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'El segmento {index1} se solapa con el segmento {index2}'**
-  String paginationSegmentOverlap(int index1, int index2);
+  String paginationSegmentOverlap(String index1, String index2);
 
   /// No description provided for @paginationAdvancedConfig.
   ///

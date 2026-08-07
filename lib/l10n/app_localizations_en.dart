@@ -419,7 +419,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookDetailNewReadingSections => 'Sections';
 
   @override
-  String bookDetailNewReadingSectionsCount(num count) {
+  String bookDetailNewReadingSectionsCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -461,7 +461,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookDetailReadOngoing => 'ongoing';
 
   @override
-  String bookDetailReadNumber(Object number) {
+  String bookDetailReadNumber(int number) {
     return 'Reading $number';
   }
 
@@ -505,11 +505,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pageProgress(String current, String total, String percent) {
-    return "$current / $total pages · $percent%";
+    return '$current / $total pages · $percent%';
   }
 
   @override
-  String pageProgressShort(int current, int total) {
+  String pageProgressShort(String current, String total) {
     return '$current / $total';
   }
 
@@ -1505,7 +1505,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String paginationSegmentOverlap(int index1, int index2) {
+  String paginationSegmentOverlap(String index1, String index2) {
     return 'Segment $index1 overlaps with Segment $index2';
   }
 

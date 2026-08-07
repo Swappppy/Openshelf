@@ -105,26 +105,32 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
           Center(
             child: Consumer(builder: (context, ref, _) {
               final historyAsync = ref.watch(readHistoryProvider(book.id));
+              final useVisual = book.paginationConfig?.useVisualMode ?? false;
+              
               return historyAsync.maybeWhen(
                 data: (history) {
-                  final useVisual = book.paginationConfig?.useVisualMode ?? false;
                   final currentPhys = PaginationHelper.getTotalReadPages(book, history);
                   final currentText = useVisual 
                       ? PaginationHelper.getVisualPage(currentPhys, book.paginationConfig)
                       : currentPhys.toString();
+                  final totalText = useVisual 
+                      ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
+                      : (book.totalPages ?? 0).toString();
                   return Text(
-                    '${(progress * 100).toInt()}% ($currentText)',
-                    style: TextStyle(fontSize: 8 * scale, fontWeight: FontWeight.bold),
+                    '${(progress * 100).toInt()}% ($currentText/$totalText)',
+                    style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold),
                   );
                 },
                 orElse: () {
-                  final useVisual = book.paginationConfig?.useVisualMode ?? false;
                   final currentText = useVisual 
                       ? PaginationHelper.getVisualPage(book.currentPage ?? 0, book.paginationConfig)
                       : (book.currentPage ?? 0).toString();
+                  final totalText = useVisual 
+                      ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
+                      : (book.totalPages ?? 0).toString();
                   return Text(
-                    '${(progress * 100).toInt()}% ($currentText)',
-                    style: TextStyle(fontSize: 8 * scale, fontWeight: FontWeight.bold),
+                    '${(progress * 100).toInt()}% ($currentText/$totalText)',
+                    style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold),
                   );
                 },
               );
@@ -175,69 +181,38 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                 const Spacer(),
                 Consumer(builder: (context, ref, _) {
                   final historyAsync = ref.watch(readHistoryProvider(book.id));
+                  final useVisual = book.paginationConfig?.useVisualMode ?? false;
+
                   return historyAsync.maybeWhen(
                     data: (history) {
-                      final useVisual = book.paginationConfig?.useVisualMode ?? false;
                       final currentPhys = PaginationHelper.getTotalReadPages(book, history);
-                      
                       final currentText = useVisual 
                           ? PaginationHelper.getVisualPage(currentPhys, book.paginationConfig)
                           : currentPhys.toString();
-                          
                       final totalText = useVisual 
                           ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
                           : (book.totalPages ?? 0).toString();
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4 * scale),
-                            child: LinearProgressIndicator(
-                              value: progress,
-                              minHeight: 2.5 * scale,
-                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            ),
-                          ),
-                          SizedBox(height: 1 * scale),
-                          Text(
-                            context.l10n.pageProgress(currentText, totalText, (progress * 100).toInt().toString()),
-                            style: TextStyle(fontSize: 6.5 * scale)
-                          ),
-                        ],
+                      return _ReadingProgressDisplay(
+                        progress: progress,
+                        currentText: currentText,
+                        totalText: totalText,
+                        scale: scale,
                       );
                     },
                     orElse: () {
-                      final useVisual = book.paginationConfig?.useVisualMode ?? false;
-                      final String currentText = useVisual 
+                      final currentText = useVisual 
                           ? PaginationHelper.getVisualPage(book.currentPage ?? 0, book.paginationConfig)
                           : (book.currentPage ?? 0).toString();
-                          
-                      final String totalText = useVisual 
+                      final totalText = useVisual 
                           ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
                           : (book.totalPages ?? 0).toString();
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4 * scale),
-                            child: LinearProgressIndicator(
-                              value: progress,
-                              minHeight: 2.5 * scale,
-                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            ),
-                          ),
-                          SizedBox(height: 1 * scale),
-                          Text(
-                            context.l10n.pageProgress(
-                              currentText,
-                              totalText,
-                              (progress * 100).toInt().toString(),
-                            ),
-                            style: TextStyle(fontSize: 6.5 * scale)
-                          ),
-                        ],
+                      return _ReadingProgressDisplay(
+                        progress: progress,
+                        currentText: currentText,
+                        totalText: totalText,
+                        scale: scale,
                       );
                     },
                   );
@@ -247,6 +222,46 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ReadingProgressDisplay extends StatelessWidget {
+  final double progress;
+  final String currentText;
+  final String totalText;
+  final double scale;
+
+  const _ReadingProgressDisplay({
+    required this.progress,
+    required this.currentText,
+    required this.totalText,
+    required this.scale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4 * scale),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 2.5 * scale,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          ),
+        ),
+        SizedBox(height: 1 * scale),
+        Text(
+          context.l10n.pageProgress(
+            currentText,
+            totalText,
+            (progress * 100).toInt().toString(),
+          ),
+          style: TextStyle(fontSize: 6.5 * scale),
+        ),
+      ],
     );
   }
 }

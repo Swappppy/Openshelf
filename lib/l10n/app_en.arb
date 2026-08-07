@@ -403,6 +403,9 @@
   "bookDetailNewReadingWholeBookDescription": "A complete re-read will be recorded starting today.",
   "bookDetailNewReadingSections": "Sections",
   "bookDetailNewReadingSectionsCount": "{count, plural, =1{1 section} other{{count} sections}}",
+  "@bookDetailNewReadingSectionsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "bookDetailNewReadingReadCount": "Read {count}x",
   "bookDetailNewReadingSelectSections": "Select sections to re-read",
   "bookDetailStartNewReadingPrompt": "Do you want to start a new reading session?",
@@ -413,6 +416,9 @@
   "bookDetailReadHistoryTitle": "READING HISTORY",
   "bookDetailReadOngoing": "ongoing",
   "bookDetailReadNumber": "Reading {number}",
+  "@bookDetailReadNumber": {
+    "placeholders": { "number": { "type": "int" } }
+  },
   "bookDetailReadEditDialogTitle": "Edit reading {number}",
   "bookDetailReadDeleteConfirm": "Delete this history entry?",
   "bookDetailReadNumberLabel": "Reading number",
@@ -458,8 +464,8 @@
   "@pageProgressShort": {
     "description": "Short reading progress",
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": { "type": "String" },
+      "total": { "type": "String" }
     }
   },
 
@@ -1196,8 +1202,8 @@
   "paginationSegmentOverlap": "Segment {index1} overlaps with Segment {index2}",
   "@paginationSegmentOverlap": {
     "placeholders": {
-      "index1": { "type": "int" },
-      "index2": { "type": "int" }
+      "index1": { "type": "String" },
+      "index2": { "type": "String" }
     }
   },
   "paginationAdvancedConfig": "Advanced Configuration",

@@ -142,7 +142,7 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       for (int j = 0; j < i; j++) {
         final prev = _segments[j];
         if (s.startPhysical <= prev.endPhysical && s.endPhysical >= prev.startPhysical) {
-          errors.add(context.l10n.paginationSegmentOverlap(i + 1, j + 1));
+          errors.add(context.l10n.paginationSegmentOverlap((i + 1) as String, (j + 1) as String));
         }
       }
     }
