@@ -12,6 +12,7 @@ class DetailsTab extends ConsumerWidget {
   final TextEditingController languageCtrl;
   final TextEditingController publishYearCtrl;
   final TextEditingController translatorCtrl;
+  final TextEditingController collectionNumberCtrl;
   final List<Tag> selectedCollections;
   final Tag? selectedImprint;
   final DateTime? startedAt;
@@ -29,6 +30,7 @@ class DetailsTab extends ConsumerWidget {
     required this.languageCtrl,
     required this.publishYearCtrl,
     required this.translatorCtrl,
+    required this.collectionNumberCtrl,
     required this.selectedCollections,
     required this.selectedImprint,
     this.startedAt,
@@ -76,6 +78,14 @@ class DetailsTab extends ConsumerWidget {
           icon: Icons.collections_bookmark_outlined,
           multiSelection: false,
         ),
+        const SizedBox(height: 12),
+        if (selectedCollections.isNotEmpty)
+          FormFieldWidget(
+            controller: collectionNumberCtrl,
+            label: context.l10n.fieldCollectionNumber,
+            icon: Icons.tag,
+            keyboardType: TextInputType.number,
+          ),
         const SizedBox(height: 24),
 
         SectionHeader(label: context.l10n.sectionImprint),

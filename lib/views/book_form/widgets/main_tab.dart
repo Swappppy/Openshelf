@@ -216,7 +216,7 @@ class MainTab extends ConsumerWidget {
                 controller: currentPageCtrl,
                 label: context.l10n.fieldCurrentPage,
                 icon: Icons.bookmark_outline,
-                keyboardType: TextInputType.number,
+                keyboardType: paginationConfig?.useVisualMode == true ? TextInputType.text : TextInputType.number,
               ),
             ),
           ],

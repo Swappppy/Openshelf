@@ -6,6 +6,8 @@ import '../../../services/database.dart';
 import '../../../models/stats_widget.dart';
 import '../../book_detail/book_detail_view.dart';
 import '../../../l10n/l10n_extension.dart';
+import '../../../utils/pagination_helper.dart';
+import '../../../controllers/read_history_controller.dart';
 import 'widget_header.dart';
 import 'stats_scale_helper.dart';
 
@@ -101,10 +103,32 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
           ),
           SizedBox(height: 2 * scale),
           Center(
-            child: Text(
-              '${(progress * 100).toInt()}%',
-              style: TextStyle(fontSize: 9 * scale, fontWeight: FontWeight.bold),
-            ),
+            child: Consumer(builder: (context, ref, _) {
+              final historyAsync = ref.watch(readHistoryProvider(book.id));
+              return historyAsync.maybeWhen(
+                data: (history) {
+                  final useVisual = book.paginationConfig?.useVisualMode ?? false;
+                  final currentPhys = PaginationHelper.getTotalReadPages(book, history);
+                  final currentText = useVisual 
+                      ? PaginationHelper.getVisualPage(currentPhys, book.paginationConfig)
+                      : currentPhys.toString();
+                  return Text(
+                    '${(progress * 100).toInt()}% ($currentText)',
+                    style: TextStyle(fontSize: 8 * scale, fontWeight: FontWeight.bold),
+                  );
+                },
+                orElse: () {
+                  final useVisual = book.paginationConfig?.useVisualMode ?? false;
+                  final currentText = useVisual 
+                      ? PaginationHelper.getVisualPage(book.currentPage ?? 0, book.paginationConfig)
+                      : (book.currentPage ?? 0).toString();
+                  return Text(
+                    '${(progress * 100).toInt()}% ($currentText)',
+                    style: TextStyle(fontSize: 8 * scale, fontWeight: FontWeight.bold),
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),
@@ -149,19 +173,75 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const Spacer(),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4 * scale),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 2.5 * scale,
-                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  ),
-                ),
-                SizedBox(height: 1 * scale),
-                Text(
-                  '${book.currentPage} / ${book.totalPages} págs · ${(progress * 100).toInt()}%', 
-                  style: TextStyle(fontSize: 6.5 * scale)
-                ),
+                Consumer(builder: (context, ref, _) {
+                  final historyAsync = ref.watch(readHistoryProvider(book.id));
+                  return historyAsync.maybeWhen(
+                    data: (history) {
+                      final useVisual = book.paginationConfig?.useVisualMode ?? false;
+                      final currentPhys = PaginationHelper.getTotalReadPages(book, history);
+                      
+                      final currentText = useVisual 
+                          ? PaginationHelper.getVisualPage(currentPhys, book.paginationConfig)
+                          : currentPhys.toString();
+                          
+                      final totalText = useVisual 
+                          ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
+                          : (book.totalPages ?? 0).toString();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4 * scale),
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              minHeight: 2.5 * scale,
+                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            ),
+                          ),
+                          SizedBox(height: 1 * scale),
+                          Text(
+                            context.l10n.pageProgress(currentText, totalText, (progress * 100).toInt().toString()),
+                            style: TextStyle(fontSize: 6.5 * scale)
+                          ),
+                        ],
+                      );
+                    },
+                    orElse: () {
+                      final useVisual = book.paginationConfig?.useVisualMode ?? false;
+                      final String currentText = useVisual 
+                          ? PaginationHelper.getVisualPage(book.currentPage ?? 0, book.paginationConfig)
+                          : (book.currentPage ?? 0).toString();
+                          
+                      final String totalText = useVisual 
+                          ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
+                          : (book.totalPages ?? 0).toString();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4 * scale),
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              minHeight: 2.5 * scale,
+                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            ),
+                          ),
+                          SizedBox(height: 1 * scale),
+                          Text(
+                            context.l10n.pageProgress(
+                              currentText,
+                              totalText,
+                              (progress * 100).toInt().toString(),
+                            ),
+                            style: TextStyle(fontSize: 6.5 * scale)
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }),
               ],
             ),
           ),

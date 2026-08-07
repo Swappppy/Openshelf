@@ -234,9 +234,7 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
                       ),
                     ),
                     Text(
-                      currentInSegment == 0
-                          ? context.l10n.paginationProgress(s.type == PageNumberingType.roman ? '-' : '0', visualMax)
-                          : '${context.l10n.paginationCurrentPageShort} ${PaginationHelper.getVisualPageInSegment(s.startPhysical + currentInSegment - 1, s)} / $visualMax',
+                      '${context.l10n.paginationCurrentPageShort} ${PaginationHelper.getVisualPageInSegment(s.startPhysical + currentInSegment - 1, s)} / $visualMax',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ],

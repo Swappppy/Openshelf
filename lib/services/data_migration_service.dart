@@ -326,10 +326,21 @@ class DataMigrationService {
     await _db.transaction(() async {
       for (final row in rows.skip(1)) {
         final comp = _mapRow(head, row, localBaseDir: localBaseDir);
-        final exist = await (_db.bookDao.select(_db.bookDao.books)..where((t) => t.title.equals(comp.title.value) & t.author.equals(comp.author.value))).getSingleOrNull();
+        final isbn = comp.isbn.value;
+        
+        Book? exist;
+        if (isbn != null && isbn.isNotEmpty) {
+          exist = await (_db.bookDao.select(_db.bookDao.books)..where((t) => t.isbn.equals(isbn))).getSingleOrNull();
+        }
           
-        int bookId = exist?.id ?? await _db.bookDao.into(_db.bookDao.books).insert(comp);
-        if (exist == null) imported++;
+        int bookId;
+        if (exist != null) {
+          bookId = exist.id;
+          await (_db.bookDao.update(_db.bookDao.books)..where((t) => t.id.equals(bookId))).write(comp);
+        } else {
+          bookId = await _db.bookDao.into(_db.bookDao.books).insert(comp);
+          imported++;
+        }
 
         final oldId = ImportExportUtils.parseInt(_get(head, row, 'id'));
         if (oldId != null) bookIdMap?[oldId] = bookId;
@@ -340,11 +351,11 @@ class DataMigrationService {
         final status = comp.status.value;
         if (bookIdMap == null && (status == ReadingStatus.reading || status == ReadingStatus.read)) {
           final historyExist = await _db.readHistoryDao.getRead(bookId, 1);
-          if (historyExist == null) {
-            final total = comp.totalPages.value ?? 0;
-            final current = comp.currentPage.value ?? 0;
-            final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
+          final total = comp.totalPages.value ?? 0;
+          final current = comp.currentPage.value ?? 0;
+          final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
 
+          if (historyExist == null) {
             await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
               bookId: bookId,
               readNumber: 1,
@@ -353,6 +364,27 @@ class DataMigrationService {
               progress: Value(progress),
               segmentProgress: Value(progress > 0 ? {0: progress} : null),
             ));
+          } else if (progress > historyExist.progress) {
+             await _db.readHistoryDao.updateRead(historyExist.copyWith(
+               progress: progress,
+               finishedAt: comp.finishedAt,
+             ));
+          }
+
+          // Also create a log entry if missing to populate charts
+          if (progress > 0) {
+            final logDate = comp.finishedAt.value ?? comp.startedAt.value ?? comp.createdAt.value;
+            final dateOnly = DateTime(logDate.year, logDate.month, logDate.day);
+            final logExist = await (_db.logDao.select(_db.logDao.readingLog)
+              ..where((l) => l.bookId.equals(bookId) & l.date.equals(dateOnly))).getSingleOrNull();
+            
+            if (logExist == null) {
+              await _db.logDao.insertLog(ReadingLogCompanion.insert(
+                bookId: bookId,
+                date: dateOnly,
+                pagesRead: progress,
+              ));
+            }
           }
         }
 

@@ -448,8 +448,8 @@
   "@pageProgress": {
     "description": "Progreso de lectura en formato páginas",
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" },
+      "current": { "type": "String" },
+      "total": { "type": "String" },
       "percent": { "type": "String" }
     }
   },

@@ -138,29 +138,35 @@ class PaginationMarker {
 class PaginationConfig {
   final List<PaginationSegment> segments;
   final List<PaginationMarker> markers;
+  final bool useVisualMode;
 
   PaginationConfig({
     this.segments = const [],
     this.markers = const [],
+    this.useVisualMode = false,
   });
 
   Map<String, dynamic> toJson() => {
     'segments': segments.map((s) => s.toJson()).toList(),
     'markers': markers.map((m) => m.toJson()).toList(),
+    'useVisualMode': useVisualMode,
   };
 
   factory PaginationConfig.fromJson(Map<String, dynamic> json) => PaginationConfig(
     segments: (json['segments'] as List? ?? []).map((s) => PaginationSegment.fromJson(s)).toList(),
     markers: (json['markers'] as List? ?? []).map((m) => PaginationMarker.fromJson(m)).toList(),
+    useVisualMode: json['useVisualMode'] ?? false,
   );
 
   PaginationConfig copyWith({
     List<PaginationSegment>? segments,
     List<PaginationMarker>? markers,
+    bool? useVisualMode,
   }) {
     return PaginationConfig(
       segments: segments ?? this.segments,
       markers: markers ?? this.markers,
+      useVisualMode: useVisualMode ?? this.useVisualMode,
     );
   }
 }

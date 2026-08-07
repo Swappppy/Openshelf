@@ -303,7 +303,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'{count} libros'**
-  String imprintBookCount(int count, Object Contagem);
+  String imprintBookCount(int count);
 
   /// Etiqueta de sección de categorías en filtros
   ///
@@ -1047,7 +1047,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'{current} / {total} págs · {percent}%'**
-  String pageProgress(int current, int total, String percent);
+  String pageProgress(String current, String total, String percent);
 
   /// Progreso de lectura corto
   ///

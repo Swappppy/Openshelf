@@ -105,7 +105,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get filterImprintLabel => '';
 
   @override
-  String imprintBookCount(int count, Object Contagem) {
+  String imprintBookCount(int count) {
     return '';
   }
 
@@ -504,8 +504,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bookDetailFieldFinished => '';
 
   @override
-  String pageProgress(int current, int total, String percent) {
-    return '';
+  String pageProgress(String current, String total, String percent) {
+    return "$current / $total págs · $percent%";
   }
 
   @override

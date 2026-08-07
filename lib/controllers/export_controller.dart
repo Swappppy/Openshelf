@@ -58,9 +58,6 @@ class ExportController {
     final db = ref.read(databaseProvider);
     final l10n = context.l10n;
     try {
-      final String? selectedDirectory = await FilePicker.getDirectoryPath();
-      if (selectedDirectory == null) return;
-
       onLoading(true, l10n.loadingExport);
       final migration = DataMigrationService(db);
       
@@ -78,13 +75,22 @@ class ExportController {
       );
 
       final String fileName = 'openshelf_backup_${DateTime.now().millisecondsSinceEpoch}.zip';
-      final String destPath = p.join(selectedDirectory, fileName);
-      await zipFile.copy(destPath);
+      
+      // Use saveFile instead of getDirectoryPath for better platform compatibility
+      final result = await FilePicker.saveFile(
+        dialogTitle: 'Save Openshelf Backup',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+        bytes: await zipFile.readAsBytes(),
+      );
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.exportSaveSuccess(destPath))),
-        );
+      if (result != null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.exportSaveSuccess(result))),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {

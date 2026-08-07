@@ -112,14 +112,25 @@ class GoodreadsImportService {
         if (readCount > 0) {
           for (int n = 1; n <= readCount; n++) {
             final progress = totalPages ?? 0;
+            final finishedDate = n == readCount ? (finishedAt ?? createdAt) : createdAt;
+            
             await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
               bookId: bookId,
               readNumber: n,
               startedAt: Value(createdAt),
-              finishedAt: Value(n == readCount ? finishedAt : createdAt),
+              finishedAt: Value(finishedDate),
               progress: Value(progress),
               segmentProgress: Value(progress > 0 ? {0: progress} : null),
             ));
+
+            if (progress > 0) {
+              final dateOnly = DateTime(finishedDate.year, finishedDate.month, finishedDate.day);
+              await _db.logDao.insertLog(ReadingLogCompanion.insert(
+                bookId: bookId,
+                date: dateOnly,
+                pagesRead: progress,
+              ));
+            }
           }
         } else if (companion.status.value == ReadingStatus.reading) {
           await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
@@ -128,6 +139,13 @@ class GoodreadsImportService {
             startedAt: Value(createdAt),
             progress: const Value(1),
             segmentProgress: const Value({0: 1}),
+          ));
+
+          final dateOnly = DateTime(createdAt.year, createdAt.month, createdAt.day);
+          await _db.logDao.insertLog(ReadingLogCompanion.insert(
+            bookId: bookId,
+            date: dateOnly,
+            pagesRead: 1,
           ));
         }
 

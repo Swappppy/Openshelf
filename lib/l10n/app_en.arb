@@ -448,8 +448,8 @@
   "@pageProgress": {
     "description": "Reading progress pages",
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" },
+      "current": { "type": "String" },
+      "total": { "type": "String" },
       "percent": { "type": "String" }
     }
   },

@@ -221,11 +221,13 @@ class BookListTile extends ConsumerWidget {
                           current: PaginationHelper.getTotalReadPages(book, history),
                           total: book.totalPages!,
                           status: book.status,
+                          config: book.paginationConfig,
                         ),
                         orElse: () => _ProgressBar(
                           current: 0,
                           total: book.totalPages!,
                           status: book.status,
+                          config: book.paginationConfig,
                         ),
                       );
                     }),
@@ -332,17 +334,28 @@ class _ProgressBar extends StatelessWidget {
   final int current;
   final int total;
   final ReadingStatus status;
+  final PaginationConfig? config;
 
   const _ProgressBar({
     required this.current,
     required this.total,
     required this.status,
+    this.config,
   });
 
   @override
   Widget build(BuildContext context) {
     final percent = (current / total).clamp(0.0, 1.0);
     final color = _getStatusColor(status);
+    final useVisual = config?.useVisualMode ?? false;
+
+    final String currentText = useVisual 
+        ? PaginationHelper.getVisualPage(current, config)
+        : current.toString();
+        
+    final String totalText = useVisual 
+        ? PaginationHelper.getVisualPage(total, config)
+        : total.toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,8 +370,8 @@ class _ProgressBar extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           context.l10n.pageProgress(
-            current,
-            total,
+            currentText,
+            totalText,
             (percent * 100).toStringAsFixed(0),
           ),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(

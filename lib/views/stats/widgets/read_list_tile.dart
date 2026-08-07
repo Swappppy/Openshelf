@@ -56,8 +56,7 @@ class ReadListTile extends ConsumerWidget {
         // Sort by finishedAt descending (last read first)
         filtered.sort((a, b) => b.finishedAt!.compareTo(a.finishedAt!));
 
-        final displayBooks = filtered.take(10).toList();
-        final remainingCount = filtered.length - displayBooks.length;
+        final displayBooks = filtered;
 
         return Padding(
           padding: const EdgeInsets.all(14),
@@ -67,9 +66,12 @@ class ReadListTile extends ConsumerWidget {
               Row(
                 children: [
                   Expanded(
-                    child: WidgetHeader(
-                      title: _getPeriodLabel(context, period),
-                      icon: Icons.checklist_rtl,
+                    child: InkWell(
+                      onTap: () => _openFullList(context, filtered, _getPeriodLabel(context, period)),
+                      child: WidgetHeader(
+                        title: _getPeriodLabel(context, period),
+                        icon: Icons.checklist_rtl,
+                      ),
                     ),
                   ),
                   _buildPeriodMenu(context, ref, liveConfig),
@@ -90,34 +92,19 @@ class ReadListTile extends ConsumerWidget {
                   child: Column(
                     children: [
                       Expanded(
-                        child: ListView.separated(
-                          padding: EdgeInsets.zero,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: displayBooks.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
-                          itemBuilder: (context, index) {
-                            final book = displayBooks[index];
-                            return _buildBookItem(context, book);
-                          },
-                        ),
-                      ),
-                      if (remainingCount > 0) ...[
-                        const SizedBox(height: 4),
-                        InkWell(
-                          onTap: () => _openFullList(context, filtered, _getPeriodLabel(context, period)),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                              '+$remainingCount ${context.l10n.tabMore}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
+                        child: Scrollbar(
+                          child: ListView.separated(
+                            padding: EdgeInsets.zero,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: displayBooks.length,
+                            separatorBuilder: (_, _) => const SizedBox(height: 8),
+                            itemBuilder: (context, index) {
+                              final book = displayBooks[index];
+                              return _buildBookItem(context, book);
+                            },
                           ),
                         ),
-                      ],
+                      ),
                     ],
                   ),
                 ),

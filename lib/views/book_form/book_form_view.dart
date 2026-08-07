@@ -10,6 +10,7 @@ import '../../l10n/l10n_extension.dart';
 import 'cover_picker_sheet.dart';
 import 'widgets/main_tab.dart';
 import 'widgets/details_tab.dart';
+import 'package:openshelf/utils/pagination_helper.dart';
 
 /// Form for adding a new book or editing an existing one.
 /// Supports prefilling from external search results and handling M:M relationships.
@@ -96,11 +97,18 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _coverPath = b.coverPath;
       _startedAt = b.startedAt;
       _finishedAt = b.finishedAt;
-      _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
+      _paginationConfig = b.paginationConfig;
+      
+      final useVisual = _paginationConfig?.useVisualMode ?? false;
+      if (useVisual) {
+        _currentPageCtrl.text = PaginationHelper.getVisualPage(b.currentPage ?? 0, _paginationConfig);
+      } else {
+        _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
+      }
+      
       _loadExistingTags(b.id);
       _loadExistingImprint(b.id);
       _loadExistingCollection(b.id, b.collectionId, b.collectionName);
-      _paginationConfig = b.paginationConfig;
     } else if (pre?.coverUrl != null) {
       // Auto-prefill cover from provided URL in the background
       _prefillCoverFromUrl(pre!.coverUrl!);
@@ -154,15 +162,21 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       }
     });
     final total = int.tryParse(_totalPagesCtrl.text);
+    final useVisual = _paginationConfig?.useVisualMode ?? false;
+
     switch (s) {
       case ReadingStatus.wantToRead:
         _currentPageCtrl.text = '0';
         break;
       case ReadingStatus.reading:
-        if (_currentPageCtrl.text == '0') _currentPageCtrl.text = '1';
+        if (_currentPageCtrl.text == '0') {
+           _currentPageCtrl.text = useVisual ? PaginationHelper.getVisualPage(1, _paginationConfig) : '1';
+        }
         break;
       case ReadingStatus.read:
-        if (total != null) _currentPageCtrl.text = total.toString();
+        if (total != null) {
+           _currentPageCtrl.text = useVisual ? PaginationHelper.getVisualPage(total, _paginationConfig) : total.toString();
+        }
         break;
       case ReadingStatus.abandoned:
       case ReadingStatus.paused:
@@ -335,11 +349,15 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
     setState(() => _isSaving = true);
 
-    final newPage = int.tryParse(_currentPageCtrl.text) ?? 0;
-    final collectionId = _selectedCollections.firstOrNull?.id;
-    final collectionName = _selectedCollections.firstOrNull?.name;
-    final imprintId = _selectedImprint?.id;
+    final rawPageText = _currentPageCtrl.text.trim();
     final total = int.tryParse(_totalPagesCtrl.text) ?? 0;
+    
+    int newPage = 0;
+    if (_paginationConfig?.useVisualMode == true) {
+      newPage = PaginationHelper.getPhysicalFromVisual(rawPageText, _paginationConfig!);
+    } else {
+      newPage = int.tryParse(rawPageText) ?? 0;
+    }
     
     // Auto-adjust and sanitize pagination config if total pages changed
     PaginationConfig? finalConfig = _paginationConfig;
@@ -364,8 +382,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       finalConfig = PaginationConfig(
         segments: sanitizedSegments, 
         markers: finalConfig.markers.where((m) => m.physicalPage <= total).toList(),
+        useVisualMode: finalConfig.useVisualMode,
       );
     }
+
+    final saveColId = _selectedCollections.firstOrNull?.id;
+    final saveColName = _selectedCollections.firstOrNull?.name;
+    final saveImpId = _selectedImprint?.id;
 
     final companion = BooksCompanion(
       title: Value(_titleCtrl.text.trim()),
@@ -383,15 +406,15 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
       description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
       coverPath: Value(_coverPath),
-      collectionName: Value(collectionName),
-      collectionId: Value(collectionId != null && collectionId > 0 ? collectionId : null),
+      collectionName: Value(saveColName),
+      collectionId: Value(saveColId != null && saveColId > 0 ? saveColId : null),
       collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
       publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       copies: Value(int.tryParse(_copiesCtrl.text) ?? 1),
       paginationConfig: Value(finalConfig),
       startedAt: Value(_startedAt),
       finishedAt: Value(_finishedAt),
-      imprintId: Value(imprintId != null && imprintId > 0 ? imprintId : null),
+      imprintId: Value(saveImpId != null && saveImpId > 0 ? saveImpId : null),
     );
 
     final tagIds = _selectedTags.map((t) => t.id).toList();
@@ -455,9 +478,17 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   void _updateStatusFromPages() {
     if (_isInitializing) return;
     
-    final current = int.tryParse(_currentPageCtrl.text);
+    final rawPageText = _currentPageCtrl.text.trim();
     final total = int.tryParse(_totalPagesCtrl.text);
-    if (current == null || total == null || total == 0) return;
+    if (rawPageText.isEmpty || total == null || total == 0) return;
+
+    final useVisual = _paginationConfig?.useVisualMode ?? false;
+    int current = 0;
+    if (useVisual) {
+       current = PaginationHelper.getPhysicalFromVisual(rawPageText, _paginationConfig!);
+    } else {
+       current = int.tryParse(rawPageText) ?? 0;
+    }
 
     // Do not auto-update if status is terminal or paused
     if (_status == ReadingStatus.abandoned || _status == ReadingStatus.paused) return;
@@ -556,7 +587,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onPickCoverFromUrl: _pickCoverFromUrl,
               onSearchCovers: _searchCovers,
               paginationConfig: _paginationConfig,
-              onPaginationConfigChanged: (cfg) => setState(() => _paginationConfig = cfg),
+              onPaginationConfigChanged: (cfg) {
+                setState(() => _paginationConfig = cfg);
+                final newTotal = PaginationHelper.calculateTotalPhysicalPages(cfg);
+                if (newTotal > 0) {
+                  _totalPagesCtrl.text = newTotal.toString();
+                }
+              },
             ),
             DetailsTab(
               notesCtrl: _notesCtrl,
@@ -564,6 +601,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               languageCtrl: _languageCtrl,
               publishYearCtrl: _publishYearCtrl,
               translatorCtrl: _translatorCtrl,
+              collectionNumberCtrl: _collectionNumberCtrl,
               selectedCollections: _selectedCollections,
               selectedImprint: _selectedImprint,
               startedAt: _startedAt,

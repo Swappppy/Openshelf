@@ -105,6 +105,16 @@ class BookshelfImportService {
             progress: Value(progress),
             segmentProgress: Value(progress > 0 ? {0: progress} : null),
           ));
+
+          if (progress > 0) {
+            final logDate = finishedAt ?? startedAt ?? companion.createdAt.value;
+            final dateOnly = DateTime(logDate.year, logDate.month, logDate.day);
+            await _db.logDao.insertLog(ReadingLogCompanion.insert(
+              bookId: bookId,
+              date: dateOnly,
+              pagesRead: progress,
+            ));
+          }
         }
 
         // Link Collection

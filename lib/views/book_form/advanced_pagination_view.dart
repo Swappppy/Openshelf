@@ -30,6 +30,7 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
     super.initState();
     _segments = List.from(widget.initialConfig.segments);
     _markers = List.from(widget.initialConfig.markers);
+    _useVisual = widget.initialConfig.useVisualMode;
   }
 
   void _addSegment() {
@@ -46,17 +47,15 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       }
     }
 
-    if (firstAvailable > widget.totalPages) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.paginationAllPagesAssigned)),
-      );
-      return;
-    }
+    /* 
+       Removing the check against widget.totalPages to allow segments to define the total pages.
+       We only check if the last segment can be added based on its startPhysical.
+    */
     
     setState(() {
       _segments.add(PaginationSegment(
         startPhysical: firstAvailable,
-        endPhysical: widget.totalPages,
+        endPhysical: firstAvailable + 9, // Default to a 10-page block
         type: PageNumberingType.arabic,
         color: null,
       ));
@@ -81,7 +80,6 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
           final newStart = prev.endPhysical + 1;
           int newEnd = current.endPhysical;
           if (newEnd < newStart) newEnd = newStart;
-          if (newEnd > widget.totalPages) newEnd = widget.totalPages;
           
           current = current.copyWith(
             startPhysical: newStart,
@@ -90,20 +88,20 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
         }
 
         // B) Recalculate offset based on mode
-        int newOffset = 0;
-        if (_useVisual) {
-          // Visual Mode: Partitioned continuity
-          // Search backwards for the last segment of the same type
-          for (int j = i - 1; j >= 0; j--) {
-            if (_segments[j].type == current.type) {
-              newOffset = (_segments[j].endPhysical - _segments[j].startPhysical + 1) + _segments[j].offset;
-              break;
+        int newOffset = current.offset;
+        if (i > index) {
+          if (_useVisual) {
+            // Visual Mode: Partitioned continuity
+            // Search backwards for the last segment of the same type
+            newOffset = 0;
+            for (int j = i - 1; j >= 0; j--) {
+              if (_segments[j].type == current.type) {
+                newOffset = (_segments[j].endPhysical - _segments[j].startPhysical + 1) + _segments[j].offset;
+                break;
+              }
             }
-          }
-          // If no previous segment of same type found, newOffset remains 0 (starts at 1)
-        } else {
-          // Physical Mode: Strict sequential continuity
-          if (i > 0) {
+          } else {
+            // Physical Mode: Strict sequential continuity
             final prev = _segments[i - 1];
             newOffset = (prev.endPhysical - prev.startPhysical + 1) + prev.offset;
           }
@@ -135,9 +133,10 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       if (s.startPhysical > s.endPhysical) {
         errors.add(context.l10n.paginationSegmentStartGreater(i + 1));
       }
-      if (s.startPhysical > widget.totalPages || s.endPhysical > widget.totalPages) {
-        errors.add(context.l10n.paginationSegmentExceedsTotal(i + 1, widget.totalPages));
-      }
+      /* 
+         Removed check against widget.totalPages. 
+         The advanced config is now the source of truth for total pages.
+      */
 
       // Check for overlaps with previous segments
       for (int j = 0; j < i; j++) {
@@ -155,16 +154,6 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
   Widget build(BuildContext context) {
     final validationErrors = _getValidationErrors();
     
-    // Calculate unassigned pages by checking all physical pages covered
-    int assignedCount = 0;
-    for (final s in _segments) {
-      if (s.startPhysical > 0 && s.endPhysical >= s.startPhysical) {
-        assignedCount += (s.endPhysical - s.startPhysical + 1);
-      }
-    }
-    final int unassignedCount = widget.totalPages - assignedCount;
-    final bool allPagesAssigned = unassignedCount <= 0 && _segments.isNotEmpty;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.paginationAdvancedConfig),
@@ -172,7 +161,11 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: validationErrors.isNotEmpty ? null : () {
-              widget.onSave(PaginationConfig(segments: _segments, markers: _markers));
+              widget.onSave(PaginationConfig(
+                segments: _segments, 
+                markers: _markers,
+                useVisualMode: _useVisual,
+              ));
               Navigator.pop(context);
             },
           ),
@@ -233,34 +226,6 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
             icon: const Icon(Icons.add),
             label: Text(context.l10n.paginationAddBlock),
           ),
-          
-          if (allPagesAssigned)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                context.l10n.paginationAllPagesAssignedNote,
-                style: const TextStyle(color: Colors.blue, fontSize: 10),
-              ),
-            ),
-
-          if (unassignedCount > 0)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.l10n.paginationPagesRemainingWarning(unassignedCount),
-                    style: const TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    context.l10n.paginationPhysicalTotalNote,
-                    style: const TextStyle(color: Colors.grey, fontSize: 9, fontStyle: FontStyle.italic),
-                  ),
-                ],
-              ),
-            ),
             
           if (validationErrors.isNotEmpty)
             Padding(

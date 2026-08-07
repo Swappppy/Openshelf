@@ -10,24 +10,21 @@ class PaginationHelper {
 
     final segment = config.segments.firstWhere(
       (s) => physicalPage >= s.startPhysical && physicalPage <= s.endPhysical,
-      orElse: () => config.segments.last,
+      orElse: () => physicalPage == 0 ? config.segments.first : config.segments.last,
     );
 
     return getVisualPageInSegment(physicalPage, segment);
   }
 
   static String getVisualPageInSegment(int physicalPage, PaginationSegment segment) {
-    // If physicalPage is exactly startPhysical - 1, it means 0 pages read in this segment
-    if (physicalPage < segment.startPhysical) {
-      return segment.type == PageNumberingType.roman ? '-' : '0';
-    }
-
-    // Clamp physicalPage to segment bounds for calculation
-    final clampedPhys = physicalPage.clamp(segment.startPhysical, segment.endPhysical);
-    final pageInSegment = clampedPhys - segment.startPhysical + 1;
+    // Determine the page number within this segment
+    // If physicalPage is startPhysical - 1 (or less), it's 0 progress in this segment
+    final int pageInSegment = (physicalPage < segment.startPhysical) ? 0 : (physicalPage - segment.startPhysical + 1);
+    
     final visualValue = pageInSegment + segment.offset;
 
     if (segment.type == PageNumberingType.roman) {
+      if (visualValue <= 0) return '-';
       return _toRoman(visualValue);
     }
 
@@ -115,7 +112,7 @@ class PaginationHelper {
 
       // physical = visual - 1 - offset + start
       final phys = value - s.offset - 1 + s.startPhysical;
-      if (phys >= s.startPhysical && phys <= s.endPhysical) {
+      if (phys >= s.startPhysical - 1 && phys <= s.endPhysical) {
         return phys;
       }
     }
@@ -167,5 +164,10 @@ class PaginationHelper {
       }
     }
     return result;
+  }
+
+  static int calculateTotalPhysicalPages(PaginationConfig config) {
+    if (config.segments.isEmpty) return 0;
+    return config.segments.map((s) => s.endPhysical).reduce((a, b) => a > b ? a : b);
   }
 }

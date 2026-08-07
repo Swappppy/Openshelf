@@ -105,7 +105,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get filterImprintLabel => 'Sello editorial';
 
   @override
-  String imprintBookCount(int count, Object Contagem) {
+  String imprintBookCount(int count) {
     return '$count libros';
   }
 
@@ -505,8 +505,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get bookDetailFieldFinished => 'Fin lectura';
 
   @override
-  String pageProgress(int current, int total, String percent) {
-    return '$current / $total págs · $percent%';
+  String pageProgress(String current, String total, String percent) {
+    return "$current / $total págs · $percent%";
   }
 
   @override
@@ -1741,8 +1741,8 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get filterImprintLabel => 'Selo editorial';
 
   @override
-  String imprintBookCount(int count, Object Contagem) {
-    return '$Contagem livros';
+  String imprintBookCount(int count) {
+    return '$count livros';
   }
 
   @override
@@ -2022,8 +2022,8 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get bookDetailFieldFinished => 'Fim da leitura';
 
   @override
-  String pageProgress(int current, int total, String percent) {
-    return '$current / $total págs · $percent%';
+  String pageProgress(String current, String total, String percent) {
+    return "$current / $total págs · $percent%";
   }
 
   @override

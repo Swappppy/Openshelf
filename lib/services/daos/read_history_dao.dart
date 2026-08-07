@@ -10,6 +10,8 @@ class ReadHistoryDao extends DatabaseAccessor<AppDatabase> with _$ReadHistoryDao
   Stream<List<ReadHistoryData>> watchHistoryForBook(int bookId) =>
       (select(readHistory)..where((h) => h.bookId.equals(bookId))..orderBy([(h) => OrderingTerm(expression: h.readNumber, mode: OrderingMode.asc)])).watch();
 
+  Stream<List<ReadHistoryData>> watchAllHistory() => select(readHistory).watch();
+
   Future<int> insertRead(ReadHistoryCompanion entry) => into(readHistory).insert(entry);
 
   Future<bool> updateRead(ReadHistoryData entry) => update(readHistory).replace(entry);

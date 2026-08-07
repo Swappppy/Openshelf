@@ -223,7 +223,16 @@ class MainTab extends StatelessWidget {
                   data: (history) {
                     final totalRead = PaginationHelper.getTotalReadPages(book, history);
                     final totalPages = book.totalPages ?? 0;
-                    
+                    final useVisual = book.paginationConfig?.useVisualMode ?? false;
+
+                    final String currentText = useVisual 
+                        ? PaginationHelper.getVisualPage(totalRead, book.paginationConfig)
+                        : totalRead.toString();
+                        
+                    final String totalText = useVisual 
+                        ? PaginationHelper.getVisualPage(totalPages, book.paginationConfig)
+                        : totalPages.toString();
+
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -246,7 +255,7 @@ class MainTab extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    '$totalRead / $totalPages',
+                                    '$currentText / $totalText',
                                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),

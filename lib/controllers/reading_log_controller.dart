@@ -101,8 +101,8 @@ final readingStreakProvider = StreamProvider<int>((ref) {
 final totalPagesReadProvider = StreamProvider<int>((ref) {
   final db = ref.watch(databaseProvider);
   
-  return db.logDao.watchLogs().map((logs) {
-    return logs.fold(0, (sum, log) => sum + log.pagesRead);
+  return db.readHistoryDao.watchAllHistory().map((history) {
+    return history.fold(0, (sum, h) => sum + h.progress);
   });
 });
 
