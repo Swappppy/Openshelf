@@ -82,7 +82,7 @@
     },
     "scanBatch": "Escanear em lote",
     "@scanBatch": {
-        "description": "Opción de escanear en lote"
+        "description": "Opción de escanear em lote"
     },
     "scanBatchSubtitle": "Escanear vários livros seguidos",
     "@scanBatchSubtitle": {

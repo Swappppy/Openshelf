@@ -99,52 +99,6 @@ class ReadListTile extends ConsumerWidget {
     );
   }
 
-  Widget _buildBookItem(BuildContext context, Book book) {
-    return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
-      ),
-      child: Row(
-        children: [
-          if (book.coverPath != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Image.file(File(book.coverPath!), width: 24, height: 36, fit: BoxFit.cover),
-            )
-          else
-            Container(
-              width: 24, height: 36,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Icon(Icons.book, size: 14, color: Colors.white24),
-            ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  book.title,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  book.author,
-                  style: const TextStyle(fontSize: 10, color: Colors.grey),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPeriodMenu(BuildContext context, WidgetRef ref, StatWidgetConfig liveConfig) {
     return PopupMenuButton<String>(

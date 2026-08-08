@@ -36,7 +36,31 @@ void main() async {
     runApp(
       MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+        supportedLocales: [
+          const Locale('en'),
+          ...AppLocalizations.supportedLocales.where((l) => l.languageCode != 'en'),
+        ],
+        localeListResolutionCallback: (locales, supportedLocales) {
+          if (locales != null && locales.isNotEmpty) {
+            for (final locale in locales) {
+              for (final supported in supportedLocales) {
+                if (supported.languageCode == locale.languageCode &&
+                    supported.countryCode == locale.countryCode) {
+                  return supported;
+                }
+              }
+              for (final supported in supportedLocales) {
+                if (supported.languageCode == locale.languageCode) {
+                  return supported;
+                }
+              }
+            }
+          }
+          return supportedLocales.firstWhere(
+            (l) => l.languageCode == 'en',
+            orElse: () => supportedLocales.first,
+          );
+        },
         home: Scaffold(
           body: Center(
             child: Text(
@@ -67,7 +91,31 @@ class OpenshelfApp extends ConsumerWidget {
       themeMode: settings.themeMode,
       locale: settings.locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
+      supportedLocales: [
+        const Locale('en'),
+        ...AppLocalizations.supportedLocales.where((l) => l.languageCode != 'en'),
+      ],
+      localeListResolutionCallback: (locales, supportedLocales) {
+        if (locales != null && locales.isNotEmpty) {
+          for (final locale in locales) {
+            for (final supported in supportedLocales) {
+              if (supported.languageCode == locale.languageCode &&
+                  supported.countryCode == locale.countryCode) {
+                return supported;
+              }
+            }
+            for (final supported in supportedLocales) {
+              if (supported.languageCode == locale.languageCode) {
+                return supported;
+              }
+            }
+          }
+        }
+        return supportedLocales.firstWhere(
+          (l) => l.languageCode == 'en',
+          orElse: () => supportedLocales.first,
+        );
+      },
       home: settings.hasSeenOnboarding ? const LibraryView() : const OnboardingView(),
     );
   }
