@@ -1855,8 +1855,19 @@ class $BookTagsTable extends BookTags with TableInfo<$BookTagsTable, BookTag> {
       'REFERENCES tags (id) ON DELETE CASCADE',
     ),
   );
+  static const VerificationMeta _collectionNumberMeta = const VerificationMeta(
+    'collectionNumber',
+  );
   @override
-  List<GeneratedColumn> get $columns => [bookId, tagId];
+  late final GeneratedColumn<int> collectionNumber = GeneratedColumn<int>(
+    'collection_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [bookId, tagId, collectionNumber];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1885,6 +1896,15 @@ class $BookTagsTable extends BookTags with TableInfo<$BookTagsTable, BookTag> {
     } else if (isInserting) {
       context.missing(_tagIdMeta);
     }
+    if (data.containsKey('collection_number')) {
+      context.handle(
+        _collectionNumberMeta,
+        collectionNumber.isAcceptableOrUnknown(
+          data['collection_number']!,
+          _collectionNumberMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1902,6 +1922,10 @@ class $BookTagsTable extends BookTags with TableInfo<$BookTagsTable, BookTag> {
         DriftSqlType.int,
         data['${effectivePrefix}tag_id'],
       )!,
+      collectionNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}collection_number'],
+      ),
     );
   }
 
@@ -1914,17 +1938,31 @@ class $BookTagsTable extends BookTags with TableInfo<$BookTagsTable, BookTag> {
 class BookTag extends DataClass implements Insertable<BookTag> {
   final int bookId;
   final int tagId;
-  const BookTag({required this.bookId, required this.tagId});
+  final int? collectionNumber;
+  const BookTag({
+    required this.bookId,
+    required this.tagId,
+    this.collectionNumber,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['book_id'] = Variable<int>(bookId);
     map['tag_id'] = Variable<int>(tagId);
+    if (!nullToAbsent || collectionNumber != null) {
+      map['collection_number'] = Variable<int>(collectionNumber);
+    }
     return map;
   }
 
   BookTagsCompanion toCompanion(bool nullToAbsent) {
-    return BookTagsCompanion(bookId: Value(bookId), tagId: Value(tagId));
+    return BookTagsCompanion(
+      bookId: Value(bookId),
+      tagId: Value(tagId),
+      collectionNumber: collectionNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectionNumber),
+    );
   }
 
   factory BookTag.fromJson(
@@ -1935,6 +1973,7 @@ class BookTag extends DataClass implements Insertable<BookTag> {
     return BookTag(
       bookId: serializer.fromJson<int>(json['bookId']),
       tagId: serializer.fromJson<int>(json['tagId']),
+      collectionNumber: serializer.fromJson<int?>(json['collectionNumber']),
     );
   }
   @override
@@ -1943,15 +1982,28 @@ class BookTag extends DataClass implements Insertable<BookTag> {
     return <String, dynamic>{
       'bookId': serializer.toJson<int>(bookId),
       'tagId': serializer.toJson<int>(tagId),
+      'collectionNumber': serializer.toJson<int?>(collectionNumber),
     };
   }
 
-  BookTag copyWith({int? bookId, int? tagId}) =>
-      BookTag(bookId: bookId ?? this.bookId, tagId: tagId ?? this.tagId);
+  BookTag copyWith({
+    int? bookId,
+    int? tagId,
+    Value<int?> collectionNumber = const Value.absent(),
+  }) => BookTag(
+    bookId: bookId ?? this.bookId,
+    tagId: tagId ?? this.tagId,
+    collectionNumber: collectionNumber.present
+        ? collectionNumber.value
+        : this.collectionNumber,
+  );
   BookTag copyWithCompanion(BookTagsCompanion data) {
     return BookTag(
       bookId: data.bookId.present ? data.bookId.value : this.bookId,
       tagId: data.tagId.present ? data.tagId.value : this.tagId,
+      collectionNumber: data.collectionNumber.present
+          ? data.collectionNumber.value
+          : this.collectionNumber,
     );
   }
 
@@ -1959,44 +2011,51 @@ class BookTag extends DataClass implements Insertable<BookTag> {
   String toString() {
     return (StringBuffer('BookTag(')
           ..write('bookId: $bookId, ')
-          ..write('tagId: $tagId')
+          ..write('tagId: $tagId, ')
+          ..write('collectionNumber: $collectionNumber')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(bookId, tagId);
+  int get hashCode => Object.hash(bookId, tagId, collectionNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is BookTag &&
           other.bookId == this.bookId &&
-          other.tagId == this.tagId);
+          other.tagId == this.tagId &&
+          other.collectionNumber == this.collectionNumber);
 }
 
 class BookTagsCompanion extends UpdateCompanion<BookTag> {
   final Value<int> bookId;
   final Value<int> tagId;
+  final Value<int?> collectionNumber;
   final Value<int> rowid;
   const BookTagsCompanion({
     this.bookId = const Value.absent(),
     this.tagId = const Value.absent(),
+    this.collectionNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BookTagsCompanion.insert({
     required int bookId,
     required int tagId,
+    this.collectionNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : bookId = Value(bookId),
        tagId = Value(tagId);
   static Insertable<BookTag> custom({
     Expression<int>? bookId,
     Expression<int>? tagId,
+    Expression<int>? collectionNumber,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (bookId != null) 'book_id': bookId,
       if (tagId != null) 'tag_id': tagId,
+      if (collectionNumber != null) 'collection_number': collectionNumber,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2004,11 +2063,13 @@ class BookTagsCompanion extends UpdateCompanion<BookTag> {
   BookTagsCompanion copyWith({
     Value<int>? bookId,
     Value<int>? tagId,
+    Value<int?>? collectionNumber,
     Value<int>? rowid,
   }) {
     return BookTagsCompanion(
       bookId: bookId ?? this.bookId,
       tagId: tagId ?? this.tagId,
+      collectionNumber: collectionNumber ?? this.collectionNumber,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2022,6 +2083,9 @@ class BookTagsCompanion extends UpdateCompanion<BookTag> {
     if (tagId.present) {
       map['tag_id'] = Variable<int>(tagId.value);
     }
+    if (collectionNumber.present) {
+      map['collection_number'] = Variable<int>(collectionNumber.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2033,6 +2097,7 @@ class BookTagsCompanion extends UpdateCompanion<BookTag> {
     return (StringBuffer('BookTagsCompanion(')
           ..write('bookId: $bookId, ')
           ..write('tagId: $tagId, ')
+          ..write('collectionNumber: $collectionNumber, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6510,12 +6575,14 @@ typedef $$BookTagsTableCreateCompanionBuilder =
     BookTagsCompanion Function({
       required int bookId,
       required int tagId,
+      Value<int?> collectionNumber,
       Value<int> rowid,
     });
 typedef $$BookTagsTableUpdateCompanionBuilder =
     BookTagsCompanion Function({
       Value<int> bookId,
       Value<int> tagId,
+      Value<int?> collectionNumber,
       Value<int> rowid,
     });
 
@@ -6567,6 +6634,11 @@ class $$BookTagsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<int> get collectionNumber => $composableBuilder(
+    column: $table.collectionNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$BooksTableFilterComposer get bookId {
     final $$BooksTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -6623,6 +6695,11 @@ class $$BookTagsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<int> get collectionNumber => $composableBuilder(
+    column: $table.collectionNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BooksTableOrderingComposer get bookId {
     final $$BooksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -6679,6 +6756,11 @@ class $$BookTagsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<int> get collectionNumber => $composableBuilder(
+    column: $table.collectionNumber,
+    builder: (column) => column,
+  );
+
   $$BooksTableAnnotationComposer get bookId {
     final $$BooksTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -6756,17 +6838,24 @@ class $$BookTagsTableTableManager
               ({
                 Value<int> bookId = const Value.absent(),
                 Value<int> tagId = const Value.absent(),
+                Value<int?> collectionNumber = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) =>
-                  BookTagsCompanion(bookId: bookId, tagId: tagId, rowid: rowid),
+              }) => BookTagsCompanion(
+                bookId: bookId,
+                tagId: tagId,
+                collectionNumber: collectionNumber,
+                rowid: rowid,
+              ),
           createCompanionCallback:
               ({
                 required int bookId,
                 required int tagId,
+                Value<int?> collectionNumber = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BookTagsCompanion.insert(
                 bookId: bookId,
                 tagId: tagId,
+                collectionNumber: collectionNumber,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

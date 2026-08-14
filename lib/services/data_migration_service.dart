@@ -388,20 +388,33 @@ class DataMigrationService {
           }
         }
 
-        // Tags
+        // Gather Tags and Collections
+        final tagIds = <int>[];
+        final collections = <(int, int?)>[];
+
+        // 1. Categories
         final cats = _get(head, row, 'categories')?.split('|') ?? [];
         final clrs = _get(head, row, 'categoryColors')?.split('|') ?? [];
-        final ids = <int>[];
         for (int j = 0; j < cats.length; j++) {
           final name = cats[j].trim();
           if (name.isNotEmpty) {
             final color = (j < clrs.length) ? clrs[j].nullIfEmpty() : null;
-            ids.add(await _getOrCreateTag(name, TagType.tag, color: color));
+            tagIds.add(await _getOrCreateTag(name, TagType.tag, color: color));
           }
         }
-        if (ids.isNotEmpty) await _db.tagDao.setBookTags(bookId, ids);
 
-        // Imprint
+        // 2. Collection
+        final collName = _get(head, row, 'collectionName')?.trim();
+        if (collName != null && collName.isNotEmpty) {
+          final tid = await _getOrCreateTag(collName, TagType.collection);
+          final vol = ImportExportUtils.parseInt(_get(head, row, 'collectionNumber'));
+          collections.add((tid, vol));
+        }
+
+        // Sync to BookTags
+        await _db.tagDao.setBookTags(bookId, tagIds, collections: collections);
+
+        // Imprint - still One-to-One
         final impName = _get(head, row, 'imprintName')?.trim();
         if (impName != null && impName.isNotEmpty) {
           final img = _get(head, row, 'imprintImage')?.trim();
@@ -415,22 +428,6 @@ class DataMigrationService {
         } else {
           // If no imprint name in CSV, ensure we don't keep a stale one if updating
           if (exist != null) await _db.bookDao.setBookImprint(bookId, null);
-        }
-
-        // Collection: always resolve by name so IDs are correct even when the
-        // backup was created on a different DB instance (raw collectionId would
-        // point to the wrong tag after re-import).
-        // Falls back to collectionName field, which the export always populates.
-        final collName = _get(head, row, 'collectionName')?.trim();
-        if (collName != null && collName.isNotEmpty) {
-          final tid = await _getOrCreateTag(collName, TagType.collection);
-          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId)))
-              .write(BooksCompanion(collectionId: Value(tid)));
-        } else {
-          if (exist != null) {
-            await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId)))
-                .write(const BooksCompanion(collectionId: Value(null)));
-          }
         }
       }
     });

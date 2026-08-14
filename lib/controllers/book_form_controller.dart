@@ -96,6 +96,7 @@ class BookFormController {
     Book? existingBook,
     required BooksCompanion companion,
     required List<int> tagIds,
+    required List<(int, int?)> collections,
     required int? newPage,
     required int? oldPage,
     required ReadingStatus status,
@@ -158,7 +159,7 @@ class BookFormController {
       }
     }
 
-    await _db.tagDao.setBookTags(bookId, tagIds);
+    await _db.tagDao.setBookTags(bookId, tagIds, collections: collections);
     await _db.tagDao.pruneOrphanTags();
     ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
 

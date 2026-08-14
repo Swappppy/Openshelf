@@ -12,14 +12,13 @@ class DetailsTab extends ConsumerWidget {
   final TextEditingController languageCtrl;
   final TextEditingController publishYearCtrl;
   final TextEditingController translatorCtrl;
-  final TextEditingController collectionNumberCtrl;
-  final List<Tag> selectedCollections;
+  final List<(Tag, int?)> selectedCollections;
   final Tag? selectedImprint;
   final DateTime? startedAt;
   final DateTime? finishedAt;
   final ValueChanged<DateTime?> onStartedAtChanged;
   final ValueChanged<DateTime?> onFinishedAtChanged;
-  final ValueChanged<List<Tag>> onCollectionsChanged;
+  final ValueChanged<List<(Tag, int?)>> onCollectionsChanged;
   final ValueChanged<Tag?> onImprintChanged;
   final TextEditingController copiesCtrl;
 
@@ -30,7 +29,6 @@ class DetailsTab extends ConsumerWidget {
     required this.languageCtrl,
     required this.publishYearCtrl,
     required this.translatorCtrl,
-    required this.collectionNumberCtrl,
     required this.selectedCollections,
     required this.selectedImprint,
     this.startedAt,
@@ -44,6 +42,8 @@ class DetailsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -70,22 +70,100 @@ class DetailsTab extends ConsumerWidget {
 
         SectionHeader(label: context.l10n.fieldCollection),
         const SizedBox(height: 12),
+        ...selectedCollections.asMap().entries.map((entry) {
+          final index = entry.key;
+          final col = entry.value.$1;
+          final number = entry.value.$2;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: colorScheme.outlineVariant),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.collections_bookmark_outlined, size: 20, color: colorScheme.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            col.name,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 72,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        prefix: Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Text(
+                            '#',
+                            style: TextStyle(
+                              color: colorScheme.onSurface.withValues(alpha: 0.5),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                        isDense: true,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      keyboardType: TextInputType.number,
+                      controller: TextEditingController(text: number?.toString() ?? '')
+                        ..selection = TextSelection.fromPosition(
+                          TextPosition(offset: (number?.toString() ?? '').length),
+                        ),
+                      onChanged: (value) {
+                        final newNumber = int.tryParse(value);
+                        final newList = List<(Tag, int?)>.from(selectedCollections);
+                        newList[index] = (col, newNumber);
+                        onCollectionsChanged(newList);
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                    onPressed: () {
+                      final newList = List<(Tag, int?)>.from(selectedCollections);
+                      newList.removeAt(index);
+                      onCollectionsChanged(newList);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
         EntityFieldSelector(
-          selected: selectedCollections,
-          onChanged: onCollectionsChanged,
+          selected: const [],
+          onChanged: (list) {
+            if (list.isNotEmpty) {
+              final newTag = list.last;
+              if (!selectedCollections.any((c) => c.$1.id == newTag.id)) {
+                onCollectionsChanged([...selectedCollections, (newTag, null)]);
+              }
+            }
+          },
           type: TagType.collection,
           label: context.l10n.fieldCollection,
-          icon: Icons.collections_bookmark_outlined,
-          multiSelection: false,
+          icon: Icons.add,
+          multiSelection: true,
         ),
-        const SizedBox(height: 12),
-        if (selectedCollections.isNotEmpty)
-          FormFieldWidget(
-            controller: collectionNumberCtrl,
-            label: context.l10n.fieldCollectionNumber,
-            icon: Icons.tag,
-            keyboardType: TextInputType.number,
-          ),
         const SizedBox(height: 24),
 
         SectionHeader(label: context.l10n.sectionImprint),

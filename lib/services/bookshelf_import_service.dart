@@ -117,29 +117,35 @@ class BookshelfImportService {
           }
         }
 
-        // Link Collection
+        // Gather Tags and Collections
+        final tagIds = <int>[];
+        final collections = <(int, int?)>[];
+
+        // 1. Categories
+        final catsRaw = _str(row, _colCategories).nullIfEmpty();
+        if (catsRaw != null) {
+          final names = catsRaw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+          for (final name in names) {
+            tagIds.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
+          }
+        }
+
+        // 2. Collection (Series)
         final collName = _str(row, _colSeries).nullIfEmpty();
         if (collName != null) {
           final id = await ImportExportUtils.getOrCreateTag(_db, collName, TagType.collection);
-          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(collectionId: Value(id)));
+          final vol = ImportExportUtils.parseInt(_str(row, _colVolume));
+          collections.add((id, vol));
         }
 
-        // Link Imprint (Publisher)
+        // Sync to BookTags
+        await _db.tagDao.setBookTags(bookId, tagIds, collections: collections);
+
+        // Link Imprint (Publisher) - still One-to-One
         final publisher = _str(row, _colPublisher).nullIfEmpty();
         if (publisher != null) {
           final id = await ImportExportUtils.getOrCreateTag(_db, publisher, TagType.imprint);
           await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(imprintId: Value(id)));
-        }
-
-        // Link Categories
-        final catsRaw = _str(row, _colCategories).nullIfEmpty();
-        if (catsRaw != null) {
-          final names = catsRaw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
-          final ids = <int>[];
-          for (final name in names) {
-            ids.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
-          }
-          if (ids.isNotEmpty) await _db.tagDao.setBookTags(bookId, ids);
         }
 
         imported++;

@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -269,6 +269,30 @@ class AppDatabase extends _$AppDatabase {
           // 3. Drop and recreate books table to remove the column (SQLite doesn't support DROP COLUMN easily via drift alterTable for all cases)
           // Drift's alterTable handles column removal by recreating the table if necessary.
           await m.alterTable(TableMigration(books));
+        });
+      }
+      if (from < 24) {
+        await m.addColumn(bookTags, bookTags.collectionNumber);
+        
+        await transaction(() async {
+          final booksWithCollections = await customSelect(
+            'SELECT id, collection_id, collection_number FROM books WHERE collection_id IS NOT NULL'
+          ).get();
+
+          for (final row in booksWithCollections) {
+            final bookId = row.read<int>('id');
+            final tagId = row.read<int>('collection_id');
+            final colNum = row.readNullable<int>('collection_number');
+
+            await into(bookTags).insert(
+              BookTagsCompanion.insert(
+                bookId: bookId,
+                tagId: tagId,
+                collectionNumber: Value(colNum),
+              ),
+              mode: InsertMode.insertOrIgnore,
+            );
+          }
         });
       }
     },

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -45,7 +44,6 @@ class DetailsTab extends ConsumerWidget {
             ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
             const SizedBox(height: 24),
 
-            // Collection section
             Text(
               context.l10n.fieldCollection.toUpperCase(),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -55,90 +53,100 @@ class DetailsTab extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            if (book.collectionName != null && book.collectionName!.isNotEmpty)
-              Consumer(builder: (context, ref, _) {
-                final tagsAsync = ref.watch(allCollectionsProvider);
-                return tagsAsync.maybeWhen(
-                  data: (allCols) {
-                    final collection = allCols.where((t) => t.id == book.collectionId).firstOrNull;
-                    if (collection == null) return Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge);
-                    
-                    return GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => TagBooksView(tag: collection),
-                        ),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface,
-                          border: Border.all(
-                            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            Consumer(builder: (context, ref, _) {
+              final collectionsAsync = ref.watch(bookCollectionsProvider(book.id));
+              return collectionsAsync.maybeWhen(
+                data: (list) {
+                  if (list.isEmpty) {
+                    if (book.collectionName != null && book.collectionName!.isNotEmpty) {
+                       return Text(book.collectionName!, style: Theme.of(context).textTheme.bodyLarge);
+                    }
+                    return Text('—', style: Theme.of(context).textTheme.bodyLarge);
+                  }
+                  
+                  return Column(
+                    children: list.map((item) {
+                      final collection = item.$1;
+                      final number = item.$2;
+                      
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TagBooksView(tag: collection),
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            // Collection number placeholder
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                                borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surface,
+                              border: Border.all(
+                                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
                               ),
-                              child: Center(
-                                child: Text(
-                                  book.collectionNumber?.toString() ?? '#',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurface.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 48,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      number?.toString() ?? '#',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: colorScheme.onSurface.withValues(alpha: 0.5),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    collection.name,
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Consumer(builder: (context, ref, _) {
-                                    final countAsync = ref.watch(booksByCollectionProvider(collection.id));
-                                    return countAsync.maybeWhen(
-                                      data: (list) => Text(
-                                        context.l10n.imprintBookCount(list.length),
-                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                          color: colorScheme.outline,
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        collection.name,
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
                                         ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      orElse: () => const SizedBox.shrink(),
-                                    );
-                                  }),
-                                ],
-                              ),
+                                      const SizedBox(height: 2),
+                                      Consumer(builder: (context, ref, _) {
+                                        final countAsync = ref.watch(booksByCollectionProvider(collection.id));
+                                        return countAsync.maybeWhen(
+                                          data: (list) => Text(
+                                            context.l10n.imprintBookCount(list.length),
+                                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                              color: colorScheme.outline,
+                                            ),
+                                          ),
+                                          orElse: () => const SizedBox.shrink(),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                                Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
+                              ],
                             ),
-                            Icon(Icons.chevron_right, color: colorScheme.outline, size: 20),
-                          ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  orElse: () => Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge),
-                );
-              })
-            else
-              Text('—', style: Theme.of(context).textTheme.bodyLarge),
+                      );
+                    }).toList(),
+                  );
+                },
+                orElse: () => Text(book.collectionName ?? '—', style: Theme.of(context).textTheme.bodyLarge),
+              );
+            }),
 
             const SizedBox(height: 24),
 

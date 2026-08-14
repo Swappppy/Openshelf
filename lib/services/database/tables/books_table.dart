@@ -41,6 +41,7 @@ class Books extends Table {
 class BookTags extends Table {
   IntColumn get bookId => integer().references(Books, #id, onDelete: KeyAction.cascade)();
   IntColumn get tagId => integer().references(Tags, #id, onDelete: KeyAction.cascade)();
+  IntColumn get collectionNumber => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {bookId, tagId};

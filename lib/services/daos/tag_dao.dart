@@ -53,10 +53,11 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
     });
   }
 
-  Future<void> setBookTags(int bookId, List<int> tagIds) async {
+  Future<void> setBookTags(int bookId, List<int> tagIds, {List<(int, int?)>? collections}) async {
     await transaction(() async {
       await (delete(bookTags)
         ..where((bt) => bt.bookId.equals(bookId))).go();
+      
       for (final tagId in tagIds) {
         await into(bookTags).insert(
           BookTagsCompanion(
@@ -64,6 +65,18 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
             tagId: Value(tagId),
           ),
         );
+      }
+
+      if (collections != null) {
+        for (final col in collections) {
+          await into(bookTags).insert(
+            BookTagsCompanion(
+              bookId: Value(bookId),
+              tagId: Value(col.$1),
+              collectionNumber: Value(col.$2),
+            ),
+          );
+        }
       }
     });
   }
@@ -91,6 +104,20 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
     return query.watch().map(
           (rows) => rows.map((r) => r.readTable(tags)).toList(),
     );
+  }
+
+  Stream<List<(Tag, int?)>> watchCollectionsForBook(int bookId) {
+    final query = select(tags).join([
+      innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
+    ])
+      ..where(bookTags.bookId.equals(bookId))
+      ..where(tags.type.equalsValue(TagType.collection));
+
+    return query.watch().map((rows) => rows.map((r) {
+          final tag = r.readTable(tags);
+          final number = r.readTable(bookTags).collectionNumber;
+          return (tag, number);
+        }).toList());
   }
 
   Stream<List<String>> watchTopTagNamesForBooks(List<int> bookIds, {int limit = 3}) {
@@ -162,9 +189,9 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
   }
 
   Stream<List<(Tag, int)>> watchCollectionsWithCounts() {
-    final countExp = books.id.count();
+    final countExp = bookTags.bookId.count();
     final query = select(tags).join([
-      leftOuterJoin(books, books.collectionId.equalsExp(tags.id)),
+      leftOuterJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
     ])
       ..where(tags.type.equalsValue(TagType.collection))
       ..addColumns([countExp])

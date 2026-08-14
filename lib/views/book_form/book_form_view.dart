@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' hide Column;
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/database.dart';
@@ -53,7 +54,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   DateTime? _startedAt;
   DateTime? _finishedAt;
   List<Tag> _selectedTags = [];        
-  List<Tag> _selectedCollections = [];
+  List<(Tag, int?)> _selectedCollections = [];
   Tag? _selectedImprint;
   PaginationConfig? _paginationConfig;
   bool _isInitializing = true;
@@ -86,10 +87,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
     _copiesCtrl = TextEditingController(text: b?.copies.toString() ?? '1');
         
-    _collectionNameCtrl.addListener(() {
-      if (mounted) setState(() {});
-    });
-
     if (b != null) {
       _status = b.status;
       _format = b.bookFormat;
@@ -386,8 +383,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       );
     }
 
-    final saveColId = _selectedCollections.firstOrNull?.id;
-    final saveColName = _selectedCollections.firstOrNull?.name;
+    final firstCol = _selectedCollections.firstOrNull;
     final saveImpId = _selectedImprint?.id;
 
     final companion = BooksCompanion(
@@ -406,9 +402,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
       description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
       coverPath: Value(_coverPath),
-      collectionName: Value(saveColName),
-      collectionId: Value(saveColId != null && saveColId > 0 ? saveColId : null),
-      collectionNumber: Value(int.tryParse(_collectionNumberCtrl.text)),
+      collectionName: Value(firstCol?.$1.name),
+      collectionId: Value(firstCol != null && firstCol.$1.id > 0 ? firstCol.$1.id : null),
+      collectionNumber: Value(firstCol?.$2),
       publishYear: Value(int.tryParse(_publishYearCtrl.text)),
       copies: Value(int.tryParse(_copiesCtrl.text) ?? 1),
       paginationConfig: Value(finalConfig),
@@ -418,11 +414,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     );
 
     final tagIds = _selectedTags.map((t) => t.id).toList();
+    final collections = _selectedCollections.map((c) => (c.$1.id, c.$2)).toList();
 
     await ref.read(bookFormControllerProvider).saveBook(
       existingBook: widget.existingBook,
       companion: companion,
       tagIds: tagIds,
+      collections: collections,
       newPage: newPage,
       oldPage: widget.existingBook?.currentPage,
       status: _status,
@@ -451,26 +449,32 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   Future<void> _loadExistingCollection(int bookId, int? collectionId, String? collectionName) async {
     final db = ref.read(databaseProvider);
     
-    // First, try to load by ID (source of truth)
+    final existing = await db.tagDao.watchCollectionsForBook(bookId).first;
+    if (!mounted) return;
+    
+    if (existing.isNotEmpty) {
+      setState(() => _selectedCollections = existing);
+      return;
+    }
+
+    // Fallback for legacy data if it wasn't migrated yet (unlikely given migration)
     if (collectionId != null) {
       final col = await (db.tagDao.select(db.tagDao.tags)..where((t) => t.id.equals(collectionId))).getSingleOrNull();
       if (col != null) {
-        setState(() => _selectedCollections = [col]);
+        setState(() => _selectedCollections = [(col, int.tryParse(_collectionNumberCtrl.text))]);
         return;
       }
     }
 
-    // Fallback: search by name if ID was null or missing
     if (collectionName != null && collectionName.isNotEmpty) {
       final col = await (db.tagDao.select(db.tagDao.tags)
         ..where((t) => t.name.equals(collectionName) & t.type.equalsValue(TagType.collection))
       ).getSingleOrNull();
       
       if (col != null) {
-        setState(() => _selectedCollections = [col]);
+        setState(() => _selectedCollections = [(col, int.tryParse(_collectionNumberCtrl.text))]);
       } else {
-        // Handle legacy case where the tag might have been deleted but the name remains
-        setState(() => _selectedCollections = [Tag(id: -1, name: collectionName, type: TagType.collection)]);
+        setState(() => _selectedCollections = [(Tag(id: -1, name: collectionName, type: TagType.collection), int.tryParse(_collectionNumberCtrl.text))]);
       }
     }
   }
@@ -601,7 +605,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               languageCtrl: _languageCtrl,
               publishYearCtrl: _publishYearCtrl,
               translatorCtrl: _translatorCtrl,
-              collectionNumberCtrl: _collectionNumberCtrl,
               selectedCollections: _selectedCollections,
               selectedImprint: _selectedImprint,
               startedAt: _startedAt,

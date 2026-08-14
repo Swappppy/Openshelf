@@ -43,6 +43,7 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         await into(bookTags).insert(BookTagsCompanion.insert(
           bookId: newId,
           tagId: tag.tagId,
+          collectionNumber: Value(tag.collectionNumber),
         ));
       }
 
@@ -80,6 +81,18 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
 
   Future<Book?> getBookByIsbn(String isbn) =>
       (select(books)..where((b) => b.isbn.equals(isbn))).getSingleOrNull();
+
+  Stream<List<(Book, int?)>> watchBooksByCollectionWithNumbers(int collectionId) {
+    final query = select(books).join([
+      innerJoin(bookTags, bookTags.bookId.equalsExp(books.id)),
+    ])
+      ..where(bookTags.tagId.equals(collectionId))
+      ..orderBy([OrderingTerm.asc(bookTags.collectionNumber)]);
+
+    return query.watch().map((rows) => rows.map((r) {
+          return (r.readTable(books), r.readTable(bookTags).collectionNumber);
+        }).toList());
+  }
 
   Future<bool> existsByTitleAndAuthor(String title, String author) async {
     final query = select(books)
@@ -142,7 +155,10 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
           expr = expr & b.language.contains(language);
         }
         if (collectionIds != null && collectionIds.isNotEmpty) {
-          expr = expr & b.collectionId.isIn(collectionIds);
+          final bookIdsWithCollection = selectOnly(bookTags)
+            ..addColumns([bookTags.bookId])
+            ..where(bookTags.tagId.isIn(collectionIds));
+          expr = expr & b.id.isInQuery(bookIdsWithCollection);
         }
         if (imprintIds != null && imprintIds.isNotEmpty) {
           expr = expr & b.imprintId.isIn(imprintIds);
@@ -222,7 +238,10 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
             expr = expr & b.language.contains(language);
           }
           if (collectionIds != null && collectionIds.isNotEmpty) {
-            expr = expr & b.collectionId.isIn(collectionIds);
+            final bookIdsWithCollection = selectOnly(bookTags)
+              ..addColumns([bookTags.bookId])
+              ..where(bookTags.tagId.isIn(collectionIds));
+            expr = expr & b.id.isInQuery(bookIdsWithCollection);
           }
           if (imprintIds != null && imprintIds.isNotEmpty) {
             expr = expr & b.imprintId.isIn(imprintIds);

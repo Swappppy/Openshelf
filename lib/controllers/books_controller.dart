@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
 import '../models/shelf.dart';
@@ -112,6 +113,10 @@ final bookTagsProvider = StreamProvider.family<List<Tag>, int>((ref, bookId) {
   return ref.watch(databaseProvider).tagDao.watchTagsForBook(bookId);
 });
 
+final bookCollectionsProvider = StreamProvider.family<List<(Tag, int?)>, int>((ref, bookId) {
+  return ref.watch(databaseProvider).tagDao.watchCollectionsForBook(bookId);
+});
+
 final allTagsProvider = StreamProvider<List<Tag>>((ref) {
   return ref.watch(databaseProvider).tagDao.watchTagsByType(TagType.tag);
 });
@@ -153,7 +158,9 @@ final booksByTagProvider = StreamProvider.family<List<Book>, int>((ref, tagId) {
 
 final booksByCollectionProvider = StreamProvider.family<List<Book>, int>((ref, collectionId) {
   final db = ref.watch(databaseProvider);
-  return db.bookDao.watchBooksFiltered(collectionIds: [collectionId]);
+  return db.bookDao.watchBooksByCollectionWithNumbers(collectionId).map((list) {
+    return list.map((item) => item.$1.copyWith(collectionNumber: Value(item.$2))).toList();
+  });
 });
 
 final imprintBookCountProvider = StreamProvider.family<int, int>((ref, imprintId) {
