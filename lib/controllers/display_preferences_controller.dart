@@ -27,10 +27,14 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
   }
 
   void toggleViewMode() {
+    final newMode = state.viewMode == LibraryViewMode.list
+        ? LibraryViewMode.grid
+        : LibraryViewMode.list;
+    
     _save(state.copyWith(
-      viewMode: state.viewMode == LibraryViewMode.list
-          ? LibraryViewMode.grid
-          : LibraryViewMode.list,
+      viewMode: newMode,
+      // If switching to list view, ensure info is enabled
+      showGridInfo: newMode == LibraryViewMode.list ? true : state.showGridInfo,
     ));
   }
 
@@ -50,6 +54,8 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
       _save(state.copyWith(showYear: !state.showYear));
   void toggleShowSpacer() =>
       _save(state.copyWith(showSpacer: !state.showSpacer));
+  void toggleShowGridInfo() =>
+      _save(state.copyWith(showGridInfo: !state.showGridInfo));
 
   // --- Reordering Logic ---
 

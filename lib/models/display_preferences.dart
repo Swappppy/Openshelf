@@ -44,6 +44,7 @@ class DisplayPreferences {
   final List<String> shelvesSectionOrder;
   final bool showYear; 
   final bool showSpacer;
+  final bool showGridInfo;
   
   // Library Sorting
   final List<String> sortOrder;
@@ -79,6 +80,7 @@ class DisplayPreferences {
     this.shelvesSectionOrder = const [..._defaultShelvesSectionOrder],
     this.showYear = true,
     this.showSpacer = true,
+    this.showGridInfo = true,
     
     // Library
     this.sortOrder = const [..._defaultSortOrder],
@@ -120,6 +122,7 @@ class DisplayPreferences {
       'shelvesSectionOrder': shelvesSectionOrder,
       'showYear': showYear,
       'showSpacer': showSpacer,
+      'showGridInfo': showGridInfo,
       'sortOrder': sortOrder,
       'sortDirections': sortDirections,
       'emptyAtEnd': emptyAtEnd,
@@ -148,6 +151,7 @@ class DisplayPreferences {
       shelvesSectionOrder: (json['shelvesSectionOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultShelvesSectionOrder],
       showYear: json['showYear'] as bool? ?? true,
       showSpacer: json['showSpacer'] as bool? ?? true,
+      showGridInfo: json['showGridInfo'] as bool? ?? true,
       sortOrder: (json['sortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultSortOrder],
       sortDirections: (json['sortDirections'] as Map<String, dynamic>?)?.cast<String, bool>() ?? const {
         'title': true, 'author': true, 'publisher': true, 
@@ -179,6 +183,7 @@ class DisplayPreferences {
     List<String>? shelvesSectionOrder,
     bool? showYear,
     bool? showSpacer,
+    bool? showGridInfo,
     
     List<String>? sortOrder,
     Map<String, bool>? sortDirections,
@@ -209,6 +214,7 @@ class DisplayPreferences {
       shelvesSectionOrder: shelvesSectionOrder ?? this.shelvesSectionOrder,
       showYear: showYear ?? this.showYear,
       showSpacer: showSpacer ?? this.showSpacer,
+      showGridInfo: showGridInfo ?? this.showGridInfo,
       
       sortOrder: sortOrder ?? this.sortOrder,
       sortDirections: sortDirections ?? this.sortDirections,

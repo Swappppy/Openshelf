@@ -98,39 +98,40 @@ class BookGridCard extends ConsumerWidget {
                   ),
 
                 // Text Info
-                Padding(
-                  padding: EdgeInsets.all(gridColumns >= 3 ? 8 : 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        book.title,
-                        style: (gridColumns >= 3 
-                          ? theme.textTheme.labelMedium 
-                          : theme.textTheme.labelLarge)?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      if (prefs.showAuthor)
+                if (prefs.showGridInfo)
+                  Padding(
+                    padding: EdgeInsets.all(gridColumns >= 3 ? 8 : 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          book.author,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: colorScheme.outline,
-                            fontSize: gridColumns >= 3 ? 9 : 10,
-                          ),
-                          maxLines: 1,
+                          book.title,
+                          style: (gridColumns >= 3 
+                            ? theme.textTheme.labelMedium 
+                            : theme.textTheme.labelLarge)?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      if (prefs.showStatusChip && gridColumns < 3) ...[
-                        const SizedBox(height: 8),
-                        StatusChip(status: book.status, isGrid: true),
+                        const SizedBox(height: 2),
+                        if (prefs.showAuthor)
+                          Text(
+                            book.author,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: colorScheme.outline,
+                              fontSize: gridColumns >= 3 ? 9 : 10,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        if (prefs.showStatusChip && gridColumns < 3) ...[
+                          const SizedBox(height: 8),
+                          StatusChip(status: book.status, isGrid: true),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
               ],
             ),
           ),

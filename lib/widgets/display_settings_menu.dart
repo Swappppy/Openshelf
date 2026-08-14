@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/display_preferences_controller.dart';
+import '../models/display_preferences.dart';
 import '../l10n/l10n_extension.dart';
 import '../views/settings/settings_view.dart';
 
@@ -33,14 +34,18 @@ class DisplaySettingsMenu extends ConsumerWidget {
     };
 
     final fieldToggles = {
-      'info': (bool v) {},
+      'info': (bool v) {
+        if (p.viewMode == LibraryViewMode.grid) {
+          controller.toggleShowGridInfo();
+        }
+      },
       'rating': (bool v) => controller.toggleShowRating(),
       'tags': (bool v) => controller.toggleShowTags(),
       'spacer': (bool v) => controller.toggleShowSpacer(),
     };
 
     final fieldValues = {
-      'info': true,
+      'info': p.viewMode == LibraryViewMode.list ? true : p.showGridInfo,
       'rating': p.showRating,
       'tags': p.showTags,
       'spacer': p.showSpacer,
