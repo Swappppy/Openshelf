@@ -13,17 +13,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String errorPrefix(String message) {
-    return 'Erreur :$message';
+    return 'Erreur: $message';
   }
 
   @override
   String errorGeneric(String error) {
-    return 'Erreur :$error';
+    return 'Erreur: $error';
   }
 
   @override
   String criticalStartError(String error) {
-    return 'Erreur lors du démarrage de l\'application :$error';
+    return 'Erreur lors du démarrage de l\'application: $error';
   }
 
   @override
@@ -42,7 +42,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get libraryEmpty => 'Votre bibliothèque est vide';
 
   @override
-  String get libraryEmptyHint => 'Quel sera votre premier livre ?';
+  String get libraryEmptyHint => 'Quel sera votre premier livre?';
 
   @override
   String get libraryAddFirstBook => 'Ajouter un premier livre';
@@ -51,7 +51,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get libraryNoResults => 'Aucun résultat';
 
   @override
-  String get libraryNoResultsHint => '';
+  String get libraryNoResultsHint => 'Essayez d\'autres filtres';
 
   @override
   String get addBook => 'Ajouter un livre';
@@ -60,7 +60,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get displaySettings => 'Montrer dans la bibliothèque';
 
   @override
-  String get displaySettingsDragHint => '';
+  String get displaySettingsDragHint => 'Faites glisser pour réorganiser';
 
   @override
   String get settingsButton => 'Paramètres';
@@ -84,7 +84,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get fieldReadingProgress => 'Progrès de lecture';
 
   @override
-  String get fieldStatusChip => '';
+  String get fieldStatusChip => 'Badge d\'état';
 
   @override
   String get searchHint => 'Recherche par titre...';
@@ -116,7 +116,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get done => 'OK';
 
   @override
-  String get loading => '';
+  String get loading => 'Chargement...';
 
   @override
   String get loadingImport => 'Import de livres, veuillez patienter...';
@@ -131,14 +131,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get exportProgressMedia => 'Archivage des médias...';
 
   @override
-  String get exportProgressCompress => '';
+  String get exportProgressCompress => 'Compression de la sauvegarde...';
 
   @override
   String get exportProgressFinalize => 'Ouverture du menu de partage...';
 
   @override
   String exportSaveSuccess(String path) {
-    return 'Copia de seguridad guardada en $path';
+    return 'Sauvegarde enregistrée dans $path';
   }
 
   @override
@@ -172,1436 +172,1505 @@ class AppLocalizationsFr extends AppLocalizations {
   String get retry => 'Réessayer';
 
   @override
-  String get share => 'Compartir';
+  String get share => 'Partager';
 
   @override
-  String get saveToDevice => 'Guardar en dispositivo';
+  String get saveToDevice => 'Enregistrer sur l\'appareil';
 
   @override
-  String get addBookModalTitle => '';
+  String get addBookModalTitle => 'Ajouter un livre';
 
   @override
-  String get addBookModalSubtitle => '';
+  String get addBookModalSubtitle =>
+      'Choisissez comment vous souhaitez ajouter votre livre';
 
   @override
-  String get addManually => '';
+  String get addManually => 'Ajouter manuellement';
 
   @override
-  String get addManuallySubtitle => '';
+  String get addManuallySubtitle => 'Remplissez les données vous-même';
 
   @override
-  String get searchBook => '';
+  String get searchBook => 'Rechercher un livre';
 
   @override
-  String get searchBookSubtitle => '';
+  String get searchBookSubtitle => 'Par titre, auteur ou ISBN';
 
   @override
-  String get scanBarcode => '';
+  String get scanBarcode => 'Scanner un code-barres';
 
   @override
-  String get scanBarcodeSubtitle => '';
+  String get scanBarcodeSubtitle => 'Pointez l\'appareil photo vers l\'ISBN';
 
   @override
-  String get scanIsbnText => '';
+  String get scanIsbnText => 'Scanner le numéro ISBN';
 
   @override
-  String get scanIsbnTextSubtitle => '';
+  String get scanIsbnTextSubtitle => 'Pointez vers le numéro imprimé';
 
   @override
-  String get scanIsbnSelect => 'Toca un ISBN para seleccionarlo';
+  String get scanIsbnSelect => 'Appuyez sur un ISBN pour le sélectionner';
 
   @override
-  String get scanOcrHoldMessage => '';
+  String get scanOcrHoldMessage => 'Maintenez l\'image quelques secondes...';
 
   @override
-  String get scanBarcodePermission => '';
+  String get scanBarcodePermission =>
+      'L\'autorisation de l\'appareil photo est requise pour scanner des codes';
 
   @override
-  String get scanBatch => '';
+  String get scanBatch => 'Scanner par lot';
 
   @override
-  String get scanBatchSubtitle => '';
+  String get scanBatchSubtitle => 'Scannez plusieurs livres à la suite';
 
   @override
-  String get scanModeBarcode => '';
+  String get scanModeBarcode => 'Code-barres';
 
   @override
-  String get scanModeIsbn => '';
+  String get scanModeIsbn => 'Numéro ISBN';
 
   @override
-  String get bookFormNewTitle => '';
+  String get bookFormNewTitle => 'Nouveau livre';
 
   @override
-  String get bookFormEditTitle => '';
+  String get bookFormEditTitle => 'Modifier le livre';
 
   @override
-  String get tabMain => '';
+  String get tabMain => 'Principal';
 
   @override
-  String get tabDetails => '';
+  String get tabDetails => 'Détails';
 
   @override
-  String get fieldTitle => '';
+  String get fieldTitle => 'Titre';
 
   @override
-  String get fieldSubtitle => '';
+  String get fieldSubtitle => 'Sous-titre';
 
   @override
-  String get fieldDescription => '';
+  String get fieldDescription => 'Synopsis';
 
   @override
-  String get fieldIsbn => '';
+  String get fieldIsbn => 'ISBN';
 
   @override
-  String get fieldLanguage => '';
+  String get fieldLanguage => 'Langue';
 
   @override
-  String get fieldIsTranslation => '¿Es una traducción?';
+  String get fieldIsTranslation => 'Est-ce une traduction?';
 
   @override
-  String get fieldOriginalTitle => 'Título original';
+  String get fieldOriginalTitle => 'Titre original';
 
   @override
-  String get fieldOriginalLanguage => 'Idioma original';
+  String get fieldOriginalLanguage => 'Langue originale';
 
   @override
-  String get fieldTranslator => '';
+  String get fieldTranslator => 'Traducteur';
 
   @override
-  String get fieldReads => 'Lecturas';
+  String get fieldReads => 'Lectures';
 
   @override
-  String get fieldCopies => 'Copias';
+  String get fieldCopies => 'Exemplaires';
 
   @override
-  String get fieldTotalPages => '';
+  String get fieldTotalPages => 'Nombre total de pages';
 
   @override
-  String get fieldTotalBooks => '';
+  String get fieldTotalBooks => 'Nombre total de livres';
 
   @override
-  String get fieldCurrentPage => '';
+  String get fieldCurrentPage => 'Page actuelle';
 
   @override
-  String get fieldNotes => '';
+  String get fieldNotes => 'Notes';
 
   @override
-  String get fieldCollection => '';
+  String get fieldCollection => 'Collection / Série';
 
   @override
-  String get fieldCollectionNumber => '';
+  String get fieldCollectionNumber => 'Numéro dans la collection';
 
   @override
-  String get sectionBasicInfo => '';
+  String get sectionBasicInfo => 'Informations de base';
 
   @override
-  String get sectionCategories => '';
+  String get sectionCategories => 'Catégories';
 
   @override
-  String get sectionReadingStatus => '';
+  String get sectionReadingStatus => 'État de lecture';
 
   @override
-  String get sectionFormat => '';
+  String get sectionFormat => 'Format';
 
   @override
-  String get sectionRating => '';
+  String get sectionRating => 'Note';
 
   @override
-  String get sectionImprint => '';
+  String get sectionImprint => 'Maison d\'édition';
 
   @override
-  String get coverPickPhoto => '';
+  String get coverPickPhoto => 'Photo';
 
   @override
-  String get coverPickUrl => '';
+  String get coverPickUrl => 'URL';
 
   @override
-  String get coverSearch => '';
+  String get coverSearch => 'Rechercher';
 
   @override
-  String get coverUrlDialogTitle => '';
+  String get coverUrlDialogTitle => 'URL de la couverture';
 
   @override
-  String get coverUrlHint => '';
+  String get coverUrlHint => 'https://exemple.com/couverture.jpg';
 
   @override
-  String get coverDownloadError => '';
+  String get coverDownloadError => 'Impossible de télécharger l\'image';
 
   @override
-  String get imageProcessError => 'No se pudo procesar la imagen';
+  String get imageProcessError => 'Impossible de traiter l\'image';
 
   @override
-  String get cropCoverTitle => '';
+  String get cropCoverTitle => 'Recadrer la couverture';
 
   @override
-  String get cropImprintTitle => '';
+  String get cropImprintTitle => 'Recadrer le logo';
 
   @override
-  String get tagSearchOrCreate => '';
+  String get tagSearchOrCreate => 'Rechercher ou créer une catégorie';
 
   @override
-  String get tagCreateHint => '';
+  String get tagCreateHint =>
+      'Écrivez et appuyez sur Entrée para ajouter ou créer';
 
   @override
-  String get tagNoCategories => '';
+  String get tagNoCategories => 'Aucune catégorie créée pour le moment';
 
   @override
-  String get imprintSearch => '';
+  String get imprintSearch => 'Rechercher une maison d\'édition';
 
   @override
-  String get requiredField => '';
+  String get requiredField => 'Champ obligatorio';
 
   @override
-  String get statusWantToRead => '';
+  String get statusWantToRead => 'À lire';
 
   @override
-  String get statusReading => '';
+  String get statusReading => 'En cours de lecture';
 
   @override
-  String get statusRead => '';
+  String get statusRead => 'Lu';
 
   @override
-  String get statusAbandoned => '';
+  String get statusAbandoned => 'Abandonné';
 
   @override
-  String get statusPaused => '';
+  String get statusPaused => 'En pause';
 
   @override
-  String get ownershipStatusBought => 'Comprado';
+  String get ownershipStatusBought => 'Acheté';
 
   @override
-  String get ownershipStatusGifted => 'Regalado';
+  String get ownershipStatusGifted => 'Offert';
 
   @override
-  String get ownershipStatusBorrowed => 'Prestado';
+  String get ownershipStatusBorrowed => 'Emprunté';
 
   @override
-  String get ownershipStatusReturned => 'Devuelto';
+  String get ownershipStatusReturned => 'Rendu';
 
   @override
-  String get ownershipStatusSold => 'Vendido';
+  String get ownershipStatusSold => 'Vendu';
 
   @override
-  String get ownershipStatusOther => 'Otro';
+  String get ownershipStatusOther => 'Autre';
 
   @override
-  String get formatPaperback => '';
+  String get formatPaperback => 'Poche';
 
   @override
-  String get formatHardcover => '';
+  String get formatHardcover => 'Relié';
 
   @override
-  String get formatLeatherbound => '';
+  String get formatLeatherbound => 'Cuir';
 
   @override
-  String get formatRustic => '';
+  String get formatRustic => 'Broché';
 
   @override
-  String get formatDigital => '';
+  String get formatDigital => 'Numérique';
 
   @override
-  String get formatOther => '';
+  String get formatOther => 'Autre';
 
   @override
-  String get bookDetailNotFound => '';
+  String get bookDetailNotFound => 'Livre non trouvé';
 
   @override
-  String get bookDetailPagePickerTitle => '';
+  String get bookDetailPagePickerTitle => 'Page actuelle';
 
   @override
-  String get bookDetailNotesTitle => '';
+  String get bookDetailNotesTitle => 'Notes personnelles';
 
   @override
-  String get bookDetailNotesHint => '';
+  String get bookDetailNotesHint => 'Écrivez vos notes ici...';
 
   @override
-  String get bookDetailNotesEmpty => '';
+  String get bookDetailNotesEmpty => 'Appuyez pour ajouter des notes...';
 
   @override
-  String get bookDetailDeleteTitle => '';
+  String get bookDetailDeleteTitle => 'Supprimer le livre';
 
   @override
   String bookDetailDeleteConfirm(String title) {
-    return '';
+    return 'Supprimer \"$title\"? Cette action est irréversible.';
   }
 
   @override
-  String get bookDetailDuplicateTitle => '';
+  String get bookDetailDuplicateTitle => 'Dupliquer le livre';
 
   @override
   String bookDetailDuplicateConfirm(String title) {
-    return '';
+    return 'Voulez-vous créer une copie exacte de \"$title\"?';
   }
 
   @override
-  String get bookDetailNewReadingWholeBook => 'Todo el libro';
+  String get bookDetailNewReadingWholeBook => 'Tout le livre';
 
   @override
   String get bookDetailNewReadingWholeBookDescription =>
-      'Se registrará una relectura completa a partir de hoy.';
+      'Une relecture complète sera enregistrée à partir d\'aujourd\'hui.';
 
   @override
-  String get bookDetailNewReadingSections => 'Secciones';
+  String get bookDetailNewReadingSections => 'Sections';
 
   @override
   String bookDetailNewReadingSectionsCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count secciones',
-      one: '1 sección',
+      other: '$count sections',
+      one: '1 section',
     );
     return '$_temp0';
   }
 
   @override
   String bookDetailNewReadingReadCount(Object count) {
-    return 'Leída ${count}x';
+    return 'Lu ${count}x';
   }
 
   @override
   String get bookDetailNewReadingSelectSections =>
-      'Seleccionar secciones para releer';
+      'Sélectionner les sections à relire';
 
   @override
   String get bookDetailStartNewReadingPrompt =>
-      '¿Quieres empezar una nueva lectura?';
+      'Voulez-vous commencer une nouvelle lecture?';
 
   @override
-  String get bookDetailStartNewReadingTitle => 'Nueva lectura';
+  String get bookDetailStartNewReadingTitle => 'Nouvelle lecture';
 
   @override
-  String get bookDetailStartNewReadingButton => 'Empezar nueva lectura';
+  String get bookDetailStartNewReadingButton =>
+      'Commencer une nouvelle lecture';
 
   @override
-  String get selectAll => 'Seleccionar todo';
+  String get selectAll => 'Tout sélectionner';
 
   @override
   String get bookDetailDeleteReadPrompt =>
-      '¿Eliminar la última lectura en curso? Se perderán las fechas de esta sesión.';
+      'Supprimer la dernière lecture en cours? Les dates de cette session seront perdues.';
 
   @override
-  String get bookDetailReadHistoryTitle => 'HISTORIAL DE LECTURAS';
+  String get bookDetailReadHistoryTitle => 'HISTORIQUE DES LECTURES';
 
   @override
-  String get bookDetailReadOngoing => 'en curso';
+  String get bookDetailReadOngoing => 'en cours';
 
   @override
   String bookDetailReadNumber(int number) {
-    return 'Lectura $number';
+    return 'Lecture $number';
   }
 
   @override
   String bookDetailReadEditDialogTitle(Object number) {
-    return 'Editar lectura $number';
+    return 'Modifier la lecture $number';
   }
 
   @override
   String get bookDetailReadDeleteConfirm =>
-      '¿Eliminar esta entrada del historial?';
+      'Supprimer cette entrée de l\'historique?';
 
   @override
-  String get bookDetailReadNumberLabel => 'Número de lectura';
+  String get bookDetailReadNumberLabel => 'Numéro de lecture';
 
   @override
-  String get bookDetailFieldPages => '';
+  String get bookDetailFieldPages => 'PAGES';
 
   @override
-  String get bookDetailFieldCategories => '';
+  String get bookDetailFieldCategories => 'CATÉGORIES';
 
   @override
-  String get bookDetailFieldFormat => '';
+  String get bookDetailFieldFormat => 'Format';
 
   @override
-  String get bookDetailFieldRating => '';
+  String get bookDetailFieldRating => 'NOTE';
 
   @override
-  String get bookDetailFieldImprintSection => '';
+  String get bookDetailFieldImprintSection => 'MAISON D\'ÉDITION';
 
   @override
-  String get bookDetailFieldPersonalNotes => '';
+  String get bookDetailFieldPersonalNotes => 'NOTES PERSONNELLES';
 
   @override
-  String get bookDetailFieldAdded => '';
+  String get bookDetailFieldAdded => 'Ajouté';
 
   @override
-  String get bookDetailFieldStarted => '';
+  String get bookDetailFieldStarted => 'Début de lecture';
 
   @override
-  String get bookDetailFieldFinished => '';
+  String get bookDetailFieldFinished => 'Fin de lecture';
 
   @override
-  String get fieldOwnershipStatus => 'Estado de propiedad';
+  String get fieldOwnershipStatus => 'État de propriété';
 
   @override
-  String get ownershipHistoryTitle => 'HISTORIAL DE PROPIEDAD';
+  String get ownershipHistoryTitle => 'HISTORIQUE DE PROPRIÉTÉ';
 
   @override
-  String get ownershipLogEmpty => 'No hay eventos de propiedad registrados.';
+  String get ownershipLogEmpty => 'Aucun événement de propriété enregistré.';
 
   @override
-  String get ownershipEventPerson => 'Persona / Quién';
+  String get ownershipEventPerson => 'Personne / Qui';
 
   @override
-  String get ownershipEventDate => 'Fecha';
+  String get ownershipEventDate => 'Date';
 
   @override
-  String get ownershipEventNotes => 'Notas';
+  String get ownershipEventNotes => 'Notes';
 
   @override
   String pageProgress(String current, String total, String percent) {
-    return '';
+    return '$current / $total p. · $percent%';
   }
 
   @override
   String pageProgressShort(String current, String total) {
-    return '';
+    return '$current / $total';
   }
 
   @override
   String pageSuffix(int count) {
-    return '';
+    return '$count p.';
   }
 
   @override
-  String get pagesLabel => '';
+  String get pagesLabel => 'pages';
 
   @override
-  String get shelvesTitle => '';
+  String get shelvesTitle => 'Étagères';
 
   @override
-  String get shelvesSectionByStatus => '';
+  String get shelvesSectionByStatus => 'Par état';
 
   @override
-  String get shelvesSectionMine => '';
+  String get shelvesSectionMine => 'Étagères';
 
   @override
-  String get shelvesSectionManagement => '';
+  String get shelvesSectionManagement => 'Gestion';
 
   @override
-  String get shelfAllBooks => '';
+  String get shelfAllBooks => 'Tous les livres';
 
   @override
-  String get shelfReading => '';
+  String get shelfReading => 'En cours de lecture';
 
   @override
-  String get shelfRead => '';
+  String get shelfRead => 'Lus';
 
   @override
-  String get shelfWantToRead => '';
+  String get shelfWantToRead => 'À lire';
 
   @override
-  String get shelfAbandoned => '';
+  String get shelfAbandoned => 'Abandonnés';
 
   @override
-  String get shelfPaused => '';
+  String get shelfPaused => 'En pause';
 
   @override
-  String get shelfNewTooltip => '';
+  String get shelfNewTooltip => 'Nouvelle étagère';
 
   @override
-  String get shelfEmpty => '';
+  String get shelfEmpty => 'Vous n\'avez pas d\'étagères personnalisées';
 
   @override
-  String get shelfEmptySubtitle => '';
+  String get shelfEmptySubtitle =>
+      'Organisez vos lectures comme vous le souhaitez';
 
   @override
-  String get shelvesAddFirstShelf => '';
+  String get shelvesAddFirstShelf => 'Créer une étagère';
 
   @override
-  String get shelfBooksEmpty => '';
+  String get shelfBooksEmpty => 'Aucun livre dans cette étagère';
 
   @override
-  String get shelfStatusBooksEmpty => '';
+  String get shelfStatusBooksEmpty => 'Il n\'y a pas de livres ici';
 
   @override
-  String get shelfFormNew => '';
+  String get shelfFormNew => 'Nouvelle étagère';
 
   @override
-  String get shelfFormEdit => '';
+  String get shelfFormEdit => 'Modifier l\'étagère';
 
   @override
-  String get shelfFormNameLabel => '';
+  String get shelfFormNameLabel => 'Nom de l\'étagère';
 
   @override
-  String get collectionNameLabel => '';
+  String get collectionNameLabel => 'Nom de la collection';
 
   @override
-  String get shelfFormSectionStatus => '';
+  String get shelfFormSectionStatus => 'État de lecture';
 
   @override
-  String get shelfFormSectionTitle => '';
+  String get shelfFormSectionTitle => 'Titre';
 
   @override
-  String get shelfFormSectionAuthor => '';
+  String get shelfFormSectionAuthor => 'Auteur';
 
   @override
-  String get shelfFormSectionPublisher => '';
+  String get shelfFormSectionPublisher => 'Éditeur';
 
   @override
-  String get shelfFormSectionIsbn => '';
+  String get shelfFormSectionIsbn => 'ISBN';
 
   @override
-  String get shelfFormSectionCollection => '';
+  String get shelfFormSectionCollection => 'Collection';
 
   @override
-  String get shelfFormSectionCategories => '';
+  String get shelfFormSectionCategories => 'Catégories';
 
   @override
-  String get shelfFormSectionImprint => '';
+  String get shelfFormSectionImprint => 'Maison d\'édition';
 
   @override
-  String get shelfFormHintTitle => '';
+  String get shelfFormHintTitle => 'Rechercher dans le titre';
 
   @override
-  String get shelfFormHintAuthor => '';
+  String get shelfFormHintAuthor => 'Nom de l\'auteur';
 
   @override
-  String get shelfFormHintPublisher => '';
+  String get shelfFormHintPublisher => 'Nom de l\'éditeur';
 
   @override
-  String get shelfFormHintIsbn => '';
+  String get shelfFormHintIsbn => 'ISBN';
 
   @override
-  String get shelfFormHintCollection => '';
+  String get shelfFormHintCollection => 'Nom de la collection';
 
   @override
-  String get shelfFormStatusAny => '';
+  String get shelfFormStatusAny => 'N\'importe lequel';
 
   @override
-  String get shelfOptionEdit => '';
+  String get shelfOptionEdit => 'Modifier l\'étagère';
 
   @override
-  String get shelfOptionDelete => '';
+  String get shelfOptionDelete => 'Supprimer';
 
   @override
-  String get shelfStatusLabelReading => '';
+  String get shelfStatusLabelReading => 'En cours de lecture';
 
   @override
-  String get shelfStatusLabelRead => '';
+  String get shelfStatusLabelRead => 'Lus';
 
   @override
-  String get shelfStatusLabelWantToRead => '';
+  String get shelfStatusLabelWantToRead => 'À lire';
 
   @override
-  String get shelfStatusLabelAbandoned => '';
+  String get shelfStatusLabelAbandoned => 'Abandonnés';
 
   @override
-  String get shelfStatusLabelPaused => '';
+  String get shelfStatusLabelPaused => 'En pause';
 
   @override
-  String get managementCategories => '';
+  String get managementCategories => 'Catégories';
 
   @override
-  String get managementCategoryCount => '';
+  String get managementCategoryCount => 'Nb de livres';
 
   @override
-  String get managementImprints => '';
+  String get managementImprints => 'Maisons d\'édition';
 
   @override
-  String get managementCollections => '';
+  String get managementCollections => 'Collections';
 
   @override
-  String get managementCategoryCloudCurve => '';
+  String get managementCategoryCloudCurve => 'Courbe algorithmique (Livres)';
 
   @override
-  String get tagNone => '';
+  String get tagNone => 'Aucune catégorie pour le moment';
 
   @override
-  String get tagNoneSubtitle => '';
+  String get tagNoneSubtitle =>
+      'Les catégories vous aident à trouver des livres et à construire une carte mentale de votre bibliothèque';
 
   @override
-  String get categoriesAddFirst => '';
+  String get categoriesAddFirst => 'Nouvelle catégorie';
 
   @override
-  String get tagNew => '';
+  String get tagNew => 'Nouvelle catégorie';
 
   @override
-  String get tagNewDialogTitle => '';
+  String get tagNewDialogTitle => 'Nouvelle catégorie';
 
   @override
-  String get tagNameLabel => '';
+  String get tagNameLabel => 'Nom';
 
   @override
-  String get tagColorLabel => '';
+  String get tagColorLabel => 'Couleur';
 
   @override
-  String get tagDeleteTitle => '';
+  String get tagDeleteTitle => 'Supprimer la catégorie';
 
   @override
   String tagDeleteConfirm(String name) {
-    return '';
+    return 'Supprimer \"$name\"?';
   }
 
   @override
-  String get imprintNone => '';
+  String get imprintNone => 'Aucune maison d\'édition pour le moment';
 
   @override
-  String get imprintNoneSubtitle => '';
+  String get imprintNoneSubtitle =>
+      'Regroupez vos livres par éditeurs ou leurs marques';
 
   @override
-  String get imprintsAddFirst => '';
+  String get imprintsAddFirst => 'Ajouter une maison d\'édition';
 
   @override
-  String get imprintNew => '';
+  String get imprintNew => 'Nouvelle maison d\'édition';
 
   @override
-  String get imprintNewDialogTitle => '';
+  String get imprintNewDialogTitle => 'Nouvelle maison d\'édition';
 
   @override
-  String get imprintEditDialogTitle => '';
+  String get imprintEditDialogTitle => 'Modifier la maison d\'édition';
 
   @override
-  String get imprintNameLabel => '';
+  String get imprintNameLabel => 'Nom de la maison d\'édition';
 
   @override
-  String get imprintAddImageHint => '';
+  String get imprintAddImageHint => 'Appuyez pour ajouter une image';
 
   @override
-  String get imprintChangeImageHint => '';
+  String get imprintChangeImageHint => 'Appuyez pour changer l\'image';
 
   @override
-  String get imprintUrlDialogTitle => '';
+  String get imprintUrlDialogTitle => 'URL de l\'image';
 
   @override
-  String get imprintUrlHint => '';
+  String get imprintUrlHint => 'https://exemple.com/image.jpg';
 
   @override
-  String get imprintDeleteTitle => '';
+  String get imprintDeleteTitle => 'Supprimer la maison d\'édition';
 
   @override
   String imprintDeleteConfirm(String name) {
-    return '';
+    return 'Supprimer \"$name\"?';
   }
 
   @override
-  String get imprintNoImprints => '';
+  String get imprintNoImprints => 'Aucune maison d\'édition créée';
 
   @override
-  String get collectionNone => '';
+  String get collectionNone => 'Aucune collection pour le moment';
 
   @override
-  String get collectionNoneSubtitle => '';
+  String get collectionNoneSubtitle =>
+      'Créez des collections et organisez vos livres';
 
   @override
-  String get collectionsAddFirst => '';
+  String get collectionsAddFirst => 'Nouvelle collection';
 
   @override
-  String get collectionDeleteTitle => '';
+  String get collectionDeleteTitle => 'Supprimer la collection';
 
   @override
   String collectionDeleteConfirm(String name) {
-    return '';
+    return 'Supprimer \"$name\"?';
   }
 
   @override
-  String get onboardingWelcomeTitle => '';
+  String get onboardingWelcomeTitle => 'Bienvenue sur Openshelf';
 
   @override
-  String get onboardingWelcomeSub => '';
+  String get onboardingWelcomeSub =>
+      'Votre bibliothèque personnelle, réimaginée';
 
   @override
-  String get onboardingOrganizeTitle => '';
+  String get onboardingOrganizeTitle => 'Organisez votre monde';
 
   @override
-  String get onboardingOrganizeSub => '';
+  String get onboardingOrganizeSub =>
+      'Créez des étagères intelligentes et des collections thématiques';
 
   @override
-  String get onboardingProgressTitle => '';
+  String get onboardingProgressTitle => 'Suivez vos progrès';
 
   @override
-  String get onboardingProgressSub => '';
+  String get onboardingProgressSub =>
+      'Objectifs de lecture et statistiques détaillées';
 
   @override
-  String get onboardingAddTitle => '';
+  String get onboardingAddTitle => 'Ajoutez instantanément';
 
   @override
-  String get onboardingAddSub => '';
+  String get onboardingAddSub =>
+      'Scannez des codes-barres ou recherchez dans le cloud';
 
   @override
-  String get onboardingNext => '';
+  String get onboardingNext => 'Suivant';
 
   @override
-  String get onboardingStart => '';
+  String get onboardingStart => 'Commencer maintenant';
 
   @override
-  String get settingsApplyIcon => '';
+  String get settingsApplyIcon => 'Appliquer le changement d\'icône';
 
   @override
-  String get settingsDynamicIcon => '';
+  String get settingsDynamicIcon => 'Icône d\'application dynamique';
 
   @override
-  String get settingsDynamicIconSub => '';
+  String get settingsDynamicIconSub =>
+      'Changez l\'icône de l\'écran d\'accueil pour qu\'elle corresponde à la couleur choisie (L\'application redémarrera)';
 
   @override
-  String get settingsLibraryColumns => '';
+  String get settingsLibraryColumns => 'Colonnes de la bibliothèque';
 
   @override
-  String get settingsLibraryColumnsSub => '';
+  String get settingsLibraryColumnsSub =>
+      'Ajustez le nombre de livres par ligne dans la vue en grille';
 
   @override
-  String get settingsTitle => '';
+  String get settingsTitle => 'Paramètres';
 
   @override
-  String get settingsSectionAppearance => '';
+  String get settingsSectionAppearance => 'Apparence';
 
   @override
-  String get settingsLanguage => '';
+  String get settingsLanguage => 'Langue';
 
   @override
-  String get settingsLanguageSystem => '';
+  String get settingsLanguageSystem => 'Système (automatique)';
 
   @override
-  String get settingsLanguageSpanish => '';
+  String get settingsLanguageSpanish => 'Espagnol';
 
   @override
-  String get settingsLanguageEnglish => '';
+  String get settingsLanguageEnglish => 'Anglais';
 
   @override
-  String get settingsThemeMode => '';
+  String get settingsLanguageFrench => 'Français';
 
   @override
-  String get settingsThemeLight => '';
+  String get settingsLanguageItalian => 'Italien';
 
   @override
-  String get settingsThemeSystem => '';
+  String get settingsLanguageCatalan => 'Catalan';
 
   @override
-  String get settingsThemeDark => '';
+  String get settingsLanguagePortuguese => 'Portugais (Portugal)';
 
   @override
-  String get settingsAccentColor => '';
+  String get settingsLanguagePortugueseBR => 'Portugais (Brésil)';
 
   @override
-  String get settingsAccentColorHint => '';
+  String get settingsThemeMode => 'Mode du thème';
 
   @override
-  String get settingsSectionStorage => '';
+  String get settingsThemeLight => 'Clair';
 
   @override
-  String get settingsCoversFolder => '';
+  String get settingsThemeSystem => 'Système';
 
   @override
-  String get settingsDatabase => '';
+  String get settingsThemeDark => 'Sombre';
 
   @override
-  String get settingsDefaultDir => '';
+  String get settingsAccentColor => 'Couleur d\'accentuation';
 
   @override
-  String get settingsDbMoveTitle => '';
+  String get settingsAccentColorHint =>
+      'Appuyez sur une couleur para l\'appliquer';
 
   @override
-  String get settingsDbMoveContent => '';
+  String get settingsSectionStorage => 'Stockage';
 
   @override
-  String get settingsDbMoveConfirm => '';
+  String get settingsCoversFolder => 'Dossier des couvertures';
 
   @override
-  String get settingsSectionSearch => '';
+  String get settingsDatabase => 'Base de données';
 
   @override
-  String get settingsSearchServer => '';
+  String get settingsDefaultDir => 'Répertoire par défaut';
 
   @override
-  String get settingsSearchServerHint => '';
+  String get settingsDbMoveTitle => 'Déplacer la base de données';
 
   @override
-  String get settingsSectionData => '';
+  String get settingsDbMoveContent =>
+      'Le déplacement de la base de données nécessite un redémarrage de l\'application. Les données seront copiées dans le nouveau répertoire. Continuer?';
 
   @override
-  String get dataManagementOpenShelf => '';
+  String get settingsDbMoveConfirm => 'Déplacer et redémarrer';
 
   @override
-  String get dataManagementBookshelf => '';
+  String get settingsSectionSearch => 'Recherche de livres';
 
   @override
-  String get dataManagementGoodreads => '';
+  String get settingsSearchServer => 'Serveur';
+
+  @override
+  String get settingsSearchServerHint =>
+      'Sera utilisé pour rechercher des livres par ISBN ou titre';
+
+  @override
+  String get settingsSectionData => 'Gestion des données';
+
+  @override
+  String get dataManagementOpenShelf => 'OpenShelf';
+
+  @override
+  String get dataManagementBookshelf => 'Bookshelf';
+
+  @override
+  String get dataManagementGoodreads => 'Goodreads';
 
   @override
   String get dataManagementLibraryThing => 'LibraryThing';
 
   @override
-  String get dataManagementImport => '';
+  String get dataManagementImport => 'Importer des livres';
 
   @override
-  String get dataManagementExport => '';
+  String get dataManagementExport => 'Exporter des livres';
 
   @override
   String dataManagementImportHint(String source) {
-    return '';
+    return 'Importer depuis un CSV de $source';
   }
 
   @override
   String dataManagementImportHintJson(Object source) {
-    return 'Importar desde JSON de $source';
+    return 'Importer depuis un JSON de $source';
   }
 
   @override
   String dataManagementExportHint(String source) {
-    return '';
+    return 'Exporter vers un CSV de $source';
   }
 
   @override
   String dataManagementExportHintJson(Object source) {
-    return 'Exportar a JSON de $source';
+    return 'Exporter vers un JSON de $source';
   }
 
   @override
-  String get dataManagementRestoreBackup => '';
+  String get dataManagementRestoreBackup => 'Restaurer une sauvegarde';
 
   @override
-  String get dataManagementRestoreBackupHint => '';
+  String get dataManagementRestoreBackupHint =>
+      'Restaurer depuis un CSV/ZIP d\'OpenShelf';
 
   @override
-  String get dataManagementCreateBackup => '';
+  String get dataManagementCreateBackup => 'Créer une sauvegarde';
 
   @override
-  String get dataManagementCreateBackupHint => '';
+  String get dataManagementCreateBackupHint =>
+      'Exportation complète avec option de couvertures';
 
   @override
-  String get settingsImportBookshelf => '';
+  String get settingsImportBookshelf => 'Importer depuis Bookshelf';
 
   @override
-  String get settingsImportBookshelfHint => '';
+  String get settingsImportBookshelfHint =>
+      'Importer des livres desde un fichier CSV';
 
   @override
-  String get settingsExportCsv => '';
+  String get settingsExportCsv => 'Exporter la bibliothèque';
 
   @override
-  String get settingsExportCsvHint => '';
+  String get settingsExportCsvHint =>
+      'Exporter tous les livres vers un fichier CSV';
 
   @override
-  String get settingsFullBackup => '';
+  String get settingsFullBackup => 'Restaurer la bibliothèque';
 
   @override
-  String get settingsFullBackupHint => '';
+  String get settingsFullBackupHint =>
+      'Restaurer les livres depuis une sauvegarde CSV';
 
   @override
-  String get settingsAutoNoCoverTitle => '';
+  String get settingsAutoNoCoverTitle => 'Étagère sans couvertures';
 
   @override
-  String get settingsAutoNoCoverSub => '';
+  String get settingsAutoNoCoverSub =>
+      'Crée automatiquement une étagère si des couvertures sont manquantes';
 
   @override
-  String get noCoverShelfTitle => '';
+  String get noCoverShelfTitle => 'Livres sans couverture';
 
   @override
-  String get settingsCompressImagesTitle => '';
+  String get settingsCompressImagesTitle =>
+      'Compresser automatiquement les couvertures';
 
   @override
-  String get settingsCompressImagesSub => '';
+  String get settingsCompressImagesSub =>
+      'Réduit le poids des images lors de l\'enregistrement ou de l\'importation';
 
   @override
-  String get settingsBatchCompressTitle => '';
+  String get settingsBatchCompressTitle =>
+      'Optimiser la bibliothèque maintenant';
 
   @override
-  String get settingsBatchCompressSub => '';
+  String get settingsBatchCompressSub =>
+      'Compresse toutes les couvertures existantes qui ne sont pas optimisées';
 
   @override
   String settingsBatchCompressSuccess(int count) {
-    return '';
+    return '$count couvertures ont été optimisées.';
   }
 
   @override
-  String get exportTitle => '';
+  String get exportTitle => 'Exporter la bibliothèque';
 
   @override
-  String get exportCoversPrompt => '';
+  String get exportCoversPrompt =>
+      'Voulez-vous inclure les images des couvertures dans la sauvegarde? (Un fichier ZIP sera créé avec le CSV)';
 
   @override
-  String get importRestoreCoversTitle => '';
+  String get importRestoreCoversTitle => 'Restaurer les couvertures';
 
   @override
-  String get importRestoreCoversPrompt => '';
+  String get importRestoreCoversPrompt =>
+      'Avez-vous également un fichier ZIP avec les couvertures à restaurer?';
 
   @override
-  String get yes => '';
+  String get yes => 'Oui';
 
   @override
-  String get no => '';
+  String get no => 'Non';
 
   @override
-  String get devDeleteAllBooks => '';
+  String get devDeleteAllBooks => 'SUPPRIMER TOUS LES LIVRES (DEV)';
 
   @override
-  String get settingsDevClearDbSub => '';
+  String get settingsDevClearDbSub =>
+      'Outil de développement: nettoyer la base de données';
 
   @override
-  String get settingsDevDbCleared => '';
+  String get settingsDevDbCleared => 'Base de données nettoyée';
 
   @override
-  String get settingsImportSelectBackup => '';
+  String get settingsImportSelectBackup =>
+      'Sélectionner la sauvegarde Openshelf';
 
   @override
-  String get settingsImportSelectCovers => '';
+  String get settingsImportSelectCovers =>
+      'Sélectionner le ZIP des couvertures Openshelf';
 
   @override
-  String get devDeleteConfirmTitle => '';
+  String get devDeleteConfirmTitle => 'Vider la bibliothèque?';
 
   @override
-  String get devDeleteConfirmContent => '';
+  String get devDeleteConfirmContent =>
+      'Cela supprimera définitivement TOUS les livres et catégories. Uniquement pour les tests. Continuer?';
 
   @override
   String importSuccess(int count) {
-    return '';
+    return 'Importation terminée: $count livres ajoutés.';
   }
 
   @override
   String importPartial(int added, int skipped) {
-    return '';
+    return 'Importation partielle: $added ajoutés, $skipped ignorés.';
   }
 
   @override
-  String get settingsApiKeyTitle => '';
+  String get settingsApiKeyTitle => 'Clé API Google Books';
 
   @override
-  String get settingsApiKeyConfigured => '';
+  String get settingsApiKeyConfigured =>
+      'Clé configurée. Google Books está disponible.';
 
   @override
-  String get settingsApiKeyMissing => '';
+  String get settingsApiKeyMissing =>
+      'Sans clé, Google Books utilisera Open Library comme alternative.';
 
   @override
-  String get settingsApiKeyHint => '';
+  String get settingsApiKeyHint => 'AIza...';
 
   @override
-  String get settingsApiKeyShow => '';
+  String get settingsApiKeyShow => 'Afficher';
 
   @override
-  String get settingsApiKeyHide => '';
+  String get settingsApiKeyHide => 'Masquer';
 
   @override
-  String get settingsApiKeySave => '';
+  String get settingsApiKeySave => 'Enregistrer la clé';
 
   @override
-  String get settingsApiKeySaved => '';
+  String get settingsApiKeySaved => 'Clé enregistrée';
 
   @override
-  String get settingsApiKeyClear => '';
+  String get settingsApiKeyClear => 'Effacer la clé';
 
   @override
-  String get settingsApiKeyHowTo => '';
+  String get settingsApiKeyHowTo => 'Comment l\'obtenir';
 
   @override
-  String get settingsApiKeyInstructionsTitle => '';
+  String get settingsApiKeyInstructionsTitle =>
+      'Comment obtenir une clé Google Books';
 
   @override
-  String get settingsApiKeyStep1 => '';
+  String get settingsApiKeyStep1 =>
+      'Ouvrez console.cloud.google.com et connectez-vous avec votre compte Google.';
 
   @override
-  String get settingsApiKeyStep2 => '';
+  String get settingsApiKeyStep2 =>
+      'Créez un nouveau projet (le nom n\'a pas d\'importance).';
 
   @override
-  String get settingsApiKeyStep3 => '';
+  String get settingsApiKeyStep3 =>
+      'Allez dans API et services → Bibliothèque, recherchez \"Books API\" et activez-la.';
 
   @override
-  String get settingsApiKeyStep4 => '';
+  String get settingsApiKeyStep4 =>
+      'Allez dans API et services → Identifiants → Créer des identifiants → Clave de API.';
 
   @override
-  String get settingsApiKeyStep5 => '';
+  String get settingsApiKeyStep5 =>
+      'Optionnel mais recommandé: restreignez la clé à la Books API uniquement.';
 
   @override
-  String get settingsApiKeyStep6 => '';
+  String get settingsApiKeyStep6 =>
+      'Copiez la clé résultante (commence par \"AIza…\") et collez-la dans le champ ci-dessus.';
 
   @override
-  String get settingsApiKeyNote => '';
+  String get settingsApiKeyNote =>
+      'La clé est gratuite et permet jusqu\'à 1 000 recherches quotidiennes. Elle n\'est partagée avec personne: elle est enregistrée uniquement sur cet appareil.';
 
   @override
-  String get bookSearchHint => '';
+  String get bookSearchHint => 'Titre, auteur ou ISBN...';
 
   @override
-  String get bookSearchPrompt => '';
+  String get bookSearchPrompt => 'Recherchez par titre, auteur ou ISBN';
 
   @override
   String bookSearchNoResults(String query) {
-    return '';
+    return 'Aucun résultat pour \"$query\"';
   }
 
   @override
   String bookSearchProvidersNotice(String providers) {
-    return '';
+    return 'Résultats de: $providers.';
   }
 
   @override
-  String get bookSearchRecommended => '';
+  String get bookSearchRecommended => 'RECOMMANDÉ PAR OPENSHELF';
 
   @override
-  String get bookSearchRecommendedSource => '';
+  String get bookSearchRecommendedSource => 'Recommandé par Openshelf';
 
   @override
-  String get bookSearchServerOpenLibrary => '';
+  String get bookSearchServerOpenLibrary => 'Open Library';
 
   @override
-  String get bookSearchServerGoogleBooks => '';
+  String get bookSearchServerGoogleBooks => 'Google Books';
 
   @override
-  String get bookSearchServerInventaire => '';
+  String get bookSearchServerInventaire => 'Inventaire.io';
 
   @override
-  String get searchTabStatus => '';
+  String get searchTabStatus => 'État';
 
   @override
-  String get searchTabImprint => '';
+  String get searchTabImprint => 'Maison d\'édition';
 
   @override
-  String get searchTabCategory => '';
+  String get searchTabCategory => 'Catégorie';
 
   @override
-  String get searchTabCollection => '';
+  String get searchTabCollection => 'Collection';
 
   @override
   String searchFilterStatus(String value) {
-    return '';
+    return 'État: $value';
   }
 
   @override
   String searchFilterImprint(String value) {
-    return '';
+    return 'Maison d\'éd.: $value';
   }
 
   @override
   String searchFilterCategory(String value) {
-    return '';
+    return 'Cat.: $value';
   }
 
   @override
   String searchFilterCollection(String value) {
-    return '';
+    return 'Col.: $value';
   }
 
   @override
   String searchActiveFilters(int count) {
-    return '';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filtres actifs',
+      one: '1 filtre actif',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get searchSaveAsShelf => '';
+  String get searchSaveAsShelf => 'Enregistrer comme étagère';
 
   @override
-  String get shelfShowInLibrary => '';
+  String get shelfShowInLibrary => 'Afficher dans la bibliothèque';
 
   @override
-  String get searchClearAll => '';
+  String get searchClearAll => 'Tout effacer';
 
   @override
-  String get addedToLibrary => '';
+  String get addedToLibrary => 'Ajouté à la bibliothèque';
 
   @override
-  String get errorDuplicateIsbn => '';
+  String get errorDuplicateIsbn => 'Déjà dans la bibliothèque';
 
   @override
-  String get bookDuplicateTitle => '';
+  String get bookDuplicateTitle => 'Livre en double';
 
   @override
   String bookDuplicateContent(String isbn) {
-    return '';
+    return 'Vous avez déjà un livre avec l\'ISBN $isbn dans votre bibliothèque.';
   }
 
   @override
-  String get bookSearchErrorNoApiKey => '';
+  String get bookSearchErrorNoApiKey =>
+      'Google Books nécessite une clé API.\nConfigurez-la dans Paramètres → Recherche de livres.';
 
   @override
-  String get bookSearchErrorRateLimit => '';
+  String get bookSearchErrorRateLimit =>
+      'Google Books a limité les requêtes.\nAttendez un moment et réessayez.';
 
   @override
-  String get bookSearchErrorNetwork => '';
+  String get bookSearchErrorNetwork =>
+      'Impossible de se connecter à un serveur.\nVérifiez votre connexion et réessayez.';
 
   @override
-  String get coverPickerTitle => '';
+  String get coverPickerTitle => 'Couvertures';
 
   @override
   String coverPickerIsbnLabel(String isbn) {
-    return '';
+    return 'ISBN $isbn';
   }
 
   @override
-  String get coverPickerNoResults => '';
+  String get coverPickerNoResults => 'Aucune couverture trouvée pour ce livre.';
 
   @override
-  String get coverPickerNetworkError => '';
+  String get coverPickerNetworkError =>
+      'Impossible de se connecter. Vérifiez votre connexion.';
 
   @override
   String coverPickerProgress(int loaded, int total) {
-    return '';
+    return '$loaded / $total';
   }
 
   @override
-  String get statsTitle => '';
+  String get statsTitle => 'Statistiques';
 
   @override
-  String get statsPlaceholder => '';
+  String get statsPlaceholder => 'Vos statistiques apparaîtront ici';
 
   @override
-  String get statsEmptySubtitle => '';
+  String get statsEmptySubtitle =>
+      'Ajoutez des widgets pour voir vos habitudes de lecture, vos objectifs et vos records personnels.';
 
   @override
-  String get statsAddFirstWidget => '';
+  String get statsAddFirstWidget => 'Ajouter un premier widget';
 
   @override
-  String get statsAddWidgetTitle => '';
+  String get statsAddWidgetTitle => 'Ajouter un widget';
 
   @override
-  String get statsGoalTargetShelf => '';
+  String get statsGoalTargetShelf => 'Étagère cible';
 
   @override
   String searchFilterIsbnLabel(String isbn) {
-    return '';
+    return 'ISBN: $isbn';
   }
 
   @override
   String searchFilterLanguageLabel(String language) {
-    return '';
+    return 'Langue: $language';
   }
 
   @override
   String searchFilterAuthorLabel(String author) {
-    return '';
+    return 'Auteur: $author';
   }
 
   @override
   String searchFilterPublisherLabel(String publisher) {
-    return '';
+    return 'Éditeur: $publisher';
   }
 
   @override
-  String get statsGoalTitle => '';
+  String get statsGoalTitle => 'OBJECTIF';
 
   @override
-  String get statsGoalFullTitle => '';
+  String get statsGoalFullTitle => 'OBJECTIF DE LECTURE';
 
   @override
-  String get statsGoalUnitBooks => '';
+  String get statsGoalUnitBooks => 'livres';
 
   @override
-  String get statsGoalUnitPages => '';
+  String get statsGoalUnitPages => 'p.';
 
   @override
   String statsGoalRemaining(int count) {
-    return '';
+    return '$count restant(s)';
   }
 
   @override
-  String get statsGoalCompleted => '';
+  String get statsGoalCompleted => 'Terminé!';
 
   @override
-  String get statsGoalNew => '';
+  String get statsGoalNew => 'Nouvel objectif';
 
   @override
-  String get statsGoalEdit => '';
+  String get statsGoalEdit => 'Modifier l\'objectif';
 
   @override
-  String get statsGoalDelete => '';
+  String get statsGoalDelete => 'Supprimer';
 
   @override
-  String get statsGoalNameLabel => '';
+  String get statsGoalNameLabel => 'Nom (ex: Défi 2026)';
 
   @override
-  String get statsGoalTypeLabel => '';
+  String get statsGoalTypeLabel => 'Type';
 
   @override
-  String get statsGoalTypeBooks => '';
+  String get statsGoalTypeBooks => 'Livres lus';
 
   @override
-  String get statsGoalTypePages => '';
+  String get statsGoalTypePages => 'Pages lues';
 
   @override
-  String get statsGoalTargetLabel => '';
+  String get statsGoalTargetLabel => 'Objectif numérique';
 
   @override
-  String get statsGoalFromLabel => '';
+  String get statsGoalFromLabel => 'Du';
 
   @override
-  String get statsGoalToLabel => '';
+  String get statsGoalToLabel => 'Au';
 
   @override
-  String get statsPagesTitle => '';
+  String get statsPagesTitle => 'PAGES';
 
   @override
-  String get statsPagesSub => '';
+  String get statsPagesSub => 'pages lues';
 
   @override
-  String get statsStreakTitle => '';
+  String get statsStreakTitle => 'SÉRIE';
 
   @override
-  String get statsStreakSub => '';
+  String get statsStreakSub => 'jours consécutifs';
 
   @override
-  String get statsStatusTitle => '';
+  String get statsStatusTitle => 'ÉTATS';
 
   @override
-  String get statsAddedTitle => '';
+  String get statsAddedTitle => 'LIVRES AJOUTÉS';
 
   @override
-  String get statsAddedNoData => '';
+  String get statsAddedNoData => 'Aucune donnée';
 
   @override
-  String get statsCategoriesTitle => '';
+  String get statsCategoriesTitle => 'CATÉGORIES';
 
   @override
-  String get statsYearsTitle => '';
+  String get statsYearsTitle => 'ANNÉES DE PUBLICATION';
 
   @override
-  String get statsReadingTitle => '';
+  String get statsReadingTitle => 'LECTURE';
 
   @override
-  String get statsReadingNowTitle => '';
+  String get statsReadingNowTitle => 'LECTURE EN COURS';
 
   @override
-  String get statsReadingNone => '';
+  String get statsReadingNone => 'Rien en cours';
 
   @override
-  String get statsReadByYearTitle => '';
+  String get statsReadByYearTitle => 'LIVRES LUS PAR AN';
 
   @override
-  String get statsCollectionsTitle => '';
+  String get statsCollectionsTitle => 'COLLECTIONS';
 
   @override
-  String get statsLastAddedTitle => '';
+  String get statsLastAddedTitle => 'DERNIERS AJOUTS';
 
   @override
-  String get statsDailyReadingTitle => 'LECTURA DIARIA';
+  String get statsDailyReadingTitle => 'LECTURE QUOTIDIENNE';
 
   @override
-  String get statsAvgPagesTitle => '';
+  String get statsAvgPagesTitle => 'MOYENNE DE PAGES';
 
   @override
-  String get statsAvgPagesSub => '';
+  String get statsAvgPagesSub => 'pages par livre';
 
   @override
-  String get statsOptPagesTitle => '';
+  String get statsOptPagesTitle => 'Total de pages';
 
   @override
-  String get statsOptPagesSub => '';
+  String get statsOptPagesSub => 'Total de pages lues';
 
   @override
-  String get statsOptStreakTitle => '';
+  String get statsOptStreakTitle => 'Série';
 
   @override
-  String get statsOptStreakSub => '';
+  String get statsOptStreakSub => 'Jours consécutifs de lecture';
 
   @override
-  String get statsOptGoalTitle => '';
+  String get statsOptGoalTitle => 'Objectif de lecture';
 
   @override
-  String get statsOptGoalSub => '';
+  String get statsOptGoalSub => 'Livres, étagères ou collections';
 
   @override
-  String get statsOptStatusTitle => '';
+  String get statsOptStatusTitle => 'États de lecture';
 
   @override
-  String get statsOptStatusSub => '';
+  String get statsOptStatusSub => 'Livres par état';
 
   @override
-  String get statsOptCurrentTitle => '';
+  String get statsOptCurrentTitle => 'Livre actuel';
 
   @override
-  String get statsOptCurrentSub => '';
+  String get statsOptCurrentSub => 'Progrès de la lecture en cours';
 
   @override
-  String get statsOptAddedTimeTitle => '';
+  String get statsOptAddedTimeTitle => 'Livres ajoutés';
 
   @override
-  String get statsOptAddedTimeSub => '';
+  String get statsOptAddedTimeSub => 'Graphique temporel des acquisitions';
 
   @override
-  String get statsOptCategoriesTitle => '';
+  String get statsOptCategoriesTitle => 'Catégories';
 
   @override
-  String get statsOptCategoriesSub => '';
+  String get statsOptCategoriesSub => 'Répartition par genres';
 
   @override
-  String get statsOptYearsTitle => '';
+  String get statsOptYearsTitle => 'Année de publication';
 
   @override
-  String get statsOptYearsSub => '';
+  String get statsOptYearsSub => 'Histogramme historique';
 
   @override
-  String get statsOptReadYearTitle => '';
+  String get statsOptReadYearTitle => 'Lus par an';
 
   @override
-  String get statsOptReadYearSub => '';
+  String get statsOptReadYearSub => 'Graphique de lecture annuelle';
 
   @override
-  String get statsOptCollectionsTitle => '';
+  String get statsOptCollectionsTitle => 'Collections';
 
   @override
-  String get statsOptCollectionsSub => '';
+  String get statsOptCollectionsSub => 'Livres par collection';
 
   @override
-  String get statsOptLastAddedTitle => '';
+  String get statsOptLastAddedTitle => 'Derniers ajouts';
 
   @override
-  String get statsOptLastAddedSub => '';
+  String get statsOptLastAddedSub => 'Nouveautés';
 
   @override
-  String get statsOptAvgPagesTitle => '';
+  String get statsOptAvgPagesTitle => 'Longueur moyenne';
 
   @override
-  String get statsOptAvgPagesSub => '';
+  String get statsOptAvgPagesSub => 'Nombre moyen de pages par livre';
 
   @override
-  String get statsOptReadListTitle => '';
+  String get statsOptReadListTitle => 'Liste des lus';
 
   @override
-  String get statsOptReadListSub => '';
+  String get statsOptReadListSub => 'Livres lus sur une période';
 
   @override
-  String get statsOptAvgCompletionTitle => '';
+  String get statsOptAvgCompletionTitle => 'Temps de lecture';
 
   @override
-  String get statsOptAvgCompletionSub => '';
+  String get statsOptAvgCompletionSub => 'Temps moyen pour terminer un livre';
 
   @override
-  String get statsOptDailyReadingTitle => 'Lectura diaria';
+  String get statsOptDailyReadingTitle => 'Lecture quotidienne';
 
   @override
-  String get statsOptDailyReadingSub => 'Páginas leídas por día';
+  String get statsOptDailyReadingSub => 'Pages lues par jour';
 
   @override
   String statsAvgCompletionValue(String days) {
-    return '';
+    return '$days jours';
   }
 
   @override
-  String get statsPeriodThisMonth => '';
+  String get statsPeriodThisMonth => 'Lus ce mois-ci';
 
   @override
-  String get statsPeriodLast3Months => '';
+  String get statsPeriodLast3Months => 'Derniers 3 mois';
 
   @override
-  String get statsPeriodThisYear => '';
+  String get statsPeriodThisYear => 'Lus cette année';
 
   @override
-  String get statsPeriodLast3Years => '';
+  String get statsPeriodLast3Years => 'Derniers 3 ans';
 
   @override
-  String get tabMore => '';
+  String get tabMore => 'plus';
 
   @override
-  String get sortTitle => '';
+  String get sortTitle => 'Trier';
 
   @override
-  String get openSettings => '';
+  String get openSettings => 'Ouvrir les paramètres';
 
   @override
-  String get permissionRequired => '';
+  String get permissionRequired => 'Autorisation nécessaire';
 
   @override
-  String get paginationMarkersAndIndices => 'Secciones y marcadores';
+  String get paginationMarkersAndIndices => 'Sections et marqueurs';
 
   @override
-  String get paginationSaveProgress => 'Guardar Progreso';
+  String get paginationSaveProgress => 'Enregistrer le progrès';
 
   @override
   String get paginationAllPagesAssigned =>
-      'Todas las páginas ya han sido asignadas.';
+      'Toutes les pages ont déjà été assignées.';
 
   @override
-  String get paginationChooseColor => 'Elegir color';
+  String get paginationChooseColor => 'Choisir une couleur';
 
   @override
   String paginationSegmentRequired(Object index) {
-    return 'Segmento $index: Todos los campos de página son obligatorios.';
+    return 'Segment $index: Tous les campos de page sont obligatoires.';
   }
 
   @override
   String paginationSegmentStartGreater(Object index) {
-    return 'Segmento $index: El inicio no puede ser mayor que el fin.';
+    return 'Segment $index: Le début ne peut pas être supérieur à la fin.';
   }
 
   @override
   String paginationSegmentExceedsTotal(int index, int total) {
-    return 'Segmento $index: Los valores exceden el total de páginas ($total).';
+    return 'Segment $index: Les valeurs dépassent le total de pages ($total).';
   }
 
   @override
   String paginationSegmentOverlap(String index1, String index2) {
-    return 'El segmento $index1 se solapa con el segmento $index2';
+    return 'Le segment $index1 chevauche le segment $index2';
   }
 
   @override
-  String get paginationAdvancedConfig => 'Configuración avanzada';
+  String get paginationAdvancedConfig => 'Configuration avancée';
 
   @override
-  String get paginationBlocksSegments => 'BLOQUES / SEGMENTOS';
+  String get paginationBlocksSegments => 'BLOCS / SEGMENTS';
 
   @override
   String get paginationNoSegmentsDefined =>
-      'No hay segmentos definidos. Se usa el rango 1-N por defecto.';
+      'Aucun segment défini. La plage 1-N est utilisée par défaut.';
 
   @override
-  String get paginationAddBlock => 'Añadir bloque';
+  String get paginationAddBlock => 'Ajouter un bloc';
 
   @override
   String get paginationAllPagesAssignedNote =>
-      'Nota: Ya has asignado todas las páginas disponibles.';
+      'Note: Vous avez déjà assigné toutes les pages disponibles.';
 
   @override
   String paginationPagesRemainingWarning(int count) {
-    return 'Aviso: Quedan $count páginas físicas sin asignar.';
+    return 'Avertissement: Il reste $count pages physiques non assignées.';
   }
 
   @override
   String get paginationPhysicalTotalNote =>
-      'Nota: El total de páginas se refiere a las páginas físicas del libro (hojas totales).';
+      'Note: Le total de pages fait référence aux pages physiques du livre (nombre total de feuilles).';
 
   @override
-  String get paginationCorrectErrors => 'CORRIJA LOS SIGUIENTES ERRORES:';
+  String get paginationCorrectErrors => 'CORRIGEZ LES ERREURS SUIVANTES:';
 
   @override
-  String get paginationMarkersLabels => 'MARCADORES / ETIQUETAS';
+  String get paginationMarkersLabels => 'MARQUEURS / ÉTIQUETTES';
 
   @override
-  String get paginationMarkerDefaultName => 'Marcador';
+  String get paginationMarkerDefaultName => 'Marqueur';
 
   @override
-  String get paginationSegmentsDefaultName => 'Bloque';
+  String get paginationSegmentsDefaultName => 'Bloc';
 
   @override
-  String get paginationAddMarker => 'Añadir marcador';
+  String get paginationAddMarker => 'Ajouter un marqueur';
 
   @override
-  String get paginationLabelOptional => 'Etiqueta (opcional)';
+  String get paginationLabelOptional => 'Étiquette (optionnel)';
 
   @override
-  String get paginationType => 'Tipo:';
+  String get paginationType => 'Type:';
 
   @override
-  String get paginationArabic => 'Arábigo';
+  String get paginationArabic => 'Arabe';
 
   @override
-  String get paginationRoman => 'Romano';
+  String get paginationRoman => 'Romain';
 
   @override
-  String get paginationOffset => 'Offset';
+  String get paginationOffset => 'Décalage';
 
   @override
-  String get paginationMarkerLabel => 'Etiqueta del marcador';
+  String get paginationMarkerLabel => 'Étiquette du marqueur';
 
   @override
-  String get paginationVisualPage => 'Página Visual';
+  String get paginationVisualPage => 'Page visuelle';
 
   @override
-  String get paginationVisualPageHint => 'Ej: xiv o 501';
+  String get paginationVisualPageHint => 'Ex: xiv ou 501';
 
   @override
   String paginationPhysicalLabel(Object page) {
-    return 'Física: $page';
+    return 'Physique: $page';
   }
 
   @override
-  String get paginationAdjustsAutomatically => 'Se ajusta automáticamente';
+  String get paginationAdjustsAutomatically => 'S\'ajuste automatiquement';
 
   @override
-  String get paginationVisualMode => 'Modo visual';
+  String get paginationVisualMode => 'Mode visuel';
 
   @override
   String paginationEquivalentPhysical(int start, int end) {
-    return 'Equivale a físicas: $start - $end';
+    return 'Équivaut aux pages physiques: $start - $end';
   }
 
   @override
   String paginationSectionLabel(int index) {
-    return 'Sección $index';
+    return 'Section $index';
   }
 
   @override
@@ -1610,29 +1679,31 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get paginationCurrentPageShort => 'Pág.';
+  String get paginationCurrentPageShort => 'P.';
 
   @override
-  String get paginationStartPhysical => 'Inicio (Físico)';
+  String get paginationStartPhysical => 'Début (Physique)';
 
   @override
-  String get paginationEndPhysical => 'Fin (Físico)';
+  String get paginationEndPhysical => 'Fin (Physique)';
 
   @override
-  String get paginationStartVisual => 'Inicio (Visual)';
+  String get paginationStartVisual => 'Début (Visuel)';
 
   @override
-  String get paginationEndVisual => 'Fin (Visual)';
+  String get paginationEndVisual => 'Fin (Visuel)';
 
   @override
-  String get paginationAdvancedButton => 'Avanzada';
+  String get paginationAdvancedButton => 'Avancé';
 
   @override
-  String get unknownAuthor => 'Desconocido';
+  String get unknownAuthor => 'Inconnu';
 
   @override
-  String get storagePermissionExplanation => '';
+  String get storagePermissionExplanation =>
+      'Pour sélectionner une couverture, vous devez accorder l\'accès au stockage. Vous pouvez le faire dans les paramètres de l\'application.';
 
   @override
-  String get cameraPermissionExplanation => '';
+  String get cameraPermissionExplanation =>
+      'Pour prendre une photo, vous devez accorder l\'accès à l\'appareil photo. Vous pouvez le faire dans les paramètres de l\'application.';
 }

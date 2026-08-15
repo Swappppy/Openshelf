@@ -42,8 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get libraryEmpty => 'Your library is empty';
 
   @override
-  String get libraryEmptyHint =>
-      'Every great reader started with a first book. What will yours be?';
+  String get libraryEmptyHint => 'What will your first book be?';
 
   @override
   String get libraryAddFirstBook => 'Add first book';
@@ -603,8 +602,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelfEmpty => 'You don\'t have any custom shelves';
 
   @override
-  String get shelfEmptySubtitle =>
-      'Organize your reads however you like: by genre, mood, or whatever comes to mind.';
+  String get shelfEmptySubtitle => 'Organize your reads however you like';
 
   @override
   String get shelvesAddFirstShelf => 'Create shelf';
@@ -710,7 +708,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tagNoneSubtitle =>
-      'Categories help you find the perfect book based on how you feel.';
+      'Categories help you find books and build a mental map of your library';
 
   @override
   String get categoriesAddFirst => 'New category';
@@ -740,7 +738,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get imprintNoneSubtitle =>
-      'Group your books by publisher to discover your favorites.';
+      'Group your books by publishers or their imprints';
 
   @override
   String get imprintsAddFirst => 'Add imprint';
@@ -785,7 +783,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get collectionNoneSubtitle =>
-      'Create themed collections: sagas, reading challenges, wishlists...';
+      'Create collections and organize your books';
 
   @override
   String get collectionsAddFirst => 'New collection';
@@ -863,6 +861,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageEnglish => 'English';
+
+  @override
+  String get settingsLanguageFrench => 'French';
+
+  @override
+  String get settingsLanguageItalian => 'Italian';
+
+  @override
+  String get settingsLanguageCatalan => 'Catalan';
+
+  @override
+  String get settingsLanguagePortuguese => 'Portuguese (Portugal)';
+
+  @override
+  String get settingsLanguagePortugueseBR => 'Portuguese (Brazil)';
 
   @override
   String get settingsThemeMode => 'Theme mode';
@@ -1522,7 +1535,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionRequired => 'Permission required';
 
   @override
-  String get paginationMarkersAndIndices => 'Markers & Indices';
+  String get paginationMarkersAndIndices => 'Sections & Markers';
 
   @override
   String get paginationSaveProgress => 'Save Progress';
@@ -1590,7 +1603,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paginationMarkerDefaultName => 'Marker';
 
   @override
-  String get paginationSegmentsDefaultName => 'Segment';
+  String get paginationSegmentsDefaultName => 'Block';
 
   @override
   String get paginationAddMarker => 'Add marker';

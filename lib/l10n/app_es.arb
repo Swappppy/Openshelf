@@ -1047,6 +1047,26 @@
   "@settingsLanguageEnglish": {
     "description": "Opción de idioma: inglés"
   },
+  "settingsLanguageFrench": "Francés",
+  "@settingsLanguageFrench": {
+    "description": "Opción de idioma: francés"
+  },
+  "settingsLanguageItalian": "Italiano",
+  "@settingsLanguageItalian": {
+    "description": "Opción de idioma: italiano"
+  },
+  "settingsLanguageCatalan": "Catalán",
+  "@settingsLanguageCatalan": {
+    "description": "Opción de idioma: catalán"
+  },
+  "settingsLanguagePortuguese": "Portugués (Portugal)",
+  "@settingsLanguagePortuguese": {
+    "description": "Opción de idioma: portugués"
+  },
+  "settingsLanguagePortugueseBR": "Portugués (Brasil)",
+  "@settingsLanguagePortugueseBR": {
+    "description": "Opción de idioma: portugués brasileño"
+  },
   "settingsThemeMode": "Modo de tema",
   "@settingsThemeMode": {
     "description": "Etiqueta de selector de modo de tema"

@@ -858,6 +858,21 @@ class AppLocalizationsEt extends AppLocalizations {
   String get settingsLanguageEnglish => '';
 
   @override
+  String get settingsLanguageFrench => 'Francés';
+
+  @override
+  String get settingsLanguageItalian => 'Italiano';
+
+  @override
+  String get settingsLanguageCatalan => 'Catalán';
+
+  @override
+  String get settingsLanguagePortuguese => 'Portugués (Portugal)';
+
+  @override
+  String get settingsLanguagePortugueseBR => 'Portugués (Brasil)';
+
+  @override
   String get settingsThemeMode => '';
 
   @override
