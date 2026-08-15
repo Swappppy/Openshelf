@@ -1,410 +1,548 @@
 {
   "@@locale": "en",
-
   "appTitle": "Openshelf",
-  "@appTitle": { "description": "Application name" },
-
+  "@appTitle": {
+    "description": "Application name"
+  },
   "errorPrefix": "Error: {message}",
   "@errorPrefix": {
     "description": "Generic error prefix",
-    "placeholders": { "message": { "type": "String" } }
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
   },
-
   "errorGeneric": "Error: {error}",
   "@errorGeneric": {
     "description": "Generic error message with parameter",
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
-
   "criticalStartError": "Error starting application: {error}",
   "@criticalStartError": {
     "description": "Critical app startup error",
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
-
   "navLibrary": "Library",
-  "@navLibrary": { "description": "Nav tab: library" },
-
+  "@navLibrary": {
+    "description": "Nav tab: library"
+  },
   "navShelves": "Shelves",
-  "@navShelves": { "description": "Nav tab: shelves" },
-
+  "@navShelves": {
+    "description": "Nav tab: shelves"
+  },
   "navStats": "Stats",
-  "@navStats": { "description": "Nav tab: stats" },
-
+  "@navStats": {
+    "description": "Nav tab: stats"
+  },
   "libraryTitle": "Library",
-  "@libraryTitle": { "description": "Library screen title" },
-
+  "@libraryTitle": {
+    "description": "Library screen title"
+  },
   "libraryEmpty": "Your library is empty",
-  "@libraryEmpty": { "description": "Empty library state" },
-
+  "@libraryEmpty": {
+    "description": "Empty library state"
+  },
   "libraryEmptyHint": "Every great reader started with a first book. What will yours be?",
-  "@libraryEmptyHint": { "description": "Hint when library is empty" },
-
+  "@libraryEmptyHint": {
+    "description": "Hint when library is empty"
+  },
   "libraryAddFirstBook": "Add first book",
   "@libraryAddFirstBook": {
     "description": "Text for the action button in the empty library state"
   },
-
   "libraryNoResults": "No results",
-  "@libraryNoResults": { "description": "No search results" },
-
+  "@libraryNoResults": {
+    "description": "No search results"
+  },
   "libraryNoResultsHint": "Try different filters",
-  "@libraryNoResultsHint": { "description": "Hint when no search results" },
-
+  "@libraryNoResultsHint": {
+    "description": "Hint when no search results"
+  },
   "addBook": "Add book",
-  "@addBook": { "description": "Add book FAB label" },
-
+  "@addBook": {
+    "description": "Add book FAB label"
+  },
   "displaySettings": "Show in library",
-  "@displaySettings": { "description": "Display settings title" },
-
+  "@displaySettings": {
+    "description": "Display settings title"
+  },
   "displaySettingsDragHint": "Drag to reorder",
-  "@displaySettingsDragHint": { "description": "Reorder hint" },
-
+  "@displaySettingsDragHint": {
+    "description": "Reorder hint"
+  },
   "settingsButton": "Settings",
-  "@settingsButton": { "description": "Settings button label" },
-
+  "@settingsButton": {
+    "description": "Settings button label"
+  },
   "fieldAuthor": "Author",
-  "@fieldAuthor": { "description": "Author field name" },
-
+  "@fieldAuthor": {
+    "description": "Author field name"
+  },
   "fieldPublisher": "Publisher",
-  "@fieldPublisher": { "description": "Publisher field name" },
-
+  "@fieldPublisher": {
+    "description": "Publisher field name"
+  },
   "fieldYear": "Published year",
-  "@fieldYear": { "description": "Year field name" },
-
+  "@fieldYear": {
+    "description": "Year field name"
+  },
   "fieldRating": "Rating",
-  "@fieldRating": { "description": "Rating field name" },
-
+  "@fieldRating": {
+    "description": "Rating field name"
+  },
   "fieldTags": "Tags",
-  "@fieldTags": { "description": "Tags field name" },
-
+  "@fieldTags": {
+    "description": "Tags field name"
+  },
   "fieldReadingProgress": "Reading progress",
-  "@fieldReadingProgress": { "description": "Reading progress field" },
-
+  "@fieldReadingProgress": {
+    "description": "Reading progress field"
+  },
   "fieldStatusChip": "Status chip",
-  "@fieldStatusChip": { "description": "Status chip field" },
-
+  "@fieldStatusChip": {
+    "description": "Status chip field"
+  },
   "searchHint": "Search by title...",
-  "@searchHint": { "description": "Library search placeholder" },
-
+  "@searchHint": {
+    "description": "Library search placeholder"
+  },
   "filterAuthor": "Author",
-  "@filterAuthor": { "description": "Author filter placeholder" },
-
+  "@filterAuthor": {
+    "description": "Author filter placeholder"
+  },
   "filterIsbn": "ISBN",
-  "@filterIsbn": { "description": "ISBN filter placeholder" },
-
+  "@filterIsbn": {
+    "description": "ISBN filter placeholder"
+  },
   "filterPublisher": "Publisher",
-  "@filterPublisher": { "description": "Publisher filter placeholder" },
-
+  "@filterPublisher": {
+    "description": "Publisher filter placeholder"
+  },
   "filterCollection": "Collection",
-  "@filterCollection": { "description": "Collection filter placeholder" },
-
+  "@filterCollection": {
+    "description": "Collection filter placeholder"
+  },
   "filterImprintLabel": "Imprint",
-  "@filterImprintLabel": { "description": "Imprint filter label" },
-
+  "@filterImprintLabel": {
+    "description": "Imprint filter label"
+  },
   "imprintBookCount": "{count} books",
   "@imprintBookCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "filterTagsLabel": "Categories",
-  "@filterTagsLabel": { "description": "Categories filter label" },
-
+  "@filterTagsLabel": {
+    "description": "Categories filter label"
+  },
   "done": "Done",
-  "@done": { "description": "Generic close button" },
-
+  "@done": {
+    "description": "Generic close button"
+  },
   "loading": "Loading...",
-  "@loading": { "description": "Generic loading message" },
-
+  "@loading": {
+    "description": "Generic loading message"
+  },
   "loadingImport": "Importing books, please wait...",
-  "@loadingImport": { "description": "Loading message during import" },
-
+  "@loadingImport": {
+    "description": "Loading message during import"
+  },
   "loadingExport": "Exporting books, please wait...",
-  "@loadingExport": { "description": "Loading message during export" },
-
+  "@loadingExport": {
+    "description": "Loading message during export"
+  },
   "exportProgressData": "Exporting data...",
   "exportProgressMedia": "Bundling media...",
   "exportProgressCompress": "Compressing backup...",
   "exportProgressFinalize": "Opening share menu...",
-
   "exportSaveSuccess": "Backup saved to {path}",
   "@exportSaveSuccess": {
-    "placeholders": { "path": { "type": "String" } }
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
   },
-
   "cancel": "Cancel",
-  "@cancel": { "description": "Generic cancel button" },
-
+  "@cancel": {
+    "description": "Generic cancel button"
+  },
   "save": "Save",
-  "@save": { "description": "Generic save button" },
-
+  "@save": {
+    "description": "Generic save button"
+  },
   "delete": "Delete",
-  "@delete": { "description": "Generic delete button" },
-
+  "@delete": {
+    "description": "Generic delete button"
+  },
   "create": "Create",
-  "@create": { "description": "Generic create button" },
-
+  "@create": {
+    "description": "Generic create button"
+  },
   "edit": "Edit",
-  "@edit": { "description": "Generic edit button" },
-
+  "@edit": {
+    "description": "Generic edit button"
+  },
   "duplicate": "Duplicate",
-  "@duplicate": { "description": "Generic duplicate action" },
-
+  "@duplicate": {
+    "description": "Generic duplicate action"
+  },
   "photo": "Photo",
-  "@photo": { "description": "Take photo button" },
-
+  "@photo": {
+    "description": "Take photo button"
+  },
   "url": "URL",
-  "@url": { "description": "Enter URL button" },
-
+  "@url": {
+    "description": "Enter URL button"
+  },
   "download": "Download",
-  "@download": { "description": "Download button" },
-
+  "@download": {
+    "description": "Download button"
+  },
   "retry": "Retry",
-  "@retry": { "description": "Retry button" },
-
+  "@retry": {
+    "description": "Retry button"
+  },
   "share": "Share",
-  "@share": { "description": "Share action" },
-
+  "@share": {
+    "description": "Share action"
+  },
   "saveToDevice": "Save to device",
-  "@saveToDevice": { "description": "Save to device action" },
-
+  "@saveToDevice": {
+    "description": "Save to device action"
+  },
   "addBookModalTitle": "Add book",
-  "@addBookModalTitle": { "description": "Add book modal title" },
-
+  "@addBookModalTitle": {
+    "description": "Add book modal title"
+  },
   "addBookModalSubtitle": "Choose how you want to add your book",
-  "@addBookModalSubtitle": { "description": "Add book modal subtitle" },
-
+  "@addBookModalSubtitle": {
+    "description": "Add book modal subtitle"
+  },
   "addManually": "Add manually",
-  "@addManually": { "description": "Add book manually option" },
-
+  "@addManually": {
+    "description": "Add book manually option"
+  },
   "addManuallySubtitle": "Fill in the data yourself",
-  "@addManuallySubtitle": { "description": "Add manually option subtitle" },
-
+  "@addManuallySubtitle": {
+    "description": "Add manually option subtitle"
+  },
   "searchBook": "Search book",
-  "@searchBook": { "description": "Search book online option" },
-
+  "@searchBook": {
+    "description": "Search book online option"
+  },
   "searchBookSubtitle": "By title, author, or ISBN",
-  "@searchBookSubtitle": { "description": "Search book option subtitle" },
-
+  "@searchBookSubtitle": {
+    "description": "Search book option subtitle"
+  },
   "scanBarcode": "Scan barcode",
-  "@scanBarcode": { "description": "Scan barcode option" },
-
+  "@scanBarcode": {
+    "description": "Scan barcode option"
+  },
   "scanBarcodeSubtitle": "Point the camera at the ISBN",
-  "@scanBarcodeSubtitle": { "description": "Scan barcode option subtitle" },
-
+  "@scanBarcodeSubtitle": {
+    "description": "Scan barcode option subtitle"
+  },
   "scanIsbnText": "Scan ISBN Number",
-  "@scanIsbnText": { "description": "Option to scan ISBN as text" },
-
+  "@scanIsbnText": {
+    "description": "Option to scan ISBN as text"
+  },
   "scanIsbnTextSubtitle": "Point at the printed number",
-  "@scanIsbnTextSubtitle": { "description": "Subtitle for scanning ISBN as text" },
-
+  "@scanIsbnTextSubtitle": {
+    "description": "Subtitle for scanning ISBN as text"
+  },
   "scanIsbnSelect": "Tap an ISBN to select it",
-  "@scanIsbnSelect": { "description": "Instruction to tap a detected ISBN" },
-
+  "@scanIsbnSelect": {
+    "description": "Instruction to tap a detected ISBN"
+  },
   "scanOcrHoldMessage": "Hold the image for a couple of seconds...",
-  "@scanOcrHoldMessage": { "description": "Instruction to hold the camera steady for OCR" },
-
+  "@scanOcrHoldMessage": {
+    "description": "Instruction to hold the camera steady for OCR"
+  },
   "scanBarcodePermission": "Camera permission required to scan barcodes",
-  "@scanBarcodePermission": { "description": "Camera permission missing message" },
-
+  "@scanBarcodePermission": {
+    "description": "Camera permission missing message"
+  },
   "scanBatch": "Batch scan",
-  "@scanBatch": { "description": "Batch scan option" },
-
+  "@scanBatch": {
+    "description": "Batch scan option"
+  },
   "scanBatchSubtitle": "Scan multiple books in a row",
-  "@scanBatchSubtitle": { "description": "Batch scan option subtitle" },
-
+  "@scanBatchSubtitle": {
+    "description": "Batch scan option subtitle"
+  },
   "scanModeBarcode": "Barcode",
-  "@scanModeBarcode": { "description": "Label for scanner mode: barcode" },
-
+  "@scanModeBarcode": {
+    "description": "Label for scanner mode: barcode"
+  },
   "scanModeIsbn": "ISBN Number",
-  "@scanModeIsbn": { "description": "Label for scanner mode: ISBN number / text" },
-
+  "@scanModeIsbn": {
+    "description": "Label for scanner mode: ISBN number / text"
+  },
   "bookFormNewTitle": "New book",
-  "@bookFormNewTitle": { "description": "New book form title" },
-
+  "@bookFormNewTitle": {
+    "description": "New book form title"
+  },
   "bookFormEditTitle": "Edit book",
-  "@bookFormEditTitle": { "description": "Edit book form title" },
-
+  "@bookFormEditTitle": {
+    "description": "Edit book form title"
+  },
   "tabMain": "Main",
-  "@tabMain": { "description": "Main tab label" },
-
+  "@tabMain": {
+    "description": "Main tab label"
+  },
   "tabDetails": "Details",
-  "@tabDetails": { "description": "Details tab label" },
-
+  "@tabDetails": {
+    "description": "Details tab label"
+  },
   "fieldTitle": "Title",
-  "@fieldTitle": { "description": "Title field label" },
-
+  "@fieldTitle": {
+    "description": "Title field label"
+  },
   "fieldSubtitle": "Subtitle",
-  "@fieldSubtitle": { "description": "Subtitle field label" },
-
+  "@fieldSubtitle": {
+    "description": "Subtitle field label"
+  },
   "fieldDescription": "Description",
-  "@fieldDescription": { "description": "Description field label" },
-
+  "@fieldDescription": {
+    "description": "Description field label"
+  },
   "fieldIsbn": "ISBN",
-  "@fieldIsbn": { "description": "ISBN field label" },
-
+  "@fieldIsbn": {
+    "description": "ISBN field label"
+  },
   "fieldLanguage": "Language",
-  "@fieldLanguage": { "description": "Language field label" },
-
+  "@fieldLanguage": {
+    "description": "Language field label"
+  },
   "fieldTranslator": "Translator",
-  "@fieldTranslator": { "description": "Translator field label" },
-
+  "@fieldTranslator": {
+    "description": "Translator field label"
+  },
   "fieldReads": "Reads",
-  "@fieldReads": { "description": "Name of the reads field" },
-
+  "@fieldReads": {
+    "description": "Name of the reads field"
+  },
   "fieldCopies": "Copies",
-  "@fieldCopies": { "description": "Name of the copies field" },
-
+  "@fieldCopies": {
+    "description": "Name of the copies field"
+  },
   "fieldTotalPages": "Total pages",
-  "@fieldTotalPages": { "description": "Total pages field" },
-
+  "@fieldTotalPages": {
+    "description": "Total pages field"
+  },
   "fieldTotalBooks": "Total books",
-  "@fieldTotalBooks": { "description": "Total books field" },
-
+  "@fieldTotalBooks": {
+    "description": "Total books field"
+  },
   "fieldCurrentPage": "Current page",
-  "@fieldCurrentPage": { "description": "Current page field" },
-
+  "@fieldCurrentPage": {
+    "description": "Current page field"
+  },
   "fieldNotes": "Notes",
-  "@fieldNotes": { "description": "Notes field label" },
-
+  "@fieldNotes": {
+    "description": "Notes field label"
+  },
   "fieldCollection": "Collection / Series",
-  "@fieldCollection": { "description": "Collection field label" },
-
+  "@fieldCollection": {
+    "description": "Collection field label"
+  },
   "fieldCollectionNumber": "Number in collection",
-  "@fieldCollectionNumber": { "description": "Number in collection field" },
-
+  "@fieldCollectionNumber": {
+    "description": "Number in collection field"
+  },
   "sectionBasicInfo": "Basic info",
-  "@sectionBasicInfo": { "description": "Basic info header" },
-
+  "@sectionBasicInfo": {
+    "description": "Basic info header"
+  },
   "sectionCategories": "Categories",
-  "@sectionCategories": { "description": "Categories header" },
-
+  "@sectionCategories": {
+    "description": "Categories header"
+  },
   "sectionReadingStatus": "Reading status",
-  "@sectionReadingStatus": { "description": "Reading status header" },
-
+  "@sectionReadingStatus": {
+    "description": "Reading status header"
+  },
   "sectionFormat": "Format",
-  "@sectionFormat": { "description": "Format header" },
-
+  "@sectionFormat": {
+    "description": "Format header"
+  },
   "sectionRating": "Rating",
-  "@sectionRating": { "description": "Rating header" },
-
+  "@sectionRating": {
+    "description": "Rating header"
+  },
   "sectionImprint": "Imprint",
-  "@sectionImprint": { "description": "Imprint header" },
-
+  "@sectionImprint": {
+    "description": "Imprint header"
+  },
   "coverPickPhoto": "Photo",
-  "@coverPickPhoto": { "description": "Photo pick button" },
-
+  "@coverPickPhoto": {
+    "description": "Photo pick button"
+  },
   "coverPickUrl": "URL",
-  "@coverPickUrl": { "description": "URL pick button" },
-
+  "@coverPickUrl": {
+    "description": "URL pick button"
+  },
   "coverSearch": "Search",
-  "@coverSearch": { "description": "Cover search button" },
-
+  "@coverSearch": {
+    "description": "Cover search button"
+  },
   "coverUrlDialogTitle": "Cover URL",
-  "@coverUrlDialogTitle": { "description": "Cover URL dialog title" },
-
+  "@coverUrlDialogTitle": {
+    "description": "Cover URL dialog title"
+  },
   "coverUrlHint": "https://example.com/cover.jpg",
-  "@coverUrlHint": { "description": "Cover URL placeholder" },
-
+  "@coverUrlHint": {
+    "description": "Cover URL placeholder"
+  },
   "coverDownloadError": "Could not download image",
-  "@coverDownloadError": { "description": "Download error message" },
-
+  "@coverDownloadError": {
+    "description": "Download error message"
+  },
   "imageProcessError": "Could not process image",
-  "@imageProcessError": { "description": "Error when image processing fails" },
-
+  "@imageProcessError": {
+    "description": "Error when image processing fails"
+  },
   "cropCoverTitle": "Crop cover",
-  "@cropCoverTitle": { "description": "Title for cover cropping screen" },
-
+  "@cropCoverTitle": {
+    "description": "Title for cover cropping screen"
+  },
   "cropImprintTitle": "Crop imprint",
-  "@cropImprintTitle": { "description": "Title for imprint cropping screen" },
-
+  "@cropImprintTitle": {
+    "description": "Title for imprint cropping screen"
+  },
   "tagSearchOrCreate": "Search or create category",
-  "@tagSearchOrCreate": { "description": "Tag search placeholder" },
-
+  "@tagSearchOrCreate": {
+    "description": "Tag search placeholder"
+  },
   "tagCreateHint": "Type and press Enter to add or create",
-  "@tagCreateHint": { "description": "Tag create hint" },
-
+  "@tagCreateHint": {
+    "description": "Tag create hint"
+  },
   "tagNoCategories": "No categories created yet",
-  "@tagNoCategories": { "description": "No categories message" },
-
+  "@tagNoCategories": {
+    "description": "No categories message"
+  },
   "imprintSearch": "Search imprint",
-  "@imprintSearch": { "description": "Imprint search placeholder" },
-
+  "@imprintSearch": {
+    "description": "Imprint search placeholder"
+  },
   "requiredField": "Required field",
-  "@requiredField": { "description": "Required field validation message" },
-
+  "@requiredField": {
+    "description": "Required field validation message"
+  },
   "statusWantToRead": "Want to read",
-  "@statusWantToRead": { "description": "Status: want to read" },
-
+  "@statusWantToRead": {
+    "description": "Status: want to read"
+  },
   "statusReading": "Reading",
-  "@statusReading": { "description": "Status: reading" },
-
+  "@statusReading": {
+    "description": "Status: reading"
+  },
   "statusRead": "Read",
-  "@statusRead": { "description": "Status: read" },
-
+  "@statusRead": {
+    "description": "Status: read"
+  },
   "statusAbandoned": "Abandoned",
-  "@statusAbandoned": { "description": "Status: abandoned" },
-
+  "@statusAbandoned": {
+    "description": "Status: abandoned"
+  },
   "statusPaused": "Paused",
-  "@statusPaused": { "description": "Status: paused" },
-
+  "@statusPaused": {
+    "description": "Status: paused"
+  },
   "formatPaperback": "Paperback",
-  "@formatPaperback": { "description": "Format: paperback" },
-
+  "@formatPaperback": {
+    "description": "Format: paperback"
+  },
   "formatHardcover": "Hardcover",
-  "@formatHardcover": { "description": "Format: hardcover" },
-
+  "@formatHardcover": {
+    "description": "Format: hardcover"
+  },
   "formatLeatherbound": "Leatherbound",
-  "@formatLeatherbound": { "description": "Format: leatherbound" },
-
+  "@formatLeatherbound": {
+    "description": "Format: leatherbound"
+  },
   "formatRustic": "Rustic",
-  "@formatRustic": { "description": "Format: rustic" },
-
+  "@formatRustic": {
+    "description": "Format: rustic"
+  },
   "formatDigital": "Digital",
-  "@formatDigital": { "description": "Format: digital" },
-
+  "@formatDigital": {
+    "description": "Format: digital"
+  },
   "formatOther": "Other",
-  "@formatOther": { "description": "Format: other" },
-
+  "@formatOther": {
+    "description": "Format: other"
+  },
   "bookDetailNotFound": "Book not found",
-  "@bookDetailNotFound": { "description": "Book not found message" },
-
+  "@bookDetailNotFound": {
+    "description": "Book not found message"
+  },
   "bookDetailPagePickerTitle": "Current page",
-  "@bookDetailPagePickerTitle": { "description": "Page picker title" },
-
+  "@bookDetailPagePickerTitle": {
+    "description": "Page picker title"
+  },
   "bookDetailNotesTitle": "Personal notes",
-  "@bookDetailNotesTitle": { "description": "Personal notes section title" },
-
+  "@bookDetailNotesTitle": {
+    "description": "Personal notes section title"
+  },
   "bookDetailNotesHint": "Write your notes here...",
-  "@bookDetailNotesHint": { "description": "Notes field placeholder" },
-
+  "@bookDetailNotesHint": {
+    "description": "Notes field placeholder"
+  },
   "bookDetailNotesEmpty": "Tap to add notes...",
-  "@bookDetailNotesEmpty": { "description": "Notes empty message" },
-
+  "@bookDetailNotesEmpty": {
+    "description": "Notes empty message"
+  },
   "bookDetailDeleteTitle": "Delete book",
-  "@bookDetailDeleteTitle": { "description": "Delete book dialog title" },
-
+  "@bookDetailDeleteTitle": {
+    "description": "Delete book dialog title"
+  },
   "bookDetailDeleteConfirm": "Delete \"{title}\"? This action cannot be undone.",
   "@bookDetailDeleteConfirm": {
     "description": "Delete book confirmation",
-    "placeholders": { "title": { "type": "String" } }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   },
-
   "bookDetailDuplicateTitle": "Duplicate book",
-  "@bookDetailDuplicateTitle": { "description": "Duplicate book dialog title" },
-
+  "@bookDetailDuplicateTitle": {
+    "description": "Duplicate book dialog title"
+  },
   "bookDetailDuplicateConfirm": "Do you want to create an exact copy of \"{title}\"?",
   "@bookDetailDuplicateConfirm": {
     "description": "Duplicate book confirmation",
-    "placeholders": { "title": { "type": "String" } }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   },
-
   "bookDetailNewReadingWholeBook": "Whole book",
   "bookDetailNewReadingWholeBookDescription": "A complete re-read will be recorded starting today.",
   "bookDetailNewReadingSections": "Sections",
   "bookDetailNewReadingSectionsCount": "{count, plural, =1{1 section} other{{count} sections}}",
   "@bookDetailNewReadingSectionsCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "bookDetailNewReadingReadCount": "Read {count}x",
   "bookDetailNewReadingSelectSections": "Select sections to re-read",
@@ -417,301 +555,399 @@
   "bookDetailReadOngoing": "ongoing",
   "bookDetailReadNumber": "Reading {number}",
   "@bookDetailReadNumber": {
-    "placeholders": { "number": { "type": "int" } }
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
   },
   "bookDetailReadEditDialogTitle": "Edit reading {number}",
   "bookDetailReadDeleteConfirm": "Delete this history entry?",
   "bookDetailReadNumberLabel": "Reading number",
-
   "bookDetailFieldPages": "PAGES",
-  "@bookDetailFieldPages": { "description": "Pages field label" },
-
+  "@bookDetailFieldPages": {
+    "description": "Pages field label"
+  },
   "bookDetailFieldCategories": "CATEGORIES",
-  "@bookDetailFieldCategories": { "description": "Categories field label" },
-
+  "@bookDetailFieldCategories": {
+    "description": "Categories field label"
+  },
   "bookDetailFieldFormat": "Format",
-  "@bookDetailFieldFormat": { "description": "Format field label" },
-
+  "@bookDetailFieldFormat": {
+    "description": "Format field label"
+  },
   "bookDetailFieldRating": "RATING",
-  "@bookDetailFieldRating": { "description": "Rating field label" },
-
+  "@bookDetailFieldRating": {
+    "description": "Rating field label"
+  },
   "bookDetailFieldImprintSection": "IMPRINT",
-  "@bookDetailFieldImprintSection": { "description": "Imprint section label" },
-
+  "@bookDetailFieldImprintSection": {
+    "description": "Imprint section label"
+  },
   "bookDetailFieldPersonalNotes": "PERSONAL NOTES",
-  "@bookDetailFieldPersonalNotes": { "description": "Notes section label" },
-
+  "@bookDetailFieldPersonalNotes": {
+    "description": "Notes section label"
+  },
   "bookDetailFieldAdded": "Added",
-  "@bookDetailFieldAdded": { "description": "Date added label" },
-
+  "@bookDetailFieldAdded": {
+    "description": "Date added label"
+  },
   "bookDetailFieldStarted": "Started reading",
-  "@bookDetailFieldStarted": { "description": "Date started label" },
-
+  "@bookDetailFieldStarted": {
+    "description": "Date started label"
+  },
   "bookDetailFieldFinished": "Finished reading",
-  "@bookDetailFieldFinished": { "description": "Date finished label" },
-
+  "@bookDetailFieldFinished": {
+    "description": "Date finished label"
+  },
   "pageProgress": "{current} / {total} pages · {percent}%",
   "@pageProgress": {
     "description": "Reading progress pages",
     "placeholders": {
-      "current": { "type": "String" },
-      "total": { "type": "String" },
-      "percent": { "type": "String" }
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
     }
   },
-
   "pageProgressShort": "{current} / {total}",
   "@pageProgressShort": {
     "description": "Short reading progress",
     "placeholders": {
-      "current": { "type": "String" },
-      "total": { "type": "String" }
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
-
   "pageSuffix": "{count} pages",
   "@pageSuffix": {
     "description": "Page count with suffix",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "pagesLabel": "pages",
-  "@pagesLabel": { "description": "Generic pages label" },
-
+  "@pagesLabel": {
+    "description": "Generic pages label"
+  },
   "shelvesTitle": "Shelves",
-  "@shelvesTitle": { "description": "Shelves screen title" },
-
+  "@shelvesTitle": {
+    "description": "Shelves screen title"
+  },
   "shelvesSectionByStatus": "By status",
-  "@shelvesSectionByStatus": { "description": "Status section header" },
-
+  "@shelvesSectionByStatus": {
+    "description": "Status section header"
+  },
   "shelvesSectionMine": "Shelves",
-  "@shelvesSectionMine": { "description": "Custom shelves section header" },
-
+  "@shelvesSectionMine": {
+    "description": "Custom shelves section header"
+  },
   "shelvesSectionManagement": "Management",
-  "@shelvesSectionManagement": { "description": "Management section header" },
-
+  "@shelvesSectionManagement": {
+    "description": "Management section header"
+  },
   "shelfAllBooks": "All books",
-  "@shelfAllBooks": { "description": "All books shelf" },
-
+  "@shelfAllBooks": {
+    "description": "All books shelf"
+  },
   "shelfReading": "Reading",
-  "@shelfReading": { "description": "Reading shelf" },
-
+  "@shelfReading": {
+    "description": "Reading shelf"
+  },
   "shelfRead": "Read",
-  "@shelfRead": { "description": "Read shelf" },
-
+  "@shelfRead": {
+    "description": "Read shelf"
+  },
   "shelfWantToRead": "To read",
-  "@shelfWantToRead": { "description": "To read shelf" },
-
+  "@shelfWantToRead": {
+    "description": "To read shelf"
+  },
   "shelfAbandoned": "Abandoned",
-  "@shelfAbandoned": { "description": "Abandoned shelf" },
-
+  "@shelfAbandoned": {
+    "description": "Abandoned shelf"
+  },
   "shelfPaused": "Paused",
-  "@shelfPaused": { "description": "Paused shelf" },
-
+  "@shelfPaused": {
+    "description": "Paused shelf"
+  },
   "shelfNewTooltip": "New shelf",
-  "@shelfNewTooltip": { "description": "New shelf tooltip" },
-
+  "@shelfNewTooltip": {
+    "description": "New shelf tooltip"
+  },
   "shelfEmpty": "You don't have any custom shelves",
-  "@shelfEmpty": { "description": "Empty custom shelves state" },
-
+  "@shelfEmpty": {
+    "description": "Empty custom shelves state"
+  },
   "shelfEmptySubtitle": "Organize your reads however you like: by genre, mood, or whatever comes to mind.",
-  "@shelfEmptySubtitle": { "description": "Empty shelves state subtitle" },
+  "@shelfEmptySubtitle": {
+    "description": "Empty shelves state subtitle"
+  },
   "shelvesAddFirstShelf": "Create shelf",
   "@shelvesAddFirstShelf": {
     "description": "Action button text for empty shelves state"
   },
-
   "shelfBooksEmpty": "No books in this shelf",
-  "@shelfBooksEmpty": { "description": "Empty shelf books state" },
-
+  "@shelfBooksEmpty": {
+    "description": "Empty shelf books state"
+  },
   "shelfStatusBooksEmpty": "No books here",
-  "@shelfStatusBooksEmpty": { "description": "Empty status books state" },
-
+  "@shelfStatusBooksEmpty": {
+    "description": "Empty status books state"
+  },
   "shelfFormNew": "New shelf",
-  "@shelfFormNew": { "description": "New shelf form title" },
-
+  "@shelfFormNew": {
+    "description": "New shelf form title"
+  },
   "shelfFormEdit": "Edit shelf",
-  "@shelfFormEdit": { "description": "Edit shelf form title" },
-
+  "@shelfFormEdit": {
+    "description": "Edit shelf form title"
+  },
   "shelfFormNameLabel": "Shelf name",
-  "@shelfFormNameLabel": { "description": "Shelf name field label" },
-
+  "@shelfFormNameLabel": {
+    "description": "Shelf name field label"
+  },
   "collectionNameLabel": "Collection name",
-  "@collectionNameLabel": { "description": "Collection name field label" },
-
+  "@collectionNameLabel": {
+    "description": "Collection name field label"
+  },
   "shelfFormSectionStatus": "Reading status",
-  "@shelfFormSectionStatus": { "description": "Shelf form status section" },
-
+  "@shelfFormSectionStatus": {
+    "description": "Shelf form status section"
+  },
   "shelfFormSectionTitle": "Title",
-  "@shelfFormSectionTitle": { "description": "Shelf form title section" },
-
+  "@shelfFormSectionTitle": {
+    "description": "Shelf form title section"
+  },
   "shelfFormSectionAuthor": "Author",
-  "@shelfFormSectionAuthor": { "description": "Shelf form author section" },
-
+  "@shelfFormSectionAuthor": {
+    "description": "Shelf form author section"
+  },
   "shelfFormSectionPublisher": "Publisher",
-  "@shelfFormSectionPublisher": { "description": "Shelf form publisher section" },
-
+  "@shelfFormSectionPublisher": {
+    "description": "Shelf form publisher section"
+  },
   "shelfFormSectionIsbn": "ISBN",
-  "@shelfFormSectionIsbn": { "description": "Shelf form ISBN section" },
-
+  "@shelfFormSectionIsbn": {
+    "description": "Shelf form ISBN section"
+  },
   "shelfFormSectionCollection": "Collection",
-  "@shelfFormSectionCollection": { "description": "Shelf form collection section" },
-
+  "@shelfFormSectionCollection": {
+    "description": "Shelf form collection section"
+  },
   "shelfFormSectionCategories": "Categories",
-  "@shelfFormSectionCategories": { "description": "Shelf form categories section" },
-
+  "@shelfFormSectionCategories": {
+    "description": "Shelf form categories section"
+  },
   "shelfFormSectionImprint": "Imprint",
-  "@shelfFormSectionImprint": { "description": "Shelf form imprint section" },
-
+  "@shelfFormSectionImprint": {
+    "description": "Shelf form imprint section"
+  },
   "shelfFormHintTitle": "Search in title",
-  "@shelfFormHintTitle": { "description": "Shelf form title hint" },
-
+  "@shelfFormHintTitle": {
+    "description": "Shelf form title hint"
+  },
   "shelfFormHintAuthor": "Author name",
-  "@shelfFormHintAuthor": { "description": "Shelf form author hint" },
-
+  "@shelfFormHintAuthor": {
+    "description": "Shelf form author hint"
+  },
   "shelfFormHintPublisher": "Publisher name",
-  "@shelfFormHintPublisher": { "description": "Shelf form publisher hint" },
-
+  "@shelfFormHintPublisher": {
+    "description": "Shelf form publisher hint"
+  },
   "shelfFormHintIsbn": "ISBN",
-  "@shelfFormHintIsbn": { "description": "Shelf form ISBN hint" },
-
+  "@shelfFormHintIsbn": {
+    "description": "Shelf form ISBN hint"
+  },
   "shelfFormHintCollection": "Collection name",
-  "@shelfFormHintCollection": { "description": "Shelf form collection hint" },
-
+  "@shelfFormHintCollection": {
+    "description": "Shelf form collection hint"
+  },
   "shelfFormStatusAny": "Any",
-  "@shelfFormStatusAny": { "description": "Shelf form any status" },
-
+  "@shelfFormStatusAny": {
+    "description": "Shelf form any status"
+  },
   "shelfOptionEdit": "Edit shelf",
-  "@shelfOptionEdit": { "description": "Edit shelf option" },
-
+  "@shelfOptionEdit": {
+    "description": "Edit shelf option"
+  },
   "shelfOptionDelete": "Delete",
-  "@shelfOptionDelete": { "description": "Delete shelf option" },
-
+  "@shelfOptionDelete": {
+    "description": "Delete shelf option"
+  },
   "shelfStatusLabelReading": "Reading",
-  "@shelfStatusLabelReading": { "description": "Reading status label" },
-
+  "@shelfStatusLabelReading": {
+    "description": "Reading status label"
+  },
   "shelfStatusLabelRead": "Read",
-  "@shelfStatusLabelRead": { "description": "Read status label" },
-
+  "@shelfStatusLabelRead": {
+    "description": "Read status label"
+  },
   "shelfStatusLabelWantToRead": "To read",
-  "@shelfStatusLabelWantToRead": { "description": "To read status label" },
-
+  "@shelfStatusLabelWantToRead": {
+    "description": "To read status label"
+  },
   "shelfStatusLabelAbandoned": "Abandoned",
-  "@shelfStatusLabelAbandoned": { "description": "Abandoned status label" },
-
+  "@shelfStatusLabelAbandoned": {
+    "description": "Abandoned status label"
+  },
   "shelfStatusLabelPaused": "Paused",
-  "@shelfStatusLabelPaused": { "description": "Paused status label" },
-
+  "@shelfStatusLabelPaused": {
+    "description": "Paused status label"
+  },
   "managementCategories": "Categories",
-  "@managementCategories": { "description": "Management: categories" },
-
+  "@managementCategories": {
+    "description": "Management: categories"
+  },
   "managementCategoryCount": "Book count",
-  "@managementCategoryCount": { "description": "Number of books in a category" },
-
+  "@managementCategoryCount": {
+    "description": "Number of books in a category"
+  },
   "managementImprints": "Imprints",
-  "@managementImprints": { "description": "Management: imprints" },
-
+  "@managementImprints": {
+    "description": "Management: imprints"
+  },
   "managementCollections": "Collections",
-  "@managementCollections": { "description": "Management: collections" },
-
+  "@managementCollections": {
+    "description": "Management: collections"
+  },
   "managementCategoryCloudCurve": "Algorithmic curve (Books)",
-
   "tagNone": "No categories yet",
-  "@tagNone": { "description": "Empty categories state" },
-
+  "@tagNone": {
+    "description": "Empty categories state"
+  },
   "tagNoneSubtitle": "Categories help you find the perfect book based on how you feel.",
-  "@tagNoneSubtitle": { "description": "Empty categories state subtitle" },
+  "@tagNoneSubtitle": {
+    "description": "Empty categories state subtitle"
+  },
   "categoriesAddFirst": "New category",
   "@categoriesAddFirst": {
     "description": "Action button text for empty categories state"
   },
-
   "tagNew": "New category",
-  "@tagNew": { "description": "New category button" },
-
+  "@tagNew": {
+    "description": "New category button"
+  },
   "tagNewDialogTitle": "New category",
-  "@tagNewDialogTitle": { "description": "New category title" },
-
+  "@tagNewDialogTitle": {
+    "description": "New category title"
+  },
   "tagNameLabel": "Name",
-  "@tagNameLabel": { "description": "Category name field label" },
-
+  "@tagNameLabel": {
+    "description": "Category name field label"
+  },
   "tagColorLabel": "Color",
-  "@tagColorLabel": { "description": "Category color field label" },
-
+  "@tagColorLabel": {
+    "description": "Category color field label"
+  },
   "tagDeleteTitle": "Delete category",
-  "@tagDeleteTitle": { "description": "Delete category title" },
-
+  "@tagDeleteTitle": {
+    "description": "Delete category title"
+  },
   "tagDeleteConfirm": "Delete \"{name}\"?",
   "@tagDeleteConfirm": {
     "description": "Delete category confirmation",
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "imprintNone": "No imprints yet",
-  "@imprintNone": { "description": "Empty imprints state" },
-
+  "@imprintNone": {
+    "description": "Empty imprints state"
+  },
   "imprintNoneSubtitle": "Group your books by publisher to discover your favorites.",
-  "@imprintNoneSubtitle": { "description": "Empty imprints state subtitle" },
+  "@imprintNoneSubtitle": {
+    "description": "Empty imprints state subtitle"
+  },
   "imprintsAddFirst": "Add imprint",
   "@imprintsAddFirst": {
     "description": "Action button text for empty imprints state"
   },
-
   "imprintNew": "New imprint",
-  "@imprintNew": { "description": "New imprint button" },
-
+  "@imprintNew": {
+    "description": "New imprint button"
+  },
   "imprintNewDialogTitle": "New imprint",
-  "@imprintNewDialogTitle": { "description": "New imprint title" },
-
+  "@imprintNewDialogTitle": {
+    "description": "New imprint title"
+  },
   "imprintEditDialogTitle": "Edit imprint",
-  "@imprintEditDialogTitle": { "description": "Edit imprint title" },
-
+  "@imprintEditDialogTitle": {
+    "description": "Edit imprint title"
+  },
   "imprintNameLabel": "Imprint name",
-  "@imprintNameLabel": { "description": "Imprint name field label" },
-
+  "@imprintNameLabel": {
+    "description": "Imprint name field label"
+  },
   "imprintAddImageHint": "Tap to add image",
-  "@imprintAddImageHint": { "description": "Add imprint image hint" },
-
+  "@imprintAddImageHint": {
+    "description": "Add imprint image hint"
+  },
   "imprintChangeImageHint": "Tap to change image",
-  "@imprintChangeImageHint": { "description": "Change imprint image hint" },
-
+  "@imprintChangeImageHint": {
+    "description": "Change imprint image hint"
+  },
   "imprintUrlDialogTitle": "Image URL",
-  "@imprintUrlDialogTitle": { "description": "Imprint URL title" },
-
+  "@imprintUrlDialogTitle": {
+    "description": "Imprint URL title"
+  },
   "imprintUrlHint": "https://example.com/imprint.jpg",
-  "@imprintUrlHint": { "description": "Imprint URL placeholder" },
-
+  "@imprintUrlHint": {
+    "description": "Imprint URL placeholder"
+  },
   "imprintDeleteTitle": "Delete imprint",
-  "@imprintDeleteTitle": { "description": "Delete imprint title" },
-
+  "@imprintDeleteTitle": {
+    "description": "Delete imprint title"
+  },
   "imprintDeleteConfirm": "Delete \"{name}\"?",
   "@imprintDeleteConfirm": {
     "description": "Delete imprint confirmation",
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "imprintNoImprints": "No imprints created",
-  "@imprintNoImprints": { "description": "Shelf form no imprints message" },
-
+  "@imprintNoImprints": {
+    "description": "Shelf form no imprints message"
+  },
   "collectionNone": "No collections yet",
-  "@collectionNone": { "description": "Empty collections state" },
-
+  "@collectionNone": {
+    "description": "Empty collections state"
+  },
   "collectionNoneSubtitle": "Create themed collections: sagas, reading challenges, wishlists...",
-  "@collectionNoneSubtitle": { "description": "Empty collections state subtitle" },
+  "@collectionNoneSubtitle": {
+    "description": "Empty collections state subtitle"
+  },
   "collectionsAddFirst": "New collection",
   "@collectionsAddFirst": {
     "description": "Action button text for empty collections state"
   },
-
   "collectionDeleteTitle": "Delete collection",
-  "@collectionDeleteTitle": { "description": "Delete collection title" },
-
+  "@collectionDeleteTitle": {
+    "description": "Delete collection title"
+  },
   "collectionDeleteConfirm": "Delete \"{name}\"?",
   "@collectionDeleteConfirm": {
     "description": "Delete collection confirmation",
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "onboardingWelcomeTitle": "Welcome to Openshelf",
   "onboardingWelcomeSub": "Your personal library, reimagined",
   "onboardingOrganizeTitle": "Organize your world",
@@ -722,81 +958,103 @@
   "onboardingAddSub": "Scan barcodes or search in the cloud",
   "onboardingNext": "Next",
   "onboardingStart": "Start now",
-
   "settingsApplyIcon": "Apply icon change",
   "settingsDynamicIcon": "Dynamic app icon",
   "settingsDynamicIconSub": "Changes the home screen icon to match the chosen color (App will restart)",
   "settingsLibraryColumns": "Library columns",
   "settingsLibraryColumnsSub": "Adjust the number of books per row in grid view",
   "settingsTitle": "Settings",
-  "@settingsTitle": { "description": "Settings screen title" },
-
+  "@settingsTitle": {
+    "description": "Settings screen title"
+  },
   "settingsSectionAppearance": "Appearance",
-  "@settingsSectionAppearance": { "description": "Appearance section header" },
-
+  "@settingsSectionAppearance": {
+    "description": "Appearance section header"
+  },
   "settingsLanguage": "Language",
-  "@settingsLanguage": { "description": "Language selector label" },
-
+  "@settingsLanguage": {
+    "description": "Language selector label"
+  },
   "settingsLanguageSystem": "System (automatic)",
-  "@settingsLanguageSystem": { "description": "Language option: system" },
-
+  "@settingsLanguageSystem": {
+    "description": "Language option: system"
+  },
   "settingsLanguageSpanish": "Spanish",
-  "@settingsLanguageSpanish": { "description": "Language option: spanish" },
-
+  "@settingsLanguageSpanish": {
+    "description": "Language option: spanish"
+  },
   "settingsLanguageEnglish": "English",
-  "@settingsLanguageEnglish": { "description": "Language option: english" },
-
+  "@settingsLanguageEnglish": {
+    "description": "Language option: english"
+  },
   "settingsThemeMode": "Theme mode",
-  "@settingsThemeMode": { "description": "Theme mode label" },
-
+  "@settingsThemeMode": {
+    "description": "Theme mode label"
+  },
   "settingsThemeLight": "Light",
-  "@settingsThemeLight": { "description": "Light theme option" },
-
+  "@settingsThemeLight": {
+    "description": "Light theme option"
+  },
   "settingsThemeSystem": "System",
-  "@settingsThemeSystem": { "description": "System theme option" },
-
+  "@settingsThemeSystem": {
+    "description": "System theme option"
+  },
   "settingsThemeDark": "Dark",
-  "@settingsThemeDark": { "description": "Dark theme option" },
-
+  "@settingsThemeDark": {
+    "description": "Dark theme option"
+  },
   "settingsAccentColor": "Accent color",
-  "@settingsAccentColor": { "description": "Accent color label" },
-
+  "@settingsAccentColor": {
+    "description": "Accent color label"
+  },
   "settingsAccentColorHint": "Tap a color to apply it",
-  "@settingsAccentColorHint": { "description": "Accent color hint" },
-
+  "@settingsAccentColorHint": {
+    "description": "Accent color hint"
+  },
   "settingsSectionStorage": "Storage",
-  "@settingsSectionStorage": { "description": "Storage section header" },
-
+  "@settingsSectionStorage": {
+    "description": "Storage section header"
+  },
   "settingsCoversFolder": "Covers folder",
-  "@settingsCoversFolder": { "description": "Covers folder label" },
-
+  "@settingsCoversFolder": {
+    "description": "Covers folder label"
+  },
   "settingsDatabase": "Database",
-  "@settingsDatabase": { "description": "Database label" },
-
+  "@settingsDatabase": {
+    "description": "Database label"
+  },
   "settingsDefaultDir": "Default directory",
-  "@settingsDefaultDir": { "description": "Default directory label" },
-
+  "@settingsDefaultDir": {
+    "description": "Default directory label"
+  },
   "settingsDbMoveTitle": "Move database",
-  "@settingsDbMoveTitle": { "description": "Move database dialog title" },
-
+  "@settingsDbMoveTitle": {
+    "description": "Move database dialog title"
+  },
   "settingsDbMoveContent": "Moving the database requires an app restart. Data will be copied to the new directory. Continue?",
-  "@settingsDbMoveContent": { "description": "Move database dialog content" },
-
+  "@settingsDbMoveContent": {
+    "description": "Move database dialog content"
+  },
   "settingsDbMoveConfirm": "Move and restart",
-  "@settingsDbMoveConfirm": { "description": "Move database confirmation" },
-
+  "@settingsDbMoveConfirm": {
+    "description": "Move database confirmation"
+  },
   "settingsSectionSearch": "Book search",
-  "@settingsSectionSearch": { "description": "Search section header" },
-
+  "@settingsSectionSearch": {
+    "description": "Search section header"
+  },
   "settingsSearchServer": "Server",
-  "@settingsSearchServer": { "description": "Search server label" },
-
+  "@settingsSearchServer": {
+    "description": "Search server label"
+  },
   "settingsSearchServerHint": "Used to search for books by ISBN or title",
-  "@settingsSearchServerHint": { "description": "Search server hint" },
-
+  "@settingsSearchServerHint": {
+    "description": "Search server hint"
+  },
   "settingsSectionData": "Data management",
-  "@settingsSectionData": { "description": "Data management section header" },
-
+  "@settingsSectionData": {
+    "description": "Data management section header"
+  },
   "dataManagementOpenShelf": "OpenShelf",
   "dataManagementBookshelf": "Bookshelf",
   "dataManagementGoodreads": "Goodreads",
@@ -806,300 +1064,415 @@
   "dataManagementImportHint": "Import from {source} CSV",
   "dataManagementImportHintJson": "Import from {source} JSON",
   "@dataManagementImportHint": {
-    "placeholders": { "source": { "type": "String" } }
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
   },
   "dataManagementExportHint": "Export to {source} CSV",
   "dataManagementExportHintJson": "Export to {source} JSON",
   "@dataManagementExportHint": {
-    "placeholders": { "source": { "type": "String" } }
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
   },
   "dataManagementRestoreBackup": "Restore backup",
   "dataManagementRestoreBackupHint": "Restore from OpenShelf CSV/ZIP",
   "dataManagementCreateBackup": "Create backup",
   "dataManagementCreateBackupHint": "Full export with covers option",
-
   "settingsImportBookshelf": "Import from Bookshelf",
-  "@settingsImportBookshelf": { "description": "Import from Bookshelf option" },
-
+  "@settingsImportBookshelf": {
+    "description": "Import from Bookshelf option"
+  },
   "settingsImportBookshelfHint": "Import books from a CSV export",
-  "@settingsImportBookshelfHint": { "description": "Import hint" },
-
+  "@settingsImportBookshelfHint": {
+    "description": "Import hint"
+  },
   "settingsExportCsv": "Export library",
-  "@settingsExportCsv": { "description": "Export title" },
-
+  "@settingsExportCsv": {
+    "description": "Export title"
+  },
   "settingsExportCsvHint": "Export all books to a CSV file",
-  "@settingsExportCsvHint": { "description": "Export hint" },
-
+  "@settingsExportCsvHint": {
+    "description": "Export hint"
+  },
   "settingsFullBackup": "Restore library",
-  "@settingsFullBackup": { "description": "Restore title" },
-
+  "@settingsFullBackup": {
+    "description": "Restore title"
+  },
   "settingsFullBackupHint": "Restore books from a CSV backup",
-  "@settingsFullBackupHint": { "description": "Restore hint" },
-
+  "@settingsFullBackupHint": {
+    "description": "Restore hint"
+  },
   "settingsAutoNoCoverTitle": "No cover shelf",
   "settingsAutoNoCoverSub": "Auto-create a shelf for books without covers",
   "noCoverShelfTitle": "Books without cover",
-
   "settingsCompressImagesTitle": "Compress covers automatically",
   "settingsCompressImagesSub": "Reduces image size when saving or importing",
-
   "settingsBatchCompressTitle": "Optimize library now",
   "settingsBatchCompressSub": "Compresses all existing covers that are not yet optimized",
   "settingsBatchCompressSuccess": "Optimized {count} covers.",
   "@settingsBatchCompressSuccess": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "exportTitle": "Export Library",
-  "@exportTitle": { "description": "Export dialog title" },
-
+  "@exportTitle": {
+    "description": "Export dialog title"
+  },
   "exportCoversPrompt": "Do you want to include cover images in the backup? (This will create a ZIP file alongside the CSV)",
-  "@exportCoversPrompt": { "description": "Export covers prompt" },
-
+  "@exportCoversPrompt": {
+    "description": "Export covers prompt"
+  },
   "importRestoreCoversTitle": "Restore Covers",
-  "@importRestoreCoversTitle": { "description": "Import covers title" },
-
+  "@importRestoreCoversTitle": {
+    "description": "Import covers title"
+  },
   "importRestoreCoversPrompt": "Do you also have a ZIP file with the cover images to restore?",
-  "@importRestoreCoversPrompt": { "description": "Import covers prompt" },
-
+  "@importRestoreCoversPrompt": {
+    "description": "Import covers prompt"
+  },
   "yes": "Yes",
-  "@yes": { "description": "Yes button" },
-
+  "@yes": {
+    "description": "Yes button"
+  },
   "no": "No",
-  "@no": { "description": "No button" },
-
+  "@no": {
+    "description": "No button"
+  },
   "devDeleteAllBooks": "DELETE ALL BOOKS (DEV)",
-  "@devDeleteAllBooks": { "description": "Developer option to clear database" },
-
+  "@devDeleteAllBooks": {
+    "description": "Developer option to clear database"
+  },
   "settingsDevClearDbSub": "Developer tool: clear database",
   "settingsDevDbCleared": "Database cleared",
   "settingsImportSelectBackup": "Select Openshelf Backup",
   "settingsImportSelectCovers": "Select Openshelf Covers ZIP",
-
   "devDeleteConfirmTitle": "Clear Library?",
-  "@devDeleteConfirmTitle": { "description": "Dev delete confirmation title" },
-
+  "@devDeleteConfirmTitle": {
+    "description": "Dev delete confirmation title"
+  },
   "devDeleteConfirmContent": "This will permanently remove ALL books and categories. This is for testing only. Continue?",
-  "@devDeleteConfirmContent": { "description": "Dev delete confirmation content" },
-
+  "@devDeleteConfirmContent": {
+    "description": "Dev delete confirmation content"
+  },
   "importSuccess": "Import complete: {count} books added.",
   "@importSuccess": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "importPartial": "Import partial: {added} added, {skipped} skipped.",
   "@importPartial": {
     "placeholders": {
-      "added": { "type": "int" },
-      "skipped": { "type": "int" }
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
     }
   },
-
   "settingsApiKeyTitle": "Google Books API key",
-  "@settingsApiKeyTitle": { "description": "API key card title" },
-
+  "@settingsApiKeyTitle": {
+    "description": "API key card title"
+  },
   "settingsApiKeyConfigured": "Key configured. Google Books is available.",
-  "@settingsApiKeyConfigured": { "description": "Key configured message" },
-
+  "@settingsApiKeyConfigured": {
+    "description": "Key configured message"
+  },
   "settingsApiKeyMissing": "No key, Google Books will use Open Library as fallback.",
-  "@settingsApiKeyMissing": { "description": "Key missing message" },
-
+  "@settingsApiKeyMissing": {
+    "description": "Key missing message"
+  },
   "settingsApiKeyHint": "AIza...",
-  "@settingsApiKeyHint": { "description": "API key placeholder" },
-
+  "@settingsApiKeyHint": {
+    "description": "API key placeholder"
+  },
   "settingsApiKeyShow": "Show",
-  "@settingsApiKeyShow": { "description": "Show key tooltip" },
-
+  "@settingsApiKeyShow": {
+    "description": "Show key tooltip"
+  },
   "settingsApiKeyHide": "Hide",
-  "@settingsApiKeyHide": { "description": "Hide key tooltip" },
-
+  "@settingsApiKeyHide": {
+    "description": "Hide key tooltip"
+  },
   "settingsApiKeySave": "Save key",
-  "@settingsApiKeySave": { "description": "Save key button" },
-
+  "@settingsApiKeySave": {
+    "description": "Save key button"
+  },
   "settingsApiKeySaved": "Key saved",
-  "@settingsApiKeySaved": { "description": "Key saved confirmation" },
-
+  "@settingsApiKeySaved": {
+    "description": "Key saved confirmation"
+  },
   "settingsApiKeyClear": "Clear key",
-  "@settingsApiKeyClear": { "description": "Clear key tooltip" },
-
+  "@settingsApiKeyClear": {
+    "description": "Clear key tooltip"
+  },
   "settingsApiKeyHowTo": "How to get it",
-  "@settingsApiKeyHowTo": { "description": "How to get key button" },
-
+  "@settingsApiKeyHowTo": {
+    "description": "How to get key button"
+  },
   "settingsApiKeyInstructionsTitle": "How to get a Google Books API key",
-  "@settingsApiKeyInstructionsTitle": { "description": "Instructions title" },
-
+  "@settingsApiKeyInstructionsTitle": {
+    "description": "Instructions title"
+  },
   "settingsApiKeyStep1": "Open console.cloud.google.com and log in with your Google account.",
-  "@settingsApiKeyStep1": { "description": "Step 1" },
-
+  "@settingsApiKeyStep1": {
+    "description": "Step 1"
+  },
   "settingsApiKeyStep2": "Create a new project (any name will do).",
-  "@settingsApiKeyStep2": { "description": "Step 2" },
-
+  "@settingsApiKeyStep2": {
+    "description": "Step 2"
+  },
   "settingsApiKeyStep3": "Go to APIs & Services → Library, search for \"Books API\" and enable it.",
-  "@settingsApiKeyStep3": { "description": "Step 3" },
-
+  "@settingsApiKeyStep3": {
+    "description": "Step 3"
+  },
   "settingsApiKeyStep4": "Go to APIs & Services → Credentials → Create Credentials → API Key.",
-  "@settingsApiKeyStep4": { "description": "Step 4" },
-
+  "@settingsApiKeyStep4": {
+    "description": "Step 4"
+  },
   "settingsApiKeyStep5": "Optional but recommended: restrict the key to the Books API only.",
-  "@settingsApiKeyStep5": { "description": "Step 5" },
-
+  "@settingsApiKeyStep5": {
+    "description": "Step 5"
+  },
   "settingsApiKeyStep6": "Copy the resulting key (starts with \"AIza...\") and paste it here.",
-  "@settingsApiKeyStep6": { "description": "Step 6" },
-
+  "@settingsApiKeyStep6": {
+    "description": "Step 6"
+  },
   "settingsApiKeyNote": "The key is free and allows up to 1,000 searches per day. It is not shared with anyone: it is only saved on this device.",
-  "@settingsApiKeyNote": { "description": "API key information note" },
-
+  "@settingsApiKeyNote": {
+    "description": "API key information note"
+  },
   "bookSearchHint": "Title, author, or ISBN...",
-  "@bookSearchHint": { "description": "Book search field hint" },
-
+  "@bookSearchHint": {
+    "description": "Book search field hint"
+  },
   "bookSearchPrompt": "Search by title, author, or ISBN",
-  "@bookSearchPrompt": { "description": "Initial search prompt" },
-
+  "@bookSearchPrompt": {
+    "description": "Initial search prompt"
+  },
   "bookSearchNoResults": "No results for \"{query}\"",
   "@bookSearchNoResults": {
     "description": "Search no results message",
-    "placeholders": { "query": { "type": "String" } }
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
   },
-
   "bookSearchProvidersNotice": "Results from: {providers}.",
   "@bookSearchProvidersNotice": {
     "description": "Notice of providers that contributed to the search",
-    "placeholders": { "providers": { "type": "String" } }
+    "placeholders": {
+      "providers": {
+        "type": "String"
+      }
+    }
   },
-
   "bookSearchRecommended": "RECOMMENDED BY OPENSHELF",
-  "@bookSearchRecommended": { "description": "Label for recommended result" },
-
+  "@bookSearchRecommended": {
+    "description": "Label for recommended result"
+  },
   "bookSearchRecommendedSource": "Recommended by Openshelf",
   "bookSearchServerOpenLibrary": "Open Library",
   "bookSearchServerGoogleBooks": "Google Books",
   "bookSearchServerInventaire": "Inventaire.io",
-
   "searchTabStatus": "Status",
-  "@searchTabStatus": { "description": "Search panel: Status tab" },
-
+  "@searchTabStatus": {
+    "description": "Search panel: Status tab"
+  },
   "searchTabImprint": "Imprint",
-  "@searchTabImprint": { "description": "Search panel: Imprint tab" },
-
+  "@searchTabImprint": {
+    "description": "Search panel: Imprint tab"
+  },
   "searchTabCategory": "Category",
-  "@searchTabCategory": { "description": "Search panel: Category tab" },
+  "@searchTabCategory": {
+    "description": "Search panel: Category tab"
+  },
   "searchTabCollection": "Collection",
-  "@searchTabCollection": { "description": "Search panel: Collection tab" },
-
+  "@searchTabCollection": {
+    "description": "Search panel: Collection tab"
+  },
   "searchFilterStatus": "Status: {value}",
   "@searchFilterStatus": {
-    "placeholders": { "value": { "type": "String" } }
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   },
-
   "searchFilterImprint": "Imprint: {value}",
   "@searchFilterImprint": {
-    "placeholders": { "value": { "type": "String" } }
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   },
-
   "searchFilterCategory": "Cat.: {value}",
   "@searchFilterCategory": {
-    "placeholders": { "value": { "type": "String" } }
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   },
   "searchFilterCollection": "Coll.: {value}",
   "@searchFilterCollection": {
-    "placeholders": { "value": { "type": "String" } }
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   },
-
   "searchActiveFilters": "{count, plural, =1{1 active filter} other{{count} active filters}}",
   "@searchActiveFilters": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "searchSaveAsShelf": "Save as shelf",
   "shelfShowInLibrary": "Show in library",
-
   "searchClearAll": "Clear all",
-  "@searchClearAll": { "description": "Button to clear all search filters" },
-
+  "@searchClearAll": {
+    "description": "Button to clear all search filters"
+  },
   "addedToLibrary": "Added to library",
-  "@addedToLibrary": { "description": "Success message when book is added" },
-
+  "@addedToLibrary": {
+    "description": "Success message when book is added"
+  },
   "errorDuplicateIsbn": "Already in library",
-  "@errorDuplicateIsbn": { "description": "Error when book ISBN already exists" },
-
+  "@errorDuplicateIsbn": {
+    "description": "Error when book ISBN already exists"
+  },
   "bookDuplicateTitle": "Duplicate Book",
-  "@bookDuplicateTitle": { "description": "Duplicate book warning title" },
-
+  "@bookDuplicateTitle": {
+    "description": "Duplicate book warning title"
+  },
   "bookDuplicateContent": "You already have a book with ISBN {isbn} in your library.",
   "@bookDuplicateContent": {
     "description": "Duplicate book warning content",
-    "placeholders": { "isbn": { "type": "String" } }
+    "placeholders": {
+      "isbn": {
+        "type": "String"
+      }
+    }
   },
-
   "bookSearchErrorNoApiKey": "Google Books requires an API key.\nConfigure it in Settings → Book Search.",
-  "@bookSearchErrorNoApiKey": { "description": "Error: no API key" },
-
+  "@bookSearchErrorNoApiKey": {
+    "description": "Error: no API key"
+  },
   "bookSearchErrorRateLimit": "Google Books has rate limited requests.\nWait a moment and try again.",
-  "@bookSearchErrorRateLimit": { "description": "Error: rate limit" },
-
+  "@bookSearchErrorRateLimit": {
+    "description": "Error: rate limit"
+  },
   "bookSearchErrorNetwork": "Could not connect to any server.\nCheck your connection and try again.",
-  "@bookSearchErrorNetwork": { "description": "Search network error" },
-
+  "@bookSearchErrorNetwork": {
+    "description": "Search network error"
+  },
   "coverPickerTitle": "Covers",
-  "@coverPickerTitle": { "description": "Cover picker sheet title" },
-
+  "@coverPickerTitle": {
+    "description": "Cover picker sheet title"
+  },
   "coverPickerIsbnLabel": "ISBN {isbn}",
   "@coverPickerIsbnLabel": {
     "description": "Sheet subtitle with ISBN",
-    "placeholders": { "isbn": { "type": "String" } }
+    "placeholders": {
+      "isbn": {
+        "type": "String"
+      }
+    }
   },
-
   "coverPickerNoResults": "No covers found for this book.",
-  "@coverPickerNoResults": { "description": "No covers found message" },
-
+  "@coverPickerNoResults": {
+    "description": "No covers found message"
+  },
   "coverPickerNetworkError": "Could not connect. Check your connection.",
-  "@coverPickerNetworkError": { "description": "Cover search network error" },
-
+  "@coverPickerNetworkError": {
+    "description": "Cover search network error"
+  },
   "coverPickerProgress": "{loaded} / {total}",
   "@coverPickerProgress": {
     "description": "Cover load progress",
     "placeholders": {
-      "loaded": { "type": "int" },
-      "total": { "type": "int" }
+      "loaded": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
-
   "statsTitle": "Statistics",
-  "@statsTitle": { "description": "Stats screen title" },
-
+  "@statsTitle": {
+    "description": "Stats screen title"
+  },
   "statsPlaceholder": "Your statistics will appear here",
-  "@statsPlaceholder": { "description": "Stats placeholder" },
-
+  "@statsPlaceholder": {
+    "description": "Stats placeholder"
+  },
   "statsEmptySubtitle": "Add widgets to see your reading habits, goals and personal records.",
-  "@statsEmptySubtitle": { "description": "Empty stats state subtitle" },
-
+  "@statsEmptySubtitle": {
+    "description": "Empty stats state subtitle"
+  },
   "statsAddFirstWidget": "Add your first widget",
   "statsAddWidgetTitle": "Add widget",
   "statsGoalTargetShelf": "Target shelf",
   "searchFilterIsbnLabel": "ISBN: {isbn}",
   "@searchFilterIsbnLabel": {
-    "placeholders": { "isbn": { "type": "String" } }
+    "placeholders": {
+      "isbn": {
+        "type": "String"
+      }
+    }
   },
   "searchFilterLanguageLabel": "Language: {language}",
   "@searchFilterLanguageLabel": {
-    "placeholders": { "language": { "type": "String" } }
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
   },
   "searchFilterAuthorLabel": "Author: {author}",
   "@searchFilterAuthorLabel": {
-    "placeholders": { "author": { "type": "String" } }
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
   },
   "searchFilterPublisherLabel": "Publisher: {publisher}",
   "@searchFilterPublisherLabel": {
-    "placeholders": { "publisher": { "type": "String" } }
+    "placeholders": {
+      "publisher": {
+        "type": "String"
+      }
+    }
   },
-
   "statsGoalTitle": "GOAL",
   "statsGoalFullTitle": "READING GOAL",
   "statsGoalUnitBooks": "books",
   "statsGoalUnitPages": "pages",
   "statsGoalRemaining": "{count} remaining",
   "@statsGoalRemaining": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "statsGoalCompleted": "Done!",
   "statsGoalNew": "New goal",
@@ -1112,7 +1485,6 @@
   "statsGoalTargetLabel": "Numerical target",
   "statsGoalFromLabel": "From",
   "statsGoalToLabel": "To",
-
   "statsPagesTitle": "PAGES",
   "statsPagesSub": "pages read",
   "statsStreakTitle": "STREAK",
@@ -1131,7 +1503,6 @@
   "statsDailyReadingTitle": "DAILY READING",
   "statsAvgPagesTitle": "AVERAGE PAGES",
   "statsAvgPagesSub": "pages per book",
-
   "statsOptPagesTitle": "Total pages",
   "statsOptPagesSub": "Total pages read",
   "statsOptStreakTitle": "Streak",
@@ -1156,36 +1527,34 @@
   "statsOptLastAddedSub": "Recent arrivals",
   "statsOptAvgPagesTitle": "Average length",
   "statsOptAvgPagesSub": "Average pages per book",
-
   "statsOptReadListTitle": "Read books list",
   "statsOptReadListSub": "Books read in a period",
-
   "statsOptAvgCompletionTitle": "Completion time",
   "statsOptAvgCompletionSub": "Average time to finish a book",
-
   "statsOptDailyReadingTitle": "Daily reading",
   "statsOptDailyReadingSub": "Pages read per day",
-
   "statsAvgCompletionValue": "{days} days",
   "@statsAvgCompletionValue": {
-    "placeholders": { "days": { "type": "String" } }
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
   },
-
   "statsPeriodThisMonth": "Read this month",
   "statsPeriodLast3Months": "Read last 3 months",
   "statsPeriodThisYear": "Read this year",
   "statsPeriodLast3Years": "Read last 3 years",
-
   "tabMore": "more",
-
   "sortTitle": "Sort",
-
   "openSettings": "Open settings",
-  "@openSettings": { "description": "Button to open system settings" },
-
+  "@openSettings": {
+    "description": "Button to open system settings"
+  },
   "permissionRequired": "Permission required",
-  "@permissionRequired": { "description": "Title for permanently denied permission dialog" },
-
+  "@permissionRequired": {
+    "description": "Title for permanently denied permission dialog"
+  },
   "paginationMarkersAndIndices": "Markers & Indices",
   "paginationSaveProgress": "Save Progress",
   "paginationAllPagesAssigned": "All pages have already been assigned.",
@@ -1195,15 +1564,23 @@
   "paginationSegmentExceedsTotal": "Segment {index}: Values exceed total pages ({total}).",
   "@paginationSegmentExceedsTotal": {
     "placeholders": {
-      "index": { "type": "int" },
-      "total": { "type": "int" }
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "paginationSegmentOverlap": "Segment {index1} overlaps with Segment {index2}",
   "@paginationSegmentOverlap": {
     "placeholders": {
-      "index1": { "type": "String" },
-      "index2": { "type": "String" }
+      "index1": {
+        "type": "String"
+      },
+      "index2": {
+        "type": "String"
+      }
     }
   },
   "paginationAdvancedConfig": "Advanced Configuration",
@@ -1213,7 +1590,11 @@
   "paginationAllPagesAssignedNote": "Note: You have already assigned all available pages.",
   "paginationPagesRemainingWarning": "Warning: {count} physical pages remain unassigned.",
   "@paginationPagesRemainingWarning": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "paginationPhysicalTotalNote": "Note: Total pages refer to the physical pages of the book (total sheets).",
   "paginationCorrectErrors": "PLEASE CORRECT THE FOLLOWING ERRORS:",
@@ -1235,19 +1616,31 @@
   "paginationEquivalentPhysical": "Equivalent to physical: {start} - {end}",
   "@paginationEquivalentPhysical": {
     "placeholders": {
-      "start": { "type": "int" },
-      "end": { "type": "int" }
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
     }
   },
   "paginationSectionLabel": "Section {index}",
   "@paginationSectionLabel": {
-    "placeholders": { "index": { "type": "int" } }
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
   },
   "paginationProgress": "{current} / {total}",
   "@paginationProgress": {
     "placeholders": {
-      "current": { "type": "String" },
-      "total": { "type": "String" }
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "paginationCurrentPageShort": "Pg.",
@@ -1257,10 +1650,12 @@
   "paginationEndVisual": "End (Visual)",
   "paginationAdvancedButton": "Advanced",
   "unknownAuthor": "Unknown",
-
   "storagePermissionExplanation": "To select a cover you need to grant storage access. You can do this from the application settings.",
-  "@storagePermissionExplanation": { "description": "Explanation for permanently denied storage permission" },
-
+  "@storagePermissionExplanation": {
+    "description": "Explanation for permanently denied storage permission"
+  },
   "cameraPermissionExplanation": "To take a photo you need to grant camera access. You can do this from the application settings.",
-  "@cameraPermissionExplanation": { "description": "Explanation for permanently denied camera permission" }
+  "@cameraPermissionExplanation": {
+    "description": "Explanation for permanently denied camera permission"
+  }
 }
