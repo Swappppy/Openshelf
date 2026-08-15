@@ -16,6 +16,7 @@ import 'daos/goal_dao.dart';
 import 'daos/log_dao.dart';
 import 'daos/stat_dao.dart';
 import 'daos/read_history_dao.dart';
+import 'daos/ownership_dao.dart';
 
 import 'database/converters.dart';
 import 'database/tables/books_table.dart';
@@ -26,6 +27,7 @@ import 'database/tables/goals_table.dart';
 import 'database/tables/logs_table.dart';
 import 'database/tables/stats_table.dart';
 import 'database/tables/read_history_table.dart';
+import 'database/tables/ownership_log_table.dart';
 
 export 'database/converters.dart';
 export 'database/tables/books_table.dart';
@@ -36,18 +38,19 @@ export 'database/tables/goals_table.dart';
 export 'database/tables/logs_table.dart';
 export 'database/tables/stats_table.dart';
 export 'database/tables/read_history_table.dart';
+export 'database/tables/ownership_log_table.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs, ReadHistory],
-  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao, ReadHistoryDao],
+  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs, ReadHistory, OwnershipLog],
+  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao, ReadHistoryDao, OwnershipDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 26;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -295,6 +298,17 @@ class AppDatabase extends _$AppDatabase {
           }
         });
       }
+      if (from < 25) {
+        await m.addColumn(books, books.originalTitle as GeneratedColumn);
+        await m.addColumn(books, books.ownershipStatus as GeneratedColumn);
+        await m.createTable(ownershipLog);
+      }
+      if (from < 26) {
+        // Fix for missing column if version 25 was partially applied during development
+        try {
+          await m.addColumn(books, books.originalLanguage as GeneratedColumn);
+        } catch (_) {}
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -410,6 +424,7 @@ class AppDatabase extends _$AppDatabase {
       // 2. Delete tables with foreign keys to main entities
       await delete(readingGoals).go();
       await delete(readHistory).go();
+      await delete(ownershipLog).go();
 
       // 3. Delete relationship tables (Many-to-Many)
       await delete(shelfTags).go();

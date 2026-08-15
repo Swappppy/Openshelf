@@ -385,6 +385,17 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _originalTitleMeta = const VerificationMeta(
+    'originalTitle',
+  );
+  @override
+  late final GeneratedColumn<String> originalTitle = GeneratedColumn<String>(
+    'original_title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _authorMeta = const VerificationMeta('author');
   @override
   late final GeneratedColumn<String> author = GeneratedColumn<String>(
@@ -409,6 +420,17 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
   @override
   late final GeneratedColumn<String> language = GeneratedColumn<String>(
     'language',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _originalLanguageMeta = const VerificationMeta(
+    'originalLanguage',
+  );
+  @override
+  late final GeneratedColumn<String> originalLanguage = GeneratedColumn<String>(
+    'original_language',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -478,6 +500,15 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<ReadingStatus>($BooksTable.$converterstatus);
+  @override
+  late final GeneratedColumnWithTypeConverter<OwnershipStatus?, String>
+  ownershipStatus = GeneratedColumn<String>(
+    'ownership_status',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<OwnershipStatus?>($BooksTable.$converterownershipStatusn);
   static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
   @override
   late final GeneratedColumn<double> rating = GeneratedColumn<double>(
@@ -646,15 +677,18 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     id,
     title,
     subtitle,
+    originalTitle,
     author,
     isbn,
     language,
+    originalLanguage,
     translator,
     publisher,
     coverUrl,
     totalPages,
     currentPage,
     status,
+    ownershipStatus,
     rating,
     bookFormat,
     collectionName,
@@ -700,6 +734,15 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta),
       );
     }
+    if (data.containsKey('original_title')) {
+      context.handle(
+        _originalTitleMeta,
+        originalTitle.isAcceptableOrUnknown(
+          data['original_title']!,
+          _originalTitleMeta,
+        ),
+      );
+    }
     if (data.containsKey('author')) {
       context.handle(
         _authorMeta,
@@ -718,6 +761,15 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
       context.handle(
         _languageMeta,
         language.isAcceptableOrUnknown(data['language']!, _languageMeta),
+      );
+    }
+    if (data.containsKey('original_language')) {
+      context.handle(
+        _originalLanguageMeta,
+        originalLanguage.isAcceptableOrUnknown(
+          data['original_language']!,
+          _originalLanguageMeta,
+        ),
       );
     }
     if (data.containsKey('translator')) {
@@ -867,6 +919,10 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         DriftSqlType.string,
         data['${effectivePrefix}subtitle'],
       ),
+      originalTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_title'],
+      ),
       author: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}author'],
@@ -878,6 +934,10 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
       language: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}language'],
+      ),
+      originalLanguage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_language'],
       ),
       translator: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -904,6 +964,12 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
           DriftSqlType.string,
           data['${effectivePrefix}status'],
         )!,
+      ),
+      ownershipStatus: $BooksTable.$converterownershipStatusn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}ownership_status'],
+        ),
       ),
       rating: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -979,6 +1045,14 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
 
   static JsonTypeConverter2<ReadingStatus, String, String> $converterstatus =
       const EnumNameConverter<ReadingStatus>(ReadingStatus.values);
+  static JsonTypeConverter2<OwnershipStatus, String, String>
+  $converterownershipStatus = const EnumNameConverter<OwnershipStatus>(
+    OwnershipStatus.values,
+  );
+  static JsonTypeConverter2<OwnershipStatus?, String?, String?>
+  $converterownershipStatusn = JsonTypeConverter2.asNullable(
+    $converterownershipStatus,
+  );
   static TypeConverter<BookFormat?, String?> $converterbookFormat =
       const BookFormatConverter();
   static TypeConverter<PaginationConfig, String> $converterpaginationConfig =
@@ -991,15 +1065,18 @@ class Book extends DataClass implements Insertable<Book> {
   final int id;
   final String title;
   final String? subtitle;
+  final String? originalTitle;
   final String author;
   final String? isbn;
   final String? language;
+  final String? originalLanguage;
   final String? translator;
   final String? publisher;
   final String? coverUrl;
   final int? totalPages;
   final int? currentPage;
   final ReadingStatus status;
+  final OwnershipStatus? ownershipStatus;
   final double? rating;
   final BookFormat? bookFormat;
   final String? collectionName;
@@ -1019,15 +1096,18 @@ class Book extends DataClass implements Insertable<Book> {
     required this.id,
     required this.title,
     this.subtitle,
+    this.originalTitle,
     required this.author,
     this.isbn,
     this.language,
+    this.originalLanguage,
     this.translator,
     this.publisher,
     this.coverUrl,
     this.totalPages,
     this.currentPage,
     required this.status,
+    this.ownershipStatus,
     this.rating,
     this.bookFormat,
     this.collectionName,
@@ -1052,12 +1132,18 @@ class Book extends DataClass implements Insertable<Book> {
     if (!nullToAbsent || subtitle != null) {
       map['subtitle'] = Variable<String>(subtitle);
     }
+    if (!nullToAbsent || originalTitle != null) {
+      map['original_title'] = Variable<String>(originalTitle);
+    }
     map['author'] = Variable<String>(author);
     if (!nullToAbsent || isbn != null) {
       map['isbn'] = Variable<String>(isbn);
     }
     if (!nullToAbsent || language != null) {
       map['language'] = Variable<String>(language);
+    }
+    if (!nullToAbsent || originalLanguage != null) {
+      map['original_language'] = Variable<String>(originalLanguage);
     }
     if (!nullToAbsent || translator != null) {
       map['translator'] = Variable<String>(translator);
@@ -1077,6 +1163,11 @@ class Book extends DataClass implements Insertable<Book> {
     {
       map['status'] = Variable<String>(
         $BooksTable.$converterstatus.toSql(status),
+      );
+    }
+    if (!nullToAbsent || ownershipStatus != null) {
+      map['ownership_status'] = Variable<String>(
+        $BooksTable.$converterownershipStatusn.toSql(ownershipStatus),
       );
     }
     if (!nullToAbsent || rating != null) {
@@ -1134,11 +1225,17 @@ class Book extends DataClass implements Insertable<Book> {
       subtitle: subtitle == null && nullToAbsent
           ? const Value.absent()
           : Value(subtitle),
+      originalTitle: originalTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalTitle),
       author: Value(author),
       isbn: isbn == null && nullToAbsent ? const Value.absent() : Value(isbn),
       language: language == null && nullToAbsent
           ? const Value.absent()
           : Value(language),
+      originalLanguage: originalLanguage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalLanguage),
       translator: translator == null && nullToAbsent
           ? const Value.absent()
           : Value(translator),
@@ -1155,6 +1252,9 @@ class Book extends DataClass implements Insertable<Book> {
           ? const Value.absent()
           : Value(currentPage),
       status: Value(status),
+      ownershipStatus: ownershipStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownershipStatus),
       rating: rating == null && nullToAbsent
           ? const Value.absent()
           : Value(rating),
@@ -1208,9 +1308,11 @@ class Book extends DataClass implements Insertable<Book> {
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       subtitle: serializer.fromJson<String?>(json['subtitle']),
+      originalTitle: serializer.fromJson<String?>(json['originalTitle']),
       author: serializer.fromJson<String>(json['author']),
       isbn: serializer.fromJson<String?>(json['isbn']),
       language: serializer.fromJson<String?>(json['language']),
+      originalLanguage: serializer.fromJson<String?>(json['originalLanguage']),
       translator: serializer.fromJson<String?>(json['translator']),
       publisher: serializer.fromJson<String?>(json['publisher']),
       coverUrl: serializer.fromJson<String?>(json['coverUrl']),
@@ -1218,6 +1320,9 @@ class Book extends DataClass implements Insertable<Book> {
       currentPage: serializer.fromJson<int?>(json['currentPage']),
       status: $BooksTable.$converterstatus.fromJson(
         serializer.fromJson<String>(json['status']),
+      ),
+      ownershipStatus: $BooksTable.$converterownershipStatusn.fromJson(
+        serializer.fromJson<String?>(json['ownershipStatus']),
       ),
       rating: serializer.fromJson<double?>(json['rating']),
       bookFormat: serializer.fromJson<BookFormat?>(json['bookFormat']),
@@ -1245,9 +1350,11 @@ class Book extends DataClass implements Insertable<Book> {
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
       'subtitle': serializer.toJson<String?>(subtitle),
+      'originalTitle': serializer.toJson<String?>(originalTitle),
       'author': serializer.toJson<String>(author),
       'isbn': serializer.toJson<String?>(isbn),
       'language': serializer.toJson<String?>(language),
+      'originalLanguage': serializer.toJson<String?>(originalLanguage),
       'translator': serializer.toJson<String?>(translator),
       'publisher': serializer.toJson<String?>(publisher),
       'coverUrl': serializer.toJson<String?>(coverUrl),
@@ -1255,6 +1362,9 @@ class Book extends DataClass implements Insertable<Book> {
       'currentPage': serializer.toJson<int?>(currentPage),
       'status': serializer.toJson<String>(
         $BooksTable.$converterstatus.toJson(status),
+      ),
+      'ownershipStatus': serializer.toJson<String?>(
+        $BooksTable.$converterownershipStatusn.toJson(ownershipStatus),
       ),
       'rating': serializer.toJson<double?>(rating),
       'bookFormat': serializer.toJson<BookFormat?>(bookFormat),
@@ -1280,15 +1390,18 @@ class Book extends DataClass implements Insertable<Book> {
     int? id,
     String? title,
     Value<String?> subtitle = const Value.absent(),
+    Value<String?> originalTitle = const Value.absent(),
     String? author,
     Value<String?> isbn = const Value.absent(),
     Value<String?> language = const Value.absent(),
+    Value<String?> originalLanguage = const Value.absent(),
     Value<String?> translator = const Value.absent(),
     Value<String?> publisher = const Value.absent(),
     Value<String?> coverUrl = const Value.absent(),
     Value<int?> totalPages = const Value.absent(),
     Value<int?> currentPage = const Value.absent(),
     ReadingStatus? status,
+    Value<OwnershipStatus?> ownershipStatus = const Value.absent(),
     Value<double?> rating = const Value.absent(),
     Value<BookFormat?> bookFormat = const Value.absent(),
     Value<String?> collectionName = const Value.absent(),
@@ -1308,15 +1421,24 @@ class Book extends DataClass implements Insertable<Book> {
     id: id ?? this.id,
     title: title ?? this.title,
     subtitle: subtitle.present ? subtitle.value : this.subtitle,
+    originalTitle: originalTitle.present
+        ? originalTitle.value
+        : this.originalTitle,
     author: author ?? this.author,
     isbn: isbn.present ? isbn.value : this.isbn,
     language: language.present ? language.value : this.language,
+    originalLanguage: originalLanguage.present
+        ? originalLanguage.value
+        : this.originalLanguage,
     translator: translator.present ? translator.value : this.translator,
     publisher: publisher.present ? publisher.value : this.publisher,
     coverUrl: coverUrl.present ? coverUrl.value : this.coverUrl,
     totalPages: totalPages.present ? totalPages.value : this.totalPages,
     currentPage: currentPage.present ? currentPage.value : this.currentPage,
     status: status ?? this.status,
+    ownershipStatus: ownershipStatus.present
+        ? ownershipStatus.value
+        : this.ownershipStatus,
     rating: rating.present ? rating.value : this.rating,
     bookFormat: bookFormat.present ? bookFormat.value : this.bookFormat,
     collectionName: collectionName.present
@@ -1344,9 +1466,15 @@ class Book extends DataClass implements Insertable<Book> {
       id: data.id.present ? data.id.value : this.id,
       title: data.title.present ? data.title.value : this.title,
       subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      originalTitle: data.originalTitle.present
+          ? data.originalTitle.value
+          : this.originalTitle,
       author: data.author.present ? data.author.value : this.author,
       isbn: data.isbn.present ? data.isbn.value : this.isbn,
       language: data.language.present ? data.language.value : this.language,
+      originalLanguage: data.originalLanguage.present
+          ? data.originalLanguage.value
+          : this.originalLanguage,
       translator: data.translator.present
           ? data.translator.value
           : this.translator,
@@ -1359,6 +1487,9 @@ class Book extends DataClass implements Insertable<Book> {
           ? data.currentPage.value
           : this.currentPage,
       status: data.status.present ? data.status.value : this.status,
+      ownershipStatus: data.ownershipStatus.present
+          ? data.ownershipStatus.value
+          : this.ownershipStatus,
       rating: data.rating.present ? data.rating.value : this.rating,
       bookFormat: data.bookFormat.present
           ? data.bookFormat.value
@@ -1399,15 +1530,18 @@ class Book extends DataClass implements Insertable<Book> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('subtitle: $subtitle, ')
+          ..write('originalTitle: $originalTitle, ')
           ..write('author: $author, ')
           ..write('isbn: $isbn, ')
           ..write('language: $language, ')
+          ..write('originalLanguage: $originalLanguage, ')
           ..write('translator: $translator, ')
           ..write('publisher: $publisher, ')
           ..write('coverUrl: $coverUrl, ')
           ..write('totalPages: $totalPages, ')
           ..write('currentPage: $currentPage, ')
           ..write('status: $status, ')
+          ..write('ownershipStatus: $ownershipStatus, ')
           ..write('rating: $rating, ')
           ..write('bookFormat: $bookFormat, ')
           ..write('collectionName: $collectionName, ')
@@ -1432,15 +1566,18 @@ class Book extends DataClass implements Insertable<Book> {
     id,
     title,
     subtitle,
+    originalTitle,
     author,
     isbn,
     language,
+    originalLanguage,
     translator,
     publisher,
     coverUrl,
     totalPages,
     currentPage,
     status,
+    ownershipStatus,
     rating,
     bookFormat,
     collectionName,
@@ -1464,15 +1601,18 @@ class Book extends DataClass implements Insertable<Book> {
           other.id == this.id &&
           other.title == this.title &&
           other.subtitle == this.subtitle &&
+          other.originalTitle == this.originalTitle &&
           other.author == this.author &&
           other.isbn == this.isbn &&
           other.language == this.language &&
+          other.originalLanguage == this.originalLanguage &&
           other.translator == this.translator &&
           other.publisher == this.publisher &&
           other.coverUrl == this.coverUrl &&
           other.totalPages == this.totalPages &&
           other.currentPage == this.currentPage &&
           other.status == this.status &&
+          other.ownershipStatus == this.ownershipStatus &&
           other.rating == this.rating &&
           other.bookFormat == this.bookFormat &&
           other.collectionName == this.collectionName &&
@@ -1494,15 +1634,18 @@ class BooksCompanion extends UpdateCompanion<Book> {
   final Value<int> id;
   final Value<String> title;
   final Value<String?> subtitle;
+  final Value<String?> originalTitle;
   final Value<String> author;
   final Value<String?> isbn;
   final Value<String?> language;
+  final Value<String?> originalLanguage;
   final Value<String?> translator;
   final Value<String?> publisher;
   final Value<String?> coverUrl;
   final Value<int?> totalPages;
   final Value<int?> currentPage;
   final Value<ReadingStatus> status;
+  final Value<OwnershipStatus?> ownershipStatus;
   final Value<double?> rating;
   final Value<BookFormat?> bookFormat;
   final Value<String?> collectionName;
@@ -1522,15 +1665,18 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.subtitle = const Value.absent(),
+    this.originalTitle = const Value.absent(),
     this.author = const Value.absent(),
     this.isbn = const Value.absent(),
     this.language = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
     this.translator = const Value.absent(),
     this.publisher = const Value.absent(),
     this.coverUrl = const Value.absent(),
     this.totalPages = const Value.absent(),
     this.currentPage = const Value.absent(),
     this.status = const Value.absent(),
+    this.ownershipStatus = const Value.absent(),
     this.rating = const Value.absent(),
     this.bookFormat = const Value.absent(),
     this.collectionName = const Value.absent(),
@@ -1551,15 +1697,18 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.id = const Value.absent(),
     required String title,
     this.subtitle = const Value.absent(),
+    this.originalTitle = const Value.absent(),
     required String author,
     this.isbn = const Value.absent(),
     this.language = const Value.absent(),
+    this.originalLanguage = const Value.absent(),
     this.translator = const Value.absent(),
     this.publisher = const Value.absent(),
     this.coverUrl = const Value.absent(),
     this.totalPages = const Value.absent(),
     this.currentPage = const Value.absent(),
     required ReadingStatus status,
+    this.ownershipStatus = const Value.absent(),
     this.rating = const Value.absent(),
     this.bookFormat = const Value.absent(),
     this.collectionName = const Value.absent(),
@@ -1582,15 +1731,18 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Expression<int>? id,
     Expression<String>? title,
     Expression<String>? subtitle,
+    Expression<String>? originalTitle,
     Expression<String>? author,
     Expression<String>? isbn,
     Expression<String>? language,
+    Expression<String>? originalLanguage,
     Expression<String>? translator,
     Expression<String>? publisher,
     Expression<String>? coverUrl,
     Expression<int>? totalPages,
     Expression<int>? currentPage,
     Expression<String>? status,
+    Expression<String>? ownershipStatus,
     Expression<double>? rating,
     Expression<String>? bookFormat,
     Expression<String>? collectionName,
@@ -1611,15 +1763,18 @@ class BooksCompanion extends UpdateCompanion<Book> {
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (subtitle != null) 'subtitle': subtitle,
+      if (originalTitle != null) 'original_title': originalTitle,
       if (author != null) 'author': author,
       if (isbn != null) 'isbn': isbn,
       if (language != null) 'language': language,
+      if (originalLanguage != null) 'original_language': originalLanguage,
       if (translator != null) 'translator': translator,
       if (publisher != null) 'publisher': publisher,
       if (coverUrl != null) 'cover_url': coverUrl,
       if (totalPages != null) 'total_pages': totalPages,
       if (currentPage != null) 'current_page': currentPage,
       if (status != null) 'status': status,
+      if (ownershipStatus != null) 'ownership_status': ownershipStatus,
       if (rating != null) 'rating': rating,
       if (bookFormat != null) 'book_format': bookFormat,
       if (collectionName != null) 'collection_name': collectionName,
@@ -1642,15 +1797,18 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Value<int>? id,
     Value<String>? title,
     Value<String?>? subtitle,
+    Value<String?>? originalTitle,
     Value<String>? author,
     Value<String?>? isbn,
     Value<String?>? language,
+    Value<String?>? originalLanguage,
     Value<String?>? translator,
     Value<String?>? publisher,
     Value<String?>? coverUrl,
     Value<int?>? totalPages,
     Value<int?>? currentPage,
     Value<ReadingStatus>? status,
+    Value<OwnershipStatus?>? ownershipStatus,
     Value<double?>? rating,
     Value<BookFormat?>? bookFormat,
     Value<String?>? collectionName,
@@ -1671,15 +1829,18 @@ class BooksCompanion extends UpdateCompanion<Book> {
       id: id ?? this.id,
       title: title ?? this.title,
       subtitle: subtitle ?? this.subtitle,
+      originalTitle: originalTitle ?? this.originalTitle,
       author: author ?? this.author,
       isbn: isbn ?? this.isbn,
       language: language ?? this.language,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
       translator: translator ?? this.translator,
       publisher: publisher ?? this.publisher,
       coverUrl: coverUrl ?? this.coverUrl,
       totalPages: totalPages ?? this.totalPages,
       currentPage: currentPage ?? this.currentPage,
       status: status ?? this.status,
+      ownershipStatus: ownershipStatus ?? this.ownershipStatus,
       rating: rating ?? this.rating,
       bookFormat: bookFormat ?? this.bookFormat,
       collectionName: collectionName ?? this.collectionName,
@@ -1710,6 +1871,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
     if (subtitle.present) {
       map['subtitle'] = Variable<String>(subtitle.value);
     }
+    if (originalTitle.present) {
+      map['original_title'] = Variable<String>(originalTitle.value);
+    }
     if (author.present) {
       map['author'] = Variable<String>(author.value);
     }
@@ -1718,6 +1882,9 @@ class BooksCompanion extends UpdateCompanion<Book> {
     }
     if (language.present) {
       map['language'] = Variable<String>(language.value);
+    }
+    if (originalLanguage.present) {
+      map['original_language'] = Variable<String>(originalLanguage.value);
     }
     if (translator.present) {
       map['translator'] = Variable<String>(translator.value);
@@ -1737,6 +1904,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
     if (status.present) {
       map['status'] = Variable<String>(
         $BooksTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (ownershipStatus.present) {
+      map['ownership_status'] = Variable<String>(
+        $BooksTable.$converterownershipStatusn.toSql(ownershipStatus.value),
       );
     }
     if (rating.present) {
@@ -1797,15 +1969,18 @@ class BooksCompanion extends UpdateCompanion<Book> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('subtitle: $subtitle, ')
+          ..write('originalTitle: $originalTitle, ')
           ..write('author: $author, ')
           ..write('isbn: $isbn, ')
           ..write('language: $language, ')
+          ..write('originalLanguage: $originalLanguage, ')
           ..write('translator: $translator, ')
           ..write('publisher: $publisher, ')
           ..write('coverUrl: $coverUrl, ')
           ..write('totalPages: $totalPages, ')
           ..write('currentPage: $currentPage, ')
           ..write('status: $status, ')
+          ..write('ownershipStatus: $ownershipStatus, ')
           ..write('rating: $rating, ')
           ..write('bookFormat: $bookFormat, ')
           ..write('collectionName: $collectionName, ')
@@ -4720,6 +4895,415 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
   }
 }
 
+class $OwnershipLogTable extends OwnershipLog
+    with TableInfo<$OwnershipLogTable, OwnershipLogData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OwnershipLogTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _bookIdMeta = const VerificationMeta('bookId');
+  @override
+  late final GeneratedColumn<int> bookId = GeneratedColumn<int>(
+    'book_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES books (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<OwnershipStatus, String>
+  eventType = GeneratedColumn<String>(
+    'event_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<OwnershipStatus>($OwnershipLogTable.$convertereventType);
+  static const VerificationMeta _personNameMeta = const VerificationMeta(
+    'personName',
+  );
+  @override
+  late final GeneratedColumn<String> personName = GeneratedColumn<String>(
+    'person_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bookId,
+    eventType,
+    personName,
+    date,
+    notes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ownership_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OwnershipLogData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('book_id')) {
+      context.handle(
+        _bookIdMeta,
+        bookId.isAcceptableOrUnknown(data['book_id']!, _bookIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookIdMeta);
+    }
+    if (data.containsKey('person_name')) {
+      context.handle(
+        _personNameMeta,
+        personName.isAcceptableOrUnknown(data['person_name']!, _personNameMeta),
+      );
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OwnershipLogData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OwnershipLogData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      bookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}book_id'],
+      )!,
+      eventType: $OwnershipLogTable.$convertereventType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}event_type'],
+        )!,
+      ),
+      personName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}person_name'],
+      ),
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+    );
+  }
+
+  @override
+  $OwnershipLogTable createAlias(String alias) {
+    return $OwnershipLogTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<OwnershipStatus, String, String>
+  $convertereventType = const EnumNameConverter<OwnershipStatus>(
+    OwnershipStatus.values,
+  );
+}
+
+class OwnershipLogData extends DataClass
+    implements Insertable<OwnershipLogData> {
+  final int id;
+  final int bookId;
+  final OwnershipStatus eventType;
+  final String? personName;
+  final DateTime date;
+  final String? notes;
+  const OwnershipLogData({
+    required this.id,
+    required this.bookId,
+    required this.eventType,
+    this.personName,
+    required this.date,
+    this.notes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['book_id'] = Variable<int>(bookId);
+    {
+      map['event_type'] = Variable<String>(
+        $OwnershipLogTable.$convertereventType.toSql(eventType),
+      );
+    }
+    if (!nullToAbsent || personName != null) {
+      map['person_name'] = Variable<String>(personName);
+    }
+    map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  OwnershipLogCompanion toCompanion(bool nullToAbsent) {
+    return OwnershipLogCompanion(
+      id: Value(id),
+      bookId: Value(bookId),
+      eventType: Value(eventType),
+      personName: personName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(personName),
+      date: Value(date),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+    );
+  }
+
+  factory OwnershipLogData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OwnershipLogData(
+      id: serializer.fromJson<int>(json['id']),
+      bookId: serializer.fromJson<int>(json['bookId']),
+      eventType: $OwnershipLogTable.$convertereventType.fromJson(
+        serializer.fromJson<String>(json['eventType']),
+      ),
+      personName: serializer.fromJson<String?>(json['personName']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'bookId': serializer.toJson<int>(bookId),
+      'eventType': serializer.toJson<String>(
+        $OwnershipLogTable.$convertereventType.toJson(eventType),
+      ),
+      'personName': serializer.toJson<String?>(personName),
+      'date': serializer.toJson<DateTime>(date),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  OwnershipLogData copyWith({
+    int? id,
+    int? bookId,
+    OwnershipStatus? eventType,
+    Value<String?> personName = const Value.absent(),
+    DateTime? date,
+    Value<String?> notes = const Value.absent(),
+  }) => OwnershipLogData(
+    id: id ?? this.id,
+    bookId: bookId ?? this.bookId,
+    eventType: eventType ?? this.eventType,
+    personName: personName.present ? personName.value : this.personName,
+    date: date ?? this.date,
+    notes: notes.present ? notes.value : this.notes,
+  );
+  OwnershipLogData copyWithCompanion(OwnershipLogCompanion data) {
+    return OwnershipLogData(
+      id: data.id.present ? data.id.value : this.id,
+      bookId: data.bookId.present ? data.bookId.value : this.bookId,
+      eventType: data.eventType.present ? data.eventType.value : this.eventType,
+      personName: data.personName.present
+          ? data.personName.value
+          : this.personName,
+      date: data.date.present ? data.date.value : this.date,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OwnershipLogData(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('eventType: $eventType, ')
+          ..write('personName: $personName, ')
+          ..write('date: $date, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, bookId, eventType, personName, date, notes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OwnershipLogData &&
+          other.id == this.id &&
+          other.bookId == this.bookId &&
+          other.eventType == this.eventType &&
+          other.personName == this.personName &&
+          other.date == this.date &&
+          other.notes == this.notes);
+}
+
+class OwnershipLogCompanion extends UpdateCompanion<OwnershipLogData> {
+  final Value<int> id;
+  final Value<int> bookId;
+  final Value<OwnershipStatus> eventType;
+  final Value<String?> personName;
+  final Value<DateTime> date;
+  final Value<String?> notes;
+  const OwnershipLogCompanion({
+    this.id = const Value.absent(),
+    this.bookId = const Value.absent(),
+    this.eventType = const Value.absent(),
+    this.personName = const Value.absent(),
+    this.date = const Value.absent(),
+    this.notes = const Value.absent(),
+  });
+  OwnershipLogCompanion.insert({
+    this.id = const Value.absent(),
+    required int bookId,
+    required OwnershipStatus eventType,
+    this.personName = const Value.absent(),
+    required DateTime date,
+    this.notes = const Value.absent(),
+  }) : bookId = Value(bookId),
+       eventType = Value(eventType),
+       date = Value(date);
+  static Insertable<OwnershipLogData> custom({
+    Expression<int>? id,
+    Expression<int>? bookId,
+    Expression<String>? eventType,
+    Expression<String>? personName,
+    Expression<DateTime>? date,
+    Expression<String>? notes,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bookId != null) 'book_id': bookId,
+      if (eventType != null) 'event_type': eventType,
+      if (personName != null) 'person_name': personName,
+      if (date != null) 'date': date,
+      if (notes != null) 'notes': notes,
+    });
+  }
+
+  OwnershipLogCompanion copyWith({
+    Value<int>? id,
+    Value<int>? bookId,
+    Value<OwnershipStatus>? eventType,
+    Value<String?>? personName,
+    Value<DateTime>? date,
+    Value<String?>? notes,
+  }) {
+    return OwnershipLogCompanion(
+      id: id ?? this.id,
+      bookId: bookId ?? this.bookId,
+      eventType: eventType ?? this.eventType,
+      personName: personName ?? this.personName,
+      date: date ?? this.date,
+      notes: notes ?? this.notes,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (bookId.present) {
+      map['book_id'] = Variable<int>(bookId.value);
+    }
+    if (eventType.present) {
+      map['event_type'] = Variable<String>(
+        $OwnershipLogTable.$convertereventType.toSql(eventType.value),
+      );
+    }
+    if (personName.present) {
+      map['person_name'] = Variable<String>(personName.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OwnershipLogCompanion(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('eventType: $eventType, ')
+          ..write('personName: $personName, ')
+          ..write('date: $date, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4733,6 +5317,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $StatWidgetConfigsTable statWidgetConfigs =
       $StatWidgetConfigsTable(this);
   late final $ReadHistoryTable readHistory = $ReadHistoryTable(this);
+  late final $OwnershipLogTable ownershipLog = $OwnershipLogTable(this);
   late final BookDao bookDao = BookDao(this as AppDatabase);
   late final TagDao tagDao = TagDao(this as AppDatabase);
   late final ShelfDao shelfDao = ShelfDao(this as AppDatabase);
@@ -4742,6 +5327,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final ReadHistoryDao readHistoryDao = ReadHistoryDao(
     this as AppDatabase,
   );
+  late final OwnershipDao ownershipDao = OwnershipDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4756,6 +5342,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     readingLog,
     statWidgetConfigs,
     readHistory,
+    ownershipLog,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -4793,6 +5380,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('read_history', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'books',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('ownership_log', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -5449,15 +6043,18 @@ typedef $$BooksTableCreateCompanionBuilder =
       Value<int> id,
       required String title,
       Value<String?> subtitle,
+      Value<String?> originalTitle,
       required String author,
       Value<String?> isbn,
       Value<String?> language,
+      Value<String?> originalLanguage,
       Value<String?> translator,
       Value<String?> publisher,
       Value<String?> coverUrl,
       Value<int?> totalPages,
       Value<int?> currentPage,
       required ReadingStatus status,
+      Value<OwnershipStatus?> ownershipStatus,
       Value<double?> rating,
       Value<BookFormat?> bookFormat,
       Value<String?> collectionName,
@@ -5479,15 +6076,18 @@ typedef $$BooksTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String> title,
       Value<String?> subtitle,
+      Value<String?> originalTitle,
       Value<String> author,
       Value<String?> isbn,
       Value<String?> language,
+      Value<String?> originalLanguage,
       Value<String?> translator,
       Value<String?> publisher,
       Value<String?> coverUrl,
       Value<int?> totalPages,
       Value<int?> currentPage,
       Value<ReadingStatus> status,
+      Value<OwnershipStatus?> ownershipStatus,
       Value<double?> rating,
       Value<BookFormat?> bookFormat,
       Value<String?> collectionName,
@@ -5597,6 +6197,24 @@ final class $$BooksTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$OwnershipLogTable, List<OwnershipLogData>>
+  _ownershipLogRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.ownershipLog,
+    aliasName: 'books__id__ownership_log__book_id',
+  );
+
+  $$OwnershipLogTableProcessedTableManager get ownershipLogRefs {
+    final manager = $$OwnershipLogTableTableManager(
+      $_db,
+      $_db.ownershipLog,
+    ).filter((f) => f.bookId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_ownershipLogRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
@@ -5622,6 +6240,11 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get originalTitle => $composableBuilder(
+    column: $table.originalTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get author => $composableBuilder(
     column: $table.author,
     builder: (column) => ColumnFilters(column),
@@ -5634,6 +6257,11 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
 
   ColumnFilters<String> get language => $composableBuilder(
     column: $table.language,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalLanguage => $composableBuilder(
+    column: $table.originalLanguage,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5665,6 +6293,12 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
   ColumnWithTypeConverterFilters<ReadingStatus, ReadingStatus, String>
   get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<OwnershipStatus?, OwnershipStatus, String>
+  get ownershipStatus => $composableBuilder(
+    column: $table.ownershipStatus,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -5855,6 +6489,31 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
     );
     return f(composer);
   }
+
+  Expression<bool> ownershipLogRefs(
+    Expression<bool> Function($$OwnershipLogTableFilterComposer f) f,
+  ) {
+    final $$OwnershipLogTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ownershipLog,
+      getReferencedColumn: (t) => t.bookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OwnershipLogTableFilterComposer(
+            $db: $db,
+            $table: $db.ownershipLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BooksTableOrderingComposer
@@ -5881,6 +6540,11 @@ class $$BooksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get originalTitle => $composableBuilder(
+    column: $table.originalTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get author => $composableBuilder(
     column: $table.author,
     builder: (column) => ColumnOrderings(column),
@@ -5893,6 +6557,11 @@ class $$BooksTableOrderingComposer
 
   ColumnOrderings<String> get language => $composableBuilder(
     column: $table.language,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originalLanguage => $composableBuilder(
+    column: $table.originalLanguage,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5923,6 +6592,11 @@ class $$BooksTableOrderingComposer
 
   ColumnOrderings<String> get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownershipStatus => $composableBuilder(
+    column: $table.ownershipStatus,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -6056,6 +6730,11 @@ class $$BooksTableAnnotationComposer
   GeneratedColumn<String> get subtitle =>
       $composableBuilder(column: $table.subtitle, builder: (column) => column);
 
+  GeneratedColumn<String> get originalTitle => $composableBuilder(
+    column: $table.originalTitle,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get author =>
       $composableBuilder(column: $table.author, builder: (column) => column);
 
@@ -6064,6 +6743,11 @@ class $$BooksTableAnnotationComposer
 
   GeneratedColumn<String> get language =>
       $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get originalLanguage => $composableBuilder(
+    column: $table.originalLanguage,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get translator => $composableBuilder(
     column: $table.translator,
@@ -6088,6 +6772,12 @@ class $$BooksTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<ReadingStatus, String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<OwnershipStatus?, String>
+  get ownershipStatus => $composableBuilder(
+    column: $table.ownershipStatus,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<double> get rating =>
       $composableBuilder(column: $table.rating, builder: (column) => column);
@@ -6264,6 +6954,31 @@ class $$BooksTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> ownershipLogRefs<T extends Object>(
+    Expression<T> Function($$OwnershipLogTableAnnotationComposer a) f,
+  ) {
+    final $$OwnershipLogTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ownershipLog,
+      getReferencedColumn: (t) => t.bookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OwnershipLogTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ownershipLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BooksTableTableManager
@@ -6285,6 +7000,7 @@ class $$BooksTableTableManager
             bool bookTagsRefs,
             bool readingLogRefs,
             bool readHistoryRefs,
+            bool ownershipLogRefs,
           })
         > {
   $$BooksTableTableManager(_$AppDatabase db, $BooksTable table)
@@ -6303,15 +7019,18 @@ class $$BooksTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String?> subtitle = const Value.absent(),
+                Value<String?> originalTitle = const Value.absent(),
                 Value<String> author = const Value.absent(),
                 Value<String?> isbn = const Value.absent(),
                 Value<String?> language = const Value.absent(),
+                Value<String?> originalLanguage = const Value.absent(),
                 Value<String?> translator = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> coverUrl = const Value.absent(),
                 Value<int?> totalPages = const Value.absent(),
                 Value<int?> currentPage = const Value.absent(),
                 Value<ReadingStatus> status = const Value.absent(),
+                Value<OwnershipStatus?> ownershipStatus = const Value.absent(),
                 Value<double?> rating = const Value.absent(),
                 Value<BookFormat?> bookFormat = const Value.absent(),
                 Value<String?> collectionName = const Value.absent(),
@@ -6332,15 +7051,18 @@ class $$BooksTableTableManager
                 id: id,
                 title: title,
                 subtitle: subtitle,
+                originalTitle: originalTitle,
                 author: author,
                 isbn: isbn,
                 language: language,
+                originalLanguage: originalLanguage,
                 translator: translator,
                 publisher: publisher,
                 coverUrl: coverUrl,
                 totalPages: totalPages,
                 currentPage: currentPage,
                 status: status,
+                ownershipStatus: ownershipStatus,
                 rating: rating,
                 bookFormat: bookFormat,
                 collectionName: collectionName,
@@ -6362,15 +7084,18 @@ class $$BooksTableTableManager
                 Value<int> id = const Value.absent(),
                 required String title,
                 Value<String?> subtitle = const Value.absent(),
+                Value<String?> originalTitle = const Value.absent(),
                 required String author,
                 Value<String?> isbn = const Value.absent(),
                 Value<String?> language = const Value.absent(),
+                Value<String?> originalLanguage = const Value.absent(),
                 Value<String?> translator = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> coverUrl = const Value.absent(),
                 Value<int?> totalPages = const Value.absent(),
                 Value<int?> currentPage = const Value.absent(),
                 required ReadingStatus status,
+                Value<OwnershipStatus?> ownershipStatus = const Value.absent(),
                 Value<double?> rating = const Value.absent(),
                 Value<BookFormat?> bookFormat = const Value.absent(),
                 Value<String?> collectionName = const Value.absent(),
@@ -6391,15 +7116,18 @@ class $$BooksTableTableManager
                 id: id,
                 title: title,
                 subtitle: subtitle,
+                originalTitle: originalTitle,
                 author: author,
                 isbn: isbn,
                 language: language,
+                originalLanguage: originalLanguage,
                 translator: translator,
                 publisher: publisher,
                 coverUrl: coverUrl,
                 totalPages: totalPages,
                 currentPage: currentPage,
                 status: status,
+                ownershipStatus: ownershipStatus,
                 rating: rating,
                 bookFormat: bookFormat,
                 collectionName: collectionName,
@@ -6429,6 +7157,7 @@ class $$BooksTableTableManager
                 bookTagsRefs = false,
                 readingLogRefs = false,
                 readHistoryRefs = false,
+                ownershipLogRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -6436,6 +7165,7 @@ class $$BooksTableTableManager
                     if (bookTagsRefs) db.bookTags,
                     if (readingLogRefs) db.readingLog,
                     if (readHistoryRefs) db.readHistory,
+                    if (ownershipLogRefs) db.ownershipLog,
                   ],
                   addJoins:
                       <
@@ -6543,6 +7273,27 @@ class $$BooksTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (ownershipLogRefs)
+                        await $_getPrefetchedData<
+                          Book,
+                          $BooksTable,
+                          OwnershipLogData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BooksTableReferences
+                              ._ownershipLogRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BooksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).ownershipLogRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bookId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -6569,6 +7320,7 @@ typedef $$BooksTableProcessedTableManager =
         bool bookTagsRefs,
         bool readingLogRefs,
         bool readHistoryRefs,
+        bool ownershipLogRefs,
       })
     >;
 typedef $$BookTagsTableCreateCompanionBuilder =
@@ -9494,6 +10246,340 @@ typedef $$ReadHistoryTableProcessedTableManager =
       ReadHistoryData,
       PrefetchHooks Function({bool bookId})
     >;
+typedef $$OwnershipLogTableCreateCompanionBuilder =
+    OwnershipLogCompanion Function({
+      Value<int> id,
+      required int bookId,
+      required OwnershipStatus eventType,
+      Value<String?> personName,
+      required DateTime date,
+      Value<String?> notes,
+    });
+typedef $$OwnershipLogTableUpdateCompanionBuilder =
+    OwnershipLogCompanion Function({
+      Value<int> id,
+      Value<int> bookId,
+      Value<OwnershipStatus> eventType,
+      Value<String?> personName,
+      Value<DateTime> date,
+      Value<String?> notes,
+    });
+
+final class $$OwnershipLogTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $OwnershipLogTable, OwnershipLogData> {
+  $$OwnershipLogTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $BooksTable _bookIdTable(_$AppDatabase db) =>
+      db.books.createAlias('ownership_log__book_id__books__id');
+
+  $$BooksTableProcessedTableManager get bookId {
+    final $_column = $_itemColumn<int>('book_id')!;
+
+    final manager = $$BooksTableTableManager(
+      $_db,
+      $_db.books,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bookIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$OwnershipLogTableFilterComposer
+    extends Composer<_$AppDatabase, $OwnershipLogTable> {
+  $$OwnershipLogTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<OwnershipStatus, OwnershipStatus, String>
+  get eventType => $composableBuilder(
+    column: $table.eventType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get personName => $composableBuilder(
+    column: $table.personName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BooksTableFilterComposer get bookId {
+    final $$BooksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableFilterComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OwnershipLogTableOrderingComposer
+    extends Composer<_$AppDatabase, $OwnershipLogTable> {
+  $$OwnershipLogTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get eventType => $composableBuilder(
+    column: $table.eventType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get personName => $composableBuilder(
+    column: $table.personName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BooksTableOrderingComposer get bookId {
+    final $$BooksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableOrderingComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OwnershipLogTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OwnershipLogTable> {
+  $$OwnershipLogTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<OwnershipStatus, String> get eventType =>
+      $composableBuilder(column: $table.eventType, builder: (column) => column);
+
+  GeneratedColumn<String> get personName => $composableBuilder(
+    column: $table.personName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$BooksTableAnnotationComposer get bookId {
+    final $$BooksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OwnershipLogTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OwnershipLogTable,
+          OwnershipLogData,
+          $$OwnershipLogTableFilterComposer,
+          $$OwnershipLogTableOrderingComposer,
+          $$OwnershipLogTableAnnotationComposer,
+          $$OwnershipLogTableCreateCompanionBuilder,
+          $$OwnershipLogTableUpdateCompanionBuilder,
+          (OwnershipLogData, $$OwnershipLogTableReferences),
+          OwnershipLogData,
+          PrefetchHooks Function({bool bookId})
+        > {
+  $$OwnershipLogTableTableManager(_$AppDatabase db, $OwnershipLogTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OwnershipLogTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OwnershipLogTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OwnershipLogTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> bookId = const Value.absent(),
+                Value<OwnershipStatus> eventType = const Value.absent(),
+                Value<String?> personName = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+              }) => OwnershipLogCompanion(
+                id: id,
+                bookId: bookId,
+                eventType: eventType,
+                personName: personName,
+                date: date,
+                notes: notes,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int bookId,
+                required OwnershipStatus eventType,
+                Value<String?> personName = const Value.absent(),
+                required DateTime date,
+                Value<String?> notes = const Value.absent(),
+              }) => OwnershipLogCompanion.insert(
+                id: id,
+                bookId: bookId,
+                eventType: eventType,
+                personName: personName,
+                date: date,
+                notes: notes,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$OwnershipLogTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({bookId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (bookId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.bookId,
+                                referencedTable: $$OwnershipLogTableReferences
+                                    ._bookIdTable(db),
+                                referencedColumn: $$OwnershipLogTableReferences
+                                    ._bookIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$OwnershipLogTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OwnershipLogTable,
+      OwnershipLogData,
+      $$OwnershipLogTableFilterComposer,
+      $$OwnershipLogTableOrderingComposer,
+      $$OwnershipLogTableAnnotationComposer,
+      $$OwnershipLogTableCreateCompanionBuilder,
+      $$OwnershipLogTableUpdateCompanionBuilder,
+      (OwnershipLogData, $$OwnershipLogTableReferences),
+      OwnershipLogData,
+      PrefetchHooks Function({bool bookId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9515,4 +10601,6 @@ class $AppDatabaseManager {
       $$StatWidgetConfigsTableTableManager(_db, _db.statWidgetConfigs);
   $$ReadHistoryTableTableManager get readHistory =>
       $$ReadHistoryTableTableManager(_db, _db.readHistory);
+  $$OwnershipLogTableTableManager get ownershipLog =>
+      $$OwnershipLogTableTableManager(_db, _db.ownershipLog);
 }

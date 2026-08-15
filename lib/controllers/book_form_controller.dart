@@ -100,6 +100,8 @@ class BookFormController {
     required int? newPage,
     required int? oldPage,
     required ReadingStatus status,
+    OwnershipStatus? ownershipStatus,
+    String? personName,
     required int totalPages,
     required DateTime? startedAt,
     required DateTime? finishedAt,
@@ -114,7 +116,7 @@ class BookFormController {
       }
 
       // Sync with ReadHistory
-      final history = await _db.readHistoryDao.watchHistoryForBook(bookId).first;
+      final history = await (_db.select(_db.readHistory)..where((h) => h.bookId.equals(bookId))).get();
       final completedReads = history.where((h) => h.finishedAt != null).length;
       final activeSessionNum = PaginationHelper.getActiveSessionNumber(status, completedReads);
       final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
@@ -134,6 +136,16 @@ class BookFormController {
           progress: Value(newPage ?? 0),
         ));
       }
+
+      // Sync with OwnershipLog
+      if (ownershipStatus != null && ownershipStatus != existingBook.ownershipStatus) {
+        await _db.ownershipDao.insertEvent(OwnershipLogCompanion.insert(
+          bookId: bookId,
+          eventType: ownershipStatus,
+          personName: Value(personName),
+          date: DateTime.now(),
+        ));
+      }
     } else {
       bookId = await _db.bookDao.insertBook(companion);
       
@@ -151,6 +163,15 @@ class BookFormController {
           readNumber: 1,
           startedAt: Value(startedAt ?? DateTime.now()),
           progress: Value(newPage ?? 0),
+        ));
+      }
+
+      if (ownershipStatus != null) {
+        await _db.ownershipDao.insertEvent(OwnershipLogCompanion.insert(
+          bookId: bookId,
+          eventType: ownershipStatus,
+          personName: Value(personName),
+          date: DateTime.now(),
         ));
       }
 

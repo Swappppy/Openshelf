@@ -327,7 +327,19 @@
   "@fieldLanguage": {
     "description": "Nombre del campo idioma"
   },
-  "fieldTranslator": "Traducción",
+  "fieldIsTranslation": "¿Es una traducción?",
+  "@fieldIsTranslation": {
+    "description": "Interruptor para campos de traducción"
+  },
+  "fieldOriginalTitle": "Título original",
+  "@fieldOriginalTitle": {
+    "description": "Nombre del campo título original"
+  },
+  "fieldOriginalLanguage": "Idioma original",
+  "@fieldOriginalLanguage": {
+    "description": "Nombre del campo idioma original"
+  },
+  "fieldTranslator": "Traductor",
   "@fieldTranslator": {
     "description": "Nombre del campo traductor"
   },
@@ -462,6 +474,30 @@
   "statusPaused": "Pausado",
   "@statusPaused": {
     "description": "Estado: pausado"
+  },
+  "ownershipStatusBought": "Comprado",
+  "@ownershipStatusBought": {
+    "description": "Tenencia: comprado"
+  },
+  "ownershipStatusGifted": "Regalado",
+  "@ownershipStatusGifted": {
+    "description": "Tenencia: regalado"
+  },
+  "ownershipStatusBorrowed": "Prestado",
+  "@ownershipStatusBorrowed": {
+    "description": "Tenencia: prestado"
+  },
+  "ownershipStatusReturned": "Devuelto",
+  "@ownershipStatusReturned": {
+    "description": "Tenencia: devuelto"
+  },
+  "ownershipStatusSold": "Vendido",
+  "@ownershipStatusSold": {
+    "description": "Tenencia: vendido"
+  },
+  "ownershipStatusOther": "Otro",
+  "@ownershipStatusOther": {
+    "description": "Tenencia: otro"
   },
   "formatPaperback": "Tapa blanda",
   "@formatPaperback": {
@@ -600,15 +636,39 @@
   "@bookDetailFieldFinished": {
     "description": "Etiqueta del campo de fin de lectura"
   },
+  "fieldOwnershipStatus": "Estado de propiedad",
+  "@fieldOwnershipStatus": {
+    "description": "Etiqueta del campo de estado de propiedad"
+  },
+  "ownershipHistoryTitle": "HISTORIAL DE PROPIEDAD",
+  "@ownershipHistoryTitle": {
+    "description": "Título de la sección de historial de propiedad"
+  },
+  "ownershipLogEmpty": "No hay eventos de propiedad registrados.",
+  "@ownershipLogEmpty": {
+    "description": "Mensaje de registro de propiedad vacío"
+  },
+  "ownershipEventPerson": "Persona / Quién",
+  "@ownershipEventPerson": {
+    "description": "Persona en evento de propiedad"
+  },
+  "ownershipEventDate": "Fecha",
+  "@ownershipEventDate": {
+    "description": "Fecha del evento de propiedad"
+  },
+  "ownershipEventNotes": "Notas",
+  "@ownershipEventNotes": {
+    "description": "Notas para el evento de propiedad"
+  },
   "pageProgress": "{current} / {total} págs · {percent}%",
   "@pageProgress": {
     "description": "Progreso de lectura en formato páginas",
     "placeholders": {
       "current": {
-        "type": "int"
+        "type": "String"
       },
       "total": {
-        "type": "int"
+        "type": "String"
       },
       "percent": {
         "type": "String"
@@ -620,10 +680,10 @@
     "description": "Progreso de lectura corto",
     "placeholders": {
       "current": {
-        "type": "int"
+        "type": "String"
       },
       "total": {
-        "type": "int"
+        "type": "String"
       }
     }
   },

@@ -5,9 +5,11 @@ import '../services/database.dart';
 class BookSearchResult {
   final String title;
   final String? subtitle;
+  final String? originalTitle;
   final List<String> authors;
   final String? isbn;
   final String? language;
+  final String? originalLanguage;
   final String? translator;
   final String? publisher;
   final String? coverUrl;
@@ -25,9 +27,11 @@ class BookSearchResult {
   const BookSearchResult({
     required this.title,
     this.subtitle,
+    this.originalTitle,
     required this.authors,
     this.isbn,
     this.language,
+    this.originalLanguage,
     this.translator,
     this.publisher,
     this.coverUrl,
@@ -42,9 +46,11 @@ class BookSearchResult {
   BookSearchResult copyWith({
     String? title,
     String? subtitle,
+    String? originalTitle,
     List<String>? authors,
     String? isbn,
     String? language,
+    String? originalLanguage,
     String? translator,
     String? publisher,
     String? coverUrl,
@@ -58,9 +64,11 @@ class BookSearchResult {
     return BookSearchResult(
       title: title ?? this.title,
       subtitle: subtitle ?? this.subtitle,
+      originalTitle: originalTitle ?? this.originalTitle,
       authors: authors ?? this.authors,
       isbn: isbn ?? this.isbn,
       language: language ?? this.language,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
       translator: translator ?? this.translator,
       publisher: publisher ?? this.publisher,
       coverUrl: coverUrl ?? this.coverUrl,
@@ -81,6 +89,7 @@ class BookSearchResult {
       author: authors.join(', '),
       isbn: Value(isbn),
       language: Value(language),
+      originalLanguage: Value(originalLanguage),
       translator: Value(translator),
       publisher: Value(publisher),
       coverUrl: Value(coverUrl),

@@ -23,6 +23,7 @@ class FormFieldWidget extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final IconData? icon;
+  final Widget? suffixIcon;
   final bool required;
   final TextInputType keyboardType;
   final int maxLines;
@@ -33,6 +34,7 @@ class FormFieldWidget extends StatelessWidget {
     required this.controller,
     required this.label,
     this.icon,
+    this.suffixIcon,
     this.required = false,
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
@@ -49,6 +51,7 @@ class FormFieldWidget extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: icon != null ? Icon(icon) : null,
+        suffixIcon: suffixIcon,
         border: const OutlineInputBorder(),
         filled: readOnly,
         fillColor: readOnly ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : null,
@@ -96,6 +99,49 @@ class StatusSelector extends StatelessWidget {
           selected: isSelected,
           selectedColor: color.withValues(alpha: 0.15),
           onSelected: (_) => onChanged(status),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class OwnershipStatusSelector extends StatelessWidget {
+  final OwnershipStatus? selected;
+  final ValueChanged<OwnershipStatus?> onChanged;
+
+  const OwnershipStatusSelector({super.key, required this.selected, required this.onChanged});
+
+  static const _options = [
+    (OwnershipStatus.bought, Icons.shopping_cart_outlined, Colors.blue),
+    (OwnershipStatus.gifted, Icons.card_giftcard_outlined, Colors.purple),
+    (OwnershipStatus.borrowed, Icons.handshake_outlined, Colors.orange),
+    (OwnershipStatus.returned, Icons.keyboard_return_outlined, Colors.green),
+    (OwnershipStatus.sold, Icons.sell_outlined, Colors.red),
+    (OwnershipStatus.other, Icons.more_horiz_outlined, Colors.grey),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: _options.map((opt) {
+        final (status, icon, color) = opt;
+        final isSelected = selected == status;
+        final label = switch (status) {
+          OwnershipStatus.bought => context.l10n.ownershipStatusBought,
+          OwnershipStatus.gifted => context.l10n.ownershipStatusGifted,
+          OwnershipStatus.borrowed => context.l10n.ownershipStatusBorrowed,
+          OwnershipStatus.returned => context.l10n.ownershipStatusReturned,
+          OwnershipStatus.sold => context.l10n.ownershipStatusSold,
+          OwnershipStatus.other => context.l10n.ownershipStatusOther,
+        };
+        return ChoiceChip(
+          avatar: Icon(icon, size: 16, color: isSelected ? color : null),
+          label: Text(label),
+          selected: isSelected,
+          selectedColor: color.withValues(alpha: 0.15),
+          onSelected: (_) => onChanged(isSelected ? null : status),
         );
       }).toList(),
     );

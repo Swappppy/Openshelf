@@ -30,3 +30,23 @@ jobs:
         with:
           files: build/app/outputs/flutter-apk/*.apk
           generate_release_notes: true
+
+  update-readme:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Update README version
+        run: |
+          sed -i "s/Latest release: \*\*v.*\*\*/Latest release: \*\*$GITHUB_REF_NAME\*\*/g" README.md
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: update latest release to $GITHUB_REF_NAME [skip ci]" || echo "No changes to commit"
+          git push origin master

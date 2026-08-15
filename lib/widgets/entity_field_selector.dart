@@ -15,7 +15,9 @@ class EntityFieldSelector extends ConsumerStatefulWidget {
   final String label;
   final IconData icon;
   final bool multiSelection;
+  final bool useSquareButton;
   final Widget? trailing;
+  final VoidCallback? onSquareButtonPressed;
 
   const EntityFieldSelector({
     super.key,
@@ -25,7 +27,9 @@ class EntityFieldSelector extends ConsumerStatefulWidget {
     required this.label,
     required this.icon,
     this.multiSelection = true,
+    this.useSquareButton = false,
     this.trailing,
+    this.onSquareButtonPressed,
   });
 
   @override
@@ -99,7 +103,7 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
                       labelText: widget.label,
                       prefixIcon: Icon(widget.icon),
                       border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
+                      suffixIcon: (!widget.useSquareButton) ? IconButton(
                         icon: const Icon(Icons.add),
                         onPressed: () async {
                           final name = controller.text.trim();
@@ -114,7 +118,7 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
                             _selectTag(newTag, controller);
                           }
                         },
-                      ),
+                      ) : null,
                     ),
                     onSubmitted: (value) {
                       final name = value.trim();
@@ -125,6 +129,29 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
                 },
               ),
             ),
+            if (widget.useSquareButton) ...[
+              const SizedBox(width: 12),
+              SquareActionButton(
+                icon: Icons.add,
+                onPressed: () async {
+                  if (widget.onSquareButtonPressed != null) {
+                    widget.onSquareButtonPressed!();
+                  } else {
+                    final name = _capturedController?.text.trim() ?? '';
+                    final newTag = await showTagFormDialog(
+                      context, 
+                      ref, 
+                      title: context.l10n.create, 
+                      type: widget.type,
+                      initialName: name.isNotEmpty ? name : null,
+                    );
+                    if (newTag != null) {
+                      _selectTag(newTag, _capturedController!);
+                    }
+                  }
+                },
+              ),
+            ],
             if (widget.trailing != null) ...[
               const SizedBox(width: 8),
               widget.trailing!,
@@ -172,5 +199,47 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
         _selectTag(newTag, controller);
       }
     }
+  }
+}
+
+class SquareActionButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+  final bool isActive;
+  final String? tooltip;
+
+  const SquareActionButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.isActive = false,
+    this.tooltip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Container(
+      height: 56,
+      width: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: colorScheme.outlineVariant,
+          width: 1,
+        ),
+      ),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
+        icon: Icon(
+          icon,
+          color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
+        ),
+        onPressed: onPressed,
+        tooltip: tooltip,
+      ),
+    );
   }
 }

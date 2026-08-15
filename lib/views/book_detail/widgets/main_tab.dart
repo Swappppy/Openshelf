@@ -8,6 +8,7 @@ import '../../../widgets/segmented_progress_bar.dart';
 import '../../../controllers/read_history_controller.dart';
 import '../../../controllers/books_controller.dart';
 import '../../../widgets/tag_chip.dart';
+import '../../../widgets/status_chip_field.dart';
 import '../../shelves/shelf_books_view.dart';
 
 class MainTab extends StatelessWidget {
@@ -293,7 +294,37 @@ class MainTab extends StatelessWidget {
         ),
 
         const SizedBox(height: 20),
-        ReadOnlyField(label: context.l10n.bookDetailFieldFormat, value: _formatLabel(context, book.bookFormat)),
+        Row(
+          children: [
+            Expanded(
+              child: StatusChipField(
+                label: context.l10n.bookDetailFieldFormat,
+                value: _formatLabel(context, book.bookFormat),
+                icon: Icons.inventory_2_outlined,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: StatusChipField(
+                label: context.l10n.sectionReadingStatus,
+                value: _statusLabel(context, book.status),
+                icon: _statusIcon(book.status),
+                color: _statusColor(book.status),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => StatusBooksView(
+                        status: book.status,
+                        title: _statusLabel(context, book.status),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 20),
 
         // Star Rating
@@ -318,6 +349,36 @@ class MainTab extends StatelessWidget {
         const SizedBox(height: 32),
       ],
     );
+  }
+
+  String _statusLabel(BuildContext context, ReadingStatus status) {
+    switch (status) {
+      case ReadingStatus.wantToRead: return context.l10n.statusWantToRead;
+      case ReadingStatus.reading: return context.l10n.statusReading;
+      case ReadingStatus.read: return context.l10n.statusRead;
+      case ReadingStatus.abandoned: return context.l10n.statusAbandoned;
+      case ReadingStatus.paused: return context.l10n.statusPaused;
+    }
+  }
+
+  IconData _statusIcon(ReadingStatus status) {
+    switch (status) {
+      case ReadingStatus.wantToRead: return Icons.bookmark_outline;
+      case ReadingStatus.reading: return Icons.auto_stories;
+      case ReadingStatus.read: return Icons.check_circle_outline;
+      case ReadingStatus.abandoned: return Icons.close;
+      case ReadingStatus.paused: return Icons.pause_circle_outline;
+    }
+  }
+
+  Color _statusColor(ReadingStatus status) {
+    switch (status) {
+      case ReadingStatus.wantToRead: return Colors.orange;
+      case ReadingStatus.reading: return Colors.blue;
+      case ReadingStatus.read: return Colors.green;
+      case ReadingStatus.abandoned: return Colors.red;
+      case ReadingStatus.paused: return const Color(0xFFB39DDB);
+    }
   }
 }
 

@@ -7,15 +7,18 @@ class Books extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
   TextColumn get subtitle => text().nullable()();
+  TextColumn get originalTitle => text().nullable()();
   TextColumn get author => text()();
   TextColumn get isbn => text().nullable()();
   TextColumn get language => text().nullable()();
+  TextColumn get originalLanguage => text().nullable()();
   TextColumn get translator => text().nullable()();
   TextColumn get publisher => text().nullable()();
   TextColumn get coverUrl => text().nullable()();
   IntColumn get totalPages => integer().nullable()();
   IntColumn get currentPage => integer().nullable()();
   TextColumn get status => textEnum<ReadingStatus>()();
+  TextColumn get ownershipStatus => textEnum<OwnershipStatus>().nullable()();
   RealColumn get rating => real().nullable()();
   TextColumn get bookFormat => text().nullable().map(
     const BookFormatConverter(),

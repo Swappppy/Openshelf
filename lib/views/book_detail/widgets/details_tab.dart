@@ -6,6 +6,9 @@ import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../controllers/read_history_controller.dart';
 import '../../../controllers/books_controller.dart';
+import '../../../controllers/ownership_controller.dart';
+import '../../../widgets/imprint_placeholder.dart';
+import '../../../widgets/status_chip_field.dart';
 import '../../shelves/shelf_books_view.dart';
 import 'main_tab.dart';
 
@@ -26,6 +29,19 @@ class DetailsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final historyAsync = ref.watch(readHistoryProvider(book.id));
+    final ownershipAsync = ref.watch(ownershipLogProvider(book.id));
+
+    String ownershipLabel(OwnershipStatus? status) {
+      if (status == null) return '—';
+      switch (status) {
+        case OwnershipStatus.bought: return context.l10n.ownershipStatusBought;
+        case OwnershipStatus.gifted: return context.l10n.ownershipStatusGifted;
+        case OwnershipStatus.borrowed: return context.l10n.ownershipStatusBorrowed;
+        case OwnershipStatus.returned: return context.l10n.ownershipStatusReturned;
+        case OwnershipStatus.sold: return context.l10n.ownershipStatusSold;
+        case OwnershipStatus.other: return context.l10n.ownershipStatusOther;
+      }
+    }
 
     return historyAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -34,15 +50,67 @@ class DetailsTab extends ConsumerWidget {
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            ReadOnlyField(
-              label: context.l10n.fieldYear,
-              value: book.publishYear?.toString() ?? '—',
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ReadOnlyField(
+                    label: context.l10n.fieldYear,
+                    value: book.publishYear?.toString() ?? '—',
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
-            ReadOnlyField(label: context.l10n.fieldIsbn, value: book.isbn ?? '—'),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: StatusChipField(
+                    label: context.l10n.fieldOwnershipStatus,
+                    value: ownershipLabel(book.ownershipStatus),
+                    icon: _ownershipIcon(book.ownershipStatus),
+                    color: _ownershipColor(book.ownershipStatus),
+                    onTap: () {
+                      // TODO: Navigate to filtered view for ownership status
+                    },
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
-            ReadOnlyField(label: context.l10n.fieldLanguage, value: book.language ?? '—'),
-            const SizedBox(height: 24),
+            if (book.originalTitle != null && book.originalTitle!.isNotEmpty) ...[
+              ReadOnlyField(label: context.l10n.fieldOriginalTitle, value: book.originalTitle!),
+              const SizedBox(height: 20),
+            ],
+            if ((book.originalLanguage != null && book.originalLanguage!.isNotEmpty) || 
+                (book.translator != null && book.translator!.isNotEmpty)) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (book.originalLanguage != null && book.originalLanguage!.isNotEmpty)
+                    Expanded(
+                      child: ReadOnlyField(label: context.l10n.fieldOriginalLanguage, value: book.originalLanguage!),
+                    ),
+                  if (book.originalLanguage != null && book.originalLanguage!.isNotEmpty && 
+                      book.translator != null && book.translator!.isNotEmpty)
+                    const SizedBox(width: 16),
+                  if (book.translator != null && book.translator!.isNotEmpty)
+                    Expanded(
+                      child: ReadOnlyField(label: context.l10n.fieldTranslator, value: book.translator!),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 24),
+            ],
 
             Text(
               context.l10n.fieldCollection.toUpperCase(),
@@ -240,13 +308,7 @@ class DetailsTab extends ConsumerWidget {
               );
             }),
 
-            const SizedBox(height: 20),
-
-            ReadOnlyField(
-              label: context.l10n.fieldTranslator,
-              value: book.translator ?? '—',
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
             // Personal Notes
             GestureDetector(
@@ -402,6 +464,83 @@ class DetailsTab extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
+            // Ownership History Section
+            Text(
+              context.l10n.ownershipHistoryTitle,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            ownershipAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const Text('—'),
+              data: (log) {
+                if (log.isEmpty) return Text('—', style: Theme.of(context).textTheme.bodyLarge);
+                return Container(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                  ),
+                  child: Column(
+                    children: log.asMap().entries.map((entry) {
+                      final item = entry.value;
+                      final isLast = entry.key == log.length - 1;
+                      final locale = Localizations.localeOf(context).toString();
+                      
+                      final IconData icon = switch (item.eventType) {
+                        OwnershipStatus.bought => Icons.shopping_cart_outlined,
+                        OwnershipStatus.gifted => Icons.card_giftcard_outlined,
+                        OwnershipStatus.borrowed => Icons.handshake_outlined,
+                        OwnershipStatus.returned => Icons.keyboard_return_outlined,
+                        OwnershipStatus.sold => Icons.sell_outlined,
+                        OwnershipStatus.other => Icons.more_horiz_outlined,
+                      };
+
+                      return Column(
+                        children: [
+                          ListTile(
+                            dense: true,
+                            visualDensity: VisualDensity.compact,
+                            title: Text(
+                              ownershipLabel(item.eventType),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  DateFormat.yMd(locale).format(item.date),
+                                  style: TextStyle(color: colorScheme.outline, fontSize: 12),
+                                ),
+                                if (item.personName != null) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    item.personName!,
+                                    style: TextStyle(
+                                      color: colorScheme.primary.withValues(alpha: 0.8),
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            leading: Icon(icon, size: 18, color: colorScheme.primary),
+                          ),
+                          if (!isLast) Divider(height: 1, indent: 56, color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 24),
+
             // Start New Reading Button
             if (book.status != ReadingStatus.reading)
               Padding(
@@ -423,59 +562,30 @@ class DetailsTab extends ConsumerWidget {
       },
     );
   }
-}
 
-class ImprintPlaceholder extends StatelessWidget {
-  final double size;
-  final double iconSize;
-  final String? name;
-
-  const ImprintPlaceholder({
-    super.key,
-    this.size = 80,
-    this.iconSize = 32,
-    this.name,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    Widget content;
-    if (name != null && name!.isNotEmpty) {
-      final initials = name!
-          .split(RegExp(r'\s+'))
-          .where((w) => w.isNotEmpty)
-          .take(3)
-          .map((w) => w[0].toUpperCase())
-          .join();
-      content = Center(
-        child: Text(
-          initials,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colorScheme.onSurface.withValues(alpha: 0.5),
-            fontSize: size * 0.35,
-            letterSpacing: 0.5,
-          ),
-        ),
-      );
-    } else {
-      content = Icon(
-        Icons.business_outlined,
-        size: iconSize,
-        color: colorScheme.outline,
-      );
+  IconData _ownershipIcon(OwnershipStatus? status) {
+    switch (status) {
+      case OwnershipStatus.bought: return Icons.shopping_cart_outlined;
+      case OwnershipStatus.gifted: return Icons.card_giftcard_outlined;
+      case OwnershipStatus.borrowed: return Icons.handshake_outlined;
+      case OwnershipStatus.returned: return Icons.keyboard_return_outlined;
+      case OwnershipStatus.sold: return Icons.sell_outlined;
+      case OwnershipStatus.other:
+      case null:
+        return Icons.more_horiz_outlined;
     }
+  }
 
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: content,
-    );
+  Color _ownershipColor(OwnershipStatus? status) {
+    switch (status) {
+      case OwnershipStatus.bought: return Colors.blue;
+      case OwnershipStatus.gifted: return Colors.purple;
+      case OwnershipStatus.borrowed: return Colors.orange;
+      case OwnershipStatus.returned: return Colors.green;
+      case OwnershipStatus.sold: return Colors.red;
+      case OwnershipStatus.other:
+      case null:
+        return Colors.grey;
+    }
   }
 }

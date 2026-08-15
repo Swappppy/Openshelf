@@ -18,6 +18,15 @@ enum BookFormat {
   other,
 }
 
+enum OwnershipStatus {
+  bought,
+  gifted,
+  borrowed,
+  returned,
+  sold,
+  other,
+}
+
 /// Converts between BookFormat enum and String for DB storage
 class BookFormatConverter extends TypeConverter<BookFormat?, String?> {
   const BookFormatConverter();

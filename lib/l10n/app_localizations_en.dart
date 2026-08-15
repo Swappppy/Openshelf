@@ -258,6 +258,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldLanguage => 'Language';
 
   @override
+  String get fieldIsTranslation => 'Is a translation?';
+
+  @override
+  String get fieldOriginalTitle => 'Original title';
+
+  @override
+  String get fieldOriginalLanguage => 'Original language';
+
+  @override
   String get fieldTranslator => 'Translator';
 
   @override
@@ -358,6 +367,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusPaused => 'Paused';
+
+  @override
+  String get ownershipStatusBought => 'Bought';
+
+  @override
+  String get ownershipStatusGifted => 'Gifted';
+
+  @override
+  String get ownershipStatusBorrowed => 'Borrowed';
+
+  @override
+  String get ownershipStatusReturned => 'Returned';
+
+  @override
+  String get ownershipStatusSold => 'Sold';
+
+  @override
+  String get ownershipStatusOther => 'Other';
 
   @override
   String get formatPaperback => 'Paperback';
@@ -502,6 +529,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookDetailFieldFinished => 'Finished reading';
+
+  @override
+  String get fieldOwnershipStatus => 'Ownership status';
+
+  @override
+  String get ownershipHistoryTitle => 'OWNERSHIP HISTORY';
+
+  @override
+  String get ownershipLogEmpty => 'No ownership events recorded.';
+
+  @override
+  String get ownershipEventPerson => 'Person / Who';
+
+  @override
+  String get ownershipEventDate => 'Date';
+
+  @override
+  String get ownershipEventNotes => 'Notes';
 
   @override
   String pageProgress(String current, String total, String percent) {

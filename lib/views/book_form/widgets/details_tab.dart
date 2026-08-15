@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../widgets/entity_field_selector.dart';
+import '../../../widgets/imprint_placeholder.dart';
 import '../../../models/tag_type.dart';
 import 'form_components.dart';
 
@@ -10,8 +12,15 @@ class DetailsTab extends ConsumerWidget {
   final TextEditingController notesCtrl;
   final TextEditingController isbnCtrl;
   final TextEditingController languageCtrl;
+  final TextEditingController originalTitleCtrl;
+  final TextEditingController originalLanguageCtrl;
   final TextEditingController publishYearCtrl;
   final TextEditingController translatorCtrl;
+  final bool isTranslation;
+  final ValueChanged<bool> onIsTranslationChanged;
+  final OwnershipStatus? ownershipStatus;
+  final ValueChanged<OwnershipStatus?> onOwnershipStatusChanged;
+  final TextEditingController personNameCtrl;
   final List<(Tag, int?)> selectedCollections;
   final Tag? selectedImprint;
   final DateTime? startedAt;
@@ -27,8 +36,15 @@ class DetailsTab extends ConsumerWidget {
     required this.notesCtrl,
     required this.isbnCtrl,
     required this.languageCtrl,
+    required this.originalTitleCtrl,
+    required this.originalLanguageCtrl,
     required this.publishYearCtrl,
     required this.translatorCtrl,
+    required this.isTranslation,
+    required this.onIsTranslationChanged,
+    this.ownershipStatus,
+    required this.onOwnershipStatusChanged,
+    required this.personNameCtrl,
     required this.selectedCollections,
     required this.selectedImprint,
     this.startedAt,
@@ -49,23 +65,88 @@ class DetailsTab extends ConsumerWidget {
       children: [
         SectionHeader(label: context.l10n.sectionBasicInfo),
         const SizedBox(height: 12),
-        FormFieldWidget(
-          controller: publishYearCtrl,
-          label: context.l10n.fieldYear,
-          icon: Icons.calendar_today_outlined,
-          keyboardType: TextInputType.number,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: FormFieldWidget(
+                controller: isbnCtrl,
+                label: context.l10n.fieldIsbn,
+                icon: Icons.barcode_reader,
+                keyboardType: TextInputType.number,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FormFieldWidget(
+                controller: publishYearCtrl,
+                label: context.l10n.fieldYear,
+                icon: Icons.calendar_today_outlined,
+                keyboardType: TextInputType.number,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
-        FormFieldWidget(
-            controller: isbnCtrl,
-            label: context.l10n.fieldIsbn,
-            icon: Icons.barcode_reader,
-            keyboardType: TextInputType.number),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: FormFieldWidget(
+                controller: languageCtrl,
+                label: context.l10n.fieldLanguage,
+                icon: Icons.language_outlined,
+              ),
+            ),
+            if (isTranslation) ...[
+              const SizedBox(width: 12),
+              Expanded(
+                child: FormFieldWidget(
+                  controller: originalLanguageCtrl,
+                  label: context.l10n.fieldOriginalLanguage,
+                  icon: Icons.language_outlined,
+                ),
+              ),
+            ],
+            const SizedBox(width: 12),
+            SquareActionButton(
+              icon: isTranslation ? Icons.translate : Icons.translate_outlined,
+              isActive: isTranslation,
+              onPressed: () => onIsTranslationChanged(!isTranslation),
+              tooltip: context.l10n.fieldIsTranslation,
+            ),
+          ],
+        ),
+        if (isTranslation) ...[
+          const SizedBox(height: 12),
+          FormFieldWidget(
+            controller: originalTitleCtrl,
+            label: context.l10n.fieldOriginalTitle,
+            icon: Icons.title_outlined,
+          ),
+          const SizedBox(height: 12),
+          FormFieldWidget(
+            controller: translatorCtrl,
+            label: context.l10n.fieldTranslator,
+            icon: Icons.translate_outlined,
+          ),
+        ],
+        const SizedBox(height: 24),
+
+        SectionHeader(label: context.l10n.fieldOwnershipStatus),
         const SizedBox(height: 12),
-        FormFieldWidget(
-            controller: languageCtrl,
-            label: context.l10n.fieldLanguage,
-            icon: Icons.language_outlined),
+        OwnershipStatusSelector(
+          selected: ownershipStatus,
+          onChanged: onOwnershipStatusChanged,
+        ),
+        if (ownershipStatus == OwnershipStatus.borrowed || ownershipStatus == OwnershipStatus.gifted) ...[
+          const SizedBox(height: 12),
+          FormFieldWidget(
+            controller: personNameCtrl,
+            label: context.l10n.ownershipEventPerson,
+            icon: Icons.person_outline,
+          ),
+        ],
         const SizedBox(height: 24),
 
         SectionHeader(label: context.l10n.fieldCollection),
@@ -161,15 +242,61 @@ class DetailsTab extends ConsumerWidget {
           },
           type: TagType.collection,
           label: context.l10n.fieldCollection,
-          icon: Icons.add,
+          icon: Icons.layers_outlined,
           multiSelection: true,
+          useSquareButton: true,
         ),
         const SizedBox(height: 24),
 
         SectionHeader(label: context.l10n.sectionImprint),
         const SizedBox(height: 12),
+        if (selectedImprint != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorScheme.outlineVariant),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: selectedImprint!.imagePath != null
+                        ? Image.file(
+                            File(selectedImprint!.imagePath!),
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                            errorBuilder: (context, error, stackTrace) =>
+                                ImprintPlaceholder(size: 40, iconSize: 20, name: selectedImprint!.name),
+                          )
+                        : ImprintPlaceholder(size: 40, iconSize: 20, name: selectedImprint!.name),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      selectedImprint!.name,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                    onPressed: () => onImprintChanged(null),
+                  ),
+                ],
+              ),
+            ),
+          ),
         EntityFieldSelector(
-          selected: selectedImprint != null ? [selectedImprint!] : [],
+          selected: const [],
           onChanged: (list) {
             onImprintChanged(list.firstOrNull);
           },
@@ -177,15 +304,7 @@ class DetailsTab extends ConsumerWidget {
           label: context.l10n.imprintSearch,
           icon: Icons.business_outlined,
           multiSelection: false,
-        ),
-        const SizedBox(height: 24),
-
-        SectionHeader(label: context.l10n.fieldTranslator),
-        const SizedBox(height: 12),
-        FormFieldWidget(
-          controller: translatorCtrl,
-          label: context.l10n.fieldTranslator,
-          icon: Icons.translate_outlined,
+          useSquareButton: true,
         ),
         const SizedBox(height: 24),
 

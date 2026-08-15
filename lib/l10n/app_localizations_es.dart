@@ -257,7 +257,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get fieldLanguage => 'Idioma';
 
   @override
-  String get fieldTranslator => 'Traducción';
+  String get fieldIsTranslation => '¿Es una traducción?';
+
+  @override
+  String get fieldOriginalTitle => 'Título original';
+
+  @override
+  String get fieldOriginalLanguage => 'Idioma original';
+
+  @override
+  String get fieldTranslator => 'Traductor';
 
   @override
   String get fieldReads => 'Lecturas';
@@ -357,6 +366,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get statusPaused => 'Pausado';
+
+  @override
+  String get ownershipStatusBought => 'Comprado';
+
+  @override
+  String get ownershipStatusGifted => 'Regalado';
+
+  @override
+  String get ownershipStatusBorrowed => 'Prestado';
+
+  @override
+  String get ownershipStatusReturned => 'Devuelto';
+
+  @override
+  String get ownershipStatusSold => 'Vendido';
+
+  @override
+  String get ownershipStatusOther => 'Otro';
 
   @override
   String get formatPaperback => 'Tapa blanda';
@@ -503,6 +530,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bookDetailFieldFinished => 'Fin lectura';
+
+  @override
+  String get fieldOwnershipStatus => 'Estado de propiedad';
+
+  @override
+  String get ownershipHistoryTitle => 'HISTORIAL DE PROPIEDAD';
+
+  @override
+  String get ownershipLogEmpty => 'No hay eventos de propiedad registrados.';
+
+  @override
+  String get ownershipEventPerson => 'Persona / Quién';
+
+  @override
+  String get ownershipEventDate => 'Fecha';
+
+  @override
+  String get ownershipEventNotes => 'Notas';
 
   @override
   String pageProgress(String current, String total, String percent) {
@@ -1088,7 +1133,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsApiKeyStep6 =>
-      'Copia la clave resultante (empieza por \"AIza...\") y pégala en el campo de arriba.';
+      'Copia la clave resultante (empieza por \"AIza…\") y pégala en el campo de arriba.';
 
   @override
   String get settingsApiKeyNote =>

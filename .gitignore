@@ -50,3 +50,4 @@ android/key.properties
 
 # Generado por flutter pub get
 .flutter-plugins
+/resolve_arb_conflicts.py

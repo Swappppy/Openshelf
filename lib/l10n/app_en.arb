@@ -327,6 +327,18 @@
   "@fieldLanguage": {
     "description": "Language field label"
   },
+  "fieldIsTranslation": "Is a translation?",
+  "@fieldIsTranslation": {
+    "description": "Toggle for translation fields"
+  },
+  "fieldOriginalTitle": "Original title",
+  "@fieldOriginalTitle": {
+    "description": "Original title field label"
+  },
+  "fieldOriginalLanguage": "Original language",
+  "@fieldOriginalLanguage": {
+    "description": "Original language field label"
+  },
   "fieldTranslator": "Translator",
   "@fieldTranslator": {
     "description": "Translator field label"
@@ -462,6 +474,30 @@
   "statusPaused": "Paused",
   "@statusPaused": {
     "description": "Status: paused"
+  },
+  "ownershipStatusBought": "Bought",
+  "@ownershipStatusBought": {
+    "description": "Ownership: bought"
+  },
+  "ownershipStatusGifted": "Gifted",
+  "@ownershipStatusGifted": {
+    "description": "Ownership: gifted"
+  },
+  "ownershipStatusBorrowed": "Borrowed",
+  "@ownershipStatusBorrowed": {
+    "description": "Ownership: borrowed"
+  },
+  "ownershipStatusReturned": "Returned",
+  "@ownershipStatusReturned": {
+    "description": "Ownership: returned"
+  },
+  "ownershipStatusSold": "Sold",
+  "@ownershipStatusSold": {
+    "description": "Ownership: sold"
+  },
+  "ownershipStatusOther": "Other",
+  "@ownershipStatusOther": {
+    "description": "Ownership: other"
   },
   "formatPaperback": "Paperback",
   "@formatPaperback": {
@@ -599,6 +635,30 @@
   "bookDetailFieldFinished": "Finished reading",
   "@bookDetailFieldFinished": {
     "description": "Date finished label"
+  },
+  "fieldOwnershipStatus": "Ownership status",
+  "@fieldOwnershipStatus": {
+    "description": "Ownership status field label"
+  },
+  "ownershipHistoryTitle": "OWNERSHIP HISTORY",
+  "@ownershipHistoryTitle": {
+    "description": "Ownership history section title"
+  },
+  "ownershipLogEmpty": "No ownership events recorded.",
+  "@ownershipLogEmpty": {
+    "description": "Empty ownership log message"
+  },
+  "ownershipEventPerson": "Person / Who",
+  "@ownershipEventPerson": {
+    "description": "Person in ownership event"
+  },
+  "ownershipEventDate": "Date",
+  "@ownershipEventDate": {
+    "description": "Date of ownership event"
+  },
+  "ownershipEventNotes": "Notes",
+  "@ownershipEventNotes": {
+    "description": "Notes for ownership event"
   },
   "pageProgress": "{current} / {total} pages · {percent}%",
   "@pageProgress": {

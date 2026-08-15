@@ -119,2944 +119,3034 @@ abstract class AppLocalizations {
     Locale('tr'),
   ];
 
-  /// Application name
+  /// Nombre de la aplicación
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Openshelf'**
   String get appTitle;
 
-  /// Generic error prefix
+  /// Prefijo genérico de error
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Error: {message}'**
   String errorPrefix(String message);
 
-  /// Generic error message with parameter
+  /// Mensaje genérico de error con parámetro
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Error: {error}'**
   String errorGeneric(String error);
 
-  /// Critical app startup error
+  /// Error crítico al arrancar la app
   ///
-  /// In en, this message translates to:
-  /// **'Error starting application: {error}'**
+  /// In es, this message translates to:
+  /// **'Error al iniciar la aplicación: {error}'**
   String criticalStartError(String error);
 
-  /// Nav tab: library
+  /// Pestaña de navegación: biblioteca
   ///
-  /// In en, this message translates to:
-  /// **'Library'**
+  /// In es, this message translates to:
+  /// **'Biblioteca'**
   String get navLibrary;
 
-  /// Nav tab: shelves
+  /// Pestaña de navegación: estanterías
   ///
-  /// In en, this message translates to:
-  /// **'Shelves'**
+  /// In es, this message translates to:
+  /// **'Estanterías'**
   String get navShelves;
 
-  /// Nav tab: stats
+  /// Pestaña de navegación: estadísticas
   ///
-  /// In en, this message translates to:
-  /// **'Stats'**
+  /// In es, this message translates to:
+  /// **'Estadísticas'**
   String get navStats;
 
-  /// Library screen title
+  /// Título de la pantalla de biblioteca
   ///
-  /// In en, this message translates to:
-  /// **'Library'**
+  /// In es, this message translates to:
+  /// **'Biblioteca'**
   String get libraryTitle;
 
-  /// Empty library state
+  /// Estado vacío de la biblioteca sin filtros
   ///
-  /// In en, this message translates to:
-  /// **'Your library is empty'**
+  /// In es, this message translates to:
+  /// **'Tu biblioteca está vacía'**
   String get libraryEmpty;
 
-  /// Hint when library is empty
+  /// Pista cuando la biblioteca está vacía
   ///
-  /// In en, this message translates to:
-  /// **'Every great reader started with a first book. What will yours be?'**
+  /// In es, this message translates to:
+  /// **'¿Cuál será tu primer libro?'**
   String get libraryEmptyHint;
 
-  /// Text for the action button in the empty library state
+  /// Texto del botón de acción en el estado vacío de la biblioteca
   ///
-  /// In en, this message translates to:
-  /// **'Add first book'**
+  /// In es, this message translates to:
+  /// **'Añadir primer libro'**
   String get libraryAddFirstBook;
 
-  /// No search results
+  /// Sin resultados con filtros activos
   ///
-  /// In en, this message translates to:
-  /// **'No results'**
+  /// In es, this message translates to:
+  /// **'Sin resultados'**
   String get libraryNoResults;
 
-  /// Hint when no search results
+  /// Pista cuando no hay resultados con filtros
   ///
-  /// In en, this message translates to:
-  /// **'Try different filters'**
+  /// In es, this message translates to:
+  /// **'Prueba con otros filtros'**
   String get libraryNoResultsHint;
 
-  /// Add book FAB label
+  /// Etiqueta del FAB para añadir libro
   ///
-  /// In en, this message translates to:
-  /// **'Add book'**
+  /// In es, this message translates to:
+  /// **'Añadir libro'**
   String get addBook;
 
-  /// Display settings title
+  /// Título del panel de preferencias de visualización
   ///
-  /// In en, this message translates to:
-  /// **'Show in library'**
+  /// In es, this message translates to:
+  /// **'Mostrar en la biblioteca'**
   String get displaySettings;
 
-  /// Reorder hint
+  /// Pista sobre arrastrar para reordenar campos
   ///
-  /// In en, this message translates to:
-  /// **'Drag to reorder'**
+  /// In es, this message translates to:
+  /// **'Arrastra para reordenar'**
   String get displaySettingsDragHint;
 
-  /// Settings button label
+  /// Botón de ajustes en el panel de visualización
   ///
-  /// In en, this message translates to:
-  /// **'Settings'**
+  /// In es, this message translates to:
+  /// **'Ajustes'**
   String get settingsButton;
 
-  /// Author field name
+  /// Nombre del campo autor
   ///
-  /// In en, this message translates to:
-  /// **'Author'**
+  /// In es, this message translates to:
+  /// **'Autor'**
   String get fieldAuthor;
 
-  /// Publisher field name
+  /// Nombre del campo editorial
   ///
-  /// In en, this message translates to:
-  /// **'Publisher'**
+  /// In es, this message translates to:
+  /// **'Editorial'**
   String get fieldPublisher;
 
-  /// Year field name
+  /// Nombre del campo año de publicación
   ///
-  /// In en, this message translates to:
-  /// **'Published year'**
+  /// In es, this message translates to:
+  /// **'Año de publicación'**
   String get fieldYear;
 
-  /// Rating field name
+  /// Nombre del campo valoración
   ///
-  /// In en, this message translates to:
-  /// **'Rating'**
+  /// In es, this message translates to:
+  /// **'Valoración'**
   String get fieldRating;
 
-  /// Tags field name
+  /// Nombre del campo etiquetas
   ///
-  /// In en, this message translates to:
-  /// **'Tags'**
+  /// In es, this message translates to:
+  /// **'Etiquetas'**
   String get fieldTags;
 
-  /// Reading progress field
+  /// Nombre del campo progreso de lectura
   ///
-  /// In en, this message translates to:
-  /// **'Reading progress'**
+  /// In es, this message translates to:
+  /// **'Progreso de lectura'**
   String get fieldReadingProgress;
 
-  /// Status chip field
+  /// Nombre del campo chip de estado
   ///
-  /// In en, this message translates to:
-  /// **'Status chip'**
+  /// In es, this message translates to:
+  /// **'Chip de estado'**
   String get fieldStatusChip;
 
-  /// Library search placeholder
+  /// Placeholder del campo de búsqueda en la biblioteca
   ///
-  /// In en, this message translates to:
-  /// **'Search by title...'**
+  /// In es, this message translates to:
+  /// **'Buscar por título...'**
   String get searchHint;
 
-  /// Author filter placeholder
+  /// Placeholder del filtro de autor
   ///
-  /// In en, this message translates to:
-  /// **'Author'**
+  /// In es, this message translates to:
+  /// **'Autor'**
   String get filterAuthor;
 
-  /// ISBN filter placeholder
+  /// Placeholder del filtro de ISBN
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'ISBN'**
   String get filterIsbn;
 
-  /// Publisher filter placeholder
+  /// Placeholder del filtro de editorial
   ///
-  /// In en, this message translates to:
-  /// **'Publisher'**
+  /// In es, this message translates to:
+  /// **'Editorial'**
   String get filterPublisher;
 
-  /// Collection filter placeholder
+  /// Placeholder del filtro de colección
   ///
-  /// In en, this message translates to:
-  /// **'Collection'**
+  /// In es, this message translates to:
+  /// **'Colección'**
   String get filterCollection;
 
-  /// Imprint filter label
+  /// Etiqueta de sección de sello editorial en filtros
   ///
-  /// In en, this message translates to:
-  /// **'Imprint'**
+  /// In es, this message translates to:
+  /// **'Sello editorial'**
   String get filterImprintLabel;
 
   /// No description provided for @imprintBookCount.
   ///
-  /// In en, this message translates to:
-  /// **'{count} books'**
+  /// In es, this message translates to:
+  /// **'{count} libros'**
   String imprintBookCount(int count);
 
-  /// Categories filter label
+  /// Etiqueta de sección de categorías en filtros
   ///
-  /// In en, this message translates to:
-  /// **'Categories'**
+  /// In es, this message translates to:
+  /// **'Categorías'**
   String get filterTagsLabel;
 
-  /// Generic close button
+  /// Botón genérico de confirmación / cerrar
   ///
-  /// In en, this message translates to:
-  /// **'Done'**
+  /// In es, this message translates to:
+  /// **'Hecho'**
   String get done;
 
-  /// Generic loading message
+  /// Mensaje genérico de carga
   ///
-  /// In en, this message translates to:
-  /// **'Loading...'**
+  /// In es, this message translates to:
+  /// **'Cargando...'**
   String get loading;
 
-  /// Loading message during import
+  /// Mensaje de carga durante la importación
   ///
-  /// In en, this message translates to:
-  /// **'Importing books, please wait...'**
+  /// In es, this message translates to:
+  /// **'Importando libros, por favor espera...'**
   String get loadingImport;
 
-  /// Loading message during export
+  /// Mensaje de carga durante la exportación
   ///
-  /// In en, this message translates to:
-  /// **'Exporting books, please wait...'**
+  /// In es, this message translates to:
+  /// **'Exportando libros, por favor espera...'**
   String get loadingExport;
 
   /// No description provided for @exportProgressData.
   ///
-  /// In en, this message translates to:
-  /// **'Exporting data...'**
+  /// In es, this message translates to:
+  /// **'Exportando datos...'**
   String get exportProgressData;
 
   /// No description provided for @exportProgressMedia.
   ///
-  /// In en, this message translates to:
-  /// **'Bundling media...'**
+  /// In es, this message translates to:
+  /// **'Preparando archivos multimedia...'**
   String get exportProgressMedia;
 
   /// No description provided for @exportProgressCompress.
   ///
-  /// In en, this message translates to:
-  /// **'Compressing backup...'**
+  /// In es, this message translates to:
+  /// **'Comprimiendo copia de seguridad...'**
   String get exportProgressCompress;
 
   /// No description provided for @exportProgressFinalize.
   ///
-  /// In en, this message translates to:
-  /// **'Opening share menu...'**
+  /// In es, this message translates to:
+  /// **'Abriendo menú de compartir...'**
   String get exportProgressFinalize;
 
   /// No description provided for @exportSaveSuccess.
   ///
-  /// In en, this message translates to:
-  /// **'Backup saved to {path}'**
+  /// In es, this message translates to:
+  /// **'Copia de seguridad guardada en {path}'**
   String exportSaveSuccess(String path);
 
-  /// Generic cancel button
+  /// Botón genérico de cancelar
   ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
+  /// In es, this message translates to:
+  /// **'Cancelar'**
   String get cancel;
 
-  /// Generic save button
+  /// Botón genérico de guardar
   ///
-  /// In en, this message translates to:
-  /// **'Save'**
+  /// In es, this message translates to:
+  /// **'Guardar'**
   String get save;
 
-  /// Generic delete button
+  /// Botón genérico de eliminar
   ///
-  /// In en, this message translates to:
-  /// **'Delete'**
+  /// In es, this message translates to:
+  /// **'Eliminar'**
   String get delete;
 
-  /// Generic create button
+  /// Botón genérico de crear
   ///
-  /// In en, this message translates to:
-  /// **'Create'**
+  /// In es, this message translates to:
+  /// **'Crear'**
   String get create;
 
-  /// Generic edit button
+  /// Acción genérica de editar
   ///
-  /// In en, this message translates to:
-  /// **'Edit'**
+  /// In es, this message translates to:
+  /// **'Editar'**
   String get edit;
 
-  /// Generic duplicate action
+  /// Acción genérica de duplicar
   ///
-  /// In en, this message translates to:
-  /// **'Duplicate'**
+  /// In es, this message translates to:
+  /// **'Duplicar'**
   String get duplicate;
 
-  /// Take photo button
+  /// Botón para tomar foto
   ///
-  /// In en, this message translates to:
-  /// **'Photo'**
+  /// In es, this message translates to:
+  /// **'Foto'**
   String get photo;
 
-  /// Enter URL button
+  /// Botón para introducir URL
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'URL'**
   String get url;
 
-  /// Download button
+  /// Botón para descargar desde URL
   ///
-  /// In en, this message translates to:
-  /// **'Download'**
+  /// In es, this message translates to:
+  /// **'Descargar'**
   String get download;
 
-  /// Retry button
+  /// Botón para reintentar una operación fallida
   ///
-  /// In en, this message translates to:
-  /// **'Retry'**
+  /// In es, this message translates to:
+  /// **'Reintentar'**
   String get retry;
 
-  /// Share action
+  /// Acción de compartir
   ///
-  /// In en, this message translates to:
-  /// **'Share'**
+  /// In es, this message translates to:
+  /// **'Compartir'**
   String get share;
 
-  /// Save to device action
+  /// Acción de guardar en el dispositivo
   ///
-  /// In en, this message translates to:
-  /// **'Save to device'**
+  /// In es, this message translates to:
+  /// **'Guardar en dispositivo'**
   String get saveToDevice;
 
-  /// Add book modal title
+  /// Título del modal de añadir libro
   ///
-  /// In en, this message translates to:
-  /// **'Add book'**
+  /// In es, this message translates to:
+  /// **'Añadir libro'**
   String get addBookModalTitle;
 
-  /// Add book modal subtitle
+  /// Subtítulo del modal de añadir libro
   ///
-  /// In en, this message translates to:
-  /// **'Choose how you want to add your book'**
+  /// In es, this message translates to:
+  /// **'Elige cómo quieres añadir tu libro'**
   String get addBookModalSubtitle;
 
-  /// Add book manually option
+  /// Opción de añadir libro manualmente
   ///
-  /// In en, this message translates to:
-  /// **'Add manually'**
+  /// In es, this message translates to:
+  /// **'Añadir manualmente'**
   String get addManually;
 
-  /// Add manually option subtitle
+  /// Subtítulo de la opción de añadir manualmente
   ///
-  /// In en, this message translates to:
-  /// **'Fill in the data yourself'**
+  /// In es, this message translates to:
+  /// **'Rellena los datos tú mismo'**
   String get addManuallySubtitle;
 
-  /// Search book online option
+  /// Opción de buscar libro en internet
   ///
-  /// In en, this message translates to:
-  /// **'Search book'**
+  /// In es, this message translates to:
+  /// **'Buscar libro'**
   String get searchBook;
 
-  /// Search book option subtitle
+  /// Subtítulo de la opción de buscar libro
   ///
-  /// In en, this message translates to:
-  /// **'By title, author, or ISBN'**
+  /// In es, this message translates to:
+  /// **'Por título, autor o ISBN'**
   String get searchBookSubtitle;
 
-  /// Scan barcode option
+  /// Opción de escanear código de barras
   ///
-  /// In en, this message translates to:
-  /// **'Scan barcode'**
+  /// In es, this message translates to:
+  /// **'Escanear código de barras'**
   String get scanBarcode;
 
-  /// Scan barcode option subtitle
+  /// Subtítulo de la opción de escanear código de barras
   ///
-  /// In en, this message translates to:
-  /// **'Point the camera at the ISBN'**
+  /// In es, this message translates to:
+  /// **'Apunta la cámara al ISBN'**
   String get scanBarcodeSubtitle;
 
-  /// Option to scan ISBN as text
+  /// Opción de escanear ISBN mediante texto
   ///
-  /// In en, this message translates to:
-  /// **'Scan ISBN Number'**
+  /// In es, this message translates to:
+  /// **'Escanear número ISBN'**
   String get scanIsbnText;
 
-  /// Subtitle for scanning ISBN as text
+  /// Subtítulo de la opción de escanear ISBN mediante texto
   ///
-  /// In en, this message translates to:
-  /// **'Point at the printed number'**
+  /// In es, this message translates to:
+  /// **'Apunta al número impreso'**
   String get scanIsbnTextSubtitle;
 
-  /// Instruction to tap a detected ISBN
+  /// Instrucción para tocar un ISBN detectado
   ///
-  /// In en, this message translates to:
-  /// **'Tap an ISBN to select it'**
+  /// In es, this message translates to:
+  /// **'Toca un ISBN para seleccionarlo'**
   String get scanIsbnSelect;
 
-  /// Instruction to hold the camera steady for OCR
+  /// Instrucción de mantener la cámara quieta para OCR
   ///
-  /// In en, this message translates to:
-  /// **'Hold the image for a couple of seconds...'**
+  /// In es, this message translates to:
+  /// **'Mantén la imagen unos segundos...'**
   String get scanOcrHoldMessage;
 
-  /// Camera permission missing message
+  /// Mensaje de falta de permiso de cámara
   ///
-  /// In en, this message translates to:
-  /// **'Camera permission required to scan barcodes'**
+  /// In es, this message translates to:
+  /// **'Se requiere permiso de cámara para escanear códigos'**
   String get scanBarcodePermission;
 
-  /// Batch scan option
+  /// Opción de escanear en lote
   ///
-  /// In en, this message translates to:
-  /// **'Batch scan'**
+  /// In es, this message translates to:
+  /// **'Escanear en lote'**
   String get scanBatch;
 
-  /// Batch scan option subtitle
+  /// Subtítulo de la opción de escanear en lote
   ///
-  /// In en, this message translates to:
-  /// **'Scan multiple books in a row'**
+  /// In es, this message translates to:
+  /// **'Escanea varios libros seguidos'**
   String get scanBatchSubtitle;
 
-  /// Label for scanner mode: barcode
+  /// Etiqueta del modo escáner: código de barras
   ///
-  /// In en, this message translates to:
-  /// **'Barcode'**
+  /// In es, this message translates to:
+  /// **'Código de barras'**
   String get scanModeBarcode;
 
-  /// Label for scanner mode: ISBN number / text
+  /// Etiqueta del modo escáner: número ISBN / texto
   ///
-  /// In en, this message translates to:
-  /// **'ISBN Number'**
+  /// In es, this message translates to:
+  /// **'Número ISBN'**
   String get scanModeIsbn;
 
-  /// New book form title
+  /// Título del formulario al crear libro
   ///
-  /// In en, this message translates to:
-  /// **'New book'**
+  /// In es, this message translates to:
+  /// **'Nuevo libro'**
   String get bookFormNewTitle;
 
-  /// Edit book form title
+  /// Título del formulario al editar libro
   ///
-  /// In en, this message translates to:
-  /// **'Edit book'**
+  /// In es, this message translates to:
+  /// **'Editar libro'**
   String get bookFormEditTitle;
 
-  /// Main tab label
+  /// Nombre de la pestaña principal del formulario/detalle
   ///
-  /// In en, this message translates to:
-  /// **'Main'**
+  /// In es, this message translates to:
+  /// **'Principal'**
   String get tabMain;
 
-  /// Details tab label
+  /// Nombre de la pestaña de detalles del formulario/detalle
   ///
-  /// In en, this message translates to:
-  /// **'Details'**
+  /// In es, this message translates to:
+  /// **'Detalles'**
   String get tabDetails;
 
-  /// Title field label
+  /// Nombre del campo título del libro
   ///
-  /// In en, this message translates to:
-  /// **'Title'**
+  /// In es, this message translates to:
+  /// **'Título'**
   String get fieldTitle;
 
-  /// Subtitle field label
+  /// Nombre del campo subtítulo
   ///
-  /// In en, this message translates to:
-  /// **'Subtitle'**
+  /// In es, this message translates to:
+  /// **'Subtítulo'**
   String get fieldSubtitle;
 
-  /// Description field label
+  /// Nombre del campo sinopsis/descripción
   ///
-  /// In en, this message translates to:
-  /// **'Description'**
+  /// In es, this message translates to:
+  /// **'Sinopsis'**
   String get fieldDescription;
 
-  /// ISBN field label
+  /// Nombre del campo ISBN
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'ISBN'**
   String get fieldIsbn;
 
-  /// Language field label
+  /// Nombre del campo idioma
   ///
-  /// In en, this message translates to:
-  /// **'Language'**
+  /// In es, this message translates to:
+  /// **'Idioma'**
   String get fieldLanguage;
 
-  /// Translator field label
+  /// Interruptor para campos de traducción
   ///
-  /// In en, this message translates to:
-  /// **'Translator'**
+  /// In es, this message translates to:
+  /// **'¿Es una traducción?'**
+  String get fieldIsTranslation;
+
+  /// Nombre del campo título original
+  ///
+  /// In es, this message translates to:
+  /// **'Título original'**
+  String get fieldOriginalTitle;
+
+  /// Nombre del campo idioma original
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma original'**
+  String get fieldOriginalLanguage;
+
+  /// Nombre del campo traductor
+  ///
+  /// In es, this message translates to:
+  /// **'Traductor'**
   String get fieldTranslator;
 
-  /// Name of the reads field
+  /// Nombre del campo lecturas
   ///
-  /// In en, this message translates to:
-  /// **'Reads'**
+  /// In es, this message translates to:
+  /// **'Lecturas'**
   String get fieldReads;
 
-  /// Name of the copies field
+  /// Nombre del campo copias
   ///
-  /// In en, this message translates to:
-  /// **'Copies'**
+  /// In es, this message translates to:
+  /// **'Copias'**
   String get fieldCopies;
 
-  /// Total pages field
+  /// Nombre del campo de páginas totales
   ///
-  /// In en, this message translates to:
-  /// **'Total pages'**
+  /// In es, this message translates to:
+  /// **'Páginas totales'**
   String get fieldTotalPages;
 
-  /// Total books field
+  /// Nombre del campo de libros totales
   ///
-  /// In en, this message translates to:
-  /// **'Total books'**
+  /// In es, this message translates to:
+  /// **'Libros totales'**
   String get fieldTotalBooks;
 
-  /// Current page field
+  /// Nombre del campo de página actual
   ///
-  /// In en, this message translates to:
-  /// **'Current page'**
+  /// In es, this message translates to:
+  /// **'Página actual'**
   String get fieldCurrentPage;
 
-  /// Notes field label
+  /// Nombre del campo de notas
   ///
-  /// In en, this message translates to:
-  /// **'Notes'**
+  /// In es, this message translates to:
+  /// **'Notas'**
   String get fieldNotes;
 
-  /// Collection field label
+  /// Nombre del campo de colección
   ///
-  /// In en, this message translates to:
-  /// **'Collection / Series'**
+  /// In es, this message translates to:
+  /// **'Colección / Serie'**
   String get fieldCollection;
 
-  /// Number in collection field
+  /// Nombre del campo de número en la colección
   ///
-  /// In en, this message translates to:
-  /// **'Number in collection'**
+  /// In es, this message translates to:
+  /// **'Número en la colección'**
   String get fieldCollectionNumber;
 
-  /// Basic info header
+  /// Encabezado de sección de información básica
   ///
-  /// In en, this message translates to:
-  /// **'Basic info'**
+  /// In es, this message translates to:
+  /// **'Información básica'**
   String get sectionBasicInfo;
 
-  /// Categories header
+  /// Encabezado de sección de categorías
   ///
-  /// In en, this message translates to:
-  /// **'Categories'**
+  /// In es, this message translates to:
+  /// **'Categorías'**
   String get sectionCategories;
 
-  /// Reading status header
+  /// Encabezado de sección de estado de lectura
   ///
-  /// In en, this message translates to:
-  /// **'Reading status'**
+  /// In es, this message translates to:
+  /// **'Estado de lectura'**
   String get sectionReadingStatus;
 
-  /// Format header
+  /// Encabezado de sección de formato
   ///
-  /// In en, this message translates to:
-  /// **'Format'**
+  /// In es, this message translates to:
+  /// **'Formato'**
   String get sectionFormat;
 
-  /// Rating header
+  /// Encabezado de sección de valoración
   ///
-  /// In en, this message translates to:
-  /// **'Rating'**
+  /// In es, this message translates to:
+  /// **'Valoración'**
   String get sectionRating;
 
-  /// Imprint header
+  /// Encabezado de sección de sello editorial
   ///
-  /// In en, this message translates to:
-  /// **'Imprint'**
+  /// In es, this message translates to:
+  /// **'Sello editorial'**
   String get sectionImprint;
 
-  /// Photo pick button
+  /// Botón de portada: hacer foto
   ///
-  /// In en, this message translates to:
-  /// **'Photo'**
+  /// In es, this message translates to:
+  /// **'Foto'**
   String get coverPickPhoto;
 
-  /// URL pick button
+  /// Botón de portada: URL
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'URL'**
   String get coverPickUrl;
 
-  /// Cover search button
+  /// Botón de portada: buscar en internet
   ///
-  /// In en, this message translates to:
-  /// **'Search'**
+  /// In es, this message translates to:
+  /// **'Buscar'**
   String get coverSearch;
 
-  /// Cover URL dialog title
+  /// Título del diálogo de URL de portada
   ///
-  /// In en, this message translates to:
-  /// **'Cover URL'**
+  /// In es, this message translates to:
+  /// **'URL de la portada'**
   String get coverUrlDialogTitle;
 
-  /// Cover URL placeholder
+  /// Placeholder del campo de URL de portada
   ///
-  /// In en, this message translates to:
-  /// **'https://example.com/cover.jpg'**
+  /// In es, this message translates to:
+  /// **'https://ejemplo.com/portada.jpg'**
   String get coverUrlHint;
 
-  /// Download error message
+  /// Error al descargar portada desde URL
   ///
-  /// In en, this message translates to:
-  /// **'Could not download image'**
+  /// In es, this message translates to:
+  /// **'No se pudo descargar la imagen'**
   String get coverDownloadError;
 
-  /// Error when image processing fails
+  /// Error cuando falla el procesamiento de la imagen
   ///
-  /// In en, this message translates to:
-  /// **'Could not process image'**
+  /// In es, this message translates to:
+  /// **'No se pudo procesar la imagen'**
   String get imageProcessError;
 
-  /// Title for cover cropping screen
+  /// Título de la pantalla de recorte de portada
   ///
-  /// In en, this message translates to:
-  /// **'Crop cover'**
+  /// In es, this message translates to:
+  /// **'Recortar portada'**
   String get cropCoverTitle;
 
-  /// Title for imprint cropping screen
+  /// Título de la pantalla de recorte de sello
   ///
-  /// In en, this message translates to:
-  /// **'Crop imprint'**
+  /// In es, this message translates to:
+  /// **'Recortar sello'**
   String get cropImprintTitle;
 
-  /// Tag search placeholder
+  /// Placeholder del campo de búsqueda/creación de etiquetas
   ///
-  /// In en, this message translates to:
-  /// **'Search or create category'**
+  /// In es, this message translates to:
+  /// **'Buscar o crear categoría'**
   String get tagSearchOrCreate;
 
-  /// Tag create hint
+  /// Pista sobre cómo crear etiquetas
   ///
-  /// In en, this message translates to:
-  /// **'Type and press Enter to add or create'**
+  /// In es, this message translates to:
+  /// **'Escribe y pulsa Enter para añadir o crear'**
   String get tagCreateHint;
 
-  /// No categories message
+  /// Estado vacío de categorías en el picker
   ///
-  /// In en, this message translates to:
-  /// **'No categories created yet'**
+  /// In es, this message translates to:
+  /// **'No hay categorías creadas todavía'**
   String get tagNoCategories;
 
-  /// Imprint search placeholder
+  /// Placeholder del campo de búsqueda de sello
   ///
-  /// In en, this message translates to:
-  /// **'Search imprint'**
+  /// In es, this message translates to:
+  /// **'Buscar sello editorial'**
   String get imprintSearch;
 
-  /// Required field validation message
+  /// Mensaje de validación para campos obligatorios
   ///
-  /// In en, this message translates to:
-  /// **'Required field'**
+  /// In es, this message translates to:
+  /// **'Campo obligatorio'**
   String get requiredField;
 
-  /// Status: want to read
+  /// Estado: quiero leer
   ///
-  /// In en, this message translates to:
-  /// **'Want to read'**
+  /// In es, this message translates to:
+  /// **'Por leer'**
   String get statusWantToRead;
 
-  /// Status: reading
+  /// Estado: leyendo
   ///
-  /// In en, this message translates to:
-  /// **'Reading'**
+  /// In es, this message translates to:
+  /// **'Leyendo'**
   String get statusReading;
 
-  /// Status: read
+  /// Estado: leído
   ///
-  /// In en, this message translates to:
-  /// **'Read'**
+  /// In es, this message translates to:
+  /// **'Leído'**
   String get statusRead;
 
-  /// Status: abandoned
+  /// Estado: abandonado
   ///
-  /// In en, this message translates to:
-  /// **'Abandoned'**
+  /// In es, this message translates to:
+  /// **'Abandonado'**
   String get statusAbandoned;
 
-  /// Status: paused
+  /// Estado: pausado
   ///
-  /// In en, this message translates to:
-  /// **'Paused'**
+  /// In es, this message translates to:
+  /// **'Pausado'**
   String get statusPaused;
 
-  /// Format: paperback
+  /// Tenencia: comprado
   ///
-  /// In en, this message translates to:
-  /// **'Paperback'**
+  /// In es, this message translates to:
+  /// **'Comprado'**
+  String get ownershipStatusBought;
+
+  /// Tenencia: regalado
+  ///
+  /// In es, this message translates to:
+  /// **'Regalado'**
+  String get ownershipStatusGifted;
+
+  /// Tenencia: prestado
+  ///
+  /// In es, this message translates to:
+  /// **'Prestado'**
+  String get ownershipStatusBorrowed;
+
+  /// Tenencia: devuelto
+  ///
+  /// In es, this message translates to:
+  /// **'Devuelto'**
+  String get ownershipStatusReturned;
+
+  /// Tenencia: vendido
+  ///
+  /// In es, this message translates to:
+  /// **'Vendido'**
+  String get ownershipStatusSold;
+
+  /// Tenencia: otro
+  ///
+  /// In es, this message translates to:
+  /// **'Otro'**
+  String get ownershipStatusOther;
+
+  /// Formato: tapa blanda
+  ///
+  /// In es, this message translates to:
+  /// **'Tapa blanda'**
   String get formatPaperback;
 
-  /// Format: hardcover
+  /// Formato: tapa dura
   ///
-  /// In en, this message translates to:
-  /// **'Hardcover'**
+  /// In es, this message translates to:
+  /// **'Tapa dura'**
   String get formatHardcover;
 
-  /// Format: leatherbound
+  /// Formato: piel
   ///
-  /// In en, this message translates to:
-  /// **'Leatherbound'**
+  /// In es, this message translates to:
+  /// **'Piel'**
   String get formatLeatherbound;
 
-  /// Format: rustic
+  /// Formato: rústica
   ///
-  /// In en, this message translates to:
-  /// **'Rustic'**
+  /// In es, this message translates to:
+  /// **'Rústica'**
   String get formatRustic;
 
-  /// Format: digital
+  /// Formato: digital
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Digital'**
   String get formatDigital;
 
-  /// Format: other
+  /// Formato: otro
   ///
-  /// In en, this message translates to:
-  /// **'Other'**
+  /// In es, this message translates to:
+  /// **'Otro'**
   String get formatOther;
 
-  /// Book not found message
+  /// Mensaje cuando no se encuentra el libro
   ///
-  /// In en, this message translates to:
-  /// **'Book not found'**
+  /// In es, this message translates to:
+  /// **'Libro no encontrado'**
   String get bookDetailNotFound;
 
-  /// Page picker title
+  /// Título del picker de página actual
   ///
-  /// In en, this message translates to:
-  /// **'Current page'**
+  /// In es, this message translates to:
+  /// **'Página actual'**
   String get bookDetailPagePickerTitle;
 
-  /// Personal notes section title
+  /// Título de la sección de notas personales
   ///
-  /// In en, this message translates to:
-  /// **'Personal notes'**
+  /// In es, this message translates to:
+  /// **'Notas personales'**
   String get bookDetailNotesTitle;
 
-  /// Notes field placeholder
+  /// Placeholder del campo de notas
   ///
-  /// In en, this message translates to:
-  /// **'Write your notes here...'**
+  /// In es, this message translates to:
+  /// **'Escribe tus notas aquí...'**
   String get bookDetailNotesHint;
 
-  /// Notes empty message
+  /// Texto cuando no hay notas
   ///
-  /// In en, this message translates to:
-  /// **'Tap to add notes...'**
+  /// In es, this message translates to:
+  /// **'Toca para añadir notas...'**
   String get bookDetailNotesEmpty;
 
-  /// Delete book dialog title
+  /// Título del diálogo de eliminar libro
   ///
-  /// In en, this message translates to:
-  /// **'Delete book'**
+  /// In es, this message translates to:
+  /// **'Eliminar libro'**
   String get bookDetailDeleteTitle;
 
-  /// Delete book confirmation
+  /// Confirmación de eliminar libro
   ///
-  /// In en, this message translates to:
-  /// **'Delete \"{title}\"? This action cannot be undone.'**
+  /// In es, this message translates to:
+  /// **'¿Eliminar \"{title}\"? Esta acción no se puede deshacer.'**
   String bookDetailDeleteConfirm(String title);
 
-  /// Duplicate book dialog title
+  /// Título del diálogo de duplicar libro
   ///
-  /// In en, this message translates to:
-  /// **'Duplicate book'**
+  /// In es, this message translates to:
+  /// **'Duplicar libro'**
   String get bookDetailDuplicateTitle;
 
-  /// Duplicate book confirmation
+  /// Confirmación de duplicar libro
   ///
-  /// In en, this message translates to:
-  /// **'Do you want to create an exact copy of \"{title}\"?'**
+  /// In es, this message translates to:
+  /// **'¿Quieres crear una copia exacta de \"{title}\"?'**
   String bookDetailDuplicateConfirm(String title);
 
   /// No description provided for @bookDetailNewReadingWholeBook.
   ///
-  /// In en, this message translates to:
-  /// **'Whole book'**
+  /// In es, this message translates to:
+  /// **'Todo el libro'**
   String get bookDetailNewReadingWholeBook;
 
   /// No description provided for @bookDetailNewReadingWholeBookDescription.
   ///
-  /// In en, this message translates to:
-  /// **'A complete re-read will be recorded starting today.'**
+  /// In es, this message translates to:
+  /// **'Se registrará una relectura completa a partir de hoy.'**
   String get bookDetailNewReadingWholeBookDescription;
 
   /// No description provided for @bookDetailNewReadingSections.
   ///
-  /// In en, this message translates to:
-  /// **'Sections'**
+  /// In es, this message translates to:
+  /// **'Secciones'**
   String get bookDetailNewReadingSections;
 
   /// No description provided for @bookDetailNewReadingSectionsCount.
   ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 section} other{{count} sections}}'**
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 sección} other{{count} secciones}}'**
   String bookDetailNewReadingSectionsCount(int count);
 
   /// No description provided for @bookDetailNewReadingReadCount.
   ///
-  /// In en, this message translates to:
-  /// **'Read {count}x'**
+  /// In es, this message translates to:
+  /// **'Leída {count}x'**
   String bookDetailNewReadingReadCount(Object count);
 
   /// No description provided for @bookDetailNewReadingSelectSections.
   ///
-  /// In en, this message translates to:
-  /// **'Select sections to re-read'**
+  /// In es, this message translates to:
+  /// **'Seleccionar secciones para releer'**
   String get bookDetailNewReadingSelectSections;
 
   /// No description provided for @bookDetailStartNewReadingPrompt.
   ///
-  /// In en, this message translates to:
-  /// **'Do you want to start a new reading session?'**
+  /// In es, this message translates to:
+  /// **'¿Quieres empezar una nueva lectura?'**
   String get bookDetailStartNewReadingPrompt;
 
   /// No description provided for @bookDetailStartNewReadingTitle.
   ///
-  /// In en, this message translates to:
-  /// **'New reading'**
+  /// In es, this message translates to:
+  /// **'Nueva lectura'**
   String get bookDetailStartNewReadingTitle;
 
   /// No description provided for @bookDetailStartNewReadingButton.
   ///
-  /// In en, this message translates to:
-  /// **'Start new reading'**
+  /// In es, this message translates to:
+  /// **'Empezar nueva lectura'**
   String get bookDetailStartNewReadingButton;
 
   /// No description provided for @selectAll.
   ///
-  /// In en, this message translates to:
-  /// **'Select all'**
+  /// In es, this message translates to:
+  /// **'Seleccionar todo'**
   String get selectAll;
 
   /// No description provided for @bookDetailDeleteReadPrompt.
   ///
-  /// In en, this message translates to:
-  /// **'Delete the latest ongoing reading? Session dates will be lost.'**
+  /// In es, this message translates to:
+  /// **'¿Eliminar la última lectura en curso? Se perderán las fechas de esta sesión.'**
   String get bookDetailDeleteReadPrompt;
 
   /// No description provided for @bookDetailReadHistoryTitle.
   ///
-  /// In en, this message translates to:
-  /// **'READING HISTORY'**
+  /// In es, this message translates to:
+  /// **'HISTORIAL DE LECTURAS'**
   String get bookDetailReadHistoryTitle;
 
   /// No description provided for @bookDetailReadOngoing.
   ///
-  /// In en, this message translates to:
-  /// **'ongoing'**
+  /// In es, this message translates to:
+  /// **'en curso'**
   String get bookDetailReadOngoing;
 
   /// No description provided for @bookDetailReadNumber.
   ///
-  /// In en, this message translates to:
-  /// **'Reading {number}'**
+  /// In es, this message translates to:
+  /// **'Lectura {number}'**
   String bookDetailReadNumber(int number);
 
   /// No description provided for @bookDetailReadEditDialogTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Edit reading {number}'**
+  /// In es, this message translates to:
+  /// **'Editar lectura {number}'**
   String bookDetailReadEditDialogTitle(Object number);
 
   /// No description provided for @bookDetailReadDeleteConfirm.
   ///
-  /// In en, this message translates to:
-  /// **'Delete this history entry?'**
+  /// In es, this message translates to:
+  /// **'¿Eliminar esta entrada del historial?'**
   String get bookDetailReadDeleteConfirm;
 
   /// No description provided for @bookDetailReadNumberLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Reading number'**
+  /// In es, this message translates to:
+  /// **'Número de lectura'**
   String get bookDetailReadNumberLabel;
 
-  /// Pages field label
+  /// Etiqueta de sección de páginas en detalle
   ///
-  /// In en, this message translates to:
-  /// **'PAGES'**
+  /// In es, this message translates to:
+  /// **'PÁGINAS'**
   String get bookDetailFieldPages;
 
-  /// Categories field label
+  /// Etiqueta de sección de categorías en detalle
   ///
-  /// In en, this message translates to:
-  /// **'CATEGORIES'**
+  /// In es, this message translates to:
+  /// **'CATEGORÍAS'**
   String get bookDetailFieldCategories;
 
-  /// Format field label
+  /// Etiqueta del campo formato en detalle
   ///
-  /// In en, this message translates to:
-  /// **'Format'**
+  /// In es, this message translates to:
+  /// **'Formato'**
   String get bookDetailFieldFormat;
 
-  /// Rating field label
+  /// Etiqueta de sección de valoración en detalle
   ///
-  /// In en, this message translates to:
-  /// **'RATING'**
+  /// In es, this message translates to:
+  /// **'VALORACIÓN'**
   String get bookDetailFieldRating;
 
-  /// Imprint section label
+  /// Etiqueta de sección de sello editorial en detalle
   ///
-  /// In en, this message translates to:
-  /// **'IMPRINT'**
+  /// In es, this message translates to:
+  /// **'SELLO EDITORIAL'**
   String get bookDetailFieldImprintSection;
 
-  /// Notes section label
+  /// Etiqueta de sección de notas personales en detalle
   ///
-  /// In en, this message translates to:
-  /// **'PERSONAL NOTES'**
+  /// In es, this message translates to:
+  /// **'NOTAS PERSONALES'**
   String get bookDetailFieldPersonalNotes;
 
-  /// Date added label
+  /// Etiqueta del campo de fecha de adición
   ///
-  /// In en, this message translates to:
-  /// **'Added'**
+  /// In es, this message translates to:
+  /// **'Añadido'**
   String get bookDetailFieldAdded;
 
-  /// Date started label
+  /// Etiqueta del campo de inicio de lectura
   ///
-  /// In en, this message translates to:
-  /// **'Started reading'**
+  /// In es, this message translates to:
+  /// **'Inicio lectura'**
   String get bookDetailFieldStarted;
 
-  /// Date finished label
+  /// Etiqueta del campo de fin de lectura
   ///
-  /// In en, this message translates to:
-  /// **'Finished reading'**
+  /// In es, this message translates to:
+  /// **'Fin lectura'**
   String get bookDetailFieldFinished;
 
-  /// Reading progress pages
+  /// Etiqueta del campo de estado de propiedad
   ///
-  /// In en, this message translates to:
-  /// **'{current} / {total} pages · {percent}%'**
+  /// In es, this message translates to:
+  /// **'Estado de propiedad'**
+  String get fieldOwnershipStatus;
+
+  /// Título de la sección de historial de propiedad
+  ///
+  /// In es, this message translates to:
+  /// **'HISTORIAL DE PROPIEDAD'**
+  String get ownershipHistoryTitle;
+
+  /// Mensaje de registro de propiedad vacío
+  ///
+  /// In es, this message translates to:
+  /// **'No hay eventos de propiedad registrados.'**
+  String get ownershipLogEmpty;
+
+  /// Persona en evento de propiedad
+  ///
+  /// In es, this message translates to:
+  /// **'Persona / Quién'**
+  String get ownershipEventPerson;
+
+  /// Fecha del evento de propiedad
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha'**
+  String get ownershipEventDate;
+
+  /// Notas para el evento de propiedad
+  ///
+  /// In es, this message translates to:
+  /// **'Notas'**
+  String get ownershipEventNotes;
+
+  /// Progreso de lectura en formato páginas
+  ///
+  /// In es, this message translates to:
+  /// **'{current} / {total} págs · {percent}%'**
   String pageProgress(String current, String total, String percent);
 
-  /// Short reading progress
+  /// Progreso de lectura corto
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'{current} / {total}'**
   String pageProgressShort(String current, String total);
 
-  /// Page count with suffix
+  /// Número de páginas con sufijo
   ///
-  /// In en, this message translates to:
-  /// **'{count} pages'**
+  /// In es, this message translates to:
+  /// **'{count} págs.'**
   String pageSuffix(int count);
 
-  /// Generic pages label
+  /// Etiqueta genérica de páginas
   ///
-  /// In en, this message translates to:
-  /// **'pages'**
+  /// In es, this message translates to:
+  /// **'páginas'**
   String get pagesLabel;
 
-  /// Shelves screen title
+  /// Título de la pantalla de estanterías
   ///
-  /// In en, this message translates to:
-  /// **'Shelves'**
+  /// In es, this message translates to:
+  /// **'Estanterías'**
   String get shelvesTitle;
 
-  /// Status section header
+  /// Encabezado de sección por estado
   ///
-  /// In en, this message translates to:
-  /// **'By status'**
+  /// In es, this message translates to:
+  /// **'Por estado'**
   String get shelvesSectionByStatus;
 
-  /// Custom shelves section header
+  /// Encabezado de sección de estanterías personalizadas
   ///
-  /// In en, this message translates to:
-  /// **'Shelves'**
+  /// In es, this message translates to:
+  /// **'Estanterías'**
   String get shelvesSectionMine;
 
-  /// Management section header
+  /// Encabezado de sección de gestión
   ///
-  /// In en, this message translates to:
-  /// **'Management'**
+  /// In es, this message translates to:
+  /// **'Gestión'**
   String get shelvesSectionManagement;
 
-  /// All books shelf
+  /// Estantería de todos los libros
   ///
-  /// In en, this message translates to:
-  /// **'All books'**
+  /// In es, this message translates to:
+  /// **'Todos los libros'**
   String get shelfAllBooks;
 
-  /// Reading shelf
+  /// Estantería de libros en lectura
   ///
-  /// In en, this message translates to:
-  /// **'Reading'**
+  /// In es, this message translates to:
+  /// **'Leyendo'**
   String get shelfReading;
 
-  /// Read shelf
+  /// Estantería de libros leídos
   ///
-  /// In en, this message translates to:
-  /// **'Read'**
+  /// In es, this message translates to:
+  /// **'Leídos'**
   String get shelfRead;
 
-  /// To read shelf
+  /// Estantería de libros por leer
   ///
-  /// In en, this message translates to:
-  /// **'To read'**
+  /// In es, this message translates to:
+  /// **'Por leer'**
   String get shelfWantToRead;
 
-  /// Abandoned shelf
+  /// Estantería de libros abandonados
   ///
-  /// In en, this message translates to:
-  /// **'Abandoned'**
+  /// In es, this message translates to:
+  /// **'Abandonados'**
   String get shelfAbandoned;
 
-  /// Paused shelf
+  /// Estantería de libros pausados
   ///
-  /// In en, this message translates to:
-  /// **'Paused'**
+  /// In es, this message translates to:
+  /// **'Pausados'**
   String get shelfPaused;
 
-  /// New shelf tooltip
+  /// Tooltip del botón de nueva estantería
   ///
-  /// In en, this message translates to:
-  /// **'New shelf'**
+  /// In es, this message translates to:
+  /// **'Nueva estantería'**
   String get shelfNewTooltip;
 
-  /// Empty custom shelves state
+  /// Estado vacío de estanterías personalizadas
   ///
-  /// In en, this message translates to:
-  /// **'You don\'t have any custom shelves'**
+  /// In es, this message translates to:
+  /// **'No tienes estanterías personalizadas'**
   String get shelfEmpty;
 
-  /// Empty shelves state subtitle
+  /// Subtítulo del estado vacío de estanterías
   ///
-  /// In en, this message translates to:
-  /// **'Organize your reads however you like: by genre, mood, or whatever comes to mind.'**
+  /// In es, this message translates to:
+  /// **'Organiza tus lecturas como quieras'**
   String get shelfEmptySubtitle;
 
-  /// Action button text for empty shelves state
+  /// Texto del botón de acción en el estado vacío de las estanterías
   ///
-  /// In en, this message translates to:
-  /// **'Create shelf'**
+  /// In es, this message translates to:
+  /// **'Crear estantería'**
   String get shelvesAddFirstShelf;
 
-  /// Empty shelf books state
+  /// Estado vacío de libros en una estantería
   ///
-  /// In en, this message translates to:
-  /// **'No books in this shelf'**
+  /// In es, this message translates to:
+  /// **'Sin libros en esta estantería'**
   String get shelfBooksEmpty;
 
-  /// Empty status books state
+  /// Estado vacío de libros por estado
   ///
-  /// In en, this message translates to:
-  /// **'No books here'**
+  /// In es, this message translates to:
+  /// **'No hay libros aquí'**
   String get shelfStatusBooksEmpty;
 
-  /// New shelf form title
+  /// Título del formulario de nueva estantería
   ///
-  /// In en, this message translates to:
-  /// **'New shelf'**
+  /// In es, this message translates to:
+  /// **'Nueva estantería'**
   String get shelfFormNew;
 
-  /// Edit shelf form title
+  /// Título del formulario de editar estantería
   ///
-  /// In en, this message translates to:
-  /// **'Edit shelf'**
+  /// In es, this message translates to:
+  /// **'Editar estantería'**
   String get shelfFormEdit;
 
-  /// Shelf name field label
+  /// Label del campo nombre de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Shelf name'**
+  /// In es, this message translates to:
+  /// **'Nombre de la estantería'**
   String get shelfFormNameLabel;
 
-  /// Collection name field label
+  /// Label del campo nombre de colección
   ///
-  /// In en, this message translates to:
-  /// **'Collection name'**
+  /// In es, this message translates to:
+  /// **'Nombre de la colección'**
   String get collectionNameLabel;
 
-  /// Shelf form status section
+  /// Sección de estado en formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Reading status'**
+  /// In es, this message translates to:
+  /// **'Estado de lectura'**
   String get shelfFormSectionStatus;
 
-  /// Shelf form title section
+  /// Sección de título en formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Title'**
+  /// In es, this message translates to:
+  /// **'Título'**
   String get shelfFormSectionTitle;
 
-  /// Shelf form author section
+  /// Sección de autor en formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Author'**
+  /// In es, this message translates to:
+  /// **'Autor'**
   String get shelfFormSectionAuthor;
 
-  /// Shelf form publisher section
+  /// Sección de editorial en formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Publisher'**
+  /// In es, this message translates to:
+  /// **'Editorial'**
   String get shelfFormSectionPublisher;
 
-  /// Shelf form ISBN section
+  /// Sección de ISBN en formulario de estantería
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'ISBN'**
   String get shelfFormSectionIsbn;
 
-  /// Shelf form collection section
+  /// Sección de colección en formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Collection'**
+  /// In es, this message translates to:
+  /// **'Colección'**
   String get shelfFormSectionCollection;
 
-  /// Shelf form categories section
+  /// Sección de categorías en formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Categories'**
+  /// In es, this message translates to:
+  /// **'Categorías'**
   String get shelfFormSectionCategories;
 
-  /// Shelf form imprint section
+  /// Sección de sello en formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Imprint'**
+  /// In es, this message translates to:
+  /// **'Sello editorial'**
   String get shelfFormSectionImprint;
 
-  /// Shelf form title hint
+  /// Placeholder del filtro de título en estantería
   ///
-  /// In en, this message translates to:
-  /// **'Search in title'**
+  /// In es, this message translates to:
+  /// **'Buscar en título'**
   String get shelfFormHintTitle;
 
-  /// Shelf form author hint
+  /// Placeholder del filtro de autor en estantería
   ///
-  /// In en, this message translates to:
-  /// **'Author name'**
+  /// In es, this message translates to:
+  /// **'Nombre del autor'**
   String get shelfFormHintAuthor;
 
-  /// Shelf form publisher hint
+  /// Placeholder del filtro de editorial en estantería
   ///
-  /// In en, this message translates to:
-  /// **'Publisher name'**
+  /// In es, this message translates to:
+  /// **'Nombre de la editorial'**
   String get shelfFormHintPublisher;
 
-  /// Shelf form ISBN hint
+  /// Placeholder del filtro de ISBN en estantería
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'ISBN'**
   String get shelfFormHintIsbn;
 
-  /// Shelf form collection hint
+  /// Placeholder del filtro de colección en estantería
   ///
-  /// In en, this message translates to:
-  /// **'Collection name'**
+  /// In es, this message translates to:
+  /// **'Nombre de la colección'**
   String get shelfFormHintCollection;
 
-  /// Shelf form any status
+  /// Opción de estado: cualquiera en formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Any'**
+  /// In es, this message translates to:
+  /// **'Cualquiera'**
   String get shelfFormStatusAny;
 
-  /// Edit shelf option
+  /// Opción de menú: editar estantería
   ///
-  /// In en, this message translates to:
-  /// **'Edit shelf'**
+  /// In es, this message translates to:
+  /// **'Editar estantería'**
   String get shelfOptionEdit;
 
-  /// Delete shelf option
+  /// Opción de menú: eliminar estantería
   ///
-  /// In en, this message translates to:
-  /// **'Delete'**
+  /// In es, this message translates to:
+  /// **'Eliminar'**
   String get shelfOptionDelete;
 
-  /// Reading status label
+  /// Etiqueta de estado: leyendo en subtítulo de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Reading'**
+  /// In es, this message translates to:
+  /// **'Leyendo'**
   String get shelfStatusLabelReading;
 
-  /// Read status label
+  /// Etiqueta de estado: leídos en subtítulo de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Read'**
+  /// In es, this message translates to:
+  /// **'Leídos'**
   String get shelfStatusLabelRead;
 
-  /// To read status label
+  /// Etiqueta de estado: por leer en subtítulo de estantería
   ///
-  /// In en, this message translates to:
-  /// **'To read'**
+  /// In es, this message translates to:
+  /// **'Por leer'**
   String get shelfStatusLabelWantToRead;
 
-  /// Abandoned status label
+  /// Etiqueta de estado: abandonados en subtítulo de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Abandoned'**
+  /// In es, this message translates to:
+  /// **'Abandonados'**
   String get shelfStatusLabelAbandoned;
 
-  /// Paused status label
+  /// Etiqueta de estado: pausados en subtítulo de estantería
   ///
-  /// In en, this message translates to:
-  /// **'Paused'**
+  /// In es, this message translates to:
+  /// **'Pausados'**
   String get shelfStatusLabelPaused;
 
-  /// Management: categories
+  /// Sección de gestión: categorías
   ///
-  /// In en, this message translates to:
-  /// **'Categories'**
+  /// In es, this message translates to:
+  /// **'Categorías'**
   String get managementCategories;
 
-  /// Number of books in a category
+  /// Número de libros en una categoría
   ///
-  /// In en, this message translates to:
-  /// **'Book count'**
+  /// In es, this message translates to:
+  /// **'Nº de libros'**
   String get managementCategoryCount;
 
-  /// Management: imprints
+  /// Sección de gestión: sellos editoriales
   ///
-  /// In en, this message translates to:
-  /// **'Imprints'**
+  /// In es, this message translates to:
+  /// **'Sellos'**
   String get managementImprints;
 
-  /// Management: collections
+  /// Sección de gestión: colecciones
   ///
-  /// In en, this message translates to:
-  /// **'Collections'**
+  /// In es, this message translates to:
+  /// **'Colecciones'**
   String get managementCollections;
 
   /// No description provided for @managementCategoryCloudCurve.
   ///
-  /// In en, this message translates to:
-  /// **'Algorithmic curve (Books)'**
+  /// In es, this message translates to:
+  /// **'Curva algorítmica (Libros)'**
   String get managementCategoryCloudCurve;
 
-  /// Empty categories state
+  /// Estado vacío de categorías
   ///
-  /// In en, this message translates to:
-  /// **'No categories yet'**
+  /// In es, this message translates to:
+  /// **'No hay categorías todavía'**
   String get tagNone;
 
-  /// Empty categories state subtitle
+  /// Subtítulo del estado vacío de categorías
   ///
-  /// In en, this message translates to:
-  /// **'Categories help you find the perfect book based on how you feel.'**
+  /// In es, this message translates to:
+  /// **'Las categorías te ayudan a encontrar libros y a construir un mapa mental de tu biblioteca'**
   String get tagNoneSubtitle;
 
-  /// Action button text for empty categories state
+  /// Texto del botón de acción en el estado vacío de las categorías
   ///
-  /// In en, this message translates to:
-  /// **'New category'**
+  /// In es, this message translates to:
+  /// **'Nueva categoría'**
   String get categoriesAddFirst;
 
-  /// New category button
+  /// Botón de nueva categoría
   ///
-  /// In en, this message translates to:
-  /// **'New category'**
+  /// In es, this message translates to:
+  /// **'Nueva categoría'**
   String get tagNew;
 
-  /// New category title
+  /// Título del diálogo de nueva categoría
   ///
-  /// In en, this message translates to:
-  /// **'New category'**
+  /// In es, this message translates to:
+  /// **'Nueva categoría'**
   String get tagNewDialogTitle;
 
-  /// Category name field label
+  /// Label del campo nombre de categoría
   ///
-  /// In en, this message translates to:
-  /// **'Name'**
+  /// In es, this message translates to:
+  /// **'Nombre'**
   String get tagNameLabel;
 
-  /// Category color field label
+  /// Label de selección de color de categoría
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Color'**
   String get tagColorLabel;
 
-  /// Delete category title
+  /// Título del diálogo de eliminar categoría
   ///
-  /// In en, this message translates to:
-  /// **'Delete category'**
+  /// In es, this message translates to:
+  /// **'Eliminar categoría'**
   String get tagDeleteTitle;
 
-  /// Delete category confirmation
+  /// Confirmación de eliminar categoría
   ///
-  /// In en, this message translates to:
-  /// **'Delete \"{name}\"?'**
+  /// In es, this message translates to:
+  /// **'¿Eliminar \"{name}\"?'**
   String tagDeleteConfirm(String name);
 
-  /// Empty imprints state
+  /// Estado vacío de sellos editoriales
   ///
-  /// In en, this message translates to:
-  /// **'No imprints yet'**
+  /// In es, this message translates to:
+  /// **'No hay sellos todavía'**
   String get imprintNone;
 
-  /// Empty imprints state subtitle
+  /// Subtítulo del estado vacío de sellos
   ///
-  /// In en, this message translates to:
-  /// **'Group your books by publisher to discover your favorites.'**
+  /// In es, this message translates to:
+  /// **'Agrupa tus libros por editoriales o sus sellos'**
   String get imprintNoneSubtitle;
 
-  /// Action button text for empty imprints state
+  /// Texto del botón de acción en el estado vacío de los sellos
   ///
-  /// In en, this message translates to:
-  /// **'Add imprint'**
+  /// In es, this message translates to:
+  /// **'Añadir sello'**
   String get imprintsAddFirst;
 
-  /// New imprint button
+  /// Botón de nuevo sello
   ///
-  /// In en, this message translates to:
-  /// **'New imprint'**
+  /// In es, this message translates to:
+  /// **'Nuevo sello'**
   String get imprintNew;
 
-  /// New imprint title
+  /// Título del diálogo de nuevo sello
   ///
-  /// In en, this message translates to:
-  /// **'New imprint'**
+  /// In es, this message translates to:
+  /// **'Nuevo sello editorial'**
   String get imprintNewDialogTitle;
 
-  /// Edit imprint title
+  /// Título del diálogo de editar sello
   ///
-  /// In en, this message translates to:
-  /// **'Edit imprint'**
+  /// In es, this message translates to:
+  /// **'Editar sello'**
   String get imprintEditDialogTitle;
 
-  /// Imprint name field label
+  /// Label del campo nombre de sello
   ///
-  /// In en, this message translates to:
-  /// **'Imprint name'**
+  /// In es, this message translates to:
+  /// **'Nombre del sello'**
   String get imprintNameLabel;
 
-  /// Add imprint image hint
+  /// Pista para añadir imagen a sello
   ///
-  /// In en, this message translates to:
-  /// **'Tap to add image'**
+  /// In es, this message translates to:
+  /// **'Pulsa para añadir imagen'**
   String get imprintAddImageHint;
 
-  /// Change imprint image hint
+  /// Pista para cambiar imagen de sello
   ///
-  /// In en, this message translates to:
-  /// **'Tap to change image'**
+  /// In es, this message translates to:
+  /// **'Pulsa para cambiar imagen'**
   String get imprintChangeImageHint;
 
-  /// Imprint URL title
+  /// Título del diálogo de URL de imagen de sello
   ///
-  /// In en, this message translates to:
-  /// **'Image URL'**
+  /// In es, this message translates to:
+  /// **'URL de la imagen'**
   String get imprintUrlDialogTitle;
 
-  /// Imprint URL placeholder
+  /// Placeholder de URL de imagen de sello
   ///
-  /// In en, this message translates to:
-  /// **'https://example.com/imprint.jpg'**
+  /// In es, this message translates to:
+  /// **'https://ejemplo.com/sello.jpg'**
   String get imprintUrlHint;
 
-  /// Delete imprint title
+  /// Título del diálogo de eliminar sello
   ///
-  /// In en, this message translates to:
-  /// **'Delete imprint'**
+  /// In es, this message translates to:
+  /// **'Eliminar sello'**
   String get imprintDeleteTitle;
 
-  /// Delete imprint confirmation
+  /// Confirmación de eliminar sello
   ///
-  /// In en, this message translates to:
-  /// **'Delete \"{name}\"?'**
+  /// In es, this message translates to:
+  /// **'¿Eliminar \"{name}\"?'**
   String imprintDeleteConfirm(String name);
 
-  /// Shelf form no imprints message
+  /// Estado vacío de sellos en el formulario de estantería
   ///
-  /// In en, this message translates to:
-  /// **'No imprints created'**
+  /// In es, this message translates to:
+  /// **'No hay sellos creados'**
   String get imprintNoImprints;
 
-  /// Empty collections state
+  /// Estado vacío de colecciones
   ///
-  /// In en, this message translates to:
-  /// **'No collections yet'**
+  /// In es, this message translates to:
+  /// **'No hay colecciones todavía'**
   String get collectionNone;
 
-  /// Empty collections state subtitle
+  /// Subtítulo del estado vacío de colecciones
   ///
-  /// In en, this message translates to:
-  /// **'Create themed collections: sagas, reading challenges, wishlists...'**
+  /// In es, this message translates to:
+  /// **'Crea colecciones y organiza tus libros'**
   String get collectionNoneSubtitle;
 
-  /// Action button text for empty collections state
+  /// Texto del botón de acción en el estado vacío de las colecciones
   ///
-  /// In en, this message translates to:
-  /// **'New collection'**
+  /// In es, this message translates to:
+  /// **'Nueva colección'**
   String get collectionsAddFirst;
 
-  /// Delete collection title
+  /// Título del diálogo de eliminar colección
   ///
-  /// In en, this message translates to:
-  /// **'Delete collection'**
+  /// In es, this message translates to:
+  /// **'Eliminar colección'**
   String get collectionDeleteTitle;
 
-  /// Delete collection confirmation
+  /// Confirmación de eliminar colección
   ///
-  /// In en, this message translates to:
-  /// **'Delete \"{name}\"?'**
+  /// In es, this message translates to:
+  /// **'¿Eliminar \"{name}\"?'**
   String collectionDeleteConfirm(String name);
 
   /// No description provided for @onboardingWelcomeTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Welcome to Openshelf'**
+  /// In es, this message translates to:
+  /// **'Bienvenido a Openshelf'**
   String get onboardingWelcomeTitle;
 
   /// No description provided for @onboardingWelcomeSub.
   ///
-  /// In en, this message translates to:
-  /// **'Your personal library, reimagined'**
+  /// In es, this message translates to:
+  /// **'Tu biblioteca personal, reimaginada'**
   String get onboardingWelcomeSub;
 
   /// No description provided for @onboardingOrganizeTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Organize your world'**
+  /// In es, this message translates to:
+  /// **'Organiza tu mundo'**
   String get onboardingOrganizeTitle;
 
   /// No description provided for @onboardingOrganizeSub.
   ///
-  /// In en, this message translates to:
-  /// **'Create smart shelves and themed collections'**
+  /// In es, this message translates to:
+  /// **'Crea estanterías inteligentes y colecciones temáticas'**
   String get onboardingOrganizeSub;
 
   /// No description provided for @onboardingProgressTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Track your progress'**
+  /// In es, this message translates to:
+  /// **'Sigue tu progreso'**
   String get onboardingProgressTitle;
 
   /// No description provided for @onboardingProgressSub.
   ///
-  /// In en, this message translates to:
-  /// **'Reading goals and detailed statistics'**
+  /// In es, this message translates to:
+  /// **'Metas de lectura y estadísticas detalladas'**
   String get onboardingProgressSub;
 
   /// No description provided for @onboardingAddTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Add instantly'**
+  /// In es, this message translates to:
+  /// **'Añade al instante'**
   String get onboardingAddTitle;
 
   /// No description provided for @onboardingAddSub.
   ///
-  /// In en, this message translates to:
-  /// **'Scan barcodes or search in the cloud'**
+  /// In es, this message translates to:
+  /// **'Escanea códigos de barras o busca en la nube'**
   String get onboardingAddSub;
 
   /// No description provided for @onboardingNext.
   ///
-  /// In en, this message translates to:
-  /// **'Next'**
+  /// In es, this message translates to:
+  /// **'Siguiente'**
   String get onboardingNext;
 
   /// No description provided for @onboardingStart.
   ///
-  /// In en, this message translates to:
-  /// **'Start now'**
+  /// In es, this message translates to:
+  /// **'Empezar ahora'**
   String get onboardingStart;
 
   /// No description provided for @settingsApplyIcon.
   ///
-  /// In en, this message translates to:
-  /// **'Apply icon change'**
+  /// In es, this message translates to:
+  /// **'Aplicar cambio de icono'**
   String get settingsApplyIcon;
 
   /// No description provided for @settingsDynamicIcon.
   ///
-  /// In en, this message translates to:
-  /// **'Dynamic app icon'**
+  /// In es, this message translates to:
+  /// **'Icono de la app dinámico'**
   String get settingsDynamicIcon;
 
   /// No description provided for @settingsDynamicIconSub.
   ///
-  /// In en, this message translates to:
-  /// **'Changes the home screen icon to match the chosen color (App will restart)'**
+  /// In es, this message translates to:
+  /// **'Cambia el icono de la pantalla de inicio para que coincida con el color elegido (La app se reiniciará)'**
   String get settingsDynamicIconSub;
 
   /// No description provided for @settingsLibraryColumns.
   ///
-  /// In en, this message translates to:
-  /// **'Library columns'**
+  /// In es, this message translates to:
+  /// **'Columnas en la biblioteca'**
   String get settingsLibraryColumns;
 
   /// No description provided for @settingsLibraryColumnsSub.
   ///
-  /// In en, this message translates to:
-  /// **'Adjust the number of books per row in grid view'**
+  /// In es, this message translates to:
+  /// **'Ajusta el número de libros por fila en la vista de cuadrícula'**
   String get settingsLibraryColumnsSub;
 
-  /// Settings screen title
+  /// Título de la pantalla de ajustes
   ///
-  /// In en, this message translates to:
-  /// **'Settings'**
+  /// In es, this message translates to:
+  /// **'Ajustes'**
   String get settingsTitle;
 
-  /// Appearance section header
+  /// Sección de apariencia en ajustes
   ///
-  /// In en, this message translates to:
-  /// **'Appearance'**
+  /// In es, this message translates to:
+  /// **'Apariencia'**
   String get settingsSectionAppearance;
 
-  /// Language selector label
+  /// Etiqueta del selector de idioma
   ///
-  /// In en, this message translates to:
-  /// **'Language'**
+  /// In es, this message translates to:
+  /// **'Idioma'**
   String get settingsLanguage;
 
-  /// Language option: system
+  /// Opción de idioma: sistema
   ///
-  /// In en, this message translates to:
-  /// **'System (automatic)'**
+  /// In es, this message translates to:
+  /// **'Sistema (automático)'**
   String get settingsLanguageSystem;
 
-  /// Language option: spanish
+  /// Opción de idioma: español
   ///
-  /// In en, this message translates to:
-  /// **'Spanish'**
+  /// In es, this message translates to:
+  /// **'Español'**
   String get settingsLanguageSpanish;
 
-  /// Language option: english
+  /// Opción de idioma: inglés
   ///
-  /// In en, this message translates to:
-  /// **'English'**
+  /// In es, this message translates to:
+  /// **'Inglés'**
   String get settingsLanguageEnglish;
 
-  /// Theme mode label
+  /// Etiqueta de selector de modo de tema
   ///
-  /// In en, this message translates to:
-  /// **'Theme mode'**
+  /// In es, this message translates to:
+  /// **'Modo de tema'**
   String get settingsThemeMode;
 
-  /// Light theme option
+  /// Opción de tema claro
   ///
-  /// In en, this message translates to:
-  /// **'Light'**
+  /// In es, this message translates to:
+  /// **'Claro'**
   String get settingsThemeLight;
 
-  /// System theme option
+  /// Opción de tema según sistema
   ///
-  /// In en, this message translates to:
-  /// **'System'**
+  /// In es, this message translates to:
+  /// **'Sistema'**
   String get settingsThemeSystem;
 
-  /// Dark theme option
+  /// Opción de tema oscuro
   ///
-  /// In en, this message translates to:
-  /// **'Dark'**
+  /// In es, this message translates to:
+  /// **'Oscuro'**
   String get settingsThemeDark;
 
-  /// Accent color label
+  /// Etiqueta del selector de color de acento
   ///
-  /// In en, this message translates to:
-  /// **'Accent color'**
+  /// In es, this message translates to:
+  /// **'Color de acento'**
   String get settingsAccentColor;
 
-  /// Accent color hint
+  /// Pista del selector de color de acento
   ///
-  /// In en, this message translates to:
-  /// **'Tap a color to apply it'**
+  /// In es, this message translates to:
+  /// **'Toca un color para aplicarlo'**
   String get settingsAccentColorHint;
 
-  /// Storage section header
+  /// Sección de almacenamiento en ajustes
   ///
-  /// In en, this message translates to:
-  /// **'Storage'**
+  /// In es, this message translates to:
+  /// **'Almacenamiento'**
   String get settingsSectionStorage;
 
-  /// Covers folder label
+  /// Etiqueta de la carpeta de portadas
   ///
-  /// In en, this message translates to:
-  /// **'Covers folder'**
+  /// In es, this message translates to:
+  /// **'Carpeta de portadas'**
   String get settingsCoversFolder;
 
-  /// Database label
+  /// Etiqueta de la base de datos
   ///
-  /// In en, this message translates to:
-  /// **'Database'**
+  /// In es, this message translates to:
+  /// **'Base de datos'**
   String get settingsDatabase;
 
-  /// Default directory label
+  /// Texto cuando se usa el directorio por defecto
   ///
-  /// In en, this message translates to:
-  /// **'Default directory'**
+  /// In es, this message translates to:
+  /// **'Directorio por defecto'**
   String get settingsDefaultDir;
 
-  /// Move database dialog title
+  /// Título del diálogo de mover base de datos
   ///
-  /// In en, this message translates to:
-  /// **'Move database'**
+  /// In es, this message translates to:
+  /// **'Mover base de datos'**
   String get settingsDbMoveTitle;
 
-  /// Move database dialog content
+  /// Contenido del diálogo de mover base de datos
   ///
-  /// In en, this message translates to:
-  /// **'Moving the database requires an app restart. Data will be copied to the new directory. Continue?'**
+  /// In es, this message translates to:
+  /// **'Mover la base de datos requiere reiniciar la app. Los datos se copiarán al nuevo directorio. ¿Continuar?'**
   String get settingsDbMoveContent;
 
-  /// Move database confirmation
+  /// Confirmación de mover base de datos
   ///
-  /// In en, this message translates to:
-  /// **'Move and restart'**
+  /// In es, this message translates to:
+  /// **'Mover y reiniciar'**
   String get settingsDbMoveConfirm;
 
-  /// Search section header
+  /// Sección de búsqueda en ajustes
   ///
-  /// In en, this message translates to:
-  /// **'Book search'**
+  /// In es, this message translates to:
+  /// **'Búsqueda de libros'**
   String get settingsSectionSearch;
 
-  /// Search server label
+  /// Etiqueta del selector de servidor de búsqueda
   ///
-  /// In en, this message translates to:
-  /// **'Server'**
+  /// In es, this message translates to:
+  /// **'Servidor'**
   String get settingsSearchServer;
 
-  /// Search server hint
+  /// Pista del selector de servidor de búsqueda
   ///
-  /// In en, this message translates to:
-  /// **'Used to search for books by ISBN or title'**
+  /// In es, this message translates to:
+  /// **'Se usará para buscar libros por ISBN o título'**
   String get settingsSearchServerHint;
 
-  /// Data management section header
+  /// Encabezado de sección de datos
   ///
-  /// In en, this message translates to:
-  /// **'Data management'**
+  /// In es, this message translates to:
+  /// **'Gestión de datos'**
   String get settingsSectionData;
 
   /// No description provided for @dataManagementOpenShelf.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'OpenShelf'**
   String get dataManagementOpenShelf;
 
   /// No description provided for @dataManagementBookshelf.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Bookshelf'**
   String get dataManagementBookshelf;
 
   /// No description provided for @dataManagementGoodreads.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Goodreads'**
   String get dataManagementGoodreads;
 
   /// No description provided for @dataManagementLibraryThing.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'LibraryThing'**
   String get dataManagementLibraryThing;
 
   /// No description provided for @dataManagementImport.
   ///
-  /// In en, this message translates to:
-  /// **'Import books'**
+  /// In es, this message translates to:
+  /// **'Importar libros'**
   String get dataManagementImport;
 
   /// No description provided for @dataManagementExport.
   ///
-  /// In en, this message translates to:
-  /// **'Export books'**
+  /// In es, this message translates to:
+  /// **'Exportar libros'**
   String get dataManagementExport;
 
   /// No description provided for @dataManagementImportHint.
   ///
-  /// In en, this message translates to:
-  /// **'Import from {source} CSV'**
+  /// In es, this message translates to:
+  /// **'Importar desde CSV de {source}'**
   String dataManagementImportHint(String source);
 
   /// No description provided for @dataManagementImportHintJson.
   ///
-  /// In en, this message translates to:
-  /// **'Import from {source} JSON'**
+  /// In es, this message translates to:
+  /// **'Importar desde JSON de {source}'**
   String dataManagementImportHintJson(Object source);
 
   /// No description provided for @dataManagementExportHint.
   ///
-  /// In en, this message translates to:
-  /// **'Export to {source} CSV'**
+  /// In es, this message translates to:
+  /// **'Exportar a CSV de {source}'**
   String dataManagementExportHint(String source);
 
   /// No description provided for @dataManagementExportHintJson.
   ///
-  /// In en, this message translates to:
-  /// **'Export to {source} JSON'**
+  /// In es, this message translates to:
+  /// **'Exportar a JSON de {source}'**
   String dataManagementExportHintJson(Object source);
 
   /// No description provided for @dataManagementRestoreBackup.
   ///
-  /// In en, this message translates to:
-  /// **'Restore backup'**
+  /// In es, this message translates to:
+  /// **'Restaurar copia de seguridad'**
   String get dataManagementRestoreBackup;
 
   /// No description provided for @dataManagementRestoreBackupHint.
   ///
-  /// In en, this message translates to:
-  /// **'Restore from OpenShelf CSV/ZIP'**
+  /// In es, this message translates to:
+  /// **'Restaurar desde CSV/ZIP de OpenShelf'**
   String get dataManagementRestoreBackupHint;
 
   /// No description provided for @dataManagementCreateBackup.
   ///
-  /// In en, this message translates to:
-  /// **'Create backup'**
+  /// In es, this message translates to:
+  /// **'Crear copia de seguridad'**
   String get dataManagementCreateBackup;
 
   /// No description provided for @dataManagementCreateBackupHint.
   ///
-  /// In en, this message translates to:
-  /// **'Full export with covers option'**
+  /// In es, this message translates to:
+  /// **'Exportación completa con opción de portadas'**
   String get dataManagementCreateBackupHint;
 
-  /// Import from Bookshelf option
+  /// Opción de importar desde Bookshelf
   ///
-  /// In en, this message translates to:
-  /// **'Import from Bookshelf'**
+  /// In es, this message translates to:
+  /// **'Importar desde Bookshelf'**
   String get settingsImportBookshelf;
 
-  /// Import hint
+  /// Pista de importación
   ///
-  /// In en, this message translates to:
-  /// **'Import books from a CSV export'**
+  /// In es, this message translates to:
+  /// **'Importar libros desde un archivo CSV'**
   String get settingsImportBookshelfHint;
 
-  /// Export title
+  /// Título de exportación
   ///
-  /// In en, this message translates to:
-  /// **'Export library'**
+  /// In es, this message translates to:
+  /// **'Exportar biblioteca'**
   String get settingsExportCsv;
 
-  /// Export hint
+  /// Pista de exportación
   ///
-  /// In en, this message translates to:
-  /// **'Export all books to a CSV file'**
+  /// In es, this message translates to:
+  /// **'Exportar todos los libros a un archivo CSV'**
   String get settingsExportCsvHint;
 
-  /// Restore title
+  /// Título de restauración
   ///
-  /// In en, this message translates to:
-  /// **'Restore library'**
+  /// In es, this message translates to:
+  /// **'Restaurar biblioteca'**
   String get settingsFullBackup;
 
-  /// Restore hint
+  /// Pista de restauración
   ///
-  /// In en, this message translates to:
-  /// **'Restore books from a CSV backup'**
+  /// In es, this message translates to:
+  /// **'Restaurar libros desde una copia de seguridad CSV'**
   String get settingsFullBackupHint;
 
   /// No description provided for @settingsAutoNoCoverTitle.
   ///
-  /// In en, this message translates to:
-  /// **'No cover shelf'**
+  /// In es, this message translates to:
+  /// **'Estantería sin portadas'**
   String get settingsAutoNoCoverTitle;
 
   /// No description provided for @settingsAutoNoCoverSub.
   ///
-  /// In en, this message translates to:
-  /// **'Auto-create a shelf for books without covers'**
+  /// In es, this message translates to:
+  /// **'Crea automáticamente una estantería si faltan portadas'**
   String get settingsAutoNoCoverSub;
 
   /// No description provided for @noCoverShelfTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Books without cover'**
+  /// In es, this message translates to:
+  /// **'Libros sin portada'**
   String get noCoverShelfTitle;
 
   /// No description provided for @settingsCompressImagesTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Compress covers automatically'**
+  /// In es, this message translates to:
+  /// **'Comprimir portadas automáticamente'**
   String get settingsCompressImagesTitle;
 
   /// No description provided for @settingsCompressImagesSub.
   ///
-  /// In en, this message translates to:
-  /// **'Reduces image size when saving or importing'**
+  /// In es, this message translates to:
+  /// **'Reduce el peso de las imágenes al guardarlas o importarlas'**
   String get settingsCompressImagesSub;
 
   /// No description provided for @settingsBatchCompressTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Optimize library now'**
+  /// In es, this message translates to:
+  /// **'Optimizar biblioteca ahora'**
   String get settingsBatchCompressTitle;
 
   /// No description provided for @settingsBatchCompressSub.
   ///
-  /// In en, this message translates to:
-  /// **'Compresses all existing covers that are not yet optimized'**
+  /// In es, this message translates to:
+  /// **'Comprime todas las portadas existentes que no estén optimizadas'**
   String get settingsBatchCompressSub;
 
   /// No description provided for @settingsBatchCompressSuccess.
   ///
-  /// In en, this message translates to:
-  /// **'Optimized {count} covers.'**
+  /// In es, this message translates to:
+  /// **'Se han optimizado {count} portadas.'**
   String settingsBatchCompressSuccess(int count);
 
-  /// Export dialog title
+  /// Título del diálogo de exportación
   ///
-  /// In en, this message translates to:
-  /// **'Export Library'**
+  /// In es, this message translates to:
+  /// **'Exportar biblioteca'**
   String get exportTitle;
 
-  /// Export covers prompt
+  /// Pregunta sobre portadas en exportación
   ///
-  /// In en, this message translates to:
-  /// **'Do you want to include cover images in the backup? (This will create a ZIP file alongside the CSV)'**
+  /// In es, this message translates to:
+  /// **'¿Quieres incluir las imágenes de las portadas en la copia de seguridad? (Se creará un archivo ZIP junto al CSV)'**
   String get exportCoversPrompt;
 
-  /// Import covers title
+  /// Título de restauración de portadas
   ///
-  /// In en, this message translates to:
-  /// **'Restore Covers'**
+  /// In es, this message translates to:
+  /// **'Restaurar portadas'**
   String get importRestoreCoversTitle;
 
-  /// Import covers prompt
+  /// Pregunta sobre portadas en importación
   ///
-  /// In en, this message translates to:
-  /// **'Do you also have a ZIP file with the cover images to restore?'**
+  /// In es, this message translates to:
+  /// **'¿Tienes también un archivo ZIP con las portadas para restaurar?'**
   String get importRestoreCoversPrompt;
 
-  /// Yes button
+  /// Botón Sí
   ///
-  /// In en, this message translates to:
-  /// **'Yes'**
+  /// In es, this message translates to:
+  /// **'Sí'**
   String get yes;
 
-  /// No button
+  /// Botón No
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'No'**
   String get no;
 
-  /// Developer option to clear database
+  /// Opción de desarrollador para limpiar base de datos
   ///
-  /// In en, this message translates to:
-  /// **'DELETE ALL BOOKS (DEV)'**
+  /// In es, this message translates to:
+  /// **'BORRAR TODOS LOS LIBROS (DEV)'**
   String get devDeleteAllBooks;
 
   /// No description provided for @settingsDevClearDbSub.
   ///
-  /// In en, this message translates to:
-  /// **'Developer tool: clear database'**
+  /// In es, this message translates to:
+  /// **'Herramienta de desarrollador: limpiar base de datos'**
   String get settingsDevClearDbSub;
 
   /// No description provided for @settingsDevDbCleared.
   ///
-  /// In en, this message translates to:
-  /// **'Database cleared'**
+  /// In es, this message translates to:
+  /// **'Base de datos limpiada'**
   String get settingsDevDbCleared;
 
   /// No description provided for @settingsImportSelectBackup.
   ///
-  /// In en, this message translates to:
-  /// **'Select Openshelf Backup'**
+  /// In es, this message translates to:
+  /// **'Seleccionar copia de seguridad de Openshelf'**
   String get settingsImportSelectBackup;
 
   /// No description provided for @settingsImportSelectCovers.
   ///
-  /// In en, this message translates to:
-  /// **'Select Openshelf Covers ZIP'**
+  /// In es, this message translates to:
+  /// **'Seleccionar ZIP de portadas de Openshelf'**
   String get settingsImportSelectCovers;
 
-  /// Dev delete confirmation title
+  /// Título de confirmación de borrado dev
   ///
-  /// In en, this message translates to:
-  /// **'Clear Library?'**
+  /// In es, this message translates to:
+  /// **'¿Vaciar Biblioteca?'**
   String get devDeleteConfirmTitle;
 
-  /// Dev delete confirmation content
+  /// Contenido de confirmación de borrado dev
   ///
-  /// In en, this message translates to:
-  /// **'This will permanently remove ALL books and categories. This is for testing only. Continue?'**
+  /// In es, this message translates to:
+  /// **'Esto eliminará permanentemente TODOS los libros y categorías. Solo para pruebas. ¿Continuar?'**
   String get devDeleteConfirmContent;
 
   /// No description provided for @importSuccess.
   ///
-  /// In en, this message translates to:
-  /// **'Import complete: {count} books added.'**
+  /// In es, this message translates to:
+  /// **'Importación completada: {count} libros añadidos.'**
   String importSuccess(int count);
 
   /// No description provided for @importPartial.
   ///
-  /// In en, this message translates to:
-  /// **'Import partial: {added} added, {skipped} skipped.'**
+  /// In es, this message translates to:
+  /// **'Importación parcial: {added} añadidos, {skipped} omitidos.'**
   String importPartial(int added, int skipped);
 
-  /// API key card title
+  /// Título de la tarjeta de API key de Google Books
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Google Books API key'**
   String get settingsApiKeyTitle;
 
-  /// Key configured message
+  /// Mensaje cuando la API key está configurada
   ///
-  /// In en, this message translates to:
-  /// **'Key configured. Google Books is available.'**
+  /// In es, this message translates to:
+  /// **'Clave configurada. Google Books está disponible.'**
   String get settingsApiKeyConfigured;
 
-  /// Key missing message
+  /// Mensaje cuando no hay API key configurada
   ///
-  /// In en, this message translates to:
-  /// **'No key, Google Books will use Open Library as fallback.'**
+  /// In es, this message translates to:
+  /// **'Sin clave, Google Books usará Open Library como alternativa.'**
   String get settingsApiKeyMissing;
 
-  /// API key placeholder
+  /// Placeholder del campo de API key
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'AIza...'**
   String get settingsApiKeyHint;
 
-  /// Show key tooltip
+  /// Tooltip del botón de mostrar API key
   ///
-  /// In en, this message translates to:
-  /// **'Show'**
+  /// In es, this message translates to:
+  /// **'Mostrar'**
   String get settingsApiKeyShow;
 
-  /// Hide key tooltip
+  /// Tooltip del botón de ocultar API key
   ///
-  /// In en, this message translates to:
-  /// **'Hide'**
+  /// In es, this message translates to:
+  /// **'Ocultar'**
   String get settingsApiKeyHide;
 
-  /// Save key button
+  /// Botón de guardar API key
   ///
-  /// In en, this message translates to:
-  /// **'Save key'**
+  /// In es, this message translates to:
+  /// **'Guardar clave'**
   String get settingsApiKeySave;
 
-  /// Key saved confirmation
+  /// Snackbar de confirmación al guardar API key
   ///
-  /// In en, this message translates to:
-  /// **'Key saved'**
+  /// In es, this message translates to:
+  /// **'Clave guardada'**
   String get settingsApiKeySaved;
 
-  /// Clear key tooltip
+  /// Tooltip del botón de borrar API key
   ///
-  /// In en, this message translates to:
-  /// **'Clear key'**
+  /// In es, this message translates to:
+  /// **'Borrar clave'**
   String get settingsApiKeyClear;
 
-  /// How to get key button
+  /// Botón de instrucciones de API key
   ///
-  /// In en, this message translates to:
-  /// **'How to get it'**
+  /// In es, this message translates to:
+  /// **'Cómo obtenerla'**
   String get settingsApiKeyHowTo;
 
-  /// Instructions title
+  /// Título del sheet de instrucciones de API key
   ///
-  /// In en, this message translates to:
-  /// **'How to get a Google Books API key'**
+  /// In es, this message translates to:
+  /// **'Cómo obtener una clave de Google Books'**
   String get settingsApiKeyInstructionsTitle;
 
-  /// Step 1
+  /// Paso 1 de instrucciones de API key
   ///
-  /// In en, this message translates to:
-  /// **'Open console.cloud.google.com and log in with your Google account.'**
+  /// In es, this message translates to:
+  /// **'Abre console.cloud.google.com e inicia sesión con tu cuenta de Google.'**
   String get settingsApiKeyStep1;
 
-  /// Step 2
+  /// Paso 2 de instrucciones de API key
   ///
-  /// In en, this message translates to:
-  /// **'Create a new project (any name will do).'**
+  /// In es, this message translates to:
+  /// **'Crea un proyecto nuevo (el nombre es indiferente).'**
   String get settingsApiKeyStep2;
 
-  /// Step 3
+  /// Paso 3 de instrucciones de API key
   ///
-  /// In en, this message translates to:
-  /// **'Go to APIs & Services → Library, search for \"Books API\" and enable it.'**
+  /// In es, this message translates to:
+  /// **'Ve a APIs y servicios → Biblioteca, busca \"Books API\" y actívala.'**
   String get settingsApiKeyStep3;
 
-  /// Step 4
+  /// Paso 4 de instrucciones de API key
   ///
-  /// In en, this message translates to:
-  /// **'Go to APIs & Services → Credentials → Create Credentials → API Key.'**
+  /// In es, this message translates to:
+  /// **'Ve a APIs y servicios → Credenciales → Crear credenciales → Clave de API.'**
   String get settingsApiKeyStep4;
 
-  /// Step 5
+  /// Paso 5 de instrucciones de API key
   ///
-  /// In en, this message translates to:
-  /// **'Optional but recommended: restrict the key to the Books API only.'**
+  /// In es, this message translates to:
+  /// **'Opcional pero recomendado: restringe la clave a la Books API únicamente.'**
   String get settingsApiKeyStep5;
 
-  /// Step 6
+  /// Paso 6 de instrucciones de API key
   ///
-  /// In en, this message translates to:
-  /// **'Copy the resulting key (starts with \"AIza...\") and paste it here.'**
+  /// In es, this message translates to:
+  /// **'Copia la clave resultante (empieza por \"AIza…\") y pégala en el campo de arriba.'**
   String get settingsApiKeyStep6;
 
-  /// API key information note
+  /// Nota informativa sobre la API key
   ///
-  /// In en, this message translates to:
-  /// **'The key is free and allows up to 1,000 searches per day. It is not shared with anyone: it is only saved on this device.'**
+  /// In es, this message translates to:
+  /// **'La clave es gratuita y permite hasta 1.000 búsquedas diarias. No se comparte con nadie: se guarda solo en este dispositivo.'**
   String get settingsApiKeyNote;
 
-  /// Book search field hint
+  /// Placeholder del campo de búsqueda de libros
   ///
-  /// In en, this message translates to:
-  /// **'Title, author, or ISBN...'**
+  /// In es, this message translates to:
+  /// **'Título, autor o ISBN...'**
   String get bookSearchHint;
 
-  /// Initial search prompt
+  /// Mensaje inicial de la pantalla de búsqueda
   ///
-  /// In en, this message translates to:
-  /// **'Search by title, author, or ISBN'**
+  /// In es, this message translates to:
+  /// **'Busca por título, autor o ISBN'**
   String get bookSearchPrompt;
 
-  /// Search no results message
+  /// Mensaje de sin resultados en búsqueda
   ///
-  /// In en, this message translates to:
-  /// **'No results for \"{query}\"'**
+  /// In es, this message translates to:
+  /// **'Sin resultados para \"{query}\"'**
   String bookSearchNoResults(String query);
 
-  /// Notice of providers that contributed to the search
+  /// Aviso de proveedores que contribuyeron a la búsqueda
   ///
-  /// In en, this message translates to:
-  /// **'Results from: {providers}.'**
+  /// In es, this message translates to:
+  /// **'Resultados de: {providers}.'**
   String bookSearchProvidersNotice(String providers);
 
-  /// Label for recommended result
+  /// Etiqueta para el resultado recomendado
   ///
-  /// In en, this message translates to:
-  /// **'RECOMMENDED BY OPENSHELF'**
+  /// In es, this message translates to:
+  /// **'RECOMENDADO POR OPENSHELF'**
   String get bookSearchRecommended;
 
   /// No description provided for @bookSearchRecommendedSource.
   ///
-  /// In en, this message translates to:
-  /// **'Recommended by Openshelf'**
+  /// In es, this message translates to:
+  /// **'Recomendado por Openshelf'**
   String get bookSearchRecommendedSource;
 
   /// No description provided for @bookSearchServerOpenLibrary.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Open Library'**
   String get bookSearchServerOpenLibrary;
 
   /// No description provided for @bookSearchServerGoogleBooks.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Google Books'**
   String get bookSearchServerGoogleBooks;
 
   /// No description provided for @bookSearchServerInventaire.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Inventaire.io'**
   String get bookSearchServerInventaire;
 
-  /// Search panel: Status tab
+  /// Panel de búsqueda: pestaña Estado
   ///
-  /// In en, this message translates to:
-  /// **'Status'**
+  /// In es, this message translates to:
+  /// **'Estado'**
   String get searchTabStatus;
 
-  /// Search panel: Imprint tab
+  /// Panel de búsqueda: pestaña Sello
   ///
-  /// In en, this message translates to:
-  /// **'Imprint'**
+  /// In es, this message translates to:
+  /// **'Sello'**
   String get searchTabImprint;
 
-  /// Search panel: Category tab
+  /// Panel de búsqueda: pestaña Categoría
   ///
-  /// In en, this message translates to:
-  /// **'Category'**
+  /// In es, this message translates to:
+  /// **'Categoría'**
   String get searchTabCategory;
 
-  /// Search panel: Collection tab
+  /// Panel de búsqueda: pestaña Colección
   ///
-  /// In en, this message translates to:
-  /// **'Collection'**
+  /// In es, this message translates to:
+  /// **'Colección'**
   String get searchTabCollection;
 
   /// No description provided for @searchFilterStatus.
   ///
-  /// In en, this message translates to:
-  /// **'Status: {value}'**
+  /// In es, this message translates to:
+  /// **'Estado: {value}'**
   String searchFilterStatus(String value);
 
   /// No description provided for @searchFilterImprint.
   ///
-  /// In en, this message translates to:
-  /// **'Imprint: {value}'**
+  /// In es, this message translates to:
+  /// **'Sello: {value}'**
   String searchFilterImprint(String value);
 
   /// No description provided for @searchFilterCategory.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Cat.: {value}'**
   String searchFilterCategory(String value);
 
   /// No description provided for @searchFilterCollection.
   ///
-  /// In en, this message translates to:
-  /// **'Coll.: {value}'**
+  /// In es, this message translates to:
+  /// **'Col.: {value}'**
   String searchFilterCollection(String value);
 
   /// No description provided for @searchActiveFilters.
   ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 active filter} other{{count} active filters}}'**
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 filtro activo} other{{count} filtros activos}}'**
   String searchActiveFilters(int count);
 
   /// No description provided for @searchSaveAsShelf.
   ///
-  /// In en, this message translates to:
-  /// **'Save as shelf'**
+  /// In es, this message translates to:
+  /// **'Guardar como estantería'**
   String get searchSaveAsShelf;
 
   /// No description provided for @shelfShowInLibrary.
   ///
-  /// In en, this message translates to:
-  /// **'Show in library'**
+  /// In es, this message translates to:
+  /// **'Mostrar en biblioteca'**
   String get shelfShowInLibrary;
 
-  /// Button to clear all search filters
+  /// Botón para limpiar todos los filtros de búsqueda
   ///
-  /// In en, this message translates to:
-  /// **'Clear all'**
+  /// In es, this message translates to:
+  /// **'Limpiar todo'**
   String get searchClearAll;
 
-  /// Success message when book is added
+  /// Mensaje de éxito al añadir libro
   ///
-  /// In en, this message translates to:
-  /// **'Added to library'**
+  /// In es, this message translates to:
+  /// **'Añadido a la biblioteca'**
   String get addedToLibrary;
 
-  /// Error when book ISBN already exists
+  /// Error cuando el ISBN ya existe
   ///
-  /// In en, this message translates to:
-  /// **'Already in library'**
+  /// In es, this message translates to:
+  /// **'Ya está en la biblioteca'**
   String get errorDuplicateIsbn;
 
-  /// Duplicate book warning title
+  /// Título del aviso de libro duplicado
   ///
-  /// In en, this message translates to:
-  /// **'Duplicate Book'**
+  /// In es, this message translates to:
+  /// **'Libro duplicado'**
   String get bookDuplicateTitle;
 
-  /// Duplicate book warning content
+  /// Contenido del aviso de libro duplicado
   ///
-  /// In en, this message translates to:
-  /// **'You already have a book with ISBN {isbn} in your library.'**
+  /// In es, this message translates to:
+  /// **'Ya tienes un libro con el ISBN {isbn} en tu biblioteca.'**
   String bookDuplicateContent(String isbn);
 
-  /// Error: no API key
+  /// Error: falta API key de Google Books
   ///
-  /// In en, this message translates to:
-  /// **'Google Books requires an API key.\nConfigure it in Settings → Book Search.'**
+  /// In es, this message translates to:
+  /// **'Google Books requiere una clave de API.\nConfigúrala en Ajustes → Búsqueda de libros.'**
   String get bookSearchErrorNoApiKey;
 
-  /// Error: rate limit
+  /// Error: rate limit de Google Books
   ///
-  /// In en, this message translates to:
-  /// **'Google Books has rate limited requests.\nWait a moment and try again.'**
+  /// In es, this message translates to:
+  /// **'Google Books ha limitado las peticiones.\nEspera un momento e inténtalo de nuevo.'**
   String get bookSearchErrorRateLimit;
 
-  /// Search network error
+  /// Error de red en búsqueda
   ///
-  /// In en, this message translates to:
-  /// **'Could not connect to any server.\nCheck your connection and try again.'**
+  /// In es, this message translates to:
+  /// **'No se pudo conectar con ningún servidor.\nComprueba tu conexión e inténtalo de nuevo.'**
   String get bookSearchErrorNetwork;
 
-  /// Cover picker sheet title
+  /// Título del sheet de búsqueda de portadas
   ///
-  /// In en, this message translates to:
-  /// **'Covers'**
+  /// In es, this message translates to:
+  /// **'Portadas'**
   String get coverPickerTitle;
 
-  /// Sheet subtitle with ISBN
+  /// Subtítulo del sheet con ISBN
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'ISBN {isbn}'**
   String coverPickerIsbnLabel(String isbn);
 
-  /// No covers found message
+  /// Sin portadas encontradas
   ///
-  /// In en, this message translates to:
-  /// **'No covers found for this book.'**
+  /// In es, this message translates to:
+  /// **'No se encontraron portadas para este libro.'**
   String get coverPickerNoResults;
 
-  /// Cover search network error
+  /// Error de red en búsqueda de portadas
   ///
-  /// In en, this message translates to:
-  /// **'Could not connect. Check your connection.'**
+  /// In es, this message translates to:
+  /// **'No se pudo conectar. Comprueba tu conexión.'**
   String get coverPickerNetworkError;
 
-  /// Cover load progress
+  /// Progreso de carga de portadas
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'{loaded} / {total}'**
   String coverPickerProgress(int loaded, int total);
 
-  /// Stats screen title
+  /// Título de la pantalla de estadísticas
   ///
-  /// In en, this message translates to:
-  /// **'Statistics'**
+  /// In es, this message translates to:
+  /// **'Estadísticas'**
   String get statsTitle;
 
-  /// Stats placeholder
+  /// Placeholder de estadísticas
   ///
-  /// In en, this message translates to:
-  /// **'Your statistics will appear here'**
+  /// In es, this message translates to:
+  /// **'Tus estadísticas aparecerán aquí'**
   String get statsPlaceholder;
 
-  /// Empty stats state subtitle
+  /// Subtítulo del estado vacío de estadísticas
   ///
-  /// In en, this message translates to:
-  /// **'Add widgets to see your reading habits, goals and personal records.'**
+  /// In es, this message translates to:
+  /// **'Añade widgets para ver tus hábitos de lectura, metas y récords personales.'**
   String get statsEmptySubtitle;
 
   /// No description provided for @statsAddFirstWidget.
   ///
-  /// In en, this message translates to:
-  /// **'Add your first widget'**
+  /// In es, this message translates to:
+  /// **'Añadir primer widget'**
   String get statsAddFirstWidget;
 
   /// No description provided for @statsAddWidgetTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Add widget'**
+  /// In es, this message translates to:
+  /// **'Añadir widget'**
   String get statsAddWidgetTitle;
 
   /// No description provided for @statsGoalTargetShelf.
   ///
-  /// In en, this message translates to:
-  /// **'Target shelf'**
+  /// In es, this message translates to:
+  /// **'Estantería objetivo'**
   String get statsGoalTargetShelf;
 
   /// No description provided for @searchFilterIsbnLabel.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'ISBN: {isbn}'**
   String searchFilterIsbnLabel(String isbn);
 
   /// No description provided for @searchFilterLanguageLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Language: {language}'**
+  /// In es, this message translates to:
+  /// **'Idioma: {language}'**
   String searchFilterLanguageLabel(String language);
 
   /// No description provided for @searchFilterAuthorLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Author: {author}'**
+  /// In es, this message translates to:
+  /// **'Autor: {author}'**
   String searchFilterAuthorLabel(String author);
 
   /// No description provided for @searchFilterPublisherLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Publisher: {publisher}'**
+  /// In es, this message translates to:
+  /// **'Editorial: {publisher}'**
   String searchFilterPublisherLabel(String publisher);
 
   /// No description provided for @statsGoalTitle.
   ///
-  /// In en, this message translates to:
-  /// **'GOAL'**
+  /// In es, this message translates to:
+  /// **'META'**
   String get statsGoalTitle;
 
   /// No description provided for @statsGoalFullTitle.
   ///
-  /// In en, this message translates to:
-  /// **'READING GOAL'**
+  /// In es, this message translates to:
+  /// **'META DE LECTURA'**
   String get statsGoalFullTitle;
 
   /// No description provided for @statsGoalUnitBooks.
   ///
-  /// In en, this message translates to:
-  /// **'books'**
+  /// In es, this message translates to:
+  /// **'libros'**
   String get statsGoalUnitBooks;
 
   /// No description provided for @statsGoalUnitPages.
   ///
-  /// In en, this message translates to:
-  /// **'pages'**
+  /// In es, this message translates to:
+  /// **'págs'**
   String get statsGoalUnitPages;
 
   /// No description provided for @statsGoalRemaining.
   ///
-  /// In en, this message translates to:
-  /// **'{count} remaining'**
+  /// In es, this message translates to:
+  /// **'Faltan {count}'**
   String statsGoalRemaining(int count);
 
   /// No description provided for @statsGoalCompleted.
   ///
-  /// In en, this message translates to:
-  /// **'Done!'**
+  /// In es, this message translates to:
+  /// **'¡Listo!'**
   String get statsGoalCompleted;
 
   /// No description provided for @statsGoalNew.
   ///
-  /// In en, this message translates to:
-  /// **'New goal'**
+  /// In es, this message translates to:
+  /// **'Nueva meta'**
   String get statsGoalNew;
 
   /// No description provided for @statsGoalEdit.
   ///
-  /// In en, this message translates to:
-  /// **'Edit goal'**
+  /// In es, this message translates to:
+  /// **'Editar meta'**
   String get statsGoalEdit;
 
   /// No description provided for @statsGoalDelete.
   ///
-  /// In en, this message translates to:
-  /// **'Delete'**
+  /// In es, this message translates to:
+  /// **'Eliminar'**
   String get statsGoalDelete;
 
   /// No description provided for @statsGoalNameLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Name (e.g., Challenge 2026)'**
+  /// In es, this message translates to:
+  /// **'Nombre (ej: Reto 2026)'**
   String get statsGoalNameLabel;
 
   /// No description provided for @statsGoalTypeLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Type'**
+  /// In es, this message translates to:
+  /// **'Tipo'**
   String get statsGoalTypeLabel;
 
   /// No description provided for @statsGoalTypeBooks.
   ///
-  /// In en, this message translates to:
-  /// **'Books read'**
+  /// In es, this message translates to:
+  /// **'Libros leídos'**
   String get statsGoalTypeBooks;
 
   /// No description provided for @statsGoalTypePages.
   ///
-  /// In en, this message translates to:
-  /// **'Pages read'**
+  /// In es, this message translates to:
+  /// **'Páginas leídas'**
   String get statsGoalTypePages;
 
   /// No description provided for @statsGoalTargetLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Numerical target'**
+  /// In es, this message translates to:
+  /// **'Objetivo numérico'**
   String get statsGoalTargetLabel;
 
   /// No description provided for @statsGoalFromLabel.
   ///
-  /// In en, this message translates to:
-  /// **'From'**
+  /// In es, this message translates to:
+  /// **'Desde'**
   String get statsGoalFromLabel;
 
   /// No description provided for @statsGoalToLabel.
   ///
-  /// In en, this message translates to:
-  /// **'To'**
+  /// In es, this message translates to:
+  /// **'Hasta'**
   String get statsGoalToLabel;
 
   /// No description provided for @statsPagesTitle.
   ///
-  /// In en, this message translates to:
-  /// **'PAGES'**
+  /// In es, this message translates to:
+  /// **'PÁGINAS'**
   String get statsPagesTitle;
 
   /// No description provided for @statsPagesSub.
   ///
-  /// In en, this message translates to:
-  /// **'pages read'**
+  /// In es, this message translates to:
+  /// **'páginas leídas'**
   String get statsPagesSub;
 
   /// No description provided for @statsStreakTitle.
   ///
-  /// In en, this message translates to:
-  /// **'STREAK'**
+  /// In es, this message translates to:
+  /// **'RACHA'**
   String get statsStreakTitle;
 
   /// No description provided for @statsStreakSub.
   ///
-  /// In en, this message translates to:
-  /// **'days in a row'**
+  /// In es, this message translates to:
+  /// **'días seguidos'**
   String get statsStreakSub;
 
   /// No description provided for @statsStatusTitle.
   ///
-  /// In en, this message translates to:
-  /// **'STATUS'**
+  /// In es, this message translates to:
+  /// **'ESTADOS'**
   String get statsStatusTitle;
 
   /// No description provided for @statsAddedTitle.
   ///
-  /// In en, this message translates to:
-  /// **'BOOKS ADDED'**
+  /// In es, this message translates to:
+  /// **'LIBROS AÑADIDOS'**
   String get statsAddedTitle;
 
   /// No description provided for @statsAddedNoData.
   ///
-  /// In en, this message translates to:
-  /// **'No data'**
+  /// In es, this message translates to:
+  /// **'Sin datos'**
   String get statsAddedNoData;
 
   /// No description provided for @statsCategoriesTitle.
   ///
-  /// In en, this message translates to:
-  /// **'CATEGORIES'**
+  /// In es, this message translates to:
+  /// **'CATEGORÍAS'**
   String get statsCategoriesTitle;
 
   /// No description provided for @statsYearsTitle.
   ///
-  /// In en, this message translates to:
-  /// **'PUBLISH YEARS'**
+  /// In es, this message translates to:
+  /// **'AÑOS DE PUBLICACIÓN'**
   String get statsYearsTitle;
 
   /// No description provided for @statsReadingTitle.
   ///
-  /// In en, this message translates to:
-  /// **'READING'**
+  /// In es, this message translates to:
+  /// **'LECTURA'**
   String get statsReadingTitle;
 
   /// No description provided for @statsReadingNowTitle.
   ///
-  /// In en, this message translates to:
-  /// **'READING NOW'**
+  /// In es, this message translates to:
+  /// **'LEYENDO AHORA'**
   String get statsReadingNowTitle;
 
   /// No description provided for @statsReadingNone.
   ///
-  /// In en, this message translates to:
-  /// **'Nothing in reading'**
+  /// In es, this message translates to:
+  /// **'Nada en lectura'**
   String get statsReadingNone;
 
   /// No description provided for @statsReadByYearTitle.
   ///
-  /// In en, this message translates to:
-  /// **'BOOKS READ BY YEAR'**
+  /// In es, this message translates to:
+  /// **'LIBROS LEÍDOS POR AÑO'**
   String get statsReadByYearTitle;
 
   /// No description provided for @statsCollectionsTitle.
   ///
-  /// In en, this message translates to:
-  /// **'COLLECTIONS'**
+  /// In es, this message translates to:
+  /// **'COLECCIONES'**
   String get statsCollectionsTitle;
 
   /// No description provided for @statsLastAddedTitle.
   ///
-  /// In en, this message translates to:
-  /// **'LAST ADDED'**
+  /// In es, this message translates to:
+  /// **'ÚLTIMOS AÑADIDOS'**
   String get statsLastAddedTitle;
 
   /// No description provided for @statsDailyReadingTitle.
   ///
-  /// In en, this message translates to:
-  /// **'DAILY READING'**
+  /// In es, this message translates to:
+  /// **'LECTURA DIARIA'**
   String get statsDailyReadingTitle;
 
   /// No description provided for @statsAvgPagesTitle.
   ///
-  /// In en, this message translates to:
-  /// **'AVERAGE PAGES'**
+  /// In es, this message translates to:
+  /// **'PÁGINAS PROMEDIO'**
   String get statsAvgPagesTitle;
 
   /// No description provided for @statsAvgPagesSub.
   ///
-  /// In en, this message translates to:
-  /// **'pages per book'**
+  /// In es, this message translates to:
+  /// **'páginas por libro'**
   String get statsAvgPagesSub;
 
   /// No description provided for @statsOptPagesTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Total pages'**
+  /// In es, this message translates to:
+  /// **'Páginas totales'**
   String get statsOptPagesTitle;
 
   /// No description provided for @statsOptPagesSub.
   ///
-  /// In en, this message translates to:
-  /// **'Total pages read'**
+  /// In es, this message translates to:
+  /// **'Total de páginas leídas'**
   String get statsOptPagesSub;
 
   /// No description provided for @statsOptStreakTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Streak'**
+  /// In es, this message translates to:
+  /// **'Racha'**
   String get statsOptStreakTitle;
 
   /// No description provided for @statsOptStreakSub.
   ///
-  /// In en, this message translates to:
-  /// **'Consecutive days reading'**
+  /// In es, this message translates to:
+  /// **'Días consecutivos leyendo'**
   String get statsOptStreakSub;
 
   /// No description provided for @statsOptGoalTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Reading goal'**
+  /// In es, this message translates to:
+  /// **'Meta de lectura'**
   String get statsOptGoalTitle;
 
   /// No description provided for @statsOptGoalSub.
   ///
-  /// In en, this message translates to:
-  /// **'Books, shelves or collections'**
+  /// In es, this message translates to:
+  /// **'Libros, estanterías o colecciones'**
   String get statsOptGoalSub;
 
   /// No description provided for @statsOptStatusTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Reading status'**
+  /// In es, this message translates to:
+  /// **'Estados de lectura'**
   String get statsOptStatusTitle;
 
   /// No description provided for @statsOptStatusSub.
   ///
-  /// In en, this message translates to:
-  /// **'Books by status'**
+  /// In es, this message translates to:
+  /// **'Libros por estado'**
   String get statsOptStatusSub;
 
   /// No description provided for @statsOptCurrentTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Current book'**
+  /// In es, this message translates to:
+  /// **'Libro actual'**
   String get statsOptCurrentTitle;
 
   /// No description provided for @statsOptCurrentSub.
   ///
-  /// In en, this message translates to:
-  /// **'Current reading progress'**
+  /// In es, this message translates to:
+  /// **'Progreso de lectura en curso'**
   String get statsOptCurrentSub;
 
   /// No description provided for @statsOptAddedTimeTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Books added'**
+  /// In es, this message translates to:
+  /// **'Libros añadidos'**
   String get statsOptAddedTimeTitle;
 
   /// No description provided for @statsOptAddedTimeSub.
   ///
-  /// In en, this message translates to:
-  /// **'Acquisitions timeline'**
+  /// In es, this message translates to:
+  /// **'Gráfico temporal de adquisiciones'**
   String get statsOptAddedTimeSub;
 
   /// No description provided for @statsOptCategoriesTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Categories'**
+  /// In es, this message translates to:
+  /// **'Categorías'**
   String get statsOptCategoriesTitle;
 
   /// No description provided for @statsOptCategoriesSub.
   ///
-  /// In en, this message translates to:
-  /// **'Distribution by genre'**
+  /// In es, this message translates to:
+  /// **'Distribución por géneros'**
   String get statsOptCategoriesSub;
 
   /// No description provided for @statsOptYearsTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Publish year'**
+  /// In es, this message translates to:
+  /// **'Año de publicación'**
   String get statsOptYearsTitle;
 
   /// No description provided for @statsOptYearsSub.
   ///
-  /// In en, this message translates to:
-  /// **'Historical histogram'**
+  /// In es, this message translates to:
+  /// **'Histograma histórico'**
   String get statsOptYearsSub;
 
   /// No description provided for @statsOptReadYearTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Read by year'**
+  /// In es, this message translates to:
+  /// **'Leídos por año'**
   String get statsOptReadYearTitle;
 
   /// No description provided for @statsOptReadYearSub.
   ///
-  /// In en, this message translates to:
-  /// **'Annual reading chart'**
+  /// In es, this message translates to:
+  /// **'Gráfico de lectura anual'**
   String get statsOptReadYearSub;
 
   /// No description provided for @statsOptCollectionsTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Collections'**
+  /// In es, this message translates to:
+  /// **'Colecciones'**
   String get statsOptCollectionsTitle;
 
   /// No description provided for @statsOptCollectionsSub.
   ///
-  /// In en, this message translates to:
-  /// **'Books per collection'**
+  /// In es, this message translates to:
+  /// **'Libros por colección'**
   String get statsOptCollectionsSub;
 
   /// No description provided for @statsOptLastAddedTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Last added'**
+  /// In es, this message translates to:
+  /// **'Últimos añadidos'**
   String get statsOptLastAddedTitle;
 
   /// No description provided for @statsOptLastAddedSub.
   ///
-  /// In en, this message translates to:
-  /// **'Recent arrivals'**
+  /// In es, this message translates to:
+  /// **'Recién llegados'**
   String get statsOptLastAddedSub;
 
   /// No description provided for @statsOptAvgPagesTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Average length'**
+  /// In es, this message translates to:
+  /// **'Extensión promedio'**
   String get statsOptAvgPagesTitle;
 
   /// No description provided for @statsOptAvgPagesSub.
   ///
-  /// In en, this message translates to:
-  /// **'Average pages per book'**
+  /// In es, this message translates to:
+  /// **'Páginas promedio por libro'**
   String get statsOptAvgPagesSub;
 
   /// No description provided for @statsOptReadListTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Read books list'**
+  /// In es, this message translates to:
+  /// **'Lista de leídos'**
   String get statsOptReadListTitle;
 
   /// No description provided for @statsOptReadListSub.
   ///
-  /// In en, this message translates to:
-  /// **'Books read in a period'**
+  /// In es, this message translates to:
+  /// **'Libros leídos en un periodo'**
   String get statsOptReadListSub;
 
   /// No description provided for @statsOptAvgCompletionTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Completion time'**
+  /// In es, this message translates to:
+  /// **'Tiempo de lectura'**
   String get statsOptAvgCompletionTitle;
 
   /// No description provided for @statsOptAvgCompletionSub.
   ///
-  /// In en, this message translates to:
-  /// **'Average time to finish a book'**
+  /// In es, this message translates to:
+  /// **'Tiempo promedio en terminar un libro'**
   String get statsOptAvgCompletionSub;
 
   /// No description provided for @statsOptDailyReadingTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Daily reading'**
+  /// In es, this message translates to:
+  /// **'Lectura diaria'**
   String get statsOptDailyReadingTitle;
 
   /// No description provided for @statsOptDailyReadingSub.
   ///
-  /// In en, this message translates to:
-  /// **'Pages read per day'**
+  /// In es, this message translates to:
+  /// **'Páginas leídas por día'**
   String get statsOptDailyReadingSub;
 
   /// No description provided for @statsAvgCompletionValue.
   ///
-  /// In en, this message translates to:
-  /// **'{days} days'**
+  /// In es, this message translates to:
+  /// **'{days} días'**
   String statsAvgCompletionValue(String days);
 
   /// No description provided for @statsPeriodThisMonth.
   ///
-  /// In en, this message translates to:
-  /// **'Read this month'**
+  /// In es, this message translates to:
+  /// **'Leídos este mes'**
   String get statsPeriodThisMonth;
 
   /// No description provided for @statsPeriodLast3Months.
   ///
-  /// In en, this message translates to:
-  /// **'Read last 3 months'**
+  /// In es, this message translates to:
+  /// **'Últimos 3 meses'**
   String get statsPeriodLast3Months;
 
   /// No description provided for @statsPeriodThisYear.
   ///
-  /// In en, this message translates to:
-  /// **'Read this year'**
+  /// In es, this message translates to:
+  /// **'Leídos este año'**
   String get statsPeriodThisYear;
 
   /// No description provided for @statsPeriodLast3Years.
   ///
-  /// In en, this message translates to:
-  /// **'Read last 3 years'**
+  /// In es, this message translates to:
+  /// **'Últimos 3 años'**
   String get statsPeriodLast3Years;
 
   /// No description provided for @tabMore.
   ///
-  /// In en, this message translates to:
-  /// **'more'**
+  /// In es, this message translates to:
+  /// **'más'**
   String get tabMore;
 
   /// No description provided for @sortTitle.
   ///
-  /// In en, this message translates to:
-  /// **'Sort'**
+  /// In es, this message translates to:
+  /// **'Ordenar'**
   String get sortTitle;
 
-  /// Button to open system settings
+  /// Botón para abrir los ajustes del sistema
   ///
-  /// In en, this message translates to:
-  /// **'Open settings'**
+  /// In es, this message translates to:
+  /// **'Abrir ajustes'**
   String get openSettings;
 
-  /// Title for permanently denied permission dialog
+  /// Título del diálogo de permiso denegado permanentemente
   ///
-  /// In en, this message translates to:
-  /// **'Permission required'**
+  /// In es, this message translates to:
+  /// **'Permiso necesario'**
   String get permissionRequired;
 
   /// No description provided for @paginationMarkersAndIndices.
   ///
-  /// In en, this message translates to:
-  /// **'Markers & Indices'**
+  /// In es, this message translates to:
+  /// **'Secciones y marcadores'**
   String get paginationMarkersAndIndices;
 
   /// No description provided for @paginationSaveProgress.
   ///
-  /// In en, this message translates to:
-  /// **'Save Progress'**
+  /// In es, this message translates to:
+  /// **'Guardar Progreso'**
   String get paginationSaveProgress;
 
   /// No description provided for @paginationAllPagesAssigned.
   ///
-  /// In en, this message translates to:
-  /// **'All pages have already been assigned.'**
+  /// In es, this message translates to:
+  /// **'Todas las páginas ya han sido asignadas.'**
   String get paginationAllPagesAssigned;
 
   /// No description provided for @paginationChooseColor.
   ///
-  /// In en, this message translates to:
-  /// **'Choose color'**
+  /// In es, this message translates to:
+  /// **'Elegir color'**
   String get paginationChooseColor;
 
   /// No description provided for @paginationSegmentRequired.
   ///
-  /// In en, this message translates to:
-  /// **'Segment {index}: All page fields are required.'**
+  /// In es, this message translates to:
+  /// **'Segmento {index}: Todos los campos de página son obligatorios.'**
   String paginationSegmentRequired(Object index);
 
   /// No description provided for @paginationSegmentStartGreater.
   ///
-  /// In en, this message translates to:
-  /// **'Segment {index}: Start cannot be greater than end.'**
+  /// In es, this message translates to:
+  /// **'Segmento {index}: El inicio no puede ser mayor que el fin.'**
   String paginationSegmentStartGreater(Object index);
 
   /// No description provided for @paginationSegmentExceedsTotal.
   ///
-  /// In en, this message translates to:
-  /// **'Segment {index}: Values exceed total pages ({total}).'**
+  /// In es, this message translates to:
+  /// **'Segmento {index}: Los valores exceden el total de páginas ({total}).'**
   String paginationSegmentExceedsTotal(int index, int total);
 
   /// No description provided for @paginationSegmentOverlap.
   ///
-  /// In en, this message translates to:
-  /// **'Segment {index1} overlaps with Segment {index2}'**
+  /// In es, this message translates to:
+  /// **'El segmento {index1} se solapa con el segmento {index2}'**
   String paginationSegmentOverlap(String index1, String index2);
 
   /// No description provided for @paginationAdvancedConfig.
   ///
-  /// In en, this message translates to:
-  /// **'Advanced Configuration'**
+  /// In es, this message translates to:
+  /// **'Configuración avanzada'**
   String get paginationAdvancedConfig;
 
   /// No description provided for @paginationBlocksSegments.
   ///
-  /// In en, this message translates to:
-  /// **'BLOCKS / SEGMENTS'**
+  /// In es, this message translates to:
+  /// **'BLOQUES / SEGMENTOS'**
   String get paginationBlocksSegments;
 
   /// No description provided for @paginationNoSegmentsDefined.
   ///
-  /// In en, this message translates to:
-  /// **'No segments defined. Defaulting to 1-N range.'**
+  /// In es, this message translates to:
+  /// **'No hay segmentos definidos. Se usa el rango 1-N por defecto.'**
   String get paginationNoSegmentsDefined;
 
   /// No description provided for @paginationAddBlock.
   ///
-  /// In en, this message translates to:
-  /// **'Add block'**
+  /// In es, this message translates to:
+  /// **'Añadir bloque'**
   String get paginationAddBlock;
 
   /// No description provided for @paginationAllPagesAssignedNote.
   ///
-  /// In en, this message translates to:
-  /// **'Note: You have already assigned all available pages.'**
+  /// In es, this message translates to:
+  /// **'Nota: Ya has asignado todas las páginas disponibles.'**
   String get paginationAllPagesAssignedNote;
 
   /// No description provided for @paginationPagesRemainingWarning.
   ///
-  /// In en, this message translates to:
-  /// **'Warning: {count} physical pages remain unassigned.'**
+  /// In es, this message translates to:
+  /// **'Aviso: Quedan {count} páginas físicas sin asignar.'**
   String paginationPagesRemainingWarning(int count);
 
   /// No description provided for @paginationPhysicalTotalNote.
   ///
-  /// In en, this message translates to:
-  /// **'Note: Total pages refer to the physical pages of the book (total sheets).'**
+  /// In es, this message translates to:
+  /// **'Nota: El total de páginas se refiere a las páginas físicas del libro (hojas totales).'**
   String get paginationPhysicalTotalNote;
 
   /// No description provided for @paginationCorrectErrors.
   ///
-  /// In en, this message translates to:
-  /// **'PLEASE CORRECT THE FOLLOWING ERRORS:'**
+  /// In es, this message translates to:
+  /// **'CORRIJA LOS SIGUIENTES ERRORES:'**
   String get paginationCorrectErrors;
 
   /// No description provided for @paginationMarkersLabels.
   ///
-  /// In en, this message translates to:
-  /// **'MARKERS / LABELS'**
+  /// In es, this message translates to:
+  /// **'MARCADORES / ETIQUETAS'**
   String get paginationMarkersLabels;
 
   /// No description provided for @paginationMarkerDefaultName.
   ///
-  /// In en, this message translates to:
-  /// **'Marker'**
+  /// In es, this message translates to:
+  /// **'Marcador'**
   String get paginationMarkerDefaultName;
 
   /// No description provided for @paginationSegmentsDefaultName.
   ///
-  /// In en, this message translates to:
-  /// **'Segment'**
+  /// In es, this message translates to:
+  /// **'Bloque'**
   String get paginationSegmentsDefaultName;
 
   /// No description provided for @paginationAddMarker.
   ///
-  /// In en, this message translates to:
-  /// **'Add marker'**
+  /// In es, this message translates to:
+  /// **'Añadir marcador'**
   String get paginationAddMarker;
 
   /// No description provided for @paginationLabelOptional.
   ///
-  /// In en, this message translates to:
-  /// **'Label (optional)'**
+  /// In es, this message translates to:
+  /// **'Etiqueta (opcional)'**
   String get paginationLabelOptional;
 
   /// No description provided for @paginationType.
   ///
-  /// In en, this message translates to:
-  /// **'Type:'**
+  /// In es, this message translates to:
+  /// **'Tipo:'**
   String get paginationType;
 
   /// No description provided for @paginationArabic.
   ///
-  /// In en, this message translates to:
-  /// **'Arabic'**
+  /// In es, this message translates to:
+  /// **'Arábigo'**
   String get paginationArabic;
 
   /// No description provided for @paginationRoman.
   ///
-  /// In en, this message translates to:
-  /// **'Roman'**
+  /// In es, this message translates to:
+  /// **'Romano'**
   String get paginationRoman;
 
   /// No description provided for @paginationOffset.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'Offset'**
   String get paginationOffset;
 
   /// No description provided for @paginationMarkerLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Marker label'**
+  /// In es, this message translates to:
+  /// **'Etiqueta del marcador'**
   String get paginationMarkerLabel;
 
   /// No description provided for @paginationVisualPage.
   ///
-  /// In en, this message translates to:
-  /// **'Visual Page'**
+  /// In es, this message translates to:
+  /// **'Página Visual'**
   String get paginationVisualPage;
 
   /// No description provided for @paginationVisualPageHint.
   ///
-  /// In en, this message translates to:
-  /// **'e.g., xiv or 501'**
+  /// In es, this message translates to:
+  /// **'Ej: xiv o 501'**
   String get paginationVisualPageHint;
 
   /// No description provided for @paginationPhysicalLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Physical: {page}'**
+  /// In es, this message translates to:
+  /// **'Física: {page}'**
   String paginationPhysicalLabel(Object page);
 
   /// No description provided for @paginationAdjustsAutomatically.
   ///
-  /// In en, this message translates to:
-  /// **'Adjusts automatically'**
+  /// In es, this message translates to:
+  /// **'Se ajusta automáticamente'**
   String get paginationAdjustsAutomatically;
 
   /// No description provided for @paginationVisualMode.
   ///
-  /// In en, this message translates to:
-  /// **'Visual mode'**
+  /// In es, this message translates to:
+  /// **'Modo visual'**
   String get paginationVisualMode;
 
   /// No description provided for @paginationEquivalentPhysical.
   ///
-  /// In en, this message translates to:
-  /// **'Equivalent to physical: {start} - {end}'**
+  /// In es, this message translates to:
+  /// **'Equivale a físicas: {start} - {end}'**
   String paginationEquivalentPhysical(int start, int end);
 
   /// No description provided for @paginationSectionLabel.
   ///
-  /// In en, this message translates to:
-  /// **'Section {index}'**
+  /// In es, this message translates to:
+  /// **'Sección {index}'**
   String paginationSectionLabel(int index);
 
   /// No description provided for @paginationProgress.
   ///
-  /// In en, this message translates to:
+  /// In es, this message translates to:
   /// **'{current} / {total}'**
   String paginationProgress(String current, String total);
 
   /// No description provided for @paginationCurrentPageShort.
   ///
-  /// In en, this message translates to:
-  /// **'Pg.'**
+  /// In es, this message translates to:
+  /// **'Pág.'**
   String get paginationCurrentPageShort;
 
   /// No description provided for @paginationStartPhysical.
   ///
-  /// In en, this message translates to:
-  /// **'Start (Physical)'**
+  /// In es, this message translates to:
+  /// **'Inicio (Físico)'**
   String get paginationStartPhysical;
 
   /// No description provided for @paginationEndPhysical.
   ///
-  /// In en, this message translates to:
-  /// **'End (Physical)'**
+  /// In es, this message translates to:
+  /// **'Fin (Físico)'**
   String get paginationEndPhysical;
 
   /// No description provided for @paginationStartVisual.
   ///
-  /// In en, this message translates to:
-  /// **'Start (Visual)'**
+  /// In es, this message translates to:
+  /// **'Inicio (Visual)'**
   String get paginationStartVisual;
 
   /// No description provided for @paginationEndVisual.
   ///
-  /// In en, this message translates to:
-  /// **'End (Visual)'**
+  /// In es, this message translates to:
+  /// **'Fin (Visual)'**
   String get paginationEndVisual;
 
   /// No description provided for @paginationAdvancedButton.
   ///
-  /// In en, this message translates to:
-  /// **'Advanced'**
+  /// In es, this message translates to:
+  /// **'Avanzada'**
   String get paginationAdvancedButton;
 
   /// No description provided for @unknownAuthor.
   ///
-  /// In en, this message translates to:
-  /// **'Unknown'**
+  /// In es, this message translates to:
+  /// **'Desconocido'**
   String get unknownAuthor;
 
-  /// Explanation for permanently denied storage permission
+  /// Explicación del permiso de almacenamiento denegado permanentemente
   ///
-  /// In en, this message translates to:
-  /// **'To select a cover you need to grant storage access. You can do this from the application settings.'**
+  /// In es, this message translates to:
+  /// **'Para seleccionar una portada necesitas conceder acceso al almacenamiento. Puedes hacerlo desde los ajustes de la aplicación.'**
   String get storagePermissionExplanation;
 
-  /// Explanation for permanently denied camera permission
+  /// Explicación del permiso de cámara denegado permanentemente
   ///
-  /// In en, this message translates to:
-  /// **'To take a photo you need to grant camera access. You can do this from the application settings.'**
+  /// In es, this message translates to:
+  /// **'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.'**
   String get cameraPermissionExplanation;
 }
 
