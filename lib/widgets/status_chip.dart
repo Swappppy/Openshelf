@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/database.dart';
-import '../l10n/l10n_extension.dart';
+import '../models/extensions/reading_status_ext.dart';
 
 /// A styled chip representing the reading status of a book.
 /// Supports a full chip style for list views and a compact "dot" style for grid views.
@@ -16,8 +16,8 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _color(status);
-    final label = _label(context, status);
+    final color = status.color;
+    final label = status.label(context);
 
     if (isGrid) {
       // Compact style: A colored dot followed by small text.
@@ -63,34 +63,5 @@ class StatusChip extends StatelessWidget {
       ),
     );
   }
-
-  String _label(BuildContext context, ReadingStatus status) {
-    switch (status) {
-      case ReadingStatus.wantToRead:
-        return context.l10n.statusWantToRead;
-      case ReadingStatus.reading:
-        return context.l10n.statusReading;
-      case ReadingStatus.read:
-        return context.l10n.statusRead;
-      case ReadingStatus.abandoned:
-        return context.l10n.statusAbandoned;
-      case ReadingStatus.paused:
-        return context.l10n.statusPaused;
-    }
-  }
-
-  Color _color(ReadingStatus status) {
-    switch (status) {
-      case ReadingStatus.wantToRead:
-        return Colors.orange;
-      case ReadingStatus.reading:
-        return Colors.blue;
-      case ReadingStatus.read:
-        return Colors.green;
-      case ReadingStatus.abandoned:
-        return Colors.red;
-      case ReadingStatus.paused:
-        return const Color(0xFFB39DDB);
-    }
-  }
 }
+

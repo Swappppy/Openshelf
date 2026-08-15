@@ -43,8 +43,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   late final TextEditingController _currentPageCtrl;
   late final TextEditingController _notesCtrl;
   late final TextEditingController _descriptionCtrl;
-  late final TextEditingController _collectionNameCtrl;
-  late final TextEditingController _collectionNumberCtrl;
   late final TextEditingController _publishYearCtrl;
   late final TextEditingController _copiesCtrl;
   late final TextEditingController _personNameCtrl;
@@ -86,10 +84,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _currentPageCtrl = TextEditingController(text: '0');
     _notesCtrl = TextEditingController(text: b?.notes ?? '');
     _descriptionCtrl = TextEditingController(text: b?.description ?? '');
-    _collectionNameCtrl =
-        TextEditingController(text: b?.collectionName ?? '');
-    _collectionNumberCtrl =
-        TextEditingController(text: b?.collectionNumber?.toString() ?? '');
     _publishYearCtrl = TextEditingController(
         text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
     _copiesCtrl = TextEditingController(text: b?.copies.toString() ?? '1');
@@ -104,7 +98,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       _startedAt = b.startedAt;
       _finishedAt = b.finishedAt;
       _paginationConfig = b.paginationConfig;
-      // Detection logic: prioritized translator for migration as per user instruction
       _isTranslation = b.translator != null || b.originalTitle != null || b.originalLanguage != null;
       
       final useVisual = _paginationConfig?.useVisualMode ?? false;
@@ -114,18 +107,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         _currentPageCtrl.text = b.currentPage?.toString() ?? '0';
       }
       
-      _loadExistingTags(b.id);
-      _loadExistingImprint(b.id);
-      _loadExistingCollection(b.id, b.collectionId, b.collectionName);
+      _loadInitialData(b.id);
     } else if (pre?.coverUrl != null) {
-      // Auto-prefill cover from provided URL in the background
       _prefillCoverFromUrl(pre!.coverUrl!);
     }
     
     _currentPageCtrl.addListener(_updateStatusFromPages);
     _totalPagesCtrl.addListener(_updateStatusFromPages);
     
-    // End initialization phase in the next frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _isInitializing = false;
     });
@@ -147,8 +136,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _currentPageCtrl.dispose();
     _notesCtrl.dispose();
     _descriptionCtrl.dispose();
-    _collectionNameCtrl.dispose();
-    _collectionNumberCtrl.dispose();
     _publishYearCtrl.dispose();
     _currentPageCtrl.removeListener(_updateStatusFromPages);
     _totalPagesCtrl.removeListener(_updateStatusFromPages);
@@ -157,7 +144,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     super.dispose();
   }
 
-  /// Adjusts page count based on selected status.
   void _onStatusChanged(ReadingStatus s) {
     setState(() {
       final oldStatus = _status;
@@ -322,7 +308,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     );
   }
 
-  /// Handles saving the book and all its associations (tags, imprints, collections) to the DB.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) {
       _tabController.animateTo(0);
@@ -332,7 +317,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final db = ref.read(databaseProvider);
     final isbn = _isbnCtrl.text.trim();
 
-    // Check for duplicates by ISBN (new books only)
     if (widget.existingBook == null && isbn.isNotEmpty) {
       final existing = await db.bookDao.getBookByIsbn(isbn);
       if (existing != null && mounted) {
@@ -342,14 +326,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
             title: Text(context.l10n.bookDuplicateTitle),
             content: Text(context.l10n.bookDuplicateContent(isbn)),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(context.l10n.cancel),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(context.l10n.addBook),
-              ),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.cancel)),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.l10n.addBook)),
             ],
           ),
         );
@@ -363,73 +341,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     try {
       final rawPageText = _currentPageCtrl.text.trim();
       final total = int.tryParse(_totalPagesCtrl.text) ?? 0;
-      
       int newPage = 0;
       if (_paginationConfig?.useVisualMode == true) {
         newPage = PaginationHelper.getPhysicalFromVisual(rawPageText, _paginationConfig!);
       } else {
         newPage = int.tryParse(rawPageText) ?? 0;
       }
-      
-      // Auto-adjust and sanitize pagination config if total pages changed
-      PaginationConfig? finalConfig = _paginationConfig;
-      if (finalConfig != null && finalConfig.segments.isNotEmpty) {
-        final List<PaginationSegment> sanitizedSegments = [];
-        for (final s in finalConfig.segments) {
-          if (s.startPhysical > total) continue; // Remove segments starting after the book ends
-          
-          sanitizedSegments.add(s.copyWith(
-            endPhysical: s.endPhysical > total ? total : s.endPhysical,
-          ));
-          
-          if (sanitizedSegments.last.endPhysical == total) break;
-        }
-
-        // If we finished and the last segment doesn't reach the new total, extend it
-        if (sanitizedSegments.isNotEmpty && sanitizedSegments.last.endPhysical < total) {
-          final last = sanitizedSegments.removeLast();
-          sanitizedSegments.add(last.copyWith(endPhysical: total));
-        }
-        
-        finalConfig = PaginationConfig(
-          segments: sanitizedSegments, 
-          markers: finalConfig.markers.where((m) => m.physicalPage <= total).toList(),
-          useVisualMode: finalConfig.useVisualMode,
-        );
-      }
-
-      final firstCol = _selectedCollections.firstOrNull;
-      final saveImpId = _selectedImprint?.id;
-
-      final companion = BooksCompanion(
-        title: Value(_titleCtrl.text.trim()),
-        subtitle: Value(_subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim()),
-        originalTitle: Value(_isTranslation && _originalTitleCtrl.text.trim().isNotEmpty ? _originalTitleCtrl.text.trim() : null),
-        originalLanguage: Value(_isTranslation && _originalLanguageCtrl.text.trim().isNotEmpty ? _originalLanguageCtrl.text.trim() : null),
-        author: Value(_authorCtrl.text.trim().isEmpty ? context.l10n.unknownAuthor : _authorCtrl.text.trim()),
-        isbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
-        language: Value(_isTranslation && _languageCtrl.text.trim().isNotEmpty ? _languageCtrl.text.trim() : null),
-        translator: Value(_isTranslation && _translatorCtrl.text.trim().isNotEmpty ? _translatorCtrl.text.trim() : null),
-        publisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
-        totalPages: Value(total),
-        currentPage: Value(newPage),
-        status: Value(_status),
-        ownershipStatus: Value(_ownershipStatus),
-        bookFormat: Value(_format),
-        rating: Value(_rating),
-        notes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
-        description: Value(_descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim()),
-        coverPath: Value(_coverPath),
-        collectionName: Value(_selectedCollections.firstOrNull?.$1.name),
-        collectionId: Value(firstCol != null && firstCol.$1.id > 0 ? firstCol.$1.id : null),
-        collectionNumber: Value(firstCol?.$2),
-        publishYear: Value(int.tryParse(_publishYearCtrl.text)),
-        copies: Value(int.tryParse(_copiesCtrl.text) ?? 1),
-        paginationConfig: Value(finalConfig),
-        startedAt: Value(_startedAt),
-        finishedAt: Value(_finishedAt),
-        imprintId: Value(saveImpId != null && saveImpId > 0 ? saveImpId : null),
-      );
 
       final List<int> tagIds = [];
       for (final tag in _selectedTags) {
@@ -454,17 +371,33 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
       await ref.read(bookFormControllerProvider).saveBook(
         existingBook: widget.existingBook,
-        companion: companion,
-        tagIds: tagIds,
-        collections: collections,
-        newPage: newPage,
-        oldPage: widget.existingBook?.currentPage,
+        title: _titleCtrl.text.trim(),
+        subtitle: _subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim(),
+        author: _authorCtrl.text.trim(),
+        isbn: _isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim(),
+        publisher: _publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim(),
+        totalPages: total,
+        currentPage: newPage,
         status: _status,
         ownershipStatus: _ownershipStatus,
-        personName: _personNameCtrl.text.trim().isNotEmpty ? _personNameCtrl.text.trim() : null,
-        totalPages: total,
+        format: _format,
+        rating: _rating,
+        notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+        description: _descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim(),
+        coverPath: _coverPath,
+        collectionId: _selectedCollections.firstOrNull?.$1.id,
+        collectionName: _selectedCollections.firstOrNull?.$1.name,
+        collectionNumber: _selectedCollections.firstOrNull?.$2,
+        publishYear: int.tryParse(_publishYearCtrl.text),
+        copies: int.tryParse(_copiesCtrl.text) ?? 1,
+        paginationConfig: _paginationConfig,
         startedAt: _startedAt,
         finishedAt: _finishedAt,
+        imprintId: _selectedImprint?.id,
+        tagIds: tagIds,
+        collections: collections,
+        personName: _personNameCtrl.text.trim().isNotEmpty ? _personNameCtrl.text.trim() : null,
+        unknownAuthorLabel: context.l10n.unknownAuthor,
       );
 
       if (mounted) Navigator.pop(context);
@@ -479,82 +412,42 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     }
   }
 
-  Future<void> _loadExistingTags(int bookId) async {
+  Future<void> _loadInitialData(int bookId) async {
     final db = ref.read(databaseProvider);
-    final existing = await db.tagDao.watchTagsForBook(bookId).first;
-    if (!mounted) return;
-    setState(() => _selectedTags = existing);
-  }
-
-  Future<void> _loadExistingImprint(int bookId) async {
-    final db = ref.read(databaseProvider);
-    final existing = await db.tagDao.watchImprintForBook(bookId).first;
-    if (!mounted) return;
-    setState(() => _selectedImprint = existing);
-  }
-
-  Future<void> _loadExistingCollection(int bookId, int? collectionId, String? collectionName) async {
-    final db = ref.read(databaseProvider);
+    final tags = await db.tagDao.watchTagsForBook(bookId).first;
+    final imprint = await db.tagDao.watchImprintForBook(bookId).first;
+    final collections = await db.tagDao.watchCollectionsForBook(bookId).first;
     
-    final existing = await db.tagDao.watchCollectionsForBook(bookId).first;
     if (!mounted) return;
-    
-    if (existing.isNotEmpty) {
-      setState(() => _selectedCollections = existing);
-      return;
-    }
-
-    // Fallback for legacy data if it wasn't migrated yet (unlikely given migration)
-    if (collectionId != null) {
-      final col = await (db.tagDao.select(db.tagDao.tags)..where((t) => t.id.equals(collectionId))).getSingleOrNull();
-      if (col != null) {
-        setState(() => _selectedCollections = [(col, int.tryParse(_collectionNumberCtrl.text))]);
-        return;
-      }
-    }
-
-    if (collectionName != null && collectionName.isNotEmpty) {
-      final col = await (db.tagDao.select(db.tagDao.tags)
-        ..where((t) => t.name.equals(collectionName) & t.type.equalsValue(TagType.collection))
-      ).getSingleOrNull();
-      
-      if (col != null) {
-        setState(() => _selectedCollections = [(col, int.tryParse(_collectionNumberCtrl.text))]);
-      } else {
-        setState(() => _selectedCollections = [(Tag(id: -1, name: collectionName, type: TagType.collection), int.tryParse(_collectionNumberCtrl.text))]);
-      }
-    }
+    setState(() {
+      _selectedTags = tags;
+      _selectedImprint = imprint;
+      _selectedCollections = collections;
+    });
   }
 
   void _updateStatusFromPages() {
     if (_isInitializing) return;
-    
     final rawPageText = _currentPageCtrl.text.trim();
     final total = int.tryParse(_totalPagesCtrl.text);
     if (rawPageText.isEmpty || total == null || total == 0) return;
 
-    final useVisual = _paginationConfig?.useVisualMode ?? false;
     int current = 0;
-    if (useVisual) {
+    if (_paginationConfig?.useVisualMode == true) {
        current = PaginationHelper.getPhysicalFromVisual(rawPageText, _paginationConfig!);
     } else {
        current = int.tryParse(rawPageText) ?? 0;
     }
 
-    // Do not auto-update if status is terminal or paused
     if (_status == ReadingStatus.abandoned || _status == ReadingStatus.paused) return;
 
     ReadingStatus newStatus = _status;
-
     if (current >= total) {
       if (_status != ReadingStatus.read) {
         newStatus = ReadingStatus.read;
-        // Sync current page to total if exceeded
         if (current > total) {
           _currentPageCtrl.text = total.toString();
-          _currentPageCtrl.selection = TextSelection.fromPosition(
-            TextPosition(offset: _currentPageCtrl.text.length),
-          );
+          _currentPageCtrl.selection = TextSelection.fromPosition(TextPosition(offset: _currentPageCtrl.text.length));
         }
       }
     } else if (current < total) {
@@ -576,7 +469,6 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         } else if (newStatus == ReadingStatus.reading || newStatus == ReadingStatus.wantToRead) {
           _finishedAt = null;
         }
-
         if (newStatus == ReadingStatus.reading && oldStatus == ReadingStatus.wantToRead) {
           _startedAt ??= DateTime.now();
         }
@@ -588,18 +480,13 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            widget.existingBook != null ? context.l10n.bookFormEditTitle : context.l10n.bookFormNewTitle),
+        title: Text(widget.existingBook != null ? context.l10n.bookFormEditTitle : context.l10n.bookFormNewTitle),
         toolbarHeight: 40,
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _save,
             child: _isSaving
-                ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
+                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                 : Text(context.l10n.save),
           ),
         ],
@@ -641,9 +528,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
               onPaginationConfigChanged: (cfg) {
                 setState(() => _paginationConfig = cfg);
                 final newTotal = PaginationHelper.calculateTotalPhysicalPages(cfg);
-                if (newTotal > 0) {
-                  _totalPagesCtrl.text = newTotal.toString();
-                }
+                if (newTotal > 0) _totalPagesCtrl.text = newTotal.toString();
               },
             ),
             DetailsTab(

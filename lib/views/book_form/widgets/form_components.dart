@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
+import '../../../models/extensions/reading_status_ext.dart';
+import '../../../models/extensions/book_format_ext.dart';
+import '../../../models/extensions/ownership_status_ext.dart';
+import '../../../widgets/section_header.dart' as shared;
 
 class SectionHeader extends StatelessWidget {
   final String label;
@@ -8,14 +12,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label.toUpperCase(),
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: Theme.of(context).colorScheme.primary,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.2,
-      ),
-    );
+    return shared.SectionHeader(label: label);
   }
 }
 
@@ -70,32 +67,18 @@ class StatusSelector extends StatelessWidget {
 
   const StatusSelector({super.key, required this.selected, required this.onChanged});
 
-  static const _options = [
-    (ReadingStatus.wantToRead, Icons.bookmark_outline, Colors.orange),
-    (ReadingStatus.reading, Icons.auto_stories, Colors.blue),
-    (ReadingStatus.read, Icons.check_circle_outline, Colors.green),
-    (ReadingStatus.abandoned, Icons.close, Colors.red),
-    (ReadingStatus.paused, Icons.pause_circle_outline, Color(0xFFB39DDB)),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: _options.map((opt) {
-        final (status, icon, color) = opt;
+      children: ReadingStatus.values.map((status) {
         final isSelected = selected == status;
-        final label = switch (status) {
-          ReadingStatus.wantToRead => context.l10n.statusWantToRead,
-          ReadingStatus.reading => context.l10n.statusReading,
-          ReadingStatus.read => context.l10n.statusRead,
-          ReadingStatus.abandoned => context.l10n.statusAbandoned,
-          ReadingStatus.paused => context.l10n.statusPaused,
-        };
+        final color = status.color;
+        
         return ChoiceChip(
-          avatar: Icon(icon, size: 16, color: isSelected ? color : null),
-          label: Text(label),
+          avatar: Icon(status.icon, size: 16, color: isSelected ? color : null),
+          label: Text(status.label(context)),
           selected: isSelected,
           selectedColor: color.withValues(alpha: 0.15),
           onSelected: (_) => onChanged(status),
@@ -111,34 +94,18 @@ class OwnershipStatusSelector extends StatelessWidget {
 
   const OwnershipStatusSelector({super.key, required this.selected, required this.onChanged});
 
-  static const _options = [
-    (OwnershipStatus.bought, Icons.shopping_cart_outlined, Colors.blue),
-    (OwnershipStatus.gifted, Icons.card_giftcard_outlined, Colors.purple),
-    (OwnershipStatus.borrowed, Icons.handshake_outlined, Colors.orange),
-    (OwnershipStatus.returned, Icons.keyboard_return_outlined, Colors.green),
-    (OwnershipStatus.sold, Icons.sell_outlined, Colors.red),
-    (OwnershipStatus.other, Icons.more_horiz_outlined, Colors.grey),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: _options.map((opt) {
-        final (status, icon, color) = opt;
+      children: OwnershipStatus.values.map((status) {
         final isSelected = selected == status;
-        final label = switch (status) {
-          OwnershipStatus.bought => context.l10n.ownershipStatusBought,
-          OwnershipStatus.gifted => context.l10n.ownershipStatusGifted,
-          OwnershipStatus.borrowed => context.l10n.ownershipStatusBorrowed,
-          OwnershipStatus.returned => context.l10n.ownershipStatusReturned,
-          OwnershipStatus.sold => context.l10n.ownershipStatusSold,
-          OwnershipStatus.other => context.l10n.ownershipStatusOther,
-        };
+        final color = status.color;
+
         return ChoiceChip(
-          avatar: Icon(icon, size: 16, color: isSelected ? color : null),
-          label: Text(label),
+          avatar: Icon(status.icon, size: 16, color: isSelected ? color : null),
+          label: Text(status.label(context)),
           selected: isSelected,
           selectedColor: color.withValues(alpha: 0.15),
           onSelected: (_) => onChanged(isSelected ? null : status),
@@ -154,33 +121,16 @@ class FormatSelector extends StatelessWidget {
 
   const FormatSelector({super.key, this.selected, required this.onChanged});
 
-  static const _options = [
-    BookFormat.paperback,
-    BookFormat.hardcover,
-    BookFormat.leatherbound,
-    BookFormat.rustic,
-    BookFormat.digital,
-    BookFormat.other,
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: _options.map((format) {
-        final label = switch (format) {
-          BookFormat.paperback => context.l10n.formatPaperback,
-          BookFormat.hardcover => context.l10n.formatHardcover,
-          BookFormat.leatherbound => context.l10n.formatLeatherbound,
-          BookFormat.rustic => context.l10n.formatRustic,
-          BookFormat.digital => context.l10n.formatDigital,
-          BookFormat.other => context.l10n.formatOther,
-        };
+      children: BookFormat.values.map((format) {
         final isSelected = selected == format;
         final color = Theme.of(context).colorScheme.primary;
         return ChoiceChip(
-          label: Text(label),
+          label: Text(format.label(context)),
           selected: isSelected,
           selectedColor: color.withValues(alpha: 0.15),
           onSelected: (_) => onChanged(isSelected ? null : format),
@@ -219,82 +169,6 @@ class RatingSelector extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
       ],
-    );
-  }
-}
-
-class CoverPlaceholder extends StatelessWidget {
-  final double width;
-  final double height;
-  final double iconSize;
-
-  const CoverPlaceholder({
-    super.key,
-    this.width = 90,
-    this.height = 130,
-    this.iconSize = 40,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Icon(
-        Icons.menu_book,
-        size: iconSize,
-        color: Theme.of(context).colorScheme.outline,
-      ),
-    );
-  }
-}
-
-class DatePickerField extends StatelessWidget {
-  final String label;
-  final DateTime? value;
-  final ValueChanged<DateTime?> onChanged;
-  final IconData icon;
-
-  const DatePickerField({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: value ?? DateTime.now(),
-          firstDate: DateTime(1900),
-          lastDate: DateTime(2100),
-        );
-        if (picked != null) onChanged(picked);
-      },
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: const OutlineInputBorder(),
-          suffixIcon: value != null
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () => onChanged(null),
-                )
-              : null,
-        ),
-        child: Text(
-          value != null
-              ? '${value!.day}/${value!.month}/${value!.year}'
-              : '—',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ),
     );
   }
 }

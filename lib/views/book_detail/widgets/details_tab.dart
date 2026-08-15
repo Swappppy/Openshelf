@@ -9,8 +9,10 @@ import '../../../controllers/books_controller.dart';
 import '../../../controllers/ownership_controller.dart';
 import '../../../widgets/imprint_placeholder.dart';
 import '../../../widgets/status_chip_field.dart';
+import '../../../widgets/read_only_field.dart';
+import '../../../widgets/section_header.dart';
+import '../../../models/extensions/ownership_status_ext.dart';
 import '../../shelves/shelf_books_view.dart';
-import 'main_tab.dart';
 
 class DetailsTab extends ConsumerWidget {
   final Book book;
@@ -30,18 +32,6 @@ class DetailsTab extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final historyAsync = ref.watch(readHistoryProvider(book.id));
     final ownershipAsync = ref.watch(ownershipLogProvider(book.id));
-
-    String ownershipLabel(OwnershipStatus? status) {
-      if (status == null) return '—';
-      switch (status) {
-        case OwnershipStatus.bought: return context.l10n.ownershipStatusBought;
-        case OwnershipStatus.gifted: return context.l10n.ownershipStatusGifted;
-        case OwnershipStatus.borrowed: return context.l10n.ownershipStatusBorrowed;
-        case OwnershipStatus.returned: return context.l10n.ownershipStatusReturned;
-        case OwnershipStatus.sold: return context.l10n.ownershipStatusSold;
-        case OwnershipStatus.other: return context.l10n.ownershipStatusOther;
-      }
-    }
 
     return historyAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -76,9 +66,9 @@ class DetailsTab extends ConsumerWidget {
                 Expanded(
                   child: StatusChipField(
                     label: context.l10n.fieldOwnershipStatus,
-                    value: ownershipLabel(book.ownershipStatus),
-                    icon: _ownershipIcon(book.ownershipStatus),
-                    color: _ownershipColor(book.ownershipStatus),
+                    value: book.ownershipStatus.label(context),
+                    icon: book.ownershipStatus.icon,
+                    color: book.ownershipStatus.color,
                     onTap: () {
                       // TODO: Navigate to filtered view for ownership status
                     },
@@ -112,14 +102,7 @@ class DetailsTab extends ConsumerWidget {
               const SizedBox(height: 24),
             ],
 
-            Text(
-              context.l10n.fieldCollection.toUpperCase(),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
+            SectionHeader(label: context.l10n.fieldCollection),
             const SizedBox(height: 8),
             Consumer(builder: (context, ref, _) {
               final collectionsAsync = ref.watch(bookCollectionsProvider(book.id));
@@ -219,14 +202,7 @@ class DetailsTab extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Imprint section
-            Text(
-              context.l10n.bookDetailFieldImprintSection,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
+            SectionHeader(label: context.l10n.bookDetailFieldImprintSection),
             const SizedBox(height: 8),
             Consumer(builder: (context, ref, _) {
               final imprintAsync = ref.watch(bookImprintProvider(book.id));
@@ -318,14 +294,7 @@ class DetailsTab extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        context.l10n.bookDetailFieldPersonalNotes,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
+                      SectionHeader(label: context.l10n.bookDetailFieldPersonalNotes),
                       const SizedBox(width: 4),
                       Icon(
                         Icons.edit_outlined,
@@ -383,14 +352,7 @@ class DetailsTab extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Reading History Section
-            Text(
-              context.l10n.bookDetailReadHistoryTitle,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-            ),
+            SectionHeader(label: context.l10n.bookDetailReadHistoryTitle),
             const SizedBox(height: 8),
             if (history.isEmpty)
               Text('—', style: Theme.of(context).textTheme.bodyLarge)
@@ -465,14 +427,7 @@ class DetailsTab extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Ownership History Section
-            Text(
-              context.l10n.ownershipHistoryTitle,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-            ),
+            SectionHeader(label: context.l10n.ownershipHistoryTitle),
             const SizedBox(height: 8),
             ownershipAsync.when(
               loading: () => const SizedBox.shrink(),
@@ -491,14 +446,7 @@ class DetailsTab extends ConsumerWidget {
                       final isLast = entry.key == log.length - 1;
                       final locale = Localizations.localeOf(context).toString();
                       
-                      final IconData icon = switch (item.eventType) {
-                        OwnershipStatus.bought => Icons.shopping_cart_outlined,
-                        OwnershipStatus.gifted => Icons.card_giftcard_outlined,
-                        OwnershipStatus.borrowed => Icons.handshake_outlined,
-                        OwnershipStatus.returned => Icons.keyboard_return_outlined,
-                        OwnershipStatus.sold => Icons.sell_outlined,
-                        OwnershipStatus.other => Icons.more_horiz_outlined,
-                      };
+                      final IconData icon = item.eventType.icon;
 
                       return Column(
                         children: [
@@ -506,7 +454,7 @@ class DetailsTab extends ConsumerWidget {
                             dense: true,
                             visualDensity: VisualDensity.compact,
                             title: Text(
-                              ownershipLabel(item.eventType),
+                              item.eventType.label(context),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             subtitle: Column(
@@ -562,30 +510,5 @@ class DetailsTab extends ConsumerWidget {
       },
     );
   }
-
-  IconData _ownershipIcon(OwnershipStatus? status) {
-    switch (status) {
-      case OwnershipStatus.bought: return Icons.shopping_cart_outlined;
-      case OwnershipStatus.gifted: return Icons.card_giftcard_outlined;
-      case OwnershipStatus.borrowed: return Icons.handshake_outlined;
-      case OwnershipStatus.returned: return Icons.keyboard_return_outlined;
-      case OwnershipStatus.sold: return Icons.sell_outlined;
-      case OwnershipStatus.other:
-      case null:
-        return Icons.more_horiz_outlined;
-    }
-  }
-
-  Color _ownershipColor(OwnershipStatus? status) {
-    switch (status) {
-      case OwnershipStatus.bought: return Colors.blue;
-      case OwnershipStatus.gifted: return Colors.purple;
-      case OwnershipStatus.borrowed: return Colors.orange;
-      case OwnershipStatus.returned: return Colors.green;
-      case OwnershipStatus.sold: return Colors.red;
-      case OwnershipStatus.other:
-      case null:
-        return Colors.grey;
-    }
-  }
 }
+

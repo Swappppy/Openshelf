@@ -94,25 +94,89 @@ class BookFormController {
 
   Future<int> saveBook({
     Book? existingBook,
-    required BooksCompanion companion,
-    required List<int> tagIds,
-    required List<(int, int?)> collections,
-    required int? newPage,
-    required int? oldPage,
-    required ReadingStatus status,
-    OwnershipStatus? ownershipStatus,
-    String? personName,
+    required String title,
+    required String? subtitle,
+    required String? author,
+    required String? isbn,
+    required String? publisher,
     required int totalPages,
+    required int currentPage,
+    required ReadingStatus status,
+    required OwnershipStatus? ownershipStatus,
+    required BookFormat? format,
+    required double? rating,
+    required String? notes,
+    required String? description,
+    required String? coverPath,
+    required int? collectionId,
+    required String? collectionName,
+    required int? collectionNumber,
+    required int? publishYear,
+    required int copies,
+    required PaginationConfig? paginationConfig,
     required DateTime? startedAt,
     required DateTime? finishedAt,
+    required int? imprintId,
+    required List<int> tagIds,
+    required List<(int, int?)> collections,
+    required String? personName,
+    required String unknownAuthorLabel,
   }) async {
+    // 1. Sanitize Pagination Config
+    PaginationConfig? finalConfig = paginationConfig;
+    if (finalConfig != null && finalConfig.segments.isNotEmpty) {
+      final List<PaginationSegment> sanitizedSegments = [];
+      for (final s in finalConfig.segments) {
+        if (s.startPhysical > totalPages) continue;
+        sanitizedSegments.add(s.copyWith(
+          endPhysical: s.endPhysical > totalPages ? totalPages : s.endPhysical,
+        ));
+        if (sanitizedSegments.last.endPhysical == totalPages) break;
+      }
+      if (sanitizedSegments.isNotEmpty && sanitizedSegments.last.endPhysical < totalPages) {
+        final last = sanitizedSegments.removeLast();
+        sanitizedSegments.add(last.copyWith(endPhysical: totalPages));
+      }
+      finalConfig = PaginationConfig(
+        segments: sanitizedSegments,
+        markers: finalConfig.markers.where((m) => m.physicalPage <= totalPages).toList(),
+        useVisualMode: finalConfig.useVisualMode,
+      );
+    }
+
+    final companion = BooksCompanion(
+      title: Value(title),
+      subtitle: Value(subtitle),
+      author: Value(author == null || author.isEmpty ? unknownAuthorLabel : author),
+      isbn: Value(isbn),
+      publisher: Value(publisher),
+      totalPages: Value(totalPages),
+      currentPage: Value(currentPage),
+      status: Value(status),
+      ownershipStatus: Value(ownershipStatus),
+      bookFormat: Value(format),
+      rating: Value(rating),
+      notes: Value(notes),
+      description: Value(description),
+      coverPath: Value(coverPath),
+      collectionName: Value(collectionName),
+      collectionId: Value(collectionId),
+      collectionNumber: Value(collectionNumber),
+      publishYear: Value(publishYear),
+      copies: Value(copies),
+      paginationConfig: Value(finalConfig),
+      startedAt: Value(startedAt),
+      finishedAt: Value(finishedAt),
+      imprintId: Value(imprintId),
+    );
+
     int bookId;
     if (existingBook != null) {
       bookId = existingBook.id;
       await (_db.update(_db.books)..where((b) => b.id.equals(bookId))).write(companion);
 
-      if (newPage != null && oldPage != null && newPage > oldPage) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage - oldPage);
+      if (currentPage > (existingBook.currentPage ?? 0)) {
+        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, currentPage - (existingBook.currentPage ?? 0));
       }
 
       // Sync with ReadHistory
@@ -123,17 +187,17 @@ class BookFormController {
 
       if (activeSession != null) {
         await _db.readHistoryDao.updateRead(activeSession.copyWith(
-          progress: newPage ?? 0,
+          progress: currentPage,
           finishedAt: Value(finishedAt),
           startedAt: Value(startedAt),
         ));
-      } else if (status == ReadingStatus.reading || (newPage ?? 0) > 0 || status == ReadingStatus.read) {
+      } else if (status == ReadingStatus.reading || currentPage > 0 || status == ReadingStatus.read) {
         await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
           bookId: bookId,
           readNumber: activeSessionNum,
           startedAt: Value(startedAt ?? DateTime.now()),
           finishedAt: Value(finishedAt),
-          progress: Value(newPage ?? 0),
+          progress: Value(currentPage),
         ));
       }
 
@@ -157,12 +221,12 @@ class BookFormController {
           finishedAt: Value(finishedAt ?? DateTime.now()),
           progress: Value(totalPages),
         ));
-      } else if ((newPage ?? 0) > 0 || status == ReadingStatus.reading) {
+      } else if (currentPage > 0 || status == ReadingStatus.reading) {
         await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
           bookId: bookId,
           readNumber: 1,
           startedAt: Value(startedAt ?? DateTime.now()),
-          progress: Value(newPage ?? 0),
+          progress: Value(currentPage),
         ));
       }
 
@@ -175,8 +239,8 @@ class BookFormController {
         ));
       }
 
-      if ((newPage ?? 0) > 0) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, newPage!);
+      if (currentPage > 0) {
+        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, currentPage);
       }
     }
 

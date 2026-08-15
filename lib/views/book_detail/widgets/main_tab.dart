@@ -9,6 +9,11 @@ import '../../../controllers/read_history_controller.dart';
 import '../../../controllers/books_controller.dart';
 import '../../../widgets/tag_chip.dart';
 import '../../../widgets/status_chip_field.dart';
+import '../../../widgets/read_only_field.dart';
+import '../../../widgets/section_header.dart';
+import '../../../widgets/book_rating_bar.dart';
+import '../../../models/extensions/reading_status_ext.dart';
+import '../../../models/extensions/book_format_ext.dart';
 import '../../shelves/shelf_books_view.dart';
 
 class MainTab extends StatelessWidget {
@@ -22,25 +27,6 @@ class MainTab extends StatelessWidget {
     required this.onTapPages,
     required this.onTapSection,
   });
-
-  String _formatLabel(BuildContext context, BookFormat? format) {
-    switch (format) {
-      case BookFormat.paperback:
-        return context.l10n.formatPaperback;
-      case BookFormat.hardcover:
-        return context.l10n.formatHardcover;
-      case BookFormat.leatherbound:
-        return context.l10n.formatLeatherbound;
-      case BookFormat.rustic:
-        return context.l10n.formatRustic;
-      case BookFormat.digital:
-        return context.l10n.formatDigital;
-      case BookFormat.other:
-        return context.l10n.formatOther;
-      case null:
-        return '—';
-    }
-  }
 
   void _showFullDescription(BuildContext context, String description) {
     showDialog(
@@ -57,14 +43,7 @@ class MainTab extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    context.l10n.fieldDescription.toUpperCase(),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                  ),
+                  SectionHeader(label: context.l10n.fieldDescription),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
                     icon: const Icon(Icons.close, size: 20),
@@ -91,8 +70,6 @@ class MainTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -113,14 +90,7 @@ class MainTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  context.l10n.fieldDescription.toUpperCase(),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                ),
+                SectionHeader(label: context.l10n.fieldDescription),
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
@@ -152,14 +122,7 @@ class MainTab extends StatelessWidget {
         ],
 
         // Categories (Tags) - Moved up
-        Text(
-          context.l10n.bookDetailFieldCategories.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
+        SectionHeader(label: context.l10n.bookDetailFieldCategories),
         const SizedBox(height: 8),
         Consumer(
           builder: (context, ref, _) {
@@ -199,14 +162,7 @@ class MainTab extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    context.l10n.bookDetailFieldPages.toUpperCase(),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
+                  SectionHeader(label: context.l10n.bookDetailFieldPages),
                   const SizedBox(width: 4),
                   Icon(
                     Icons.edit_outlined,
@@ -299,24 +255,24 @@ class MainTab extends StatelessWidget {
             Expanded(
               child: StatusChipField(
                 label: context.l10n.bookDetailFieldFormat,
-                value: _formatLabel(context, book.bookFormat),
-                icon: Icons.inventory_2_outlined,
+                value: book.bookFormat.label(context),
+                icon: book.bookFormat.icon,
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: StatusChipField(
                 label: context.l10n.sectionReadingStatus,
-                value: _statusLabel(context, book.status),
-                icon: _statusIcon(book.status),
-                color: _statusColor(book.status),
+                value: book.status.label(context),
+                icon: book.status.icon,
+                color: book.status.color,
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => StatusBooksView(
                         status: book.status,
-                        title: _statusLabel(context, book.status),
+                        title: book.status.label(context),
                       ),
                     ),
                   );
@@ -328,96 +284,17 @@ class MainTab extends StatelessWidget {
         const SizedBox(height: 20),
 
         // Star Rating
-        Text(
-          context.l10n.bookDetailFieldRating.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
+        SectionHeader(label: context.l10n.bookDetailFieldRating),
         const SizedBox(height: 4),
-        Row(
-          children: List.generate(5, (i) {
-            return Icon(
-              i < (book.rating ?? 0) ? Icons.star : Icons.star_border,
-              color: Colors.amber[700],
-              size: 24,
-            );
-          }),
-        ),
+        BookRatingBar(rating: book.rating ?? 0),
         const SizedBox(height: 32),
-      ],
-    );
-  }
-
-  String _statusLabel(BuildContext context, ReadingStatus status) {
-    switch (status) {
-      case ReadingStatus.wantToRead: return context.l10n.statusWantToRead;
-      case ReadingStatus.reading: return context.l10n.statusReading;
-      case ReadingStatus.read: return context.l10n.statusRead;
-      case ReadingStatus.abandoned: return context.l10n.statusAbandoned;
-      case ReadingStatus.paused: return context.l10n.statusPaused;
-    }
-  }
-
-  IconData _statusIcon(ReadingStatus status) {
-    switch (status) {
-      case ReadingStatus.wantToRead: return Icons.bookmark_outline;
-      case ReadingStatus.reading: return Icons.auto_stories;
-      case ReadingStatus.read: return Icons.check_circle_outline;
-      case ReadingStatus.abandoned: return Icons.close;
-      case ReadingStatus.paused: return Icons.pause_circle_outline;
-    }
-  }
-
-  Color _statusColor(ReadingStatus status) {
-    switch (status) {
-      case ReadingStatus.wantToRead: return Colors.orange;
-      case ReadingStatus.reading: return Colors.blue;
-      case ReadingStatus.read: return Colors.green;
-      case ReadingStatus.abandoned: return Colors.red;
-      case ReadingStatus.paused: return const Color(0xFFB39DDB);
-    }
-  }
-}
-
-class ReadOnlyField extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const ReadOnlyField({
-    super.key,
-    required this.label, 
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label.toUpperCase(),
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: theme.textTheme.bodyLarge,
-        ),
       ],
     );
   }
 }
 
 class _MarkersAndSegmentsTile extends StatefulWidget {
+
   final Book book;
   final List<ReadHistoryData> history;
   final Function(int) onTapSection;
@@ -461,12 +338,9 @@ class _MarkersAndSegmentsTileState extends State<_MarkersAndSegmentsTile> {
     if (pages.isEmpty) return const SizedBox.shrink();
 
     return ExpansionTile(
-      title: Text(
-        context.l10n.paginationMarkersAndIndices,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colorScheme.outline,
-              fontWeight: FontWeight.bold,
-            ),
+      title: SectionHeader(
+        label: context.l10n.paginationMarkersAndIndices,
+        padding: EdgeInsets.zero,
       ),
       tilePadding: EdgeInsets.zero,
       childrenPadding: EdgeInsets.zero,
