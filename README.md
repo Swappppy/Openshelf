@@ -23,8 +23,9 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 ## Download
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.ftena.openshelf/)
+[<img src="https://img.shields.io/badge/Get%20it%20on-GitHub-181717?style=for-the-badge&logo=github" alt="Get it on GitHub" height="80">](https://github.com/ftena/openshelf/releases/latest)
 
-Latest release: **v1.0.0**
+Latest release: **v1.1.2**
 
 ---
 
@@ -146,6 +147,13 @@ See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for details and workarounds.
 ## Translations
 
 Openshelf uses **[Weblate](https://hosted.weblate.org/projects/openshelf/)** for community translations. English and Spanish are built-in.
+
+> [!NOTE]
+> Many strings have been translated using AI, as a way to try both to improve the reach of the app and speed up the translation efforts.
+> 
+> If you are a native speaker or know the language and read something that sounds funny, let me know or update it yourself in the Weblate server.
+> 
+> The translated languages are French, Italian, Catalan and Portuguese. I myself speak Catalan, and the translation seems fine. If this works out, let me know, so I can continue with it. The more the merrier.
 
 <a href="https://hosted.weblate.org/engage/openshelf/">
 <img src="https://hosted.weblate.org/widgets/openshelf/-/multi-auto.svg" alt="Translation status" />

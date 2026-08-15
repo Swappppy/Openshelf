@@ -51,7 +51,7 @@
   "@libraryEmpty": {
     "description": "Empty library state"
   },
-  "libraryEmptyHint": "Every great reader started with a first book. What will yours be?",
+  "libraryEmptyHint": "What will your first book be?",
   "@libraryEmptyHint": {
     "description": "Hint when library is empty"
   },
@@ -748,7 +748,7 @@
   "@shelfEmpty": {
     "description": "Empty custom shelves state"
   },
-  "shelfEmptySubtitle": "Organize your reads however you like: by genre, mood, or whatever comes to mind.",
+  "shelfEmptySubtitle": "Organize your reads however you like",
   "@shelfEmptySubtitle": {
     "description": "Empty shelves state subtitle"
   },
@@ -885,7 +885,7 @@
   "@tagNone": {
     "description": "Empty categories state"
   },
-  "tagNoneSubtitle": "Categories help you find the perfect book based on how you feel.",
+  "tagNoneSubtitle": "Categories help you find books and build a mental map of your library",
   "@tagNoneSubtitle": {
     "description": "Empty categories state subtitle"
   },
@@ -926,7 +926,7 @@
   "@imprintNone": {
     "description": "Empty imprints state"
   },
-  "imprintNoneSubtitle": "Group your books by publisher to discover your favorites.",
+  "imprintNoneSubtitle": "Group your books by publishers or their imprints",
   "@imprintNoneSubtitle": {
     "description": "Empty imprints state subtitle"
   },
@@ -987,7 +987,7 @@
   "@collectionNone": {
     "description": "Empty collections state"
   },
-  "collectionNoneSubtitle": "Create themed collections: sagas, reading challenges, wishlists...",
+  "collectionNoneSubtitle": "Create collections and organize your books",
   "@collectionNoneSubtitle": {
     "description": "Empty collections state subtitle"
   },
@@ -1615,7 +1615,7 @@
   "@permissionRequired": {
     "description": "Title for permanently denied permission dialog"
   },
-  "paginationMarkersAndIndices": "Markers & Indices",
+  "paginationMarkersAndIndices": "Sections & Markers",
   "paginationSaveProgress": "Save Progress",
   "paginationAllPagesAssigned": "All pages have already been assigned.",
   "paginationChooseColor": "Choose color",
@@ -1660,7 +1660,7 @@
   "paginationCorrectErrors": "PLEASE CORRECT THE FOLLOWING ERRORS:",
   "paginationMarkersLabels": "MARKERS / LABELS",
   "paginationMarkerDefaultName": "Marker",
-  "paginationSegmentsDefaultName": "Segment",
+  "paginationSegmentsDefaultName": "Block",
   "paginationAddMarker": "Add marker",
   "paginationLabelOptional": "Label (optional)",
   "paginationType": "Type:",

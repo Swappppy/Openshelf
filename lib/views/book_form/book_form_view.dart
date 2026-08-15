@@ -182,11 +182,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _prefillCoverFromUrl(String url) async {
+    final l10n = context.l10n;
     final saved = await ref.read(bookFormControllerProvider).downloadCover(
       url,
-      cropTitle: context.l10n.cropCoverTitle,
-      doneTitle: context.l10n.done,
-      cancelTitle: context.l10n.cancel,
+      cropTitle: l10n.cropCoverTitle,
+      doneTitle: l10n.done,
+      cancelTitle: l10n.cancel,
     );
     if (saved != null && mounted) {
       setState(() => _coverPath = saved);
@@ -194,54 +195,60 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _pickCover() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
     try {
       final saved = await ref.read(bookFormControllerProvider).pickCoverFromGallery(
-        cropTitle: context.l10n.cropCoverTitle,
-        doneTitle: context.l10n.done,
-        cancelTitle: context.l10n.cancel,
+        cropTitle: l10n.cropCoverTitle,
+        doneTitle: l10n.done,
+        cancelTitle: l10n.cancel,
       );
       if (saved != null && mounted) {
         setState(() => _coverPath = saved);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.imageProcessError)),
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.imageProcessError)),
         );
       }
     }
   }
 
   Future<void> _takePhoto() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
     try {
       final saved = await ref.read(bookFormControllerProvider).takePhoto(
-        cropTitle: context.l10n.cropCoverTitle,
-        doneTitle: context.l10n.done,
-        cancelTitle: context.l10n.cancel,
+        cropTitle: l10n.cropCoverTitle,
+        doneTitle: l10n.done,
+        cancelTitle: l10n.cancel,
       );
       if (saved != null && mounted) {
         setState(() => _coverPath = saved);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.imageProcessError)),
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.imageProcessError)),
         );
       }
     }
   }
 
   Future<void> _pickCoverFromUrl() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
     final ctrl = TextEditingController();
     final url = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(context.l10n.coverUrlDialogTitle),
+        title: Text(l10n.coverUrlDialogTitle),
         content: TextField(
           controller: ctrl,
           keyboardType: TextInputType.url,
           decoration: InputDecoration(
-            hintText: context.l10n.coverUrlHint,
+            hintText: l10n.coverUrlHint,
             border: const OutlineInputBorder(),
           ),
           onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
@@ -249,11 +256,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(context.l10n.cancel),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-            child: Text(context.l10n.download),
+            child: Text(l10n.download),
           ),
         ],
       ),
@@ -265,9 +272,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     try {
       final saved = await ref.read(bookFormControllerProvider).downloadCover(
         url,
-        cropTitle: context.l10n.cropCoverTitle,
-        doneTitle: context.l10n.done,
-        cancelTitle: context.l10n.cancel,
+        cropTitle: l10n.cropCoverTitle,
+        doneTitle: l10n.done,
+        cancelTitle: l10n.cancel,
       );
       if (!mounted) return;
       setState(() {
@@ -275,15 +282,15 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         if (saved != null) _coverPath = saved;
       });
       if (saved == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.coverDownloadError)),
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.coverDownloadError)),
         );
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.imageProcessError)),
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.imageProcessError)),
       );
     }
   }
@@ -309,6 +316,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _save() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
     if (!_formKey.currentState!.validate()) {
       _tabController.animateTo(0);
       return;
@@ -323,11 +333,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(context.l10n.bookDuplicateTitle),
-            content: Text(context.l10n.bookDuplicateContent(isbn)),
+            title: Text(l10n.bookDuplicateTitle),
+            content: Text(l10n.bookDuplicateContent(isbn)),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.l10n.cancel)),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.l10n.addBook)),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.addBook)),
             ],
           ),
         );
@@ -397,16 +407,16 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         tagIds: tagIds,
         collections: collections,
         personName: _personNameCtrl.text.trim().isNotEmpty ? _personNameCtrl.text.trim() : null,
-        unknownAuthorLabel: context.l10n.unknownAuthor,
+        unknownAuthorLabel: l10n.unknownAuthor,
       );
 
-      if (mounted) Navigator.pop(context);
+      if (mounted) navigator.pop();
     } catch (e) {
       debugPrint('Error saving book: $e');
       if (mounted) {
         setState(() => _isSaving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.errorGeneric(e.toString()))),
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.errorGeneric(e.toString()))),
         );
       }
     }
