@@ -14,6 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.44.4'
@@ -21,6 +27,16 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Configure signing
+        run: |
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > android/app/release-keystore.jks
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
+          keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}
+          storeFile=release-keystore.jks
+          EOF
 
       - name: Build split APKs
         run: flutter build apk --release --split-per-abi

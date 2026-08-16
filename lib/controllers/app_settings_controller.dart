@@ -31,7 +31,11 @@ class AppSettingsController extends Notifier<AppSettings> {
     };
 
     final localeStr = prefs.getString(_keyLocale);
-    final locale = localeStr != null ? Locale(localeStr) : null;
+    Locale? locale;
+    if (localeStr != null) {
+      final parts = localeStr.split('_');
+      locale = parts.length > 1 ? Locale(parts[0], parts[1]) : Locale(parts[0]);
+    }
 
     final colorInt = prefs.getInt(_keySeedColor);
     final color = colorInt != null ? Color(colorInt) : const Color(0xFF6750A4);
@@ -95,7 +99,7 @@ class AppSettingsController extends Notifier<AppSettings> {
     if (locale == null) {
       ref.read(sharedPrefsProvider).remove(_keyLocale);
     } else {
-      ref.read(sharedPrefsProvider).setString(_keyLocale, locale.languageCode);
+      ref.read(sharedPrefsProvider).setString(_keyLocale, locale.toString());
     }
   }
 

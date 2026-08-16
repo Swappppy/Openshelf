@@ -1727,6 +1727,36 @@ abstract class AppLocalizations {
   /// **'Inglés'**
   String get settingsLanguageEnglish;
 
+  /// Opción de idioma: francés
+  ///
+  /// In es, this message translates to:
+  /// **'Francés'**
+  String get settingsLanguageFrench;
+
+  /// Opción de idioma: italiano
+  ///
+  /// In es, this message translates to:
+  /// **'Italiano'**
+  String get settingsLanguageItalian;
+
+  /// Opción de idioma: catalán
+  ///
+  /// In es, this message translates to:
+  /// **'Catalán'**
+  String get settingsLanguageCatalan;
+
+  /// Opción de idioma: portugués
+  ///
+  /// In es, this message translates to:
+  /// **'Portugués (Portugal)'**
+  String get settingsLanguagePortuguese;
+
+  /// Opción de idioma: portugués brasileño
+  ///
+  /// In es, this message translates to:
+  /// **'Portugués (Brasil)'**
+  String get settingsLanguagePortugueseBR;
+
   /// Etiqueta de selector de modo de tema
   ///
   /// In es, this message translates to:

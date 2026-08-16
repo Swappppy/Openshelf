@@ -23,9 +23,9 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 ## Download
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.ftena.openshelf/)
-[<img src="https://img.shields.io/badge/GET%20IT%20ON-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="Get it on GitHub" height="80">](https://github.com/ftena/openshelf/releases/latest)
+[<img src="assets/github/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Swappppy/Openshelf/releases/latest)
 
-Latest release: **v1.1.2**
+Latest release: **v1.2.0**
 
 ---
 
@@ -149,11 +149,11 @@ See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for details and workarounds.
 Openshelf uses **[Weblate](https://hosted.weblate.org/projects/openshelf/)** for community translations. English and Spanish are built-in.
 
 > [!NOTE]
-> Many strings have been translated using AI, as a way to try both to improve the reach of the app and speed up the translation efforts.
+> Many strings have been translated using AI to improve the app's reach and accelerate localization efforts. 
 > 
-> If you are a native speaker or know the language and read something that sounds funny, let me know or update it yourself in the Weblate server.
+> If you are a native speaker and notice anything that sounds a bit "off", please let me know or update it directly on Weblate.
 > 
-> The translated languages are French, Italian, Catalan and Portuguese. I myself speak Catalan, and the translation seems fine. If this works out, let me know, so I can continue with it. The more the merrier.
+> Currently, this includes French, Italian, Catalan, and Portuguese. I speak Catalan myself and those look good to me, if this approach works for you, I'll continue adding more languages. The more the merrier!
 
 <a href="https://hosted.weblate.org/engage/openshelf/">
 <img src="https://hosted.weblate.org/widgets/openshelf/-/multi-auto.svg" alt="Translation status" />

@@ -14,7 +14,7 @@ class AppearanceSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final localeCode = ref.watch(appSettingsProvider.select((s) => s.locale?.languageCode));
+    final localeCode = ref.watch(appSettingsProvider.select((s) => s.locale?.toString()));
     final themeMode = ref.watch(appSettingsProvider.select((s) => s.themeMode));
     final seedColor = ref.watch(appSettingsProvider.select((s) => s.seedColor));
     final dynamicIconEnabled = ref.watch(appSettingsProvider.select((s) => s.dynamicIconEnabled));
@@ -62,9 +62,34 @@ class AppearanceSection extends ConsumerWidget {
                       value: 'en',
                       child: Text(context.l10n.settingsLanguageEnglish),
                     ),
+                    DropdownMenuItem(
+                      value: 'fr',
+                      child: Text(context.l10n.settingsLanguageFrench),
+                    ),
+                    DropdownMenuItem(
+                      value: 'it',
+                      child: Text(context.l10n.settingsLanguageItalian),
+                    ),
+                    DropdownMenuItem(
+                      value: 'ca',
+                      child: Text(context.l10n.settingsLanguageCatalan),
+                    ),
+                    DropdownMenuItem(
+                      value: 'pt',
+                      child: Text(context.l10n.settingsLanguagePortuguese),
+                    ),
+                    DropdownMenuItem(
+                      value: 'pt_BR',
+                      child: Text(context.l10n.settingsLanguagePortugueseBR),
+                    ),
                   ],
                   onChanged: (code) {
-                    controller.setLocale(code != null ? Locale(code) : null);
+                    if (code == null) {
+                      controller.setLocale(null);
+                    } else {
+                      final parts = code.split('_');
+                      controller.setLocale(parts.length > 1 ? Locale(parts[0], parts[1]) : Locale(parts[0]));
+                    }
                   },
                 ),
               ],
