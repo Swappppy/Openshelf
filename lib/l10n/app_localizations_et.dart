@@ -588,6 +588,11 @@ class AppLocalizationsEt extends AppLocalizations {
   String get shelfRead => '';
 
   @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount libros leídos';
+  }
+
+  @override
   String get shelfWantToRead => '';
 
   @override

@@ -512,7 +512,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get bookDetailFieldCategories => 'CATEGORIE';
 
   @override
-  String get bookDetailFieldFormat => 'Formato';
+  String get bookDetailFieldFormat => 'Format';
 
   @override
   String get bookDetailFieldRating => 'VALUTAZIONE';
@@ -588,6 +588,11 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get shelfRead => 'Letti';
+
+  @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount libri letti';
+  }
 
   @override
   String get shelfWantToRead => 'Da leggere';
@@ -816,8 +821,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get onboardingProgressTitle => 'Segui i tuoi progressi';
 
   @override
-  String get onboardingProgressSub =>
-      'Obiettivi di lectura e statistiche dettagliate';
+  String get onboardingProgressSub => 'Reading goals and detailed statistics';
 
   @override
   String get onboardingAddTitle => 'Aggiungi istantaneamente';
@@ -983,8 +987,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get dataManagementCreateBackup => 'Crea backup';
 
   @override
-  String get dataManagementCreateBackupHint =>
-      'Esportazione completa con opzione copertine';
+  String get dataManagementCreateBackupHint => 'Full export with covers option';
 
   @override
   String get settingsImportBookshelf => 'Importa da Bookshelf';
@@ -1417,7 +1420,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get statsLastAddedTitle => 'ULTIMI AGGIUNTI';
 
   @override
-  String get statsDailyReadingTitle => 'LETTURA QUOTIDIANA';
+  String get statsDailyReadingTitle => 'LETTURA QUOTIDIENNE';
 
   @override
   String get statsAvgPagesTitle => 'PAGINE MEDIE';
@@ -1447,7 +1450,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get statsOptStatusTitle => 'Stati di lettura';
 
   @override
-  String get statsOptStatusSub => 'Libri per stato';
+  String get statsOptStatusSub => 'Libros por estado';
 
   @override
   String get statsOptCurrentTitle => 'Libro attuale';
@@ -1581,7 +1584,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get paginationAdvancedConfig => 'Configurazione avanzata';
 
   @override
-  String get paginationBlocksSegments => 'BLOCCHI / SEGMENTI';
+  String get paginationBlocksSegments => 'BLOCCHI / SEGMENTOS';
 
   @override
   String get paginationNoSegmentsDefined =>
@@ -1619,7 +1622,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get paginationAddMarker => 'Aggiungi segnalibro';
 
   @override
-  String get paginationLabelOptional => 'Etichetta (opzionale)';
+  String get paginationLabelOptional => 'Etiqueta (opzionale)';
 
   @override
   String get paginationType => 'Tipo:';

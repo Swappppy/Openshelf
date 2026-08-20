@@ -728,6 +728,18 @@
   "@shelfRead": {
     "description": "Estantería de libros leídos"
   },
+  "booksReadProgress": "{readCount} / {totalCount} libros leídos",
+  "@booksReadProgress": {
+    "description": "Etiqueta de progreso de libros leídos",
+    "placeholders": {
+      "readCount": {
+        "type": "int"
+      },
+      "totalCount": {
+        "type": "int"
+      }
+    }
+  },
   "shelfWantToRead": "Por leer",
   "@shelfWantToRead": {
     "description": "Estantería de libros por leer"

@@ -1199,6 +1199,12 @@ abstract class AppLocalizations {
   /// **'Leídos'**
   String get shelfRead;
 
+  /// Etiqueta de progreso de libros leídos
+  ///
+  /// In es, this message translates to:
+  /// **'{readCount} / {totalCount} libros leídos'**
+  String booksReadProgress(int readCount, int totalCount);
+
   /// Estantería de libros por leer
   ///
   /// In es, this message translates to:

@@ -206,7 +206,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scanIsbnText => 'Digitalizar número ISBN';
 
   @override
-  String get scanIsbnTextSubtitle => 'Aponta para o número impreso';
+  String get scanIsbnTextSubtitle => 'Aponta para o número impresso';
 
   @override
   String get scanIsbnSelect => 'Toca num ISBN para o selecionar';
@@ -591,6 +591,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shelfRead => 'Lidos';
 
   @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount livros lidos';
+  }
+
+  @override
   String get shelfWantToRead => 'Para ler';
 
   @override
@@ -817,8 +822,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get onboardingProgressTitle => 'Acompanha o teu progresso';
 
   @override
-  String get onboardingProgressSub =>
-      'Metas de leitura e estatísticas detaladas';
+  String get onboardingProgressSub => 'Reading goals and detailed statistics';
 
   @override
   String get onboardingAddTitle => 'Adiciona instantaneamente';
@@ -931,7 +935,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsSearchServerHint =>
-      'Será usado para procurar livros por ISBN o título';
+      'Será usado para procurar livros por ISBN ou título';
 
   @override
   String get settingsSectionData => 'Gestão de dados';
@@ -985,8 +989,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dataManagementCreateBackup => 'Criar cópia de segurança';
 
   @override
-  String get dataManagementCreateBackupHint =>
-      'Exportação completa com opção de capas';
+  String get dataManagementCreateBackupHint => 'Full export with covers option';
 
   @override
   String get settingsImportBookshelf => 'Importar do Bookshelf';
@@ -1422,7 +1425,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get statsLastAddedTitle => 'ÚLTIMOS ADICIONADOS';
 
   @override
-  String get statsDailyReadingTitle => 'LEITURA DIÁRIA';
+  String get statsDailyReadingTitle => 'LEITURA DIÀRIA';
 
   @override
   String get statsAvgPagesTitle => 'MÉDIA DE PÁGINAS';
@@ -1458,7 +1461,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get statsOptCurrentTitle => 'Livro atual';
 
   @override
-  String get statsOptCurrentSub => 'Progreso de leitura em curso';
+  String get statsOptCurrentSub => 'Progresso de leitura em curso';
 
   @override
   String get statsOptAddedTimeTitle => 'Livros adicionados';
@@ -2289,6 +2292,11 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get shelfRead => 'Lidos';
 
   @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount livros lidos';
+  }
+
+  @override
   String get shelfWantToRead => 'Quero ler';
 
   @override
@@ -2566,21 +2574,6 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get settingsLanguageEnglish => 'Inglês';
 
   @override
-  String get settingsLanguageFrench => 'Francês';
-
-  @override
-  String get settingsLanguageItalian => 'Italiano';
-
-  @override
-  String get settingsLanguageCatalan => 'Catalão';
-
-  @override
-  String get settingsLanguagePortuguese => 'Português (Portugal)';
-
-  @override
-  String get settingsLanguagePortugueseBR => 'Português (Brasil)';
-
-  @override
   String get settingsThemeMode => 'Modo de tema';
 
   @override
@@ -2682,8 +2675,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get dataManagementCreateBackup => 'Criar cópia de segurança';
 
   @override
-  String get dataManagementCreateBackupHint =>
-      'Exportación completa con opción de capas';
+  String get dataManagementCreateBackupHint => 'Full export with covers option';
 
   @override
   String get settingsImportBookshelf => 'Importar do Bookshelf';
@@ -2839,7 +2831,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get settingsApiKeyStep4 =>
-      'Vá em APIs e serviços → Credenciais → Criar credenciais → Chave de API.';
+      'Vá em APIs e serviços → Credenciais → Criar credenciais → API Key.';
 
   @override
   String get settingsApiKeyStep5 =>
@@ -2921,7 +2913,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count filtros ativos',
+      other: '$count filtres ativos',
       one: '1 filtro ativo',
     );
     return '$_temp0';
@@ -3029,7 +3021,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get statsGoalFullTitle => 'META DE LEITURA';
 
   @override
-  String get statsGoalUnitBooks => 'libros';
+  String get statsGoalUnitBooks => 'livros';
 
   @override
   String get statsGoalUnitPages => 'págs';
@@ -3154,7 +3146,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get statsOptCurrentTitle => 'Livro atual';
 
   @override
-  String get statsOptCurrentSub => 'Progreso de leitura em andamento';
+  String get statsOptCurrentSub => 'Progresso de leitura em andamento';
 
   @override
   String get statsOptAddedTimeTitle => 'Livros adicionados';

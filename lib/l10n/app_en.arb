@@ -728,6 +728,18 @@
     "@shelfRead": {
         "description": "Read shelf"
     },
+    "booksReadProgress": "{readCount} / {totalCount} books read",
+    "@booksReadProgress": {
+        "description": "Progress label for read books",
+        "placeholders": {
+            "readCount": {
+                "type": "int"
+            },
+            "totalCount": {
+                "type": "int"
+            }
+        }
+    },
     "shelfWantToRead": "To read",
     "@shelfWantToRead": {
         "description": "To read shelf"

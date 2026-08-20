@@ -587,6 +587,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelfRead => 'Read';
 
   @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount books read';
+  }
+
+  @override
   String get shelfWantToRead => 'To read';
 
   @override
@@ -863,19 +868,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageEnglish => 'English';
 
   @override
-  String get settingsLanguageFrench => 'French';
+  String get settingsLanguageFrench => 'Francés';
 
   @override
-  String get settingsLanguageItalian => 'Italian';
+  String get settingsLanguageItalian => 'Italiano';
 
   @override
-  String get settingsLanguageCatalan => 'Catalan';
+  String get settingsLanguageCatalan => 'Catalán';
 
   @override
-  String get settingsLanguagePortuguese => 'Portuguese (Portugal)';
+  String get settingsLanguagePortuguese => 'Portugués (Portugal)';
 
   @override
-  String get settingsLanguagePortugueseBR => 'Portuguese (Brazil)';
+  String get settingsLanguagePortugueseBR => 'Portugués (Brasil)';
 
   @override
   String get settingsThemeMode => 'Theme mode';

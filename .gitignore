@@ -51,3 +51,5 @@ android/key.properties
 # Generado por flutter pub get
 .flutter-plugins
 /resolve_arb_conflicts.py
+/fix_l10n_v2.py
+/process_l10n.py
