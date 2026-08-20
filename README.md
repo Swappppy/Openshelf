@@ -25,7 +25,7 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.ftena.openshelf/)
 [<img src="assets/github/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Swappppy/Openshelf/releases/latest)
 
-Latest release: **v1.2.0**
+Latest release: **v1.2.1**
 
 ---
 
