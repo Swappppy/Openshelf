@@ -6,7 +6,6 @@ import '../services/database.dart';
 import '../l10n/l10n_extension.dart';
 import 'entity_selector_grid.dart';
 import 'filter_grid_box.dart';
-import '../models/tag_type.dart';
 
 class SearchPanel extends ConsumerStatefulWidget {
   final SearchFilters filters;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/shelf.dart';
-import '../../models/tag_type.dart';
 import '../../services/database.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/display_preferences_controller.dart';

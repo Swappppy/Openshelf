@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:csv/csv.dart';
 
-import '../models/tag_type.dart';
 import 'database.dart';
 import 'import_export_base.dart';
 

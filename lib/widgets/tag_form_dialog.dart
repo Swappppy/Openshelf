@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:drift/drift.dart' show Value;
-import '../models/tag_type.dart';
 import '../services/database.dart';
 import '../services/cover_service.dart';
 import '../services/permission_service.dart';

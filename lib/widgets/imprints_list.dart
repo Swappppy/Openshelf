@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/database.dart';
-import '../models/tag_type.dart';
 import '../controllers/books_controller.dart';
 import '../controllers/database_provider.dart';
 import '../controllers/display_preferences_controller.dart';

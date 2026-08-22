@@ -5,7 +5,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image/image.dart' as img;
-import '../models/tag_type.dart';
 import 'database.dart';
 
 /// Service for managing book covers and imprint images locally.

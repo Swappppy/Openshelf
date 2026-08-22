@@ -8,7 +8,6 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../models/tag_type.dart';
 import 'database.dart';
 import 'cover_service.dart';
 import 'import_export_base.dart';

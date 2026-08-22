@@ -6,7 +6,6 @@ import '../../services/database.dart';
 import '../../controllers/database_provider.dart';
 import '../../controllers/book_form_controller.dart';
 import '../../models/book_search_result.dart';
-import '../../models/tag_type.dart';
 import '../../l10n/l10n_extension.dart';
 import 'cover_picker_sheet.dart';
 import 'widgets/main_tab.dart';
@@ -385,6 +384,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         subtitle: _subtitleCtrl.text.trim().isEmpty ? null : _subtitleCtrl.text.trim(),
         author: _authorCtrl.text.trim(),
         isbn: _isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim(),
+        language: _languageCtrl.text.trim().isEmpty ? null : _languageCtrl.text.trim(),
         publisher: _publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim(),
         totalPages: total,
         currentPage: newPage,
@@ -394,6 +394,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         rating: _rating,
         notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
         description: _descriptionCtrl.text.trim().isEmpty ? null : _descriptionCtrl.text.trim(),
+        coverUrl: widget.prefill?.coverUrl ?? widget.existingBook?.coverUrl,
         coverPath: _coverPath,
         collectionId: _selectedCollections.firstOrNull?.$1.id,
         collectionName: _selectedCollections.firstOrNull?.$1.name,

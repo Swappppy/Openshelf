@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:rxdart/rxdart.dart';
 import '../database.dart';
-import '../../models/tag_type.dart';
 
 part 'book_dao.g.dart';
 

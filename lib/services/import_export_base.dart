@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
 import 'package:collection/collection.dart';
-import '../models/tag_type.dart';
 import 'database.dart';
 
 /// Standard result for import operations.

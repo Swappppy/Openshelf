@@ -5,7 +5,7 @@ import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../widgets/entity_field_selector.dart';
 import '../../../widgets/tag_grid_selector.dart';
-import '../../../models/tag_type.dart';
+
 import '../advanced_pagination_view.dart';
 import '../../../widgets/cover_placeholder.dart';
 import 'form_components.dart';
