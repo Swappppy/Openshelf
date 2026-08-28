@@ -139,6 +139,7 @@ Built on **Drift**, the database uses a polymorphic tag system. A single `Tags` 
 ## Known Issues
 
 - [Crash on launch on GrapheneOS](KNOWN_ISSUES.md#crash-on-launch-on-grapheneos)
+- [Error when manually migrating a database from v1.1.1 to v1.2.2](KNOWN_ISSUES.md#error-when-importing-library-from-v111-to-v122-untested-for-other-versions)
 
 See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for details and workarounds.
 
