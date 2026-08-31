@@ -1199,6 +1199,9 @@
   "@settingsFullBackupHint": {
     "description": "Restore hint"
   },
+  "settingsAllFilesAccess": "Accesso a tutti i file",
+  "settingsAllFilesAccessSub": "Richiesto per spostare il database in cartelle esterne (Android 11+)",
+  "settingsAllFilesAccessInfo": "Questa autorizzazione consente a Openshelf di gestire i file al di fuori della sua directory privata. È necessario spostare il database in una cartella personalizzata.",
   "settingsAutoNoCoverTitle": "Scaffale senza copertine",
   "settingsAutoNoCoverSub": "Crea automaticamente uno scaffale se mancano le copertine",
   "noCoverShelfTitle": "Libri senza copertina",

@@ -29,6 +29,17 @@ Latest release: **v1.2.2**
 
 ---
 
+## Roadmap
+
+<img src="assets/Screenshots/Openshelf-roadmap-en.png" alt="Openshelf Roadmap">
+
+This is a brief roadmap showing what has already been done and what is to come.
+
+I would also like to thank everyone using this app and waiting for future updates. I never thought
+that anyone but me would use it, so a big THANK YOU to all of you!
+
+---
+
 ## Screenshots
 
  <img src="assets/Screenshots/Openshelf-en/1.png" width="300" alt="Library View - List Layout"> | <img src="assets/Screenshots/Openshelf-en/2.png" width="300" alt="Library View - Grid Layout"> | <img src="assets/Screenshots/Openshelf-en/3.png" width="300" alt="Book Details View"> | <img src="assets/Screenshots/Openshelf-en/4.png" width="300" alt="Statistics Dashboard">

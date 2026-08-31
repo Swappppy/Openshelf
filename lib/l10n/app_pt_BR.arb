@@ -1179,6 +1179,9 @@
     "@settingsFullBackupHint": {
         "description": "Restore hint"
     },
+    "settingsAllFilesAccess": "Acesso a todos os arquivos",
+    "settingsAllFilesAccessSub": "Necessário para mover o banco de dados para pastas externas (Android 11+)",
+    "settingsAllFilesAccessInfo": "Esta permissão permite que o Openshelf gerencie arquivos fora de seu diretório privado. É necessário para mover o banco de dados para uma pasta personalizada.",
     "settingsAutoNoCoverTitle": "Estante sem capas",
     "settingsAutoNoCoverSub": "Cria automaticamente uma estante se faltarem capas",
     "noCoverShelfTitle": "Livros sem capa",

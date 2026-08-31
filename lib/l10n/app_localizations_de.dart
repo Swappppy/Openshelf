@@ -997,6 +997,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsFullBackupHint => '';
 
   @override
+  String get settingsAllFilesAccess => 'All Files Access';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Required to move database to external folders (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.';
+
+  @override
   String get settingsAutoNoCoverTitle => '';
 
   @override

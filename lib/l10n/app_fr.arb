@@ -1179,6 +1179,9 @@
     "@settingsFullBackupHint": {
         "description": "Restore hint"
     },
+    "settingsAllFilesAccess": "Accès à tous les fichiers",
+    "settingsAllFilesAccessSub": "Requis pour déplacer la base de données vers des dossiers externes (Android 11+)",
+    "settingsAllFilesAccessInfo": "Cette autorisation permet à Openshelf de gérer des fichiers en dehors de son répertoire privé. Il est nécessaire de déplacer la base de données vers un dossier personnalisé.",
     "settingsAutoNoCoverTitle": "Étagère sans couvertures",
     "settingsAutoNoCoverSub": "Crée automatiquement une étagère si des couvertures sont manquantes",
     "noCoverShelfTitle": "Livres sans couverture",

@@ -1013,6 +1013,17 @@ class AppLocalizationsPt extends AppLocalizations {
       'Restaurar livros de uma cópia de segurança CSV';
 
   @override
+  String get settingsAllFilesAccess => 'Acesso a todos os ficheiros';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Necessário para mover a base de dados para pastas externas (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'Esta permissão permite que o Openshelf gira ficheiros fora do seu diretório privado. É necessário mover a base de dades para uma pasta personalizada.';
+
+  @override
   String get settingsAutoNoCoverTitle => 'Estante sem capas';
 
   @override
@@ -2696,6 +2707,17 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get settingsFullBackupHint =>
       'Restaurar livros de uma cópia de segurança CSV';
+
+  @override
+  String get settingsAllFilesAccess => 'Acesso a todos os arquivos';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Necessário para mover o banco de dados para pastas externas (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'Esta permissão permite que o Openshelf gerencie arquivos fora de seu diretório privado. É necessário para mover o banco de dados para uma pasta personalizada.';
 
   @override
   String get settingsAutoNoCoverTitle => 'Estante sem capas';

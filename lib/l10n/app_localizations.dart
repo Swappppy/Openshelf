@@ -1985,6 +1985,24 @@ abstract class AppLocalizations {
   /// **'Restaurar libros desde una copia de seguridad CSV'**
   String get settingsFullBackupHint;
 
+  /// No description provided for @settingsAllFilesAccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Acceso a todos los archivos'**
+  String get settingsAllFilesAccess;
+
+  /// No description provided for @settingsAllFilesAccessSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Necesario para mover la base de datos a carpetas externas (Android 11+)'**
+  String get settingsAllFilesAccessSub;
+
+  /// No description provided for @settingsAllFilesAccessInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Este permiso permite a Openshelf gestionar archivos fuera de su directorio privado. Es necesario para mover la base de datos a una carpeta personalizada. Nota: Es posible que la aplicación se cierre automáticamente al conceder este permiso.'**
+  String get settingsAllFilesAccessInfo;
+
   /// No description provided for @settingsAutoNoCoverTitle.
   ///
   /// In es, this message translates to:

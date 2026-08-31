@@ -1016,6 +1016,17 @@ class AppLocalizationsCa extends AppLocalizations {
       'Restaurar llibres des d\'una còpia de seguretat CSV';
 
   @override
+  String get settingsAllFilesAccess => 'Accés a tots els fitxers';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Necessari per moure la base de dades a carpetes externes (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'Aquest permís permet a Openshelf gestionar fitxers fora del seu directori privat. És necessari per moure la base de dades a una carpeta personalitzada.';
+
+  @override
   String get settingsAutoNoCoverTitle => 'Prestatgeria sense portades';
 
   @override

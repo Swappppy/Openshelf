@@ -1199,6 +1199,9 @@
   "@settingsFullBackupHint": {
     "description": "Restore hint"
   },
+  "settingsAllFilesAccess": "Accés a tots els fitxers",
+  "settingsAllFilesAccessSub": "Necessari per moure la base de dades a carpetes externes (Android 11+)",
+  "settingsAllFilesAccessInfo": "Aquest permís permet a Openshelf gestionar fitxers fora del seu directori privat. És necessari per moure la base de dades a una carpeta personalitzada.",
   "settingsAutoNoCoverTitle": "Prestatgeria sense portades",
   "settingsAutoNoCoverSub": "Crea automàticament una prestatgeria si falten portades",
   "noCoverShelfTitle": "Llibres sense portada",

@@ -1149,5 +1149,8 @@
   "fieldDescription": "",
   "@fieldDescription": {
     "description": "Description field label"
-  }
+  },
+  "settingsAllFilesAccess": "All Files Access",
+  "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
+  "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder."
 }

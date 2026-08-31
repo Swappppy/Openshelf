@@ -1005,6 +1005,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsFullBackupHint => 'Restore books from a CSV backup';
 
   @override
+  String get settingsAllFilesAccess => 'All Files Access';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Required to move database to external folders (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder. Note: The app may close automatically when granting this permission.';
+
+  @override
   String get settingsAutoNoCoverTitle => 'No cover shelf';
 
   @override
