@@ -25,7 +25,7 @@ limitation, not something fixable from application code.
 **"Dynamic code loading from memory"** for Openshelf specifically. The other two toggles
 (storage, WebView JIT) are unrelated and can stay enabled.
 
-### Error when importing library from v1.1.1 to v1.2.2 (untested for other versions)
+### Error when importing library from v1.1.1 to v1.2.2 (untested for other versions) - FIXED
 
 **Symptom:** an error appears that prevents the importation, such as:
 
@@ -35,9 +35,11 @@ app_flutter/imprints/imprint_image_cropper_1786282222584.jpg', path ='/data/user
 org.ftena.openshelf/cache/import_imprints/imprint_image_cropper_1786282222584.jpg'
 (OS Error: No such file or directory, errno = 2)
 ```
-**Cause:** This is likely caused by a bad migration process in the database from the
-v1.1.1 to the v1.2.2. This is likely a version specific issue that is actively worked
-upon.
+**Cause:** The issue is caused by the DataMigrationService failing to create the 
+necessary subdirectories (like imprints/) in the application documents directory 
+before attempting to compress and save image files during a ZIP import. This leads
+to a PathNotFoundException when CoverService.compressImage (or its fallback File.copy)
+attempts to write to a non-existent directory.
 
 **Workaround:** Creating a new book and then importing the save file seems to solve the
 issue. For more information see issue https://github.com/Swappppy/Openshelf/issues/21.
