@@ -87,11 +87,20 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
   }
 
   void _openForm(BookSearchResult result) {
+    // Fallback ISBN from search query if result doesn't have one
+    var finalResult = result;
+    final query = _ctrl.text.trim().replaceAll(RegExp(r'[^0-9X]'), '');
+    final isIsbn = (query.length == 10 || query.length == 13) && RegExp(r'^[0-9]+X?$').hasMatch(query);
+
+    if (isIsbn && (result.isbn == null || result.isbn!.isEmpty)) {
+      finalResult = result.copyWith(isbn: query);
+    }
+
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (_, animation, _) =>
-            BookFormView(prefill: result),
+            BookFormView(prefill: finalResult),
         transitionsBuilder: (_, animation, _, child) => SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(0, 1),
@@ -228,6 +237,10 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     }
 
     if (_results.isEmpty) {
+      final query = _ctrl.text.trim().replaceAll(RegExp(r'[^0-9X]'), '');
+      final isIsbn = (query.length == 10 || query.length == 13) &&
+          RegExp(r'^[0-9]+X?$').hasMatch(query);
+
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -237,9 +250,31 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
             Text(
               context.l10n.bookSearchNoResults(_ctrl.text),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colorScheme.outline,
-              ),
+                    color: colorScheme.outline,
+                  ),
             ),
+            if (isIsbn) ...[
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BookFormView(
+                        prefill: BookSearchResult(
+                          title: '',
+                          authors: [],
+                          isbn: query,
+                          source: 'Manual entry',
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: Text(context.l10n.addManually),
+              ),
+            ],
           ],
         ),
       );
@@ -264,7 +299,7 @@ class _ResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final isRecommended = result.source == context.l10n.bookSearchRecommendedSource;
+    final isRecommended = result.source == BookSearchResult.recommendedSource;
 
     return InkWell(
       onTap: () => onTap(result),

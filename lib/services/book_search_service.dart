@@ -277,50 +277,182 @@ class BookSearchService {
     String? preferredLanguage,
   }) async {
     final cleanIsbn = query.replaceAll(RegExp(r'[^0-9X]'), '');
-    final isIsbn = (cleanIsbn.length == 10 || cleanIsbn.length == 13) && RegExp(r'^[0-9]+X?$').hasMatch(cleanIsbn);
+    final isIsbn = (cleanIsbn.length == 10 || cleanIsbn.length == 13) &&
+        RegExp(r'^[0-9]+X?$').hasMatch(cleanIsbn);
 
     final List<BookSearchResult> allResults = [];
-    
-    // We execute in sequence to respect the server order from settings
+
+    // 1. Fetch results from all servers
     for (final server in servers) {
       try {
         debugPrint('BookSearchService: Querying ${server.name}...');
         List<BookSearchResult> serverResults = [];
         if (isIsbn) {
-          final res = await _performIsbnLookup(server, cleanIsbn, googleApiKey, preferredLanguage);
+          final res = await _performIsbnLookup(
+              server, cleanIsbn, googleApiKey, preferredLanguage);
           if (res != null) {
             serverResults.add(res);
           } else {
-            // Fallback to general search if ISBN lookup failed
-            serverResults.addAll(await _performGeneralSearch(server, query, googleApiKey, preferredLanguage));
+            serverResults.addAll(await _performGeneralSearch(
+                server, query, googleApiKey, preferredLanguage));
           }
         } else {
-          serverResults.addAll(await _performGeneralSearch(server, query, googleApiKey, preferredLanguage));
+          serverResults.addAll(await _performGeneralSearch(
+              server, query, googleApiKey, preferredLanguage));
         }
-        
-        debugPrint('BookSearchService: ${server.name} returned ${serverResults.length} results');
         allResults.addAll(serverResults);
       } catch (e) {
         debugPrint('BookSearchService: Error from ${server.name}: $e');
       }
     }
 
-    debugPrint('BookSearchService: Total results: ${allResults.length}');
+    if (allResults.isEmpty) return [];
 
-    if (allResults.isNotEmpty) {
-      final merged = _mergeResults(allResults, preferredLanguage: preferredLanguage);
+    // 2. Score and Sort all results by relevance to the query
+    final scoredResults = allResults.map((res) {
+      // Ensure ISBN is attached if it was an ISBN search
+      final r = (isIsbn && (res.isbn == null || res.isbn!.isEmpty))
+          ? res.copyWith(isbn: cleanIsbn)
+          : res;
+      return MapEntry(r, _calculateScore(r, query, isIsbn));
+    }).toList();
+
+    // Sort descending by score
+    scoredResults.sort((a, b) => b.value.compareTo(a.value));
+
+    final sortedResults = scoredResults.map((e) => e.key).toList();
+    final winner = sortedResults.first;
+    final winnerScore = scoredResults.first.value;
+
+    // 3. Synthesis: Merge the winner with its "Peers" (same book from other sources)
+    // We only create a recommendation if the match is decent.
+    if (winnerScore >= 400) {
+      final peers = sortedResults
+          .where((r) => r != winner && _arePeers(winner, r))
+          .toList();
+
+      final merged = _mergeResults(
+        [winner, ...peers],
+        query: query,
+        isIsbn: isIsbn,
+        preferredLanguage: preferredLanguage,
+      );
+
       if (merged != null) {
-        debugPrint('BookSearchService: Prepending merged recommended result');
-        // Filter out individual provider results that are identical to the merged one
-        final others = allResults.where((r) => 
-          !(r.isbn == merged.isbn && r.title == merged.title && r.authors.length == merged.authors.length)
-        ).toList();
+        debugPrint(
+            'BookSearchService: Prepending merged recommendation (Score: $winnerScore)');
+        // Remove individual provider results that are effectively duplicates of the recommendation
+        final others = sortedResults
+            .where((r) => !_arePeers(merged, r))
+            .toList();
 
         return [merged, ...others];
       }
     }
 
-    return allResults;
+    return sortedResults;
+  }
+
+  /// Calculates a relevance score for a result relative to the query.
+  static double _calculateScore(
+      BookSearchResult res, String query, bool queryIsIsbn) {
+    final cleanQ = query.replaceAll(RegExp(r'[^0-9X]'), '');
+
+    // 1. ISBN Match (Absolute priority)
+    if (res.isbn != null) {
+      final resIsbn = res.isbn!.replaceAll(RegExp(r'[^0-9X]'), '');
+      if (resIsbn == cleanQ && cleanQ.isNotEmpty) {
+        return 5000; // Unbeatable score for exact ISBN
+      }
+    }
+
+    if (queryIsIsbn) return 0; // If searching by ISBN, only ISBN matches matter for ranking
+
+    // 2. Textual Relevance using Keyword Heuristic (Same as CoverSearchService)
+    final resTitle = _normalize(res.title);
+    final resAuthors = res.authors.map((a) => _normalize(a)).join(' ');
+    final target = _normalize(query);
+
+    if (target.isEmpty) return 0;
+
+    // Direct Exact Title Match
+    if (resTitle == target) return 2000;
+
+    // Direct Title Start Match
+    if (resTitle.startsWith(target)) return 1500;
+
+    // Keyword Overlap logic
+    final keywords = target
+        .split(RegExp(r'\s+'))
+        .where((w) => w.length > 2)
+        .toList();
+
+    if (keywords.isEmpty) {
+      // For very short queries (1-2 chars), fallback to simple containment
+      return resTitle.contains(target) ? 100 : 0;
+    }
+
+    int titleMatches = 0;
+    int authorMatches = 0;
+    for (final kw in keywords) {
+      if (resTitle.contains(kw)) titleMatches++;
+      if (resAuthors.contains(kw)) authorMatches++;
+    }
+
+    final titleRelevance = titleMatches / keywords.length;
+    final authorRelevance = authorMatches / keywords.length;
+
+    // If it doesn't meet a minimum relevance threshold, it's probably noise
+    if (titleRelevance < 0.4 && authorRelevance < 0.4) {
+      return 0;
+    }
+
+    double score = (titleRelevance * 1000) + (authorRelevance * 500);
+
+    // Data richness bonuses (only as tie-breakers)
+    if (res.coverUrl != null) score += 10;
+    if (res.description != null && res.description!.length > 100) score += 5;
+    if (res.publishYear != null) score += 5;
+
+    return score;
+  }
+
+  /// Determines if two results represent the same book.
+  static bool _arePeers(BookSearchResult a, BookSearchResult b) {
+    // Exact ISBN match is definitive
+    if (a.isbn != null && b.isbn != null) {
+      final isbnA = a.isbn!.replaceAll(RegExp(r'[^0-9X]'), '');
+      final isbnB = b.isbn!.replaceAll(RegExp(r'[^0-9X]'), '');
+      if (isbnA == isbnB && isbnA.isNotEmpty) return true;
+    }
+
+    // Title and Author similarity
+    final titleA = _normalize(a.title);
+    final titleB = _normalize(b.title);
+
+    if (titleA == titleB && titleA.isNotEmpty) {
+      // If titles match, check if authors share at least one common word
+      if (a.authors.isEmpty || b.authors.isEmpty) return true;
+      final authA = a.authors.map((e) => _normalize(e)).join(' ');
+      final authB = b.authors.map((e) => _normalize(e)).join(' ');
+
+      final wordsA = authA.split(' ').where((w) => w.length > 3).toSet();
+      final wordsB = authB.split(' ').where((w) => w.length > 3).toSet();
+
+      if (wordsA.isEmpty || wordsB.isEmpty) return true;
+      return wordsA.intersection(wordsB).isNotEmpty;
+    }
+
+    return false;
+  }
+
+  /// Normalize: lowercase, remove accents, and strip non-alphanumeric
+  static String _normalize(String s) {
+    // Simple accent removal for common Spanish/Latin chars
+    var norm = s.toLowerCase()
+      .replaceAll('á', 'a').replaceAll('é', 'e').replaceAll('í', 'i').replaceAll('ó', 'o').replaceAll('ú', 'u')
+      .replaceAll('ü', 'u').replaceAll('ñ', 'n');
+    return norm.replaceAll(RegExp(r'[^\w\s]'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
   }
 
   static Future<BookSearchResult?> _performIsbnLookup(
@@ -363,12 +495,15 @@ class BookSearchService {
     String? preferredLanguage,
   }) async {
     final List<BookSearchResult> valid = [];
-    
+
     for (final server in servers) {
       try {
-        final res = await _performIsbnLookup(server, isbn, googleApiKey, preferredLanguage);
+        final res = await _performIsbnLookup(
+            server, isbn, googleApiKey, preferredLanguage);
         if (res != null) {
-          valid.add(res);
+          valid.add((res.isbn == null || res.isbn!.isEmpty)
+              ? res.copyWith(isbn: isbn)
+              : res);
         }
       } catch (e) {
         debugPrint('BookSearchService: ISBN Error from ${server.name}: $e');
@@ -376,12 +511,19 @@ class BookSearchService {
     }
 
     if (valid.isNotEmpty) {
-      final merged = _mergeResults(valid, preferredLanguage: preferredLanguage);
+      final merged = _mergeResults(
+        valid,
+        query: isbn,
+        isIsbn: true,
+        preferredLanguage: preferredLanguage,
+      );
       if (merged != null) {
-        final others = valid.where((r) => 
-          !(r.isbn == merged.isbn && r.title == merged.title && r.authors.length == merged.authors.length)
-        ).toList();
-        
+        final others = valid
+            .where((r) => !(r.isbn == merged.isbn &&
+                r.title == merged.title &&
+                r.authors.length == merged.authors.length))
+            .toList();
+
         return [merged, ...others];
       }
     }
@@ -390,64 +532,104 @@ class BookSearchService {
   }
 
   /// Heuristically merges multiple search results into one "Best of" result.
-  /// It prioritizes the longest title, most resolved authors, and highest resolution cover.
-  static BookSearchResult? _mergeResults(List<BookSearchResult> results, {String? preferredLanguage}) {
+  /// It prioritizes data richness, merges authors/tags, and uses statistical
+  /// frequency to pick the most likely correct metadata.
+  static BookSearchResult? _mergeResults(
+    List<BookSearchResult> results, {
+    required String query,
+    required bool isIsbn,
+    String? preferredLanguage,
+  }) {
     if (results.isEmpty) return null;
-    if (results.length == 1) return results.first;
 
-    // Try to find the best title matching the preferred language if available
-    // For now, we heuristically look for non-English if preferred is ES, etc.
-    // But individual services already prioritize language, so the first few results are likely best.
+    // 1. Statistics & Merging Collections
+    final titles = <String>[];
+    final authors = <String>{};
+    final publishers = <String, int>{};
+    final years = <int, int>{};
+    final pages = <int, int>{};
+    final languages = <String, int>{};
+    final categories = <String>{};
+    final descriptions = <String>[];
+    final covers = <String>[];
 
-    String bestTitle = results.first.title;
-    List<String> bestAuthors = results.first.authors;
-    String? bestIsbn = results.first.isbn;
-    String? bestCover = results.first.coverUrl;
-    String? bestPublisher = results.first.publisher;
-    int? bestYear = results.first.publishYear;
-    int? bestPages = results.first.pageCount;
-    String? bestDesc = results.first.description;
-    Set<String> allCategories = {};
+    String? bestIsbn = isIsbn ? query.replaceAll(RegExp(r'[^0-9X]'), '') : null;
 
     for (final res in results) {
-      // Pick the title that seems most complete.
-      if (res.title.length > bestTitle.length) bestTitle = res.title;
-      
-      // Merge unique authors.
+      titles.add(res.title);
       if (res.authors.isNotEmpty && res.authors.first != 'Unknown Author') {
-        if (bestAuthors.contains('Unknown Author')) {
-          bestAuthors = res.authors;
-        }
+        authors.addAll(res.authors);
       }
-
-      // Prioritize ISBNs that are 13 characters long.
-      if (res.isbn != null) {
-        if (bestIsbn == null || res.isbn!.length > bestIsbn.length) {
-          bestIsbn = res.isbn;
-        }
+      if (res.publisher != null) {
+        publishers[res.publisher!] = (publishers[res.publisher!] ?? 0) + 1;
       }
+      if (res.publishYear != null) {
+        years[res.publishYear!] = (years[res.publishYear!] ?? 0) + 1;
+      }
+      if (res.pageCount != null) {
+        pages[res.pageCount!] = (pages[res.pageCount!] ?? 0) + 1;
+      }
+      if (res.language != null) {
+        languages[res.language!] = (languages[res.language!] ?? 0) + 1;
+      }
+      categories.addAll(res.categories);
+      if (res.description != null) descriptions.add(res.description!);
+      if (res.coverUrl != null) covers.add(res.coverUrl!);
 
-      // Keep the first valid cover found.
-      if (bestCover == null && res.coverUrl != null) bestCover = res.coverUrl;
-      if (bestPublisher == null && res.publisher != null) bestPublisher = res.publisher;
-      if (bestYear == null && res.publishYear != null) bestYear = res.publishYear;
-      if (bestPages == null && res.pageCount != null) bestPages = res.pageCount;
-      if (bestDesc == null && res.description != null) bestDesc = res.description;
-      
-      allCategories.addAll(res.categories);
+      if (bestIsbn == null && res.isbn != null) {
+        bestIsbn = res.isbn;
+      } else if (bestIsbn != null &&
+          res.isbn != null &&
+          res.isbn!.length > bestIsbn.length) {
+        // Prefer ISBN-13 over ISBN-10
+        bestIsbn = res.isbn;
+      }
     }
+
+    // 2. Selection logic
+    // Title: Pick the longest one (tends to include subtitles/full names)
+    String bestTitle = titles.fold(
+      '',
+      (prev, curr) => curr.length > prev.length ? curr : prev,
+    );
+    if (bestTitle.isEmpty && results.isNotEmpty) {
+      bestTitle = results.first.title;
+    }
+
+    // Frequent fields: Pick the most frequent non-null value
+    T? mostFrequent<T>(Map<T, int> freqMap) {
+      if (freqMap.isEmpty) return null;
+      return freqMap.entries
+          .reduce((a, b) => a.value >= b.value ? a : b)
+          .key;
+    }
+
+    final bestPublisher = mostFrequent(publishers);
+    final bestYear = mostFrequent(years);
+    final bestPageCount = mostFrequent(pages);
+    final bestLanguage = mostFrequent(languages);
+
+    // Description: Pick the longest one (more informative)
+    final bestDesc = descriptions.fold<String?>(
+      null,
+      (prev, curr) => (prev == null || curr.length > prev.length) ? curr : prev,
+    );
+
+    // Cover: Pick the first valid cover (could be improved with resolution checks)
+    final bestCover = covers.firstOrNull;
 
     return BookSearchResult(
       title: bestTitle,
-      authors: bestAuthors,
+      authors: authors.toList(),
       isbn: bestIsbn,
       publisher: bestPublisher,
       coverUrl: bestCover,
-      pageCount: bestPages,
+      pageCount: bestPageCount,
       publishYear: bestYear,
       description: bestDesc,
-      categories: allCategories.toList(),
-      source: 'Recommended by Openshelf',
+      language: bestLanguage,
+      categories: categories.toList(),
+      source: BookSearchResult.recommendedSource,
     );
   }
 }

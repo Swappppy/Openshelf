@@ -3,6 +3,9 @@ import '../services/database.dart';
 
 /// Represents a book metadata result fetched from an external provider (Google Books, Open Library, etc.)
 class BookSearchResult {
+  /// Internal identifier for results synthesized by Openshelf's merging logic.
+  static const String recommendedSource = 'openshelf_recommended';
+
   final String title;
   final String? subtitle;
   final String? originalTitle;
