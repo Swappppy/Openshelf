@@ -8,6 +8,7 @@ import 'dart:io';
 
 import '../models/shelf.dart';
 import '../models/tag_type.dart';
+export '../models/tag_type.dart';
 
 import 'daos/book_dao.dart';
 import 'daos/tag_dao.dart';

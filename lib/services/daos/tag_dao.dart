@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import '../database.dart';
-import '../../models/tag_type.dart';
+
 
 part 'tag_dao.g.dart';
 
@@ -18,6 +18,19 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
       type: const Value(TagType.collection),
     ));
   }
+
+  Future<int> getOrCreateTag(String name, TagType type) async {
+    final existing = await (select(tags)
+      ..where((t) => t.name.equals(name) & t.type.equalsValue(type)))
+        .getSingleOrNull();
+    if (existing != null) return existing.id;
+    return insertTag(TagsCompanion(
+      name: Value(name),
+      type: Value(type),
+    ));
+  }
+
+  Future<int> getOrCreateCategory(String name) => getOrCreateTag(name, TagType.tag);
 
   Future<int> insertTag(TagsCompanion tag) => into(tags).insert(tag);
 

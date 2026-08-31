@@ -587,6 +587,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelfRead => 'Read';
 
   @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount books read';
+  }
+
+  @override
   String get shelfWantToRead => 'To read';
 
   @override
@@ -863,19 +868,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageEnglish => 'English';
 
   @override
-  String get settingsLanguageFrench => 'French';
+  String get settingsLanguageFrench => 'Francés';
 
   @override
-  String get settingsLanguageItalian => 'Italian';
+  String get settingsLanguageItalian => 'Italiano';
 
   @override
-  String get settingsLanguageCatalan => 'Catalan';
+  String get settingsLanguageCatalan => 'Catalán';
 
   @override
-  String get settingsLanguagePortuguese => 'Portuguese (Portugal)';
+  String get settingsLanguagePortuguese => 'Portugués (Portugal)';
 
   @override
-  String get settingsLanguagePortugueseBR => 'Portuguese (Brazil)';
+  String get settingsLanguagePortugueseBR => 'Portugués (Brasil)';
 
   @override
   String get settingsThemeMode => 'Theme mode';
@@ -998,6 +1003,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsFullBackupHint => 'Restore books from a CSV backup';
+
+  @override
+  String get settingsAllFilesAccess => 'All Files Access';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Required to move database to external folders (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder. Note: The app may close automatically when granting this permission.';
 
   @override
   String get settingsAutoNoCoverTitle => 'No cover shelf';

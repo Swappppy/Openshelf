@@ -8,7 +8,6 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../models/tag_type.dart';
 import 'database.dart';
 import 'cover_service.dart';
 import 'import_export_base.dart';
@@ -261,15 +260,21 @@ class DataMigrationService {
         goalsF = file;
       } else {
         final data = file.content as List<int>;
-        final target = p.join(docDir.path, file.name);
+        final targetFile = File(p.join(docDir.path, file.name));
+        // Ensure the directory for this file exists before writing/compressing
+        targetFile.parent.createSync(recursive: true);
+
         final isImg = ['.jpg', '.png', '.jpeg'].any((ext) => file.name.toLowerCase().endsWith(ext));
-        
+
         if (compress && isImg) {
-          final temp = File(p.join(tempDir.path, 'import_${file.name}'))..createSync(recursive: true)..writeAsBytesSync(data);
-          await CoverService.compressImage(temp.path, target);
+          // Use a flat name for the temp file to avoid creating subdirectories in the cache
+          final tempName = 'import_${p.basename(file.name)}';
+          final temp = File(p.join(tempDir.path, tempName))..createSync(recursive: true)..writeAsBytesSync(data);
+          
+          await CoverService.compressImage(temp.path, targetFile.path);
           temp.deleteSync();
         } else {
-          File(target)..createSync(recursive: true)..writeAsBytesSync(data);
+          targetFile.writeAsBytesSync(data);
         }
       }
     }

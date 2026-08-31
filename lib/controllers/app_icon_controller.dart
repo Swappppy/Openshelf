@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_icon_config.dart';
+import '../services/permission_service.dart';
 import 'app_settings_controller.dart';
 
 /// Manages native app icon switching via MethodChannel and tracks active icon state.
@@ -12,7 +13,7 @@ class AppIconController extends Notifier<void> {
   void build() {}
 
   /// Requests the native platform to switch the launcher icon.
-  /// This will typically restart the app on Android.
+  /// This will Typically restart the app on Android.
   Future<void> updateIcon(Color color) async {
     try {
       final config = AppIconConfig.getByColor(color);
@@ -25,6 +26,9 @@ class AppIconController extends Notifier<void> {
 
       // 2. Persist state in settings
       ref.read(appSettingsProvider.notifier).setActiveIconName(config.name);
+      
+      // 3. Robust restart using the current icon config
+      await PermissionService.restartApp(config.name);
       
     } catch (e) {
       debugPrint('AppIconController Error: $e');

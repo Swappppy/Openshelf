@@ -343,7 +343,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tagCreateHint =>
-      'Écrivez et appuyez sur Entrée para ajouter ou créer';
+      'Écrivez et appuyez sur Entrée pour ajouter ou créer';
 
   @override
   String get tagNoCategories => 'Aucune catégorie créée pour le moment';
@@ -352,7 +352,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get imprintSearch => 'Rechercher une maison d\'édition';
 
   @override
-  String get requiredField => 'Champ obligatorio';
+  String get requiredField => 'Champ obligatoire';
 
   @override
   String get statusWantToRead => 'À lire';
@@ -590,6 +590,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shelfRead => 'Lus';
+
+  @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount livres lus';
+  }
 
   @override
   String get shelfWantToRead => 'À lire';
@@ -872,19 +877,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsLanguageEnglish => 'Anglais';
 
   @override
-  String get settingsLanguageFrench => 'Français';
+  String get settingsLanguageFrench => 'Francés';
 
   @override
-  String get settingsLanguageItalian => 'Italien';
+  String get settingsLanguageItalian => 'Italiano';
 
   @override
-  String get settingsLanguageCatalan => 'Catalan';
+  String get settingsLanguageCatalan => 'Catalán';
 
   @override
-  String get settingsLanguagePortuguese => 'Portugais (Portugal)';
+  String get settingsLanguagePortuguese => 'Portugués (Portugal)';
 
   @override
-  String get settingsLanguagePortugueseBR => 'Portugais (Brésil)';
+  String get settingsLanguagePortugueseBR => 'Portugués (Brasil)';
 
   @override
   String get settingsThemeMode => 'Mode du thème';
@@ -903,7 +908,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsAccentColorHint =>
-      'Appuyez sur une couleur para l\'appliquer';
+      'Appuyez sur une couleur pour l\'appliquer';
 
   @override
   String get settingsSectionStorage => 'Stockage';
@@ -989,8 +994,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dataManagementCreateBackup => 'Créer une sauvegarde';
 
   @override
-  String get dataManagementCreateBackupHint =>
-      'Exportation complète avec option de couvertures';
+  String get dataManagementCreateBackupHint => 'Full export with covers option';
 
   @override
   String get settingsImportBookshelf => 'Importer depuis Bookshelf';
@@ -1012,6 +1016,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get settingsFullBackupHint =>
       'Restaurer les livres depuis une sauvegarde CSV';
+
+  @override
+  String get settingsAllFilesAccess => 'Accès à tous les fichiers';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Requis pour déplacer la base de données vers des dossiers externes (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'Cette autorisation permet à Openshelf de gérer des fichiers en dehors de son répertoire privé. Il est nécessaire de déplacer la base de données vers un dossier personnalisé.';
 
   @override
   String get settingsAutoNoCoverTitle => 'Étagère sans couvertures';
@@ -1149,7 +1164,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsApiKeyStep4 =>
-      'Allez dans API et services → Identifiants → Créer des identifiants → Clave de API.';
+      'Allez dans API et services → Identifiants → Créer des identifiants → API Key.';
 
   @override
   String get settingsApiKeyStep5 =>

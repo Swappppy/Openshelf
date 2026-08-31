@@ -728,6 +728,18 @@
   "@shelfRead": {
     "description": "Estantería de libros leídos"
   },
+  "booksReadProgress": "{readCount} / {totalCount} libros leídos",
+  "@booksReadProgress": {
+    "description": "Etiqueta de progreso de libros leídos",
+    "placeholders": {
+      "readCount": {
+        "type": "int"
+      },
+      "totalCount": {
+        "type": "int"
+      }
+    }
+  },
   "shelfWantToRead": "Por leer",
   "@shelfWantToRead": {
     "description": "Estantería de libros por leer"
@@ -1187,6 +1199,9 @@
   "@settingsFullBackupHint": {
     "description": "Pista de restauración"
   },
+  "settingsAllFilesAccess": "Acceso a todos los archivos",
+  "settingsAllFilesAccessSub": "Necesario para mover la base de datos a carpetas externas (Android 11+)",
+  "settingsAllFilesAccessInfo": "Este permiso permite a Openshelf gestionar archivos fuera de su directorio privado. Es necesario para mover la base de datos a una carpeta personalizada. Nota: Es posible que la aplicación se cierre automáticamente al conceder este permiso.",
   "settingsAutoNoCoverTitle": "Estantería sin portadas",
   "settingsAutoNoCoverSub": "Crea automáticamente una estantería si faltan portadas",
   "noCoverShelfTitle": "Libros sin portada",

@@ -86,6 +86,7 @@ class BookSearchResult {
     return BooksCompanion.insert(
       title: title,
       subtitle: Value(subtitle),
+      originalTitle: Value(originalTitle),
       author: authors.join(', '),
       isbn: Value(isbn),
       language: Value(language),
@@ -94,6 +95,7 @@ class BookSearchResult {
       publisher: Value(publisher),
       coverUrl: Value(coverUrl),
       totalPages: Value(pageCount),
+      description: Value(description),
       status: ReadingStatus.wantToRead,
       publishYear: Value(publishYear),
     );

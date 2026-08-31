@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show Value;
 import '../models/shelf.dart';
-import '../models/tag_type.dart';
 import '../models/search_filters.dart';
 import '../services/database.dart';
 import '../controllers/books_controller.dart';

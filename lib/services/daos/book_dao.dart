@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:rxdart/rxdart.dart';
 import '../database.dart';
-import '../../models/tag_type.dart';
 
 part 'book_dao.g.dart';
 
@@ -171,6 +170,16 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         }
         return expr;
       });
+
+    // Ensure we also watch bookTags if filtering by collections
+    if (collectionIds != null && collectionIds.isNotEmpty) {
+      return CombineLatestStream.combine2(
+        q.watch(),
+        (select(bookTags)..limit(1)).watch(),
+        (books, _) => books,
+      );
+    }
+
     return q.watch();
   }
 
@@ -214,7 +223,8 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
       variables: [
         ...tagIds.map((id) => Variable<int>(id)),
         Variable<int>(amountOfTags),
-      ]
+      ],
+      readsFrom: {bookTags},
     ).watch().switchMap((rows) {
       final validBookIds = rows.map((r) => r.read<int>('book_id')).toList();
       if (validBookIds.isEmpty) return Stream.value(<Book>[]);

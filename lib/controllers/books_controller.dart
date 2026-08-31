@@ -3,7 +3,6 @@ import 'package:drift/drift.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
 import '../models/shelf.dart';
-import '../models/tag_type.dart';
 import '../services/database.dart';
 import '../utils/book_sorting.dart';
 import 'database_provider.dart';

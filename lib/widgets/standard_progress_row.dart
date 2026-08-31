@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_extension.dart';
 
 class StandardProgressRow extends StatelessWidget {
   final int readCount;
@@ -29,7 +30,7 @@ class StandardProgressRow extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          '$readCount / $totalCount libros leídos',
+          context.l10n.booksReadProgress(readCount, totalCount),
           style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.outline, fontSize: 9),
         ),
       ],

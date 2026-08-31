@@ -291,6 +291,15 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
       final book = results.first;
       final insertedBook = book.toCompanion();
       final id = await db.bookDao.insertBook(insertedBook);
+
+      if (book.categories.isNotEmpty) {
+        final tagIds = <int>[];
+        for (final cat in book.categories) {
+          tagIds.add(await db.tagDao.getOrCreateCategory(cat));
+        }
+        await db.tagDao.setBookTags(id, tagIds);
+      }
+
       final fullBook = await db.bookDao.getBook(id);
 
       if (mounted && fullBook != null) {

@@ -728,6 +728,18 @@
     "@shelfRead": {
         "description": "Read shelf"
     },
+    "booksReadProgress": "{readCount} / {totalCount} books read",
+    "@booksReadProgress": {
+        "description": "Progress label for read books",
+        "placeholders": {
+            "readCount": {
+                "type": "int"
+            },
+            "totalCount": {
+                "type": "int"
+            }
+        }
+    },
     "shelfWantToRead": "To read",
     "@shelfWantToRead": {
         "description": "To read shelf"
@@ -1167,6 +1179,9 @@
     "@settingsFullBackupHint": {
         "description": "Restore hint"
     },
+    "settingsAllFilesAccess": "All Files Access",
+    "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
+    "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder. Note: The app may close automatically when granting this permission.",
     "settingsAutoNoCoverTitle": "No cover shelf",
     "settingsAutoNoCoverSub": "Auto-create a shelf for books without covers",
     "noCoverShelfTitle": "Books without cover",

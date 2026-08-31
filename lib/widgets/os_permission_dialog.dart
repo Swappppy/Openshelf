@@ -5,17 +5,28 @@ import '../l10n/l10n_extension.dart';
 class OsPermissionDialog extends StatelessWidget {
   final String title;
   final String content;
+  final VoidCallback? onConfirm;
 
   const OsPermissionDialog({
     super.key,
     required this.title,
     required this.content,
+    this.onConfirm,
   });
 
-  static Future<void> show(BuildContext context, {required String title, required String content}) {
+  static Future<void> show(
+    BuildContext context, {
+    required String title,
+    required String content,
+    VoidCallback? onConfirm,
+  }) {
     return showDialog(
       context: context,
-      builder: (_) => OsPermissionDialog(title: title, content: content),
+      builder: (_) => OsPermissionDialog(
+        title: title,
+        content: content,
+        onConfirm: onConfirm,
+      ),
     );
   }
 
@@ -32,7 +43,11 @@ class OsPermissionDialog extends StatelessWidget {
         TextButton(
           onPressed: () {
             Navigator.pop(context);
-            PermissionService.openSettings();
+            if (onConfirm != null) {
+              onConfirm!();
+            } else {
+              PermissionService.openSettings();
+            }
           },
           child: Text(context.l10n.openSettings),
         ),

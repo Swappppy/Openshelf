@@ -594,6 +594,11 @@ class AppLocalizationsCa extends AppLocalizations {
   String get shelfRead => 'Llegits';
 
   @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount llibres llegits';
+  }
+
+  @override
   String get shelfWantToRead => 'Per llegir';
 
   @override
@@ -987,8 +992,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get dataManagementCreateBackup => 'Crear còpia de seguretat';
 
   @override
-  String get dataManagementCreateBackupHint =>
-      'Exportació completa amb opció de portades';
+  String get dataManagementCreateBackupHint => 'Full export with covers option';
 
   @override
   String get settingsImportBookshelf => 'Importar des de Bookshelf';
@@ -1010,6 +1014,17 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get settingsFullBackupHint =>
       'Restaurar llibres des d\'una còpia de seguretat CSV';
+
+  @override
+  String get settingsAllFilesAccess => 'Accés a tots els fitxers';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Necessari per moure la base de dades a carpetes externes (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'Aquest permís permet a Openshelf gestionar fitxers fora del seu directori privat. És necessari per moure la base de dades a una carpeta personalitzada.';
 
   @override
   String get settingsAutoNoCoverTitle => 'Prestatgeria sense portades';
@@ -1433,7 +1448,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsAvgPagesSub => 'pàgines per llibre';
 
   @override
-  String get statsOptPagesTitle => 'Pàgines totals';
+  String get statsOptPagesTitle => 'Total de pàgines';
 
   @override
   String get statsOptPagesSub => 'Total de pàgines llegides';
@@ -1454,7 +1469,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsOptStatusTitle => 'Estats de lectura';
 
   @override
-  String get statsOptStatusSub => 'Llibres per estat';
+  String get statsOptStatusSub => 'Libros por estado';
 
   @override
   String get statsOptCurrentTitle => 'Llibre actual';
@@ -1490,7 +1505,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsOptCollectionsTitle => 'Col·leccions';
 
   @override
-  String get statsOptCollectionsSub => 'Llibres per col·lecció';
+  String get statsOptCollectionsSub => 'Libros por colección';
 
   @override
   String get statsOptLastAddedTitle => 'Últims afegits';
@@ -1502,7 +1517,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsOptAvgPagesTitle => 'Extensió mitjana';
 
   @override
-  String get statsOptAvgPagesSub => 'Mitjana de pàgines per llibre';
+  String get statsOptAvgPagesSub => 'Average pages per book';
 
   @override
   String get statsOptReadListTitle => 'Llista de llegits';
@@ -1514,13 +1529,13 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsOptAvgCompletionTitle => 'Temps de lectura';
 
   @override
-  String get statsOptAvgCompletionSub => 'Temps mitjà per acabar un llibre';
+  String get statsOptAvgCompletionSub => 'Average time to finish a book';
 
   @override
   String get statsOptDailyReadingTitle => 'Lectura diària';
 
   @override
-  String get statsOptDailyReadingSub => 'Pàgines llegides per dia';
+  String get statsOptDailyReadingSub => 'Pages read per day';
 
   @override
   String statsAvgCompletionValue(String days) {
@@ -1608,7 +1623,7 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get paginationPhysicalTotalNote =>
-      'Nota: El total de pàgines es refereix a les pàgines físiques del llibre (fulls totals).';
+      'Nota: Total pages refer to the physical pages of the book (total sheets).';
 
   @override
   String get paginationCorrectErrors => 'CORREGEIX ELS SEGÜENTS ERRORS:';

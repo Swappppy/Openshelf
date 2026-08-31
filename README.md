@@ -25,7 +25,18 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.ftena.openshelf/)
 [<img src="assets/github/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Swappppy/Openshelf/releases/latest)
 
-Latest release: **v1.2.0**
+Latest release: **v1.2.2**
+
+---
+
+## Roadmap
+
+<img src="assets/Screenshots/Openshelf-roadmap-en.png" alt="Openshelf Roadmap">
+
+This is a brief roadmap showing what has already been done and what is to come.
+
+I would also like to thank everyone using this app and waiting for future updates. I never thought
+that anyone but me would use it, so a big THANK YOU to all of you!
 
 ---
 
@@ -139,6 +150,7 @@ Built on **Drift**, the database uses a polymorphic tag system. A single `Tags` 
 ## Known Issues
 
 - [Crash on launch on GrapheneOS](KNOWN_ISSUES.md#crash-on-launch-on-grapheneos)
+- FIXED -  [Error when manually migrating a database from v1.1.1 to v1.2.2](KNOWN_ISSUES.md#error-when-importing-library-from-v111-to-v122-untested-for-other-versions)
 
 See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for details and workarounds.
 

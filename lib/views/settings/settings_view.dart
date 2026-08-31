@@ -64,18 +64,20 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
           title: Text(context.l10n.settingsTitle),
           toolbarHeight: 40,
         ),
-        body: ListView(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          children: [
-            const AppearanceSection(),
-            const SizedBox(height: 24),
-            const StorageSection(),
-            const SizedBox(height: 24),
-            const SearchSection(),
-            const SizedBox(height: 24),
-            DataSection(onLoading: _setLoading),
-            const SizedBox(height: 32),
-          ],
+          child: Column(
+            children: [
+              const AppearanceSection(),
+              const SizedBox(height: 24),
+              const StorageSection(),
+              const SizedBox(height: 24),
+              const SearchSection(),
+              const SizedBox(height: 24),
+              DataSection(onLoading: _setLoading),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );

@@ -24,3 +24,22 @@ limitation, not something fixable from application code.
 **Workaround:** go to Settings --> Apps --> Openshelf --> "Exploit protection", and disable
 **"Dynamic code loading from memory"** for Openshelf specifically. The other two toggles
 (storage, WebView JIT) are unrelated and can stay enabled.
+
+### Error when importing library from v1.1.1 to v1.2.2 (untested for other versions) - FIXED
+
+**Symptom:** an error appears that prevents the importation, such as:
+
+```
+Error: PathNotFoundException: Cannot copy file to '/data/user/0/org.ftena.openshelf/
+app_flutter/imprints/imprint_image_cropper_1786282222584.jpg', path ='/data/user/0/
+org.ftena.openshelf/cache/import_imprints/imprint_image_cropper_1786282222584.jpg'
+(OS Error: No such file or directory, errno = 2)
+```
+**Cause:** The issue is caused by the DataMigrationService failing to create the 
+necessary subdirectories (like imprints/) in the application documents directory 
+before attempting to compress and save image files during a ZIP import. This leads
+to a PathNotFoundException when CoverService.compressImage (or its fallback File.copy)
+attempts to write to a non-existent directory.
+
+**Workaround:** Creating a new book and then importing the save file seems to solve the
+issue. For more information see issue https://github.com/Swappppy/Openshelf/issues/21.

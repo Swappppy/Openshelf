@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
@@ -6,6 +7,7 @@ import 'dart:io';
 enum GalleryPermissionResult { granted, denied, permanentlyDenied }
 
 class PermissionService {
+  static const _systemChannel = MethodChannel('org.ftena.openshelf/system');
 
   static Future<GalleryPermissionResult> requestGallery() async {
     if (Platform.isAndroid) {
@@ -59,6 +61,62 @@ class PermissionService {
 
     final s = await Permission.storage.request();
     return s.isGranted;
+  }
+
+  static Future<bool> isManageExternalStorageGranted() async {
+    if (!Platform.isAndroid) return true;
+    final info = await DeviceInfoPlugin().androidInfo;
+    if (info.version.sdkInt < 30) return true;
+    return await Permission.manageExternalStorage.isGranted;
+  }
+
+  static Future<void> requestManageExternalStorage() async {
+    if (!Platform.isAndroid) return;
+    
+    // We use a direct MethodChannel to trigger the specific "All files access" 
+    // intent, which is more reliable than the generic request() for this 
+    // special permission on many devices.
+    try {
+      await _systemChannel.invokeMethod('openAllFilesSettings');
+    } catch (e) {
+      debugPrint('Error opening all files settings: $e');
+      await openAppSettings();
+    }
+  }
+
+  static Future<void> restartApp([String? activeIconName]) async {
+    debugPrint('PermissionService: Triggering app restart (Icon: $activeIconName)...');
+    if (Platform.isAndroid) {
+      try {
+        await _systemChannel.invokeMethod('restartApp', {
+          'iconName': activeIconName,
+        }).timeout(const Duration(seconds: 2));
+      } catch (e) {
+        debugPrint('Error triggering restart: $e');
+        exit(0);
+      }
+      // Fallback if native side didn't kill the process
+      await Future.delayed(const Duration(milliseconds: 500));
+      exit(0);
+    } else {
+      exit(0);
+    }
+  }
+
+  static Future<void> closeApp() async {
+    debugPrint('PermissionService: Closing app...');
+    if (Platform.isAndroid) {
+      try {
+        await _systemChannel.invokeMethod('closeApp').timeout(const Duration(seconds: 2));
+      } catch (e) {
+        exit(0);
+      }
+      // Fallback if native side didn't kill the process
+      await Future.delayed(const Duration(milliseconds: 500));
+      exit(0);
+    } else {
+      exit(0);
+    }
   }
 
   static Future<bool> isPermanentlyDenied(Permission permission) =>

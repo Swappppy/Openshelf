@@ -589,6 +589,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shelfRead => 'Leídos';
 
   @override
+  String booksReadProgress(int readCount, int totalCount) {
+    return '$readCount / $totalCount libros leídos';
+  }
+
+  @override
   String get shelfWantToRead => 'Por leer';
 
   @override
@@ -1004,6 +1009,17 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get settingsFullBackupHint =>
       'Restaurar libros desde una copia de seguridad CSV';
+
+  @override
+  String get settingsAllFilesAccess => 'All Files Access';
+
+  @override
+  String get settingsAllFilesAccessSub =>
+      'Required to move database to external folders (Android 11+)';
+
+  @override
+  String get settingsAllFilesAccessInfo =>
+      'This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.';
 
   @override
   String get settingsAutoNoCoverTitle => 'Estantería sin portadas';
