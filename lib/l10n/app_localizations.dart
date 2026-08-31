@@ -3149,6 +3149,210 @@ abstract class AppLocalizations {
   /// **'{current} / {total}'**
   String paginationProgress(String current, String total);
 
+  /// No description provided for @searchModeBasic.
+  ///
+  /// In es, this message translates to:
+  /// **'Básica'**
+  String get searchModeBasic;
+
+  /// No description provided for @searchModeAdvanced.
+  ///
+  /// In es, this message translates to:
+  /// **'Avanzada'**
+  String get searchModeAdvanced;
+
+  /// No description provided for @searchModeBoolean.
+  ///
+  /// In es, this message translates to:
+  /// **'Booleana'**
+  String get searchModeBoolean;
+
+  /// No description provided for @searchAddCondition.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir condición'**
+  String get searchAddCondition;
+
+  /// No description provided for @searchPreview.
+  ///
+  /// In es, this message translates to:
+  /// **'Vista previa'**
+  String get searchPreview;
+
+  /// No description provided for @searchFieldTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título'**
+  String get searchFieldTitle;
+
+  /// No description provided for @searchFieldAuthor.
+  ///
+  /// In es, this message translates to:
+  /// **'Autor'**
+  String get searchFieldAuthor;
+
+  /// No description provided for @searchFieldPublisher.
+  ///
+  /// In es, this message translates to:
+  /// **'Editorial'**
+  String get searchFieldPublisher;
+
+  /// No description provided for @searchFieldIsbn.
+  ///
+  /// In es, this message translates to:
+  /// **'ISBN'**
+  String get searchFieldIsbn;
+
+  /// No description provided for @searchFieldLanguage.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma'**
+  String get searchFieldLanguage;
+
+  /// No description provided for @searchFieldOriginalTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Título original'**
+  String get searchFieldOriginalTitle;
+
+  /// No description provided for @searchFieldOriginalLanguage.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma original'**
+  String get searchFieldOriginalLanguage;
+
+  /// No description provided for @searchFieldYear.
+  ///
+  /// In es, this message translates to:
+  /// **'Año'**
+  String get searchFieldYear;
+
+  /// No description provided for @searchFieldPages.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas'**
+  String get searchFieldPages;
+
+  /// No description provided for @searchFieldStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado'**
+  String get searchFieldStatus;
+
+  /// No description provided for @searchFieldCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría'**
+  String get searchFieldCategory;
+
+  /// No description provided for @searchFieldImprint.
+  ///
+  /// In es, this message translates to:
+  /// **'Sello'**
+  String get searchFieldImprint;
+
+  /// No description provided for @searchFieldCollection.
+  ///
+  /// In es, this message translates to:
+  /// **'Colección'**
+  String get searchFieldCollection;
+
+  /// No description provided for @searchFieldNoCover.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin portada'**
+  String get searchFieldNoCover;
+
+  /// No description provided for @searchFieldNotes.
+  ///
+  /// In es, this message translates to:
+  /// **'Notas'**
+  String get searchFieldNotes;
+
+  /// No description provided for @searchFieldHasNotes.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiene notas'**
+  String get searchFieldHasNotes;
+
+  /// No description provided for @searchOpContains.
+  ///
+  /// In es, this message translates to:
+  /// **'contiene'**
+  String get searchOpContains;
+
+  /// No description provided for @searchOpExactly.
+  ///
+  /// In es, this message translates to:
+  /// **'es exactamente'**
+  String get searchOpExactly;
+
+  /// No description provided for @searchOpStartsWith.
+  ///
+  /// In es, this message translates to:
+  /// **'empieza por'**
+  String get searchOpStartsWith;
+
+  /// No description provided for @searchOpIncludes.
+  ///
+  /// In es, this message translates to:
+  /// **'incluye'**
+  String get searchOpIncludes;
+
+  /// No description provided for @searchOpNotIncludes.
+  ///
+  /// In es, this message translates to:
+  /// **'no incluye'**
+  String get searchOpNotIncludes;
+
+  /// No description provided for @searchOpIncludesAll.
+  ///
+  /// In es, this message translates to:
+  /// **'incluye todos'**
+  String get searchOpIncludesAll;
+
+  /// No description provided for @searchOpEquals.
+  ///
+  /// In es, this message translates to:
+  /// **'='**
+  String get searchOpEquals;
+
+  /// No description provided for @searchOpNotEquals.
+  ///
+  /// In es, this message translates to:
+  /// **'≠'**
+  String get searchOpNotEquals;
+
+  /// No description provided for @searchOpGreaterThan.
+  ///
+  /// In es, this message translates to:
+  /// **'>'**
+  String get searchOpGreaterThan;
+
+  /// No description provided for @searchOpLessThan.
+  ///
+  /// In es, this message translates to:
+  /// **'<'**
+  String get searchOpLessThan;
+
+  /// No description provided for @searchOpBetween.
+  ///
+  /// In es, this message translates to:
+  /// **'entre'**
+  String get searchOpBetween;
+
+  /// No description provided for @searchOpIs.
+  ///
+  /// In es, this message translates to:
+  /// **'es'**
+  String get searchOpIs;
+
+  /// No description provided for @searchOpIsNot.
+  ///
+  /// In es, this message translates to:
+  /// **'no es'**
+  String get searchOpIsNot;
+
   /// No description provided for @paginationCurrentPageShort.
   ///
   /// In es, this message translates to:

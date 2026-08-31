@@ -25,4 +25,9 @@ class Shelves extends Table {
   @Deprecated('Use ShelfTags table instead')
   TextColumn get filterImprintIds => text().nullable()();
   BoolColumn get filterNoCover => boolean().withDefault(const Constant(false))();
+  TextColumn get filterBooleanQuery => text().nullable()();
+  IntColumn get filterSearchMode => integer().withDefault(const Constant(0))(); // 0: basic, 1: advanced, 2: boolean
+  TextColumn get filterFormat => text().nullable()();
+  TextColumn get filterOwnership => text().nullable()();
+  TextColumn get filterNotes => text().nullable()();
 }

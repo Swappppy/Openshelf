@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show Value;
@@ -10,8 +11,8 @@ import '../controllers/search_filters_controller.dart';
 import '../controllers/library_navigation_controller.dart';
 import '../l10n/l10n_extension.dart';
 import 'tag_chip.dart';
-import 'filter_grid_box.dart';
 import 'entity_selector_grid.dart';
+import 'search_filters_components.dart';
 
 class ShelfFormSheet extends ConsumerStatefulWidget {
   final Shelf? existing;
@@ -32,12 +33,20 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
   late final TextEditingController _publisherCtrl;
   late final TextEditingController _isbnCtrl;
   late final TextEditingController _langCtrl;
-  late final TextEditingController _collectionCtrl;
+  late final TextEditingController _notesCtrl;
   late final TabController _tabController;
   ReadingStatus? _status;
   List<Tag> _selectedTags = [];
   List<Tag> _selectedImprints = [];
   List<Tag> _selectedCollections = [];
+  BooleanQuery? _booleanQuery;
+  SearchMode _searchMode = SearchMode.basic;
+  BookFormat? _format;
+  OwnershipStatus? _ownership;
+  DateTime? _startedAt;
+  BooleanOperator _startedAtOp = BooleanOperator.equals;
+  DateTime? _finishedAt;
+  BooleanOperator _finishedAtOp = BooleanOperator.equals;
   bool _isSaving = false;
 
   @override
@@ -46,21 +55,14 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
     final s = widget.existing;
     final f = widget.initialFilters;
 
-    String initialName = s?.name ?? '';
-    if (s != null && (s.filterNoCover || s.name == '__auto_no_cover__')) {
-       // Note: We don't have context.l10n in initState, but we can resolve it in build 
-       // or just keep the internal name if we want to be strict.
-       // Actually, it's better to resolve the localized name in build for the display.
-    }
-
-    _nameCtrl = TextEditingController(text: initialName);
+    _nameCtrl = TextEditingController(text: s?.name ?? '');
     _queryCtrl = TextEditingController(text: s?.filterQuery ?? f?.query ?? '');
     _subtitleCtrl = TextEditingController(text: s?.filterSubtitle ?? '');
     _authorCtrl = TextEditingController(text: s?.filterAuthor ?? f?.author ?? '');
     _publisherCtrl = TextEditingController(text: s?.filterPublisher ?? f?.publisher ?? '');
     _isbnCtrl = TextEditingController(text: s?.filterIsbn ?? f?.isbn ?? '');
     _langCtrl = TextEditingController(text: s?.filterLanguage ?? f?.language ?? '');
-    _collectionCtrl = TextEditingController(text: s?.filterCollection ?? f?.collection ?? '');
+    _notesCtrl = TextEditingController(text: s?.filterNotes ?? f?.notes ?? '');
     _tabController = TabController(length: 5, vsync: this);
     
     if (s?.filterStatus != null) {
@@ -69,9 +71,33 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
       _status = f!.status;
     }
 
+    if (s?.filterFormat != null) {
+      _format = BookFormat.values.where((r) => r.name == s!.filterFormat).firstOrNull;
+    } else if (f?.format != null) {
+      _format = f!.format;
+    }
+
+    if (s?.filterOwnership != null) {
+      _ownership = OwnershipStatus.values.where((r) => r.name == s!.filterOwnership).firstOrNull;
+    } else if (f?.ownership != null) {
+      _ownership = f!.ownership;
+    }
+
     if (s != null) {
+      _searchMode = SearchMode.values[s.filterSearchMode];
+      if (s.filterBooleanQuery != null) {
+        try {
+          _booleanQuery = BooleanQuery.fromJson(jsonDecode(s.filterBooleanQuery!));
+        } catch (_) {}
+      }
       _loadSelectedEntities(s.id);
     } else if (f != null) {
+      _searchMode = f.mode;
+      _booleanQuery = f.booleanQuery;
+      _startedAt = f.startedAt;
+      _startedAtOp = f.startedAtOp;
+      _finishedAt = f.finishedAt;
+      _finishedAtOp = f.finishedAtOp;
       if (f.tags.isNotEmpty) _selectedTags = List.from(f.tags);
       if (f.imprints.isNotEmpty) _selectedImprints = List.from(f.imprints);
       if (f.collections.isNotEmpty) _selectedCollections = List.from(f.collections);
@@ -85,11 +111,19 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
       publisher: _publisherCtrl.text.trim(),
       isbn: _isbnCtrl.text.trim(),
       language: _langCtrl.text.trim(),
-      collection: _collectionCtrl.text.trim(),
+      notes: _notesCtrl.text.trim(),
       status: _status,
+      format: _format,
+      ownership: _ownership,
+      startedAt: _startedAt,
+      startedAtOp: _startedAtOp,
+      finishedAt: _finishedAt,
+      finishedAtOp: _finishedAtOp,
       tags: _selectedTags,
       imprints: _selectedImprints,
       collections: _selectedCollections,
+      mode: _searchMode,
+      booleanQuery: _booleanQuery ?? const BooleanQuery(),
     );
 
     ref.read(searchFiltersProvider.notifier).setFilters(filters);
@@ -120,7 +154,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
   void dispose() {
     _nameCtrl.dispose(); _queryCtrl.dispose(); _subtitleCtrl.dispose();
     _authorCtrl.dispose(); _publisherCtrl.dispose(); _isbnCtrl.dispose();
-    _langCtrl.dispose(); _collectionCtrl.dispose();
+    _langCtrl.dispose(); _notesCtrl.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -142,7 +176,12 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
         filterPublisher: Value(_publisherCtrl.text.trim().isEmpty ? null : _publisherCtrl.text.trim()),
         filterIsbn: Value(_isbnCtrl.text.trim().isEmpty ? null : _isbnCtrl.text.trim()),
         filterLanguage: Value(_langCtrl.text.trim().isEmpty ? null : _langCtrl.text.trim()),
+        filterNotes: Value(_notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim()),
         filterStatus: Value(_status?.name),
+        filterBooleanQuery: Value(_booleanQuery != null ? jsonEncode(_booleanQuery!.toJson()) : null),
+        filterSearchMode: Value(_searchMode.index),
+        filterFormat: Value(_format?.name),
+        filterOwnership: Value(_ownership?.name),
       );
       
       await widget.onSave(companion, [...tagIds, ...imprintIds, ...collectionIds]);
@@ -159,13 +198,33 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
     }
   }
 
+  String _formatLabel(BuildContext context, BookFormat format) {
+    switch (format) {
+      case BookFormat.paperback: return context.l10n.formatPaperback;
+      case BookFormat.hardcover: return context.l10n.formatHardcover;
+      case BookFormat.rustic: return context.l10n.formatRustic;
+      case BookFormat.digital: return context.l10n.formatDigital;
+      case BookFormat.leatherbound: return context.l10n.formatLeatherbound;
+      case BookFormat.other: return context.l10n.formatOther;
+    }
+  }
+
+  String _ownershipLabel(BuildContext context, OwnershipStatus status) {
+    switch (status) {
+      case OwnershipStatus.bought: return context.l10n.ownershipStatusBought;
+      case OwnershipStatus.gifted: return context.l10n.ownershipStatusGifted;
+      case OwnershipStatus.borrowed: return context.l10n.ownershipStatusBorrowed;
+      case OwnershipStatus.returned: return context.l10n.ownershipStatusReturned;
+      case OwnershipStatus.sold: return context.l10n.ownershipStatusSold;
+      case OwnershipStatus.other: return context.l10n.ownershipStatusOther;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    // If it's an auto-shelf and the name is still the internal one, 
-    // we show the localized name in the controller.
     if (widget.existing != null && 
         (widget.existing!.filterNoCover || widget.existing!.name == '__auto_no_cover__') &&
         _nameCtrl.text == '__auto_no_cover__') {
@@ -212,13 +271,68 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
             ),
             
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_selectedTags.isNotEmpty || _selectedImprints.isNotEmpty || _selectedCollections.isNotEmpty || _status != null)
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                children: [
+                  // Mode Switcher - 3 Stages
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Row(
+                      children: [
+                        _ModeTabButton(
+                          label: context.l10n.searchModeBasic,
+                          isActive: _searchMode == SearchMode.basic,
+                          onTap: () => setState(() => _searchMode = SearchMode.basic),
+                        ),
+                        const SizedBox(width: 8),
+                        _ModeTabButton(
+                          label: context.l10n.searchModeAdvanced,
+                          isActive: _searchMode == SearchMode.advanced,
+                          onTap: () => setState(() => _searchMode = SearchMode.advanced),
+                        ),
+                        const SizedBox(width: 8),
+                        _ModeTabButton(
+                          label: context.l10n.searchModeBoolean,
+                          isActive: _searchMode == SearchMode.boolean,
+                          onTap: () {
+                            if (_searchMode != SearchMode.boolean && (_booleanQuery == null || _booleanQuery!.conditions.isEmpty)) {
+                              final filters = SearchFilters(
+                                query: _queryCtrl.text,
+                                author: _authorCtrl.text,
+                                publisher: _publisherCtrl.text,
+                                isbn: _isbnCtrl.text,
+                                language: _langCtrl.text,
+                                notes: _notesCtrl.text,
+                                status: _status,
+                                format: _format,
+                                ownership: _ownership,
+                                startedAt: _startedAt,
+                                startedAtOp: _startedAtOp,
+                                finishedAt: _finishedAt,
+                                finishedAtOp: _finishedAtOp,
+                                tags: _selectedTags,
+                                imprints: _selectedImprints,
+                                collections: _selectedCollections,
+                              );
+                              _booleanQuery = filters.toBooleanQuery();
+                            }
+                            setState(() => _searchMode = SearchMode.boolean);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  if (_searchMode == SearchMode.boolean)
+                    BooleanQueryPanel(
+                      query: _booleanQuery ?? const BooleanQuery(),
+                      onChanged: (bq) => setState(() => _booleanQuery = bq),
+                    )
+                  else ...[
+                    if (_selectedTags.isNotEmpty || _selectedImprints.isNotEmpty || _selectedCollections.isNotEmpty || _status != null || _format != null || _ownership != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 12),
+                        padding: const EdgeInsets.only(bottom: 12),
                         child: Wrap(
                           spacing: 6, runSpacing: 6,
                           children: [
@@ -226,6 +340,16 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                               _StatusChipSummary(
                                 status: _status!,
                                 onDeleted: () => setState(() => _status = null),
+                              ),
+                            if (_format != null)
+                              TagChip(
+                                label: _formatLabel(context, _format!),
+                                onDeleted: () => setState(() => _format = null),
+                              ),
+                            if (_ownership != null)
+                              TagChip(
+                                label: _ownershipLabel(context, _ownership!),
+                                onDeleted: () => setState(() => _ownership = null),
                               ),
                             ..._selectedTags.map((t) => TagChip(
                               label: t.name, 
@@ -245,8 +369,6 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                           ],
                         ),
                       ),
-                      
-                    const SizedBox(height: 24),
                     
                     Container(
                       decoration: BoxDecoration(
@@ -256,56 +378,87 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                       ),
                       child: Column(
                         children: [
-                          TabBar(
-                            controller: _tabController,
-                            isScrollable: true,
-                            tabAlignment: TabAlignment.start,
-                            labelStyle: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
-                            unselectedLabelStyle: textTheme.labelSmall,
-                            tabs: [
-                              Tab(text: context.l10n.navShelves),
-                              Tab(text: context.l10n.searchTabStatus),
-                              Tab(text: context.l10n.searchTabCategory),
-                              Tab(text: context.l10n.searchTabCollection),
-                              Tab(text: context.l10n.searchTabImprint),
-                            ],
-                          ),
-                          const Divider(height: 1),
-                          SizedBox(
-                            height: 280,
-                            child: TabBarView(
+                          if (_searchMode == SearchMode.advanced) ...[
+                            TabBar(
                               controller: _tabController,
-                              children: [
-                                SingleChildScrollView(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    children: [
-                                      _ShelfFilterField(ctrl: _queryCtrl, hint: context.l10n.fieldTitle),
-                                      const SizedBox(height: 12),
-                                      _ShelfFilterField(ctrl: _subtitleCtrl, hint: context.l10n.fieldSubtitle),
-                                      const SizedBox(height: 12),
-                                      _ShelfFilterField(ctrl: _authorCtrl, hint: context.l10n.fieldAuthor),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        children: [
-                                          Expanded(child: _ShelfFilterField(ctrl: _publisherCtrl, hint: context.l10n.fieldPublisher)),
-                                          const SizedBox(width: 12),
-                                          Expanded(child: _ShelfFilterField(ctrl: _langCtrl, hint: context.l10n.fieldLanguage)),
-                                        ],
-                                      ),
-                                    ],
+                              isScrollable: true,
+                              tabAlignment: TabAlignment.start,
+                              labelStyle: textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
+                              unselectedLabelStyle: textTheme.labelSmall,
+                              tabs: [
+                                Tab(text: context.l10n.tabMain),
+                                Tab(text: context.l10n.searchTabStatus),
+                                Tab(text: context.l10n.searchTabCategory),
+                                Tab(text: context.l10n.searchTabCollection),
+                                Tab(text: context.l10n.searchTabImprint),
+                              ],
+                            ),
+                            const Divider(height: 1),
+                            SizedBox(
+                              height: 260,
+                              child: TabBarView(
+                                controller: _tabController,
+                                children: [
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Column(
+                                      children: [
+                                        FilterTextField(controller: _queryCtrl, hint: context.l10n.fieldTitle),
+                                        const SizedBox(height: 8),
+                                        FilterTextField(controller: _authorCtrl, hint: context.l10n.fieldAuthor),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Expanded(child: FilterTextField(controller: _publisherCtrl, hint: context.l10n.fieldPublisher)),
+                                            const SizedBox(width: 8),
+                                            Expanded(child: FilterTextField(controller: _notesCtrl, hint: context.l10n.searchFieldNotes)),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Expanded(child: FilterTextField(controller: _isbnCtrl, hint: context.l10n.fieldIsbn)),
+                                            const SizedBox(width: 8),
+                                            Expanded(child: FilterTextField(controller: _langCtrl, hint: context.l10n.fieldLanguage)),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: FilterDateSelector(
+                                                label: context.l10n.bookDetailFieldStarted,
+                                                value: _startedAt,
+                                                operator: _startedAtOp,
+                                                onChanged: (d) => setState(() => _startedAt = d),
+                                                onOpChanged: (op) => setState(() => _startedAtOp = op),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: FilterDateSelector(
+                                                label: context.l10n.bookDetailFieldFinished,
+                                                value: _finishedAt,
+                                                operator: _finishedAtOp,
+                                                onChanged: (d) => setState(() => _finishedAt = d),
+                                                onOpChanged: (op) => setState(() => _finishedAtOp = op),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: _StatusFilterRow(
-                                    selectedStatus: _status,
-                                    onChanged: (s) => setState(() => _status = s),
+                                  StatusFiltersTab(
+                                    status: _status,
+                                    format: _format,
+                                    ownership: _ownership,
+                                    onStatusChanged: (s, clear) => setState(() => _status = clear ? null : s),
+                                    onFormatChanged: (f, clear) => setState(() => _format = clear ? null : f),
+                                    onOwnershipChanged: (o, clear) => setState(() => _ownership = clear ? null : o),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: SingleChildScrollView(
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.all(12),
                                     child: EntitySelectorGrid(
                                       selected: _selectedTags,
                                       onChanged: (list) => setState(() => _selectedTags = list),
@@ -313,10 +466,8 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                       type: TagType.tag,
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: SingleChildScrollView(
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.all(12),
                                     child: EntitySelectorGrid(
                                       selected: _selectedCollections,
                                       onChanged: (list) => setState(() => _selectedCollections = list),
@@ -324,10 +475,8 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                       type: TagType.collection,
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: SingleChildScrollView(
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.all(12),
                                     child: EntitySelectorGrid(
                                       selected: _selectedImprints,
                                       onChanged: (list) => setState(() => _selectedImprints = list),
@@ -336,27 +485,67 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                       isImprint: true,
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+                          ] else
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: FilterTextField(controller: _queryCtrl, hint: context.l10n.bookSearchHint),
+                            ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: _showInLibrary,
-                        icon: const Icon(Icons.search, size: 18),
-                        label: Text(context.l10n.shelfShowInLibrary),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
                   ],
-                ),
+                  
+                  const SizedBox(height: 24),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: _showInLibrary,
+                      icon: const Icon(Icons.search, size: 18),
+                      label: Text(context.l10n.shelfShowInLibrary),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ModeTabButton extends StatelessWidget {
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _ModeTabButton({required this.label, required this.isActive, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 36,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isActive ? colorScheme.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: isActive ? colorScheme.primary : colorScheme.outlineVariant.withValues(alpha: 0.5)),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              color: isActive ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+            ),
+          ),
         ),
       ),
     );
@@ -413,60 +602,5 @@ class _StatusChipSummary extends StatelessWidget {
       case ReadingStatus.paused: return const Color(0xFFB39DDB);
       case ReadingStatus.abandoned: return Colors.red;
     }
-  }
-}
-
-class _ShelfFilterField extends StatelessWidget {
-  final TextEditingController ctrl;
-  final String hint;
-  const _ShelfFilterField({required this.ctrl, required this.hint});
-  @override
-  Widget build(BuildContext context) { 
-    final colorScheme = Theme.of(context).colorScheme;
-    return TextField(
-      controller: ctrl, 
-      style: const TextStyle(fontSize: 13),
-      decoration: InputDecoration(
-        hintText: hint, 
-        isDense: true, 
-        filled: true,
-        fillColor: colorScheme.surface.withValues(alpha: 0.5),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none), 
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-      )
-    ); 
-  }
-}
-
-class _StatusFilterRow extends StatelessWidget {
-  final ReadingStatus? selectedStatus;
-  final ValueChanged<ReadingStatus?> onChanged;
-
-  const _StatusFilterRow({required this.selectedStatus, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final options = [
-      (ReadingStatus.reading, context.l10n.statusReading, Colors.blue),
-      (ReadingStatus.wantToRead, context.l10n.statusWantToRead, Colors.orange),
-      (ReadingStatus.read, context.l10n.statusRead, Colors.green),
-      (ReadingStatus.paused, context.l10n.statusPaused, const Color(0xFFB39DDB)),
-      (ReadingStatus.abandoned, context.l10n.statusAbandoned, Colors.red),
-    ];
-
-    return Wrap(
-      spacing: 6, runSpacing: 6,
-      children: options.map((opt) {
-        final isSelected = selectedStatus == opt.$1;
-        final color = opt.$3;
-
-        return FilterGridBox(
-          label: opt.$2,
-          isSelected: isSelected,
-          color: color,
-          onTap: () => onChanged(opt.$1),
-        );
-      }).toList(),
-    );
   }
 }

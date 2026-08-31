@@ -2453,6 +2453,62 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _filterBooleanQueryMeta =
+      const VerificationMeta('filterBooleanQuery');
+  @override
+  late final GeneratedColumn<String> filterBooleanQuery =
+      GeneratedColumn<String>(
+        'filter_boolean_query',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _filterSearchModeMeta = const VerificationMeta(
+    'filterSearchMode',
+  );
+  @override
+  late final GeneratedColumn<int> filterSearchMode = GeneratedColumn<int>(
+    'filter_search_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _filterFormatMeta = const VerificationMeta(
+    'filterFormat',
+  );
+  @override
+  late final GeneratedColumn<String> filterFormat = GeneratedColumn<String>(
+    'filter_format',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterOwnershipMeta = const VerificationMeta(
+    'filterOwnership',
+  );
+  @override
+  late final GeneratedColumn<String> filterOwnership = GeneratedColumn<String>(
+    'filter_ownership',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterNotesMeta = const VerificationMeta(
+    'filterNotes',
+  );
+  @override
+  late final GeneratedColumn<String> filterNotes = GeneratedColumn<String>(
+    'filter_notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2470,6 +2526,11 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     filterTagIds,
     filterImprintIds,
     filterNoCover,
+    filterBooleanQuery,
+    filterSearchMode,
+    filterFormat,
+    filterOwnership,
+    filterNotes,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2608,6 +2669,51 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         ),
       );
     }
+    if (data.containsKey('filter_boolean_query')) {
+      context.handle(
+        _filterBooleanQueryMeta,
+        filterBooleanQuery.isAcceptableOrUnknown(
+          data['filter_boolean_query']!,
+          _filterBooleanQueryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_search_mode')) {
+      context.handle(
+        _filterSearchModeMeta,
+        filterSearchMode.isAcceptableOrUnknown(
+          data['filter_search_mode']!,
+          _filterSearchModeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_format')) {
+      context.handle(
+        _filterFormatMeta,
+        filterFormat.isAcceptableOrUnknown(
+          data['filter_format']!,
+          _filterFormatMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_ownership')) {
+      context.handle(
+        _filterOwnershipMeta,
+        filterOwnership.isAcceptableOrUnknown(
+          data['filter_ownership']!,
+          _filterOwnershipMeta,
+        ),
+      );
+    }
+    if (data.containsKey('filter_notes')) {
+      context.handle(
+        _filterNotesMeta,
+        filterNotes.isAcceptableOrUnknown(
+          data['filter_notes']!,
+          _filterNotesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2677,6 +2783,26 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         DriftSqlType.bool,
         data['${effectivePrefix}filter_no_cover'],
       )!,
+      filterBooleanQuery: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_boolean_query'],
+      ),
+      filterSearchMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}filter_search_mode'],
+      )!,
+      filterFormat: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_format'],
+      ),
+      filterOwnership: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_ownership'],
+      ),
+      filterNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_notes'],
+      ),
     );
   }
 
@@ -2702,6 +2828,11 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
   final Value<String?> filterTagIds;
   final Value<String?> filterImprintIds;
   final Value<bool> filterNoCover;
+  final Value<String?> filterBooleanQuery;
+  final Value<int> filterSearchMode;
+  final Value<String?> filterFormat;
+  final Value<String?> filterOwnership;
+  final Value<String?> filterNotes;
   const ShelvesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -2718,6 +2849,11 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     this.filterTagIds = const Value.absent(),
     this.filterImprintIds = const Value.absent(),
     this.filterNoCover = const Value.absent(),
+    this.filterBooleanQuery = const Value.absent(),
+    this.filterSearchMode = const Value.absent(),
+    this.filterFormat = const Value.absent(),
+    this.filterOwnership = const Value.absent(),
+    this.filterNotes = const Value.absent(),
   });
   ShelvesCompanion.insert({
     this.id = const Value.absent(),
@@ -2735,6 +2871,11 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     this.filterTagIds = const Value.absent(),
     this.filterImprintIds = const Value.absent(),
     this.filterNoCover = const Value.absent(),
+    this.filterBooleanQuery = const Value.absent(),
+    this.filterSearchMode = const Value.absent(),
+    this.filterFormat = const Value.absent(),
+    this.filterOwnership = const Value.absent(),
+    this.filterNotes = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Shelf> custom({
     Expression<int>? id,
@@ -2752,6 +2893,11 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     Expression<String>? filterTagIds,
     Expression<String>? filterImprintIds,
     Expression<bool>? filterNoCover,
+    Expression<String>? filterBooleanQuery,
+    Expression<int>? filterSearchMode,
+    Expression<String>? filterFormat,
+    Expression<String>? filterOwnership,
+    Expression<String>? filterNotes,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2770,6 +2916,12 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
       if (filterTagIds != null) 'filter_tag_ids': filterTagIds,
       if (filterImprintIds != null) 'filter_imprint_ids': filterImprintIds,
       if (filterNoCover != null) 'filter_no_cover': filterNoCover,
+      if (filterBooleanQuery != null)
+        'filter_boolean_query': filterBooleanQuery,
+      if (filterSearchMode != null) 'filter_search_mode': filterSearchMode,
+      if (filterFormat != null) 'filter_format': filterFormat,
+      if (filterOwnership != null) 'filter_ownership': filterOwnership,
+      if (filterNotes != null) 'filter_notes': filterNotes,
     });
   }
 
@@ -2789,6 +2941,11 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     Value<String?>? filterTagIds,
     Value<String?>? filterImprintIds,
     Value<bool>? filterNoCover,
+    Value<String?>? filterBooleanQuery,
+    Value<int>? filterSearchMode,
+    Value<String?>? filterFormat,
+    Value<String?>? filterOwnership,
+    Value<String?>? filterNotes,
   }) {
     return ShelvesCompanion(
       id: id ?? this.id,
@@ -2806,6 +2963,11 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
       filterTagIds: filterTagIds ?? this.filterTagIds,
       filterImprintIds: filterImprintIds ?? this.filterImprintIds,
       filterNoCover: filterNoCover ?? this.filterNoCover,
+      filterBooleanQuery: filterBooleanQuery ?? this.filterBooleanQuery,
+      filterSearchMode: filterSearchMode ?? this.filterSearchMode,
+      filterFormat: filterFormat ?? this.filterFormat,
+      filterOwnership: filterOwnership ?? this.filterOwnership,
+      filterNotes: filterNotes ?? this.filterNotes,
     );
   }
 
@@ -2859,6 +3021,21 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     if (filterNoCover.present) {
       map['filter_no_cover'] = Variable<bool>(filterNoCover.value);
     }
+    if (filterBooleanQuery.present) {
+      map['filter_boolean_query'] = Variable<String>(filterBooleanQuery.value);
+    }
+    if (filterSearchMode.present) {
+      map['filter_search_mode'] = Variable<int>(filterSearchMode.value);
+    }
+    if (filterFormat.present) {
+      map['filter_format'] = Variable<String>(filterFormat.value);
+    }
+    if (filterOwnership.present) {
+      map['filter_ownership'] = Variable<String>(filterOwnership.value);
+    }
+    if (filterNotes.present) {
+      map['filter_notes'] = Variable<String>(filterNotes.value);
+    }
     return map;
   }
 
@@ -2879,7 +3056,12 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
           ..write('filterStatus: $filterStatus, ')
           ..write('filterTagIds: $filterTagIds, ')
           ..write('filterImprintIds: $filterImprintIds, ')
-          ..write('filterNoCover: $filterNoCover')
+          ..write('filterNoCover: $filterNoCover, ')
+          ..write('filterBooleanQuery: $filterBooleanQuery, ')
+          ..write('filterSearchMode: $filterSearchMode, ')
+          ..write('filterFormat: $filterFormat, ')
+          ..write('filterOwnership: $filterOwnership, ')
+          ..write('filterNotes: $filterNotes')
           ..write(')'))
         .toString();
   }
@@ -7707,6 +7889,11 @@ typedef $$ShelvesTableCreateCompanionBuilder =
       Value<String?> filterTagIds,
       Value<String?> filterImprintIds,
       Value<bool> filterNoCover,
+      Value<String?> filterBooleanQuery,
+      Value<int> filterSearchMode,
+      Value<String?> filterFormat,
+      Value<String?> filterOwnership,
+      Value<String?> filterNotes,
     });
 typedef $$ShelvesTableUpdateCompanionBuilder =
     ShelvesCompanion Function({
@@ -7725,6 +7912,11 @@ typedef $$ShelvesTableUpdateCompanionBuilder =
       Value<String?> filterTagIds,
       Value<String?> filterImprintIds,
       Value<bool> filterNoCover,
+      Value<String?> filterBooleanQuery,
+      Value<int> filterSearchMode,
+      Value<String?> filterFormat,
+      Value<String?> filterOwnership,
+      Value<String?> filterNotes,
     });
 
 final class $$ShelvesTableReferences
@@ -7849,6 +8041,31 @@ class $$ShelvesTableFilterComposer
 
   ColumnFilters<bool> get filterNoCover => $composableBuilder(
     column: $table.filterNoCover,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterBooleanQuery => $composableBuilder(
+    column: $table.filterBooleanQuery,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get filterSearchMode => $composableBuilder(
+    column: $table.filterSearchMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterFormat => $composableBuilder(
+    column: $table.filterFormat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterOwnership => $composableBuilder(
+    column: $table.filterOwnership,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterNotes => $composableBuilder(
+    column: $table.filterNotes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7986,6 +8203,31 @@ class $$ShelvesTableOrderingComposer
     column: $table.filterNoCover,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get filterBooleanQuery => $composableBuilder(
+    column: $table.filterBooleanQuery,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get filterSearchMode => $composableBuilder(
+    column: $table.filterSearchMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterFormat => $composableBuilder(
+    column: $table.filterFormat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterOwnership => $composableBuilder(
+    column: $table.filterOwnership,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterNotes => $composableBuilder(
+    column: $table.filterNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ShelvesTableAnnotationComposer
@@ -8065,6 +8307,31 @@ class $$ShelvesTableAnnotationComposer
 
   GeneratedColumn<bool> get filterNoCover => $composableBuilder(
     column: $table.filterNoCover,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterBooleanQuery => $composableBuilder(
+    column: $table.filterBooleanQuery,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get filterSearchMode => $composableBuilder(
+    column: $table.filterSearchMode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterFormat => $composableBuilder(
+    column: $table.filterFormat,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterOwnership => $composableBuilder(
+    column: $table.filterOwnership,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get filterNotes => $composableBuilder(
+    column: $table.filterNotes,
     builder: (column) => column,
   );
 
@@ -8162,6 +8429,11 @@ class $$ShelvesTableTableManager
                 Value<String?> filterTagIds = const Value.absent(),
                 Value<String?> filterImprintIds = const Value.absent(),
                 Value<bool> filterNoCover = const Value.absent(),
+                Value<String?> filterBooleanQuery = const Value.absent(),
+                Value<int> filterSearchMode = const Value.absent(),
+                Value<String?> filterFormat = const Value.absent(),
+                Value<String?> filterOwnership = const Value.absent(),
+                Value<String?> filterNotes = const Value.absent(),
               }) => ShelvesCompanion(
                 id: id,
                 name: name,
@@ -8178,6 +8450,11 @@ class $$ShelvesTableTableManager
                 filterTagIds: filterTagIds,
                 filterImprintIds: filterImprintIds,
                 filterNoCover: filterNoCover,
+                filterBooleanQuery: filterBooleanQuery,
+                filterSearchMode: filterSearchMode,
+                filterFormat: filterFormat,
+                filterOwnership: filterOwnership,
+                filterNotes: filterNotes,
               ),
           createCompanionCallback:
               ({
@@ -8196,6 +8473,11 @@ class $$ShelvesTableTableManager
                 Value<String?> filterTagIds = const Value.absent(),
                 Value<String?> filterImprintIds = const Value.absent(),
                 Value<bool> filterNoCover = const Value.absent(),
+                Value<String?> filterBooleanQuery = const Value.absent(),
+                Value<int> filterSearchMode = const Value.absent(),
+                Value<String?> filterFormat = const Value.absent(),
+                Value<String?> filterOwnership = const Value.absent(),
+                Value<String?> filterNotes = const Value.absent(),
               }) => ShelvesCompanion.insert(
                 id: id,
                 name: name,
@@ -8212,6 +8494,11 @@ class $$ShelvesTableTableManager
                 filterTagIds: filterTagIds,
                 filterImprintIds: filterImprintIds,
                 filterNoCover: filterNoCover,
+                filterBooleanQuery: filterBooleanQuery,
+                filterSearchMode: filterSearchMode,
+                filterFormat: filterFormat,
+                filterOwnership: filterOwnership,
+                filterNotes: filterNotes,
               ),
           withReferenceMapper: (p0) => p0
               .map(

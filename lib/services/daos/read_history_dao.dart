@@ -26,5 +26,5 @@ class ReadHistoryDao extends DatabaseAccessor<AppDatabase> with _$ReadHistoryDao
       (delete(readHistory)..where((h) => h.bookId.equals(bookId))).go();
 
   Future<void> deleteReadsAfter(int bookId, int readNumber) =>
-      (delete(readHistory)..where((h) => h.bookId.equals(bookId) & h.readNumber.isBiggerThanValue(readNumber))).go();
+      (delete(readHistory)..where((h) => h.bookId.equals(bookId) & h.readNumber.isBiggerThan(Constant(readNumber)))).go();
 }

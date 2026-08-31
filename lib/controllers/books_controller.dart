@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:collection/collection.dart';
+import '../models/search_filters.dart';
 import '../models/shelf.dart';
 import '../services/database.dart';
 import '../utils/book_sorting.dart';
@@ -9,7 +11,7 @@ import 'database_provider.dart';
 import 'display_preferences_controller.dart';
 import 'search_filters_controller.dart';
 
-/// Stream of all books in the database
+/// Manages and provides streams of books filtered by different criteria.
 final allBooksProvider = StreamProvider<List<Book>>((ref) {
   final db = ref.watch(databaseProvider);
   return db.bookDao.watchAllBooks();
@@ -28,17 +30,28 @@ final allShelvesWithStatsProvider = StreamProvider<List<(Shelf, int, int)>>((ref
     
     final streams = list.map((shelf) {
       return db.shelfDao.watchTagsForShelf(shelf.id).switchMap((shelfTags) {
+        BooleanQuery? bq;
+        if (shelf.filterBooleanQuery != null) {
+          try {
+            bq = BooleanQuery.fromJson(jsonDecode(shelf.filterBooleanQuery!));
+          } catch (_) {}
+        }
+
         return db.bookDao.watchBooksFiltered(
           query: shelf.filterQuery,
           author: shelf.filterAuthor,
           publisher: shelf.filterPublisher,
           isbn: shelf.filterIsbn,
           language: shelf.filterLanguage,
+          notes: shelf.filterNotes,
           collectionIds: shelfTags.where((t) => t.type == TagType.collection).map((t) => t.id).toList().nullIfEmpty(),
           tagIds: shelfTags.where((t) => t.type == TagType.tag).map((t) => t.id).toList().nullIfEmpty(),
           imprintIds: shelfTags.where((t) => t.type == TagType.imprint).map((t) => t.id).toList().nullIfEmpty(),
           noCover: shelf.filterNoCover,
           status: shelf.filterStatus != null ? ReadingStatus.values.firstWhereOrNull((s) => s.name == shelf.filterStatus) : null,
+          format: shelf.filterFormat,
+          ownership: shelf.filterOwnership,
+          booleanQuery: bq,
         ).map((books) {
           final readCount = books.where((b) => b.status == ReadingStatus.read).length;
           return (shelf, books.length, readCount);
@@ -60,14 +73,23 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
     final imprintIds = shelfTags.where((t) => t.type == TagType.imprint).map((t) => t.id).toList();
     final collectionIds = shelfTags.where((t) => t.type == TagType.collection).map((t) => t.id).toList();
 
+    BooleanQuery? bq;
+    if (shelf.filterBooleanQuery != null) {
+      try {
+        bq = BooleanQuery.fromJson(jsonDecode(shelf.filterBooleanQuery!));
+      } catch (_) {}
+    }
+
     // If only a status filter is set, use the faster status-only query
-    if (shelf.filterStatus != null &&
+    if (bq == null &&
+        shelf.filterStatus != null &&
         tagIds.isEmpty &&
         imprintIds.isEmpty &&
         shelf.filterQuery == null &&
         shelf.filterAuthor == null &&
         shelf.filterPublisher == null &&
         shelf.filterIsbn == null &&
+        shelf.filterNotes == null &&
         collectionIds.isEmpty) {
       final status = ReadingStatus.values.firstWhere(
             (s) => s.name == shelf.filterStatus,
@@ -82,10 +104,14 @@ StreamProvider.family<List<Book>, Shelf>((ref, shelf) {
       publisher: shelf.filterPublisher,
       isbn: shelf.filterIsbn,
       language: shelf.filterLanguage,
+      notes: shelf.filterNotes,
       collectionIds: collectionIds.isEmpty ? null : collectionIds,
       imprintIds: imprintIds.isEmpty ? null : imprintIds,
       noCover: shelf.filterNoCover,
       status: shelf.filterStatus != null ? ReadingStatus.values.firstWhereOrNull((s) => s.name == shelf.filterStatus) : null,
+      format: shelf.filterFormat,
+      ownership: shelf.filterOwnership,
+      booleanQuery: bq,
     );
   });
 });
@@ -193,16 +219,22 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
     orElse: () => <int, String>{},
   );
 
+  final isBoolean = filters.mode == SearchMode.boolean;
+
   final stream = db.bookDao.watchBooksFiltered(
-    query: filters.query,
-    author: filters.author,
-    publisher: filters.publisher,
-    isbn: filters.isbn,
-    language: filters.language,
-    collectionIds: filters.collections.isEmpty ? null : filters.collections.map((t) => t.id).toList(),
-    tagIds: filters.tags.isEmpty ? null : filters.tags.map((t) => t.id).toList(),
-    imprintIds: filters.imprints.isEmpty ? null : filters.imprints.map((t) => t.id).toList(),
-    status: filters.status,
+    query: isBoolean ? null : filters.query,
+    author: isBoolean ? null : filters.author,
+    publisher: isBoolean ? null : filters.publisher,
+    isbn: isBoolean ? null : filters.isbn,
+    language: isBoolean ? null : filters.language,
+    notes: isBoolean ? null : filters.notes,
+    collectionIds: isBoolean ? null : (filters.collections.isEmpty ? null : filters.collections.map((t) => t.id).toList()),
+    tagIds: isBoolean ? null : (filters.tags.isEmpty ? null : filters.tags.map((t) => t.id).toList()),
+    imprintIds: isBoolean ? null : (filters.imprints.isEmpty ? null : filters.imprints.map((t) => t.id).toList()),
+    status: isBoolean ? null : filters.status,
+    format: isBoolean ? null : filters.format?.name,
+    ownership: isBoolean ? null : filters.ownership?.name,
+    booleanQuery: isBoolean ? filters.booleanQuery : null,
   );
 
   return stream.map((allBooks) {

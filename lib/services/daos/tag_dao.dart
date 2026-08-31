@@ -10,7 +10,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
 
   Future<int> getOrCreateCollection(String name) async {
     final existing = await (select(tags)
-      ..where((t) => t.name.equals(name) & t.type.equalsValue(TagType.collection)))
+      ..where((t) => t.name.equals(name) & t.type.equals(TagType.collection.name)))
         .getSingleOrNull();
     if (existing != null) return existing.id;
     return insertTag(TagsCompanion(
@@ -21,7 +21,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
 
   Future<int> getOrCreateTag(String name, TagType type) async {
     final existing = await (select(tags)
-      ..where((t) => t.name.equals(name) & t.type.equalsValue(type)))
+      ..where((t) => t.name.equals(name) & t.type.equals(type.name)))
         .getSingleOrNull();
     if (existing != null) return existing.id;
     return insertTag(TagsCompanion(
@@ -35,14 +35,14 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
   Future<int> insertTag(TagsCompanion tag) => into(tags).insert(tag);
 
   Future<List<Tag>> getTagsByType(TagType type) =>
-      (select(tags)..where((t) => t.type.equalsValue(type))).get();
+      (select(tags)..where((t) => t.type.equals(type.name))).get();
 
   Future<List<Tag>> getTagsByIds(List<int> ids) =>
       (select(tags)..where((t) => t.id.isIn(ids))).get();
 
   Future<List<Tag>> searchTags(String query, TagType type) =>
       (select(tags)
-        ..where((t) => t.name.contains(query) & t.type.equalsValue(type)))
+        ..where((t) => t.name.contains(query) & t.type.equals(type.name)))
           .get();
 
   Future<bool> updateTag(Tag tag) => update(tags).replace(tag);
@@ -112,7 +112,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
       innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
     ])
       ..where(bookTags.bookId.equals(bookId))
-      ..where(tags.type.equalsValue(TagType.tag));
+      ..where(tags.type.equals(TagType.tag.name));
 
     return query.watch().map(
           (rows) => rows.map((r) => r.readTable(tags)).toList(),
@@ -124,7 +124,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
       innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
     ])
       ..where(bookTags.bookId.equals(bookId))
-      ..where(tags.type.equalsValue(TagType.collection));
+      ..where(tags.type.equals(TagType.collection.name));
 
     return query.watch().map((rows) => rows.map((r) {
           final tag = r.readTable(tags);
@@ -141,7 +141,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
       innerJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
     ])
       ..where(bookTags.bookId.isIn(bookIds))
-      ..where(tags.type.equalsValue(TagType.tag))
+      ..where(tags.type.equals(TagType.tag.name))
       ..addColumns([countExp])
       ..groupBy([tags.id, tags.name])
       ..orderBy([OrderingTerm(expression: countExp, mode: OrderingMode.desc)])
@@ -163,7 +163,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
   }
 
   Stream<List<Tag>> watchTagsByType(TagType type) =>
-      (select(tags)..where((t) => t.type.equalsValue(type))).watch();
+      (select(tags)..where((t) => t.type.equals(type.name))).watch();
 
   Stream<List<(Tag, int)>> watchTagsByTypeWithCounts(TagType type) {
     if (type == TagType.imprint) {
@@ -171,7 +171,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
       final query = select(tags).join([
         leftOuterJoin(books, books.imprintId.equalsExp(tags.id)),
       ])
-        ..where(tags.type.equalsValue(type))
+        ..where(tags.type.equals(type.name))
         ..addColumns([countExp])
         ..groupBy([tags.id]);
 
@@ -188,7 +188,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
     final query = select(tags).join([
       leftOuterJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
     ])
-      ..where(tags.type.equalsValue(type))
+      ..where(tags.type.equals(type.name))
       ..addColumns([countExp])
       ..groupBy([tags.id]);
 
@@ -206,7 +206,7 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
     final query = select(tags).join([
       leftOuterJoin(bookTags, bookTags.tagId.equalsExp(tags.id)),
     ])
-      ..where(tags.type.equalsValue(TagType.collection))
+      ..where(tags.type.equals(TagType.collection.name))
       ..addColumns([countExp])
       ..groupBy([tags.id]);
 

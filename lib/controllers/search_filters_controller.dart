@@ -31,6 +31,21 @@ class SearchFiltersController extends Notifier<SearchFilters> {
   }
 
   void setQuery(String query) => state = state.copyWith(query: query);
+
+  void setMode(SearchMode mode) {
+    if (mode == SearchMode.boolean && state.booleanQuery.conditions.isEmpty) {
+      state = state.copyWith(
+        mode: mode,
+        booleanQuery: state.toBooleanQuery(),
+      );
+    } else {
+      state = state.copyWith(mode: mode);
+    }
+  }
+
+  void setBooleanQuery(BooleanQuery query) {
+    state = state.copyWith(booleanQuery: query);
+  }
   
   void setFilters(SearchFilters filters) {
     state = filters;

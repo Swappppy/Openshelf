@@ -1691,6 +1691,108 @@ class AppLocalizationsCa extends AppLocalizations {
   }
 
   @override
+  String get searchModeBasic => 'Básica';
+
+  @override
+  String get searchModeAdvanced => 'Avanzada';
+
+  @override
+  String get searchModeBoolean => 'Booleana';
+
+  @override
+  String get searchAddCondition => 'Añadir condición';
+
+  @override
+  String get searchPreview => 'Vista previa';
+
+  @override
+  String get searchFieldTitle => 'Título';
+
+  @override
+  String get searchFieldAuthor => 'Autor';
+
+  @override
+  String get searchFieldPublisher => 'Editorial';
+
+  @override
+  String get searchFieldIsbn => 'ISBN';
+
+  @override
+  String get searchFieldLanguage => 'Idioma';
+
+  @override
+  String get searchFieldOriginalTitle => 'Título original';
+
+  @override
+  String get searchFieldOriginalLanguage => 'Idioma original';
+
+  @override
+  String get searchFieldYear => 'Año';
+
+  @override
+  String get searchFieldPages => 'Páginas';
+
+  @override
+  String get searchFieldStatus => 'Estado';
+
+  @override
+  String get searchFieldCategory => 'Categoría';
+
+  @override
+  String get searchFieldImprint => 'Sello';
+
+  @override
+  String get searchFieldCollection => 'Colección';
+
+  @override
+  String get searchFieldNoCover => 'Sin portada';
+
+  @override
+  String get searchFieldNotes => 'Notas';
+
+  @override
+  String get searchFieldHasNotes => 'Tiene notas';
+
+  @override
+  String get searchOpContains => 'contiene';
+
+  @override
+  String get searchOpExactly => 'es exactamente';
+
+  @override
+  String get searchOpStartsWith => 'empieza por';
+
+  @override
+  String get searchOpIncludes => 'incluye';
+
+  @override
+  String get searchOpNotIncludes => 'no incluye';
+
+  @override
+  String get searchOpIncludesAll => 'incluye todos';
+
+  @override
+  String get searchOpEquals => '=';
+
+  @override
+  String get searchOpNotEquals => '≠';
+
+  @override
+  String get searchOpGreaterThan => '>';
+
+  @override
+  String get searchOpLessThan => '<';
+
+  @override
+  String get searchOpBetween => 'entre';
+
+  @override
+  String get searchOpIs => 'es';
+
+  @override
+  String get searchOpIsNot => 'no es';
+
+  @override
   String get paginationCurrentPageShort => 'Pàg.';
 
   @override

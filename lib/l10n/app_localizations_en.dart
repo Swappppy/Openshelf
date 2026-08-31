@@ -1675,6 +1675,108 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get searchModeBasic => 'Basic';
+
+  @override
+  String get searchModeAdvanced => 'Advanced';
+
+  @override
+  String get searchModeBoolean => 'Boolean';
+
+  @override
+  String get searchAddCondition => 'Add condition';
+
+  @override
+  String get searchPreview => 'Preview';
+
+  @override
+  String get searchFieldTitle => 'Title';
+
+  @override
+  String get searchFieldAuthor => 'Author';
+
+  @override
+  String get searchFieldPublisher => 'Publisher';
+
+  @override
+  String get searchFieldIsbn => 'ISBN';
+
+  @override
+  String get searchFieldLanguage => 'Language';
+
+  @override
+  String get searchFieldOriginalTitle => 'Original title';
+
+  @override
+  String get searchFieldOriginalLanguage => 'Original language';
+
+  @override
+  String get searchFieldYear => 'Year';
+
+  @override
+  String get searchFieldPages => 'Pages';
+
+  @override
+  String get searchFieldStatus => 'Status';
+
+  @override
+  String get searchFieldCategory => 'Category';
+
+  @override
+  String get searchFieldImprint => 'Imprint';
+
+  @override
+  String get searchFieldCollection => 'Collection';
+
+  @override
+  String get searchFieldNoCover => 'No cover';
+
+  @override
+  String get searchFieldNotes => 'Notes';
+
+  @override
+  String get searchFieldHasNotes => 'Tiene notas';
+
+  @override
+  String get searchOpContains => 'contains';
+
+  @override
+  String get searchOpExactly => 'is exactly';
+
+  @override
+  String get searchOpStartsWith => 'starts with';
+
+  @override
+  String get searchOpIncludes => 'includes';
+
+  @override
+  String get searchOpNotIncludes => 'doesn\'t include';
+
+  @override
+  String get searchOpIncludesAll => 'includes all';
+
+  @override
+  String get searchOpEquals => '=';
+
+  @override
+  String get searchOpNotEquals => '≠';
+
+  @override
+  String get searchOpGreaterThan => '>';
+
+  @override
+  String get searchOpLessThan => '<';
+
+  @override
+  String get searchOpBetween => 'between';
+
+  @override
+  String get searchOpIs => 'is';
+
+  @override
+  String get searchOpIsNot => 'is not';
+
+  @override
   String get paginationCurrentPageShort => 'Pg.';
 
   @override

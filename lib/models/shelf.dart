@@ -25,6 +25,11 @@ class Shelf extends DataClass implements Insertable<Shelf> {
   final String? filterImprintIds;
   
   final bool filterNoCover;
+  final String? filterBooleanQuery;
+  final int filterSearchMode;
+  final String? filterFormat;
+  final String? filterOwnership;
+  final String? filterNotes;
 
   const Shelf({
     required this.id,
@@ -42,6 +47,11 @@ class Shelf extends DataClass implements Insertable<Shelf> {
     this.filterTagIds,
     this.filterImprintIds,
     this.filterNoCover = false,
+    this.filterBooleanQuery,
+    this.filterSearchMode = 0,
+    this.filterFormat,
+    this.filterOwnership,
+    this.filterNotes,
   });
 
   @override
@@ -62,6 +72,11 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       'filter_tag_ids': Variable<String>(filterTagIds),
       'filter_imprint_ids': Variable<String>(filterImprintIds),
       'filter_no_cover': Variable<bool>(filterNoCover),
+      'filter_boolean_query': Variable<String>(filterBooleanQuery),
+      'filter_search_mode': Variable<int>(filterSearchMode),
+      'filter_format': Variable<String>(filterFormat),
+      'filter_ownership': Variable<String>(filterOwnership),
+      'filter_notes': Variable<String>(filterNotes),
     }).toColumns(nullToAbsent);
   }
 
@@ -84,6 +99,11 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       'filterTagIds': serializer.toJson<String?>(filterTagIds),
       'filterImprintIds': serializer.toJson<String?>(filterImprintIds),
       'filterNoCover': serializer.toJson<bool>(filterNoCover),
+      'filterBooleanQuery': serializer.toJson<String?>(filterBooleanQuery),
+      'filterSearchMode': serializer.toJson<int>(filterSearchMode),
+      'filterFormat': serializer.toJson<String?>(filterFormat),
+      'filterOwnership': serializer.toJson<String?>(filterOwnership),
+      'filterNotes': serializer.toJson<String?>(filterNotes),
     };
   }
 
@@ -103,6 +123,11 @@ class Shelf extends DataClass implements Insertable<Shelf> {
     String? filterTagIds,
     String? filterImprintIds,
     bool? filterNoCover,
+    String? filterBooleanQuery,
+    int? filterSearchMode,
+    String? filterFormat,
+    String? filterOwnership,
+    String? filterNotes,
     bool clearStatus = false,
   }) {
     return Shelf(
@@ -121,6 +146,11 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       filterTagIds: filterTagIds ?? this.filterTagIds,
       filterImprintIds: filterImprintIds ?? this.filterImprintIds,
       filterNoCover: filterNoCover ?? this.filterNoCover,
+      filterBooleanQuery: filterBooleanQuery ?? this.filterBooleanQuery,
+      filterSearchMode: filterSearchMode ?? this.filterSearchMode,
+      filterFormat: filterFormat ?? this.filterFormat,
+      filterOwnership: filterOwnership ?? this.filterOwnership,
+      filterNotes: filterNotes ?? this.filterNotes,
     );
   }
 }
