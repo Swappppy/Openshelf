@@ -18,6 +18,9 @@ class ShelfDao extends DatabaseAccessor<AppDatabase> with _$ShelfDaoMixin {
   Future<void> deleteShelf(int id) =>
       (delete(shelves)..where((s) => s.id.equals(id))).go();
 
+  Future<Shelf?> getShelfByName(String name) =>
+      (select(shelves)..where((s) => s.name.equals(name))).getSingleOrNull();
+
   Future<void> setShelfTags(int shelfId, List<int> tagIds) async {
     await transaction(() async {
       await (delete(shelfTags)..where((t) => t.shelfId.equals(shelfId))).go();
@@ -42,5 +45,14 @@ class ShelfDao extends DatabaseAccessor<AppDatabase> with _$ShelfDaoMixin {
   Future<List<int>> getTagIdsForShelf(int shelfId) async {
     final rows = await (select(shelfTags)..where((t) => t.shelfId.equals(shelfId))).get();
     return rows.map((r) => r.tagId).toList();
+  }
+
+  Future<bool> isTagUsedByAnyShelf(int tagId) async {
+    final query = selectOnly(shelfTags)
+      ..addColumns([shelfTags.shelfId])
+      ..where(shelfTags.tagId.equals(tagId))
+      ..limit(1);
+    final match = await query.getSingleOrNull();
+    return match != null;
   }
 }

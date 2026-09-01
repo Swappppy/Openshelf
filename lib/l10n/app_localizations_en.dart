@@ -613,7 +613,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelvesAddFirstShelf => 'Create shelf';
 
   @override
-  String get shelfBooksEmpty => 'No books in this shelf';
+  String get shelfBooksEmpty => 'This shelf is empty';
+
+  @override
+  String get shelfBooksEmptyHint =>
+      'Books matching its criteria will appear here.';
 
   @override
   String get shelfStatusBooksEmpty => 'No books here';
@@ -1320,6 +1324,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String searchFilterAuthorLabel(String author) {
     return 'Author: $author';
+  }
+
+  @override
+  String searchFilterSubtitleLabel(String subtitle) {
+    return 'Subtitle: $subtitle';
+  }
+
+  @override
+  String searchFilterTranslatorLabel(String translator) {
+    return 'Translator: $translator';
   }
 
   @override

@@ -314,7 +314,7 @@ class BookSearchService {
       final r = (isIsbn && (res.isbn == null || res.isbn!.isEmpty))
           ? res.copyWith(isbn: cleanIsbn)
           : res;
-      return MapEntry(r, _calculateScore(r, query, isIsbn));
+      return MapEntry(r, calculateScore(r, query, isIsbn));
     }).toList();
 
     // Sort descending by score
@@ -328,10 +328,10 @@ class BookSearchService {
     // We only create a recommendation if the match is decent.
     if (winnerScore >= 400) {
       final peers = sortedResults
-          .where((r) => r != winner && _arePeers(winner, r))
+          .where((r) => r != winner && arePeers(winner, r))
           .toList();
 
-      final merged = _mergeResults(
+      final merged = mergeResults(
         [winner, ...peers],
         query: query,
         isIsbn: isIsbn,
@@ -343,7 +343,7 @@ class BookSearchService {
             'BookSearchService: Prepending merged recommendation (Score: $winnerScore)');
         // Remove individual provider results that are effectively duplicates of the recommendation
         final others = sortedResults
-            .where((r) => !_arePeers(merged, r))
+            .where((r) => !arePeers(merged, r))
             .toList();
 
         return [merged, ...others];
@@ -354,7 +354,8 @@ class BookSearchService {
   }
 
   /// Calculates a relevance score for a result relative to the query.
-  static double _calculateScore(
+  @visibleForTesting
+  static double calculateScore(
       BookSearchResult res, String query, bool queryIsIsbn) {
     final cleanQ = query.replaceAll(RegExp(r'[^0-9X]'), '');
 
@@ -418,7 +419,8 @@ class BookSearchService {
   }
 
   /// Determines if two results represent the same book.
-  static bool _arePeers(BookSearchResult a, BookSearchResult b) {
+  @visibleForTesting
+  static bool arePeers(BookSearchResult a, BookSearchResult b) {
     // Exact ISBN match is definitive
     if (a.isbn != null && b.isbn != null) {
       final isbnA = a.isbn!.replaceAll(RegExp(r'[^0-9X]'), '');
@@ -511,7 +513,7 @@ class BookSearchService {
     }
 
     if (valid.isNotEmpty) {
-      final merged = _mergeResults(
+      final merged = mergeResults(
         valid,
         query: isbn,
         isIsbn: true,
@@ -532,9 +534,8 @@ class BookSearchService {
   }
 
   /// Heuristically merges multiple search results into one "Best of" result.
-  /// It prioritizes data richness, merges authors/tags, and uses statistical
-  /// frequency to pick the most likely correct metadata.
-  static BookSearchResult? _mergeResults(
+  @visibleForTesting
+  static BookSearchResult? mergeResults(
     List<BookSearchResult> results, {
     required String query,
     required bool isIsbn,

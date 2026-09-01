@@ -768,9 +768,13 @@
   "@shelvesAddFirstShelf": {
     "description": "Action button text for empty shelves state"
   },
-  "shelfBooksEmpty": "Sense llibres en aquesta prestatgeria",
+  "shelfBooksEmpty": "Aquesta prestatgeria està buida",
   "@shelfBooksEmpty": {
     "description": "Empty shelf books state"
+  },
+  "shelfBooksEmptyHint": "Els llibres que coincideixin amb els seus filtres apareixeran aquí.",
+  "@shelfBooksEmptyHint": {
+    "description": "Hint for empty shelf"
   },
   "shelfStatusBooksEmpty": "No hi ha cap llibre aquí",
   "@shelfStatusBooksEmpty": {

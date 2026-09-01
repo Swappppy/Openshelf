@@ -93,7 +93,10 @@ class _StatsViewState extends ConsumerState<StatsView> {
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.check : Icons.edit_outlined),
-            onPressed: () => setState(() => _isEditing = !_isEditing),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              setState(() => _isEditing = !_isEditing);
+            },
           ),
           const SizedBox(width: 8),
         ],

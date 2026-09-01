@@ -403,7 +403,13 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                     padding: const EdgeInsets.all(12),
                                     child: Column(
                                       children: [
-                                        FilterTextField(controller: _queryCtrl, hint: context.l10n.fieldTitle),
+                                        Row(
+                                          children: [
+                                            Expanded(child: FilterTextField(controller: _queryCtrl, hint: context.l10n.fieldTitle)),
+                                            const SizedBox(width: 8),
+                                            Expanded(child: FilterTextField(controller: _subtitleCtrl, hint: context.l10n.fieldSubtitle)),
+                                          ],
+                                        ),
                                         const SizedBox(height: 8),
                                         FilterTextField(controller: _authorCtrl, hint: context.l10n.fieldAuthor),
                                         const SizedBox(height: 8),

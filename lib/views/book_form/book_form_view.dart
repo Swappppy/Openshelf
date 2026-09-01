@@ -318,6 +318,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+
     if (!_formKey.currentState!.validate()) {
       _tabController.animateTo(0);
       return;
@@ -414,7 +415,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         unknownAuthorLabel: l10n.unknownAuthor,
       );
 
-      if (mounted) navigator.pop();
+      if (mounted) {
+        navigator.pop();
+      }
     } catch (e) {
       debugPrint('Error saving book: $e');
       if (mounted) {
@@ -495,13 +498,24 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.existingBook != null ? context.l10n.bookFormEditTitle : context.l10n.bookFormNewTitle),
-        toolbarHeight: 40,
+        toolbarHeight: 56,
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _save,
-            child: _isSaving
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                : Text(context.l10n.save),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: _isSaving
+                  ? const SizedBox(
+                      key: ValueKey('saving'),
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(
+                      context.l10n.save,
+                      key: const ValueKey('save_text'),
+                    ),
+            ),
           ),
         ],
         bottom: TabBar(

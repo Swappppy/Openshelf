@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/display_preferences_controller.dart';
 import '../models/display_preferences.dart';
@@ -83,7 +84,10 @@ class BoxedIconButton extends StatelessWidget {
       ),
       child: IconButton(
         icon: Icon(icon, size: 20),
-        onPressed: onPressed,
+        onPressed: () {
+          HapticFeedback.selectionClick();
+          onPressed();
+        },
         color: isActive ? colorScheme.primary : colorScheme.onSurface,
         padding: EdgeInsets.zero,
       ),

@@ -617,6 +617,10 @@ class AppLocalizationsEt extends AppLocalizations {
   String get shelfBooksEmpty => '';
 
   @override
+  String get shelfBooksEmptyHint =>
+      'Los libros que coincidan con sus filtros aparecerán aquí.';
+
+  @override
   String get shelfStatusBooksEmpty => '';
 
   @override
@@ -1286,6 +1290,16 @@ class AppLocalizationsEt extends AppLocalizations {
   @override
   String searchFilterAuthorLabel(String author) {
     return '';
+  }
+
+  @override
+  String searchFilterSubtitleLabel(String subtitle) {
+    return 'Subtítulo: $subtitle';
+  }
+
+  @override
+  String searchFilterTranslatorLabel(String translator) {
+    return 'Traductor: $translator';
   }
 
   @override

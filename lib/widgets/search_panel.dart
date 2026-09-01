@@ -21,6 +21,7 @@ class SearchPanel extends ConsumerStatefulWidget {
 
 class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProviderStateMixin {
   late final TextEditingController _queryCtrl;
+  late final TextEditingController _subtitleCtrl;
   late final TextEditingController _authorCtrl;
   late final TextEditingController _publisherCtrl;
   late final TextEditingController _isbnCtrl;
@@ -34,6 +35,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
   void initState() {
     super.initState();
     _queryCtrl = TextEditingController(text: widget.filters.query);
+    _subtitleCtrl = TextEditingController(text: widget.filters.subtitle);
     _authorCtrl = TextEditingController(text: widget.filters.author);
     _publisherCtrl = TextEditingController(text: widget.filters.publisher);
     _isbnCtrl = TextEditingController(text: widget.filters.isbn);
@@ -46,6 +48,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
   @override
   void dispose() {
     _queryCtrl.dispose();
+    _subtitleCtrl.dispose();
     _authorCtrl.dispose();
     _publisherCtrl.dispose();
     _isbnCtrl.dispose();
@@ -200,6 +203,14 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                           onDelete: () {
                             _authorCtrl.clear();
                             widget.onChanged(widget.filters.copyWith(author: ''));
+                          },
+                        ),
+                      if (widget.filters.subtitle.isNotEmpty)
+                        _FilterChip(
+                          label: context.l10n.searchFilterSubtitleLabel(widget.filters.subtitle),
+                          onDelete: () {
+                            _subtitleCtrl.clear();
+                            widget.onChanged(widget.filters.copyWith(subtitle: ''));
                           },
                         ),
                       if (widget.filters.publisher.isNotEmpty)

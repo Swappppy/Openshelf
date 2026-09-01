@@ -1250,8 +1250,14 @@ abstract class AppLocalizations {
   /// Estado vacío de libros en una estantería
   ///
   /// In es, this message translates to:
-  /// **'Sin libros en esta estantería'**
+  /// **'Esta estantería está vacía'**
   String get shelfBooksEmpty;
+
+  /// Sugerencia para estantería vacía
+  ///
+  /// In es, this message translates to:
+  /// **'Los libros que coincidan con sus filtros aparecerán aquí.'**
+  String get shelfBooksEmptyHint;
 
   /// Estado vacío de libros por estado
   ///
@@ -2500,6 +2506,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Autor: {author}'**
   String searchFilterAuthorLabel(String author);
+
+  /// No description provided for @searchFilterSubtitleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Subtítulo: {subtitle}'**
+  String searchFilterSubtitleLabel(String subtitle);
+
+  /// No description provided for @searchFilterTranslatorLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Traductor: {translator}'**
+  String searchFilterTranslatorLabel(String translator);
 
   /// No description provided for @searchFilterPublisherLabel.
   ///

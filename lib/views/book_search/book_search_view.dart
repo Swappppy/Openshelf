@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../models/app_settings.dart';
 import '../book_form/book_form_view.dart';
@@ -140,6 +141,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
             IconButton(
               icon: const Icon(Icons.close),
               onPressed: () {
+                HapticFeedback.selectionClick();
                 _ctrl.clear();
                 setState(() {
                   _results = [];
@@ -151,7 +153,10 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
             ),
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: _search,
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              _search();
+            },
           ),
         ],
       ),

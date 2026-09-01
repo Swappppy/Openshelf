@@ -48,7 +48,7 @@ part 'database.g.dart';
   daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao, ReadHistoryDao, OwnershipDao],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
   int get schemaVersion => 30;
@@ -172,7 +172,12 @@ class AppDatabase extends _$AppDatabase {
         await dbFile.parent.create(recursive: true);
       }
 
-      return NativeDatabase.createInBackground(dbFile);
+      return NativeDatabase.createInBackground(
+        dbFile,
+        setup: (db) {
+          db.execute('PRAGMA foreign_keys = ON');
+        },
+      );
     });
   }
 

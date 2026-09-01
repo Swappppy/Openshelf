@@ -53,23 +53,37 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
 
   Future<void> deleteBook(int id) async {
     await transaction(() async {
+      // 1. Get tags before they are deleted by cascade or manual delete
       final linked = await (select(bookTags)
         ..where((bt) => bt.bookId.equals(id))).get();
       final tagIds = linked.map((bt) => bt.tagId).toList();
 
-      await (delete(bookTags)..where((bt) => bt.bookId.equals(id))).go();
+      // 2. Clear related records that might not have cascades (safety)
+      await (delete(db.readHistory)..where((h) => h.bookId.equals(id))).go();
+      await (delete(db.ownershipLog)..where((o) => o.bookId.equals(id))).go();
       await (delete(db.readingLog)..where((l) => l.bookId.equals(id))).go();
+      
+      // 3. Delete the book and its M:M relationships (bookTags)
+      // Note: BookTags has onDelete: KeyAction.cascade on bookId, but we delete it explicitly for clarity/safety
+      await (delete(bookTags)..where((bt) => bt.bookId.equals(id))).go();
       await (delete(books)..where((b) => b.id.equals(id))).go();
 
-      // Clean up orphan categories (tags)
+      // 4. Clean up orphan categories (tags of type 'tag')
       for (final tagId in tagIds) {
-        final remaining = await (select(bookTags)
+        // Check if any OTHER book uses this tag
+        final remainingBooks = await (select(bookTags)
           ..where((bt) => bt.tagId.equals(tagId))).get();
-        if (remaining.isEmpty) {
-          final t = await (select(tags)..where((t) => t.id.equals(tagId)))
-              .getSingleOrNull();
-          if (t != null && t.type == TagType.tag) {
-            await (delete(tags)..where((t) => t.id.equals(tagId))).go();
+        
+        if (remainingBooks.isEmpty) {
+          // IMPORTANT: Also check if any Shelf uses this tag for filtering
+          final usedByShelf = await db.shelfDao.isTagUsedByAnyShelf(tagId);
+          
+          if (!usedByShelf) {
+            final t = await (select(tags)..where((t) => t.id.equals(tagId)))
+                .getSingleOrNull();
+            if (t != null && t.type == TagType.tag) {
+              await (delete(tags)..where((t) => t.id.equals(tagId))).go();
+            }
           }
         }
       }
@@ -113,9 +127,11 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
     String? query,
     List<int>? tagIds,
     String? author,
+    String? subtitle,
     String? publisher,
     String? isbn,
     String? language,
+    String? translator,
     String? notes,
     List<int>? collectionIds,
     List<int>? imprintIds,
@@ -139,9 +155,11 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         query: query,
         tagIds: tagIds,
         author: author,
+        subtitle: subtitle,
         publisher: publisher,
         isbn: isbn,
         language: language,
+        translator: translator,
         notes: notes,
         collectionIds: collectionIds,
         imprintIds: imprintIds,
@@ -166,6 +184,9 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         if (author != null && author.isNotEmpty) {
           expr = expr & b.author.contains(author);
         }
+        if (subtitle != null && subtitle.isNotEmpty) {
+          expr = expr & b.subtitle.contains(subtitle);
+        }
         if (publisher != null && publisher.isNotEmpty) {
           expr = expr & b.publisher.contains(publisher);
         }
@@ -175,6 +196,9 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         if (language != null && language.isNotEmpty) {
           expr = expr & b.language.contains(language);
         }
+        if (translator != null && translator.isNotEmpty) {
+          expr = expr & b.translator.contains(translator);
+        }
         if (notes != null && notes.isNotEmpty) {
           expr = expr & b.notes.contains(notes);
         }
@@ -182,15 +206,26 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
           final bookIdsWithCollection = selectOnly(bookTags)
             ..addColumns([bookTags.bookId])
             ..where(bookTags.tagId.isIn(collectionIds));
-          expr = expr & b.id.isInQuery(bookIdsWithCollection);
+          
+          // Check both the many-to-many table AND the direct collectionId column
+          expr = expr & (b.id.isInQuery(bookIdsWithCollection) | b.collectionId.isIn(collectionIds));
         }
         if (imprintIds != null && imprintIds.isNotEmpty) {
-          expr = expr & b.imprintId.isIn(imprintIds);
+          final bookIdsWithImprint = selectOnly(bookTags)
+            ..addColumns([bookTags.bookId])
+            ..where(bookTags.tagId.isIn(imprintIds));
+          
+          // Check both the many-to-many table AND the direct imprintId column
+          expr = expr & (b.id.isInQuery(bookIdsWithImprint) | b.imprintId.isIn(imprintIds));
         }
         if (noCover == true) {
-          expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
+          expr = expr & 
+            (b.coverPath.isNull() | b.coverPath.equals('')) & 
+            (b.coverUrl.isNull() | b.coverUrl.equals(''));
         } else if (noCover == false) {
-          expr = expr & (b.coverPath.isNotNull() & b.coverPath.equals('').not());
+          expr = expr & 
+            (b.coverPath.isNotNull() & b.coverPath.equals('').not() | 
+             b.coverUrl.isNotNull() & b.coverUrl.equals('').not());
         }
         if (hasNotes == true) {
           expr = expr & (b.notes.isNotNull() & b.notes.equals('').not());
@@ -217,25 +252,23 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         return expr;
       });
 
-    // Ensure we also watch bookTags if filtering by collections
-    if (collectionIds != null && collectionIds.isNotEmpty) {
-      return CombineLatestStream.combine2(
-        q.watch(),
-        (select(bookTags)..limit(1)).watch(),
-        (books, _) => books,
-      );
-    }
-
-    return q.watch();
+    // Ensure we are ALWAYS reactive to both tables when any filter is active
+    return CombineLatestStream.combine2(
+      q.watch(),
+      (select(bookTags)..limit(1)).watch(),
+      (books, _) => books,
+    );
   }
 
   Stream<List<Book>> _watchBooksWithTags({
     String? query,
     required List<int> tagIds,
     String? author,
+    String? subtitle,
     String? publisher,
     String? isbn,
     String? language,
+    String? translator,
     String? notes,
     List<int>? collectionIds,
     List<int>? imprintIds,
@@ -253,9 +286,11 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
       return watchBooksFiltered(
         query: query,
         author: author,
+        subtitle: subtitle,
         publisher: publisher,
         isbn: isbn,
         language: language,
+        translator: translator,
         notes: notes,
         collectionIds: collectionIds,
         imprintIds: imprintIds,
@@ -286,19 +321,21 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         ...tagIds.map((id) => Variable<int>(id)),
         Variable<int>(amountOfTags),
       ],
-      readsFrom: {bookTags},
+      readsFrom: {bookTags, books}, // Ensure reactivity to book edits
     ).watch().switchMap((rows) {
       final validBookIds = rows.map((r) => r.read<int>('book_id')).toList();
-      if (validBookIds.isEmpty) return Stream.value(<Book>[]);
 
       final q = select(books)
         ..where((b) {
-          Expression<bool> expr = b.id.isIn(validBookIds);
+          Expression<bool> expr = validBookIds.isEmpty ? const Constant(false) : b.id.isIn(validBookIds);
           if (query != null && query.isNotEmpty) {
             expr = expr & (b.title.contains(query) | b.author.contains(query) | b.isbn.contains(query));
           }
           if (author != null && author.isNotEmpty) {
             expr = expr & b.author.contains(author);
+          }
+          if (subtitle != null && subtitle.isNotEmpty) {
+            expr = expr & b.subtitle.contains(subtitle);
           }
           if (publisher != null && publisher.isNotEmpty) {
             expr = expr & b.publisher.contains(publisher);
@@ -309,6 +346,9 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
           if (language != null && language.isNotEmpty) {
             expr = expr & b.language.contains(language);
           }
+          if (translator != null && translator.isNotEmpty) {
+            expr = expr & b.translator.contains(translator);
+          }
           if (notes != null && notes.isNotEmpty) {
             expr = expr & b.notes.contains(notes);
           }
@@ -316,10 +356,17 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
             final bookIdsWithCollection = selectOnly(bookTags)
               ..addColumns([bookTags.bookId])
               ..where(bookTags.tagId.isIn(collectionIds));
-            expr = expr & b.id.isInQuery(bookIdsWithCollection);
+            
+            // Check both bridge table and column
+            expr = expr & (b.id.isInQuery(bookIdsWithCollection) | b.collectionId.isIn(collectionIds));
           }
           if (imprintIds != null && imprintIds.isNotEmpty) {
-            expr = expr & b.imprintId.isIn(imprintIds);
+            final bookIdsWithImprint = selectOnly(bookTags)
+              ..addColumns([bookTags.bookId])
+              ..where(bookTags.tagId.isIn(imprintIds));
+            
+            // Check both bridge table and column
+            expr = expr & (b.id.isInQuery(bookIdsWithImprint) | b.imprintId.isIn(imprintIds));
           }
           if (noCover == true) {
             expr = expr & (b.coverPath.isNull() | b.coverPath.equals(''));
@@ -402,12 +449,16 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         return _applyStringOp(b.title, cond.operator, val.toString());
       case SearchField.author:
         return _applyStringOp(b.author, cond.operator, val.toString());
+      case SearchField.subtitle:
+        return _applyStringOp(b.subtitle, cond.operator, val.toString());
       case SearchField.publisher:
         return _applyStringOp(b.publisher, cond.operator, val.toString());
       case SearchField.isbn:
         return _applyStringOp(b.isbn, cond.operator, val.toString());
       case SearchField.language:
         return _applyStringOp(b.language, cond.operator, val.toString());
+      case SearchField.translator:
+        return _applyStringOp(b.translator, cond.operator, val.toString());
       case SearchField.originalTitle:
         return _applyStringOp(b.originalTitle, cond.operator, val.toString());
       case SearchField.originalLanguage:
@@ -421,9 +472,11 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         return s != null ? b.status.equals(s.name) : const Constant(false);
       case SearchField.noCover:
         if (val == true) {
-          return b.coverPath.isNull() | b.coverPath.equals('');
+          return (b.coverPath.isNull() | b.coverPath.equals('')) & 
+                 (b.coverUrl.isNull() | b.coverUrl.equals(''));
         } else {
-          return b.coverPath.isNotNull() & b.coverPath.equals('').not();
+          return (b.coverPath.isNotNull() & b.coverPath.equals('').not()) | 
+                 (b.coverUrl.isNotNull() & b.coverUrl.equals('').not());
         }
       case SearchField.category:
         return _applyTagOp(b.id, cond.operator, val, TagType.tag);

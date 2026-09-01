@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../services/database.dart';
@@ -295,22 +296,31 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             tooltip: context.l10n.edit,
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BookFormView(existingBook: book),
-              ),
-            ),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BookFormView(existingBook: book),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.copy_outlined),
             tooltip: context.l10n.duplicate,
-            onPressed: () => _confirmDuplicate(context),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              _confirmDuplicate(context);
+            },
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
             tooltip: context.l10n.delete,
-            onPressed: () => _confirmDelete(context),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              _confirmDelete(context);
+            },
           ),
           const SizedBox(width: 8),
         ],

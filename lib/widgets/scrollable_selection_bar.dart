@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Model representing an individual selectable item in the bar.
 class SelectionItem<T> {
@@ -73,7 +74,10 @@ class ScrollableSelectionBar<T> extends StatelessWidget {
                       ),
                     ),
                     selected: isSelected,
-                    onSelected: (_) => onSelected(item.value),
+                    onSelected: (_) {
+                      HapticFeedback.lightImpact();
+                      onSelected(item.value);
+                    },
                     showCheckmark: false,
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                     shape: RoundedRectangleBorder(

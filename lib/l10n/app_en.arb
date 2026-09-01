@@ -768,9 +768,13 @@
     "@shelvesAddFirstShelf": {
         "description": "Action button text for empty shelves state"
     },
-    "shelfBooksEmpty": "No books in this shelf",
+    "shelfBooksEmpty": "This shelf is empty",
     "@shelfBooksEmpty": {
         "description": "Empty shelf books state"
+    },
+    "shelfBooksEmptyHint": "Books matching its criteria will appear here.",
+    "@shelfBooksEmptyHint": {
+        "description": "Hint for empty shelf"
     },
     "shelfStatusBooksEmpty": "No books here",
     "@shelfStatusBooksEmpty": {
@@ -1525,6 +1529,22 @@
     "@searchFilterAuthorLabel": {
         "placeholders": {
             "author": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFilterSubtitleLabel": "Subtitle: {subtitle}",
+    "@searchFilterSubtitleLabel": {
+        "placeholders": {
+            "subtitle": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFilterTranslatorLabel": "Translator: {translator}",
+    "@searchFilterTranslatorLabel": {
+        "placeholders": {
+            "translator": {
                 "type": "String"
             }
         }

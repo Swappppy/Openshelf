@@ -8,10 +8,12 @@ enum SearchMode { basic, advanced, boolean }
 
 enum SearchField {
   title,
+  subtitle,
   author,
   publisher,
   isbn,
   language,
+  translator,
   originalTitle,
   originalLanguage,
   year,
@@ -33,10 +35,12 @@ extension SearchFieldExt on SearchField {
   String label(BuildContext context) {
     switch (this) {
       case SearchField.title: return context.l10n.searchFieldTitle;
+      case SearchField.subtitle: return context.l10n.fieldSubtitle;
       case SearchField.author: return context.l10n.searchFieldAuthor;
       case SearchField.publisher: return context.l10n.searchFieldPublisher;
       case SearchField.isbn: return context.l10n.searchFieldIsbn;
       case SearchField.language: return context.l10n.searchFieldLanguage;
+      case SearchField.translator: return context.l10n.fieldTranslator;
       case SearchField.originalTitle: return context.l10n.searchFieldOriginalTitle;
       case SearchField.originalLanguage: return context.l10n.searchFieldOriginalLanguage;
       case SearchField.year: return context.l10n.searchFieldYear;
@@ -206,11 +210,13 @@ class SearchFilters {
   final String query;
   final List<Tag> tags;
   final String author;
+  final String subtitle;
   final String publisher;
   final String isbn;
   final String collection;
   final String notes;
   final String language;
+  final String translator;
   final List<Tag> imprints;
   final List<Tag> collections;
   final ReadingStatus? status;
@@ -229,11 +235,13 @@ class SearchFilters {
     this.query = '',
     this.tags = const [],
     this.author = '',
+    this.subtitle = '',
     this.publisher = '',
     this.isbn = '',
     this.collection = '',
     this.notes = '',
     this.language = '',
+    this.translator = '',
     this.imprints = const [],
     this.collections = const [],
     this.status,
@@ -252,11 +260,13 @@ class SearchFilters {
       query.isEmpty &&
           tags.isEmpty &&
           author.isEmpty &&
+          subtitle.isEmpty &&
           publisher.isEmpty &&
           isbn.isEmpty &&
           collection.isEmpty &&
           notes.isEmpty &&
           language.isEmpty &&
+          translator.isEmpty &&
           imprints.isEmpty &&
           collections.isEmpty &&
           format == null &&
@@ -270,11 +280,13 @@ class SearchFilters {
     String? query,
     List<Tag>? tags,
     String? author,
+    String? subtitle,
     String? publisher,
     String? isbn,
     String? collection,
     String? notes,
     String? language,
+    String? translator,
     List<Tag>? imprints,
     bool clearImprints = false,
     List<Tag>? collections,
@@ -300,11 +312,13 @@ class SearchFilters {
         query: query ?? this.query,
         tags: tags ?? this.tags,
         author: author ?? this.author,
+        subtitle: subtitle ?? this.subtitle,
         publisher: publisher ?? this.publisher,
         isbn: isbn ?? this.isbn,
         collection: collection ?? this.collection,
         notes: notes ?? this.notes,
         language: language ?? this.language,
+        translator: translator ?? this.translator,
         imprints: clearImprints ? [] : (imprints ?? this.imprints),
         collections: clearCollections ? [] : (collections ?? this.collections),
         status: clearStatus ? null : (status ?? this.status),
@@ -334,6 +348,7 @@ class SearchFilters {
 
     if (query.isNotEmpty) add(SearchField.title, BooleanOperator.contains, query);
     if (author.isNotEmpty) add(SearchField.author, BooleanOperator.contains, author);
+    if (subtitle.isNotEmpty) add(SearchField.subtitle, BooleanOperator.contains, subtitle);
     if (publisher.isNotEmpty) add(SearchField.publisher, BooleanOperator.contains, publisher);
     if (isbn.isNotEmpty) add(SearchField.isbn, BooleanOperator.contains, isbn);
     if (notes.isNotEmpty) add(SearchField.notes, BooleanOperator.contains, notes);
@@ -342,6 +357,7 @@ class SearchFilters {
     if (startedAt != null) add(SearchField.startedAt, startedAtOp, startedAt!.toIso8601String());
     if (finishedAt != null) add(SearchField.finishedAt, finishedAtOp, finishedAt!.toIso8601String());
     if (language.isNotEmpty) add(SearchField.language, BooleanOperator.exactly, language);
+    if (translator.isNotEmpty) add(SearchField.translator, BooleanOperator.contains, translator);
     if (status != null) add(SearchField.status, BooleanOperator.equals, status!.name);
     if (format != null) add(SearchField.format, BooleanOperator.equals, format!.name);
     if (ownership != null) add(SearchField.ownership, BooleanOperator.equals, ownership!.name);

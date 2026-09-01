@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../views/book_form/add_book_modal.dart';
 
 /// A reusable FloatingActionButton that handles adding books or other entities.
@@ -23,7 +24,14 @@ class AddEntityFab extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         opacity: visible ? 1.0 : 0.0,
         child: FloatingActionButton(
-          onPressed: onPressed ?? () => _showAddBookModal(context),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            if (onPressed != null) {
+              onPressed!();
+            } else {
+              _showAddBookModal(context);
+            }
+          },
           child: const Icon(Icons.add),
         ),
       ),

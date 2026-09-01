@@ -768,9 +768,13 @@
     "@shelvesAddFirstShelf": {
         "description": "Action button text for empty shelves state"
     },
-    "shelfBooksEmpty": "Aucun livre dans cette étagère",
+    "shelfBooksEmpty": "Cette étagère est vide",
     "@shelfBooksEmpty": {
         "description": "Empty shelf books state"
+    },
+    "shelfBooksEmptyHint": "Les livres correspondant à ses critères apparaîtront ici.",
+    "@shelfBooksEmptyHint": {
+        "description": "Hint for empty shelf"
     },
     "shelfStatusBooksEmpty": "Il n'y a pas de livres ici",
     "@shelfStatusBooksEmpty": {

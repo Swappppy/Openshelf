@@ -36,53 +36,67 @@ class BookHeader extends StatelessWidget {
           const SizedBox(width: 20),
           // Titles and Author
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  book.title,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Serif',
+            child: TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 600),
+              tween: Tween(begin: 0.0, end: 1.0),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return Transform.translate(
+                  offset: Offset(20 * (1 - value), 0),
+                  child: Opacity(
+                    opacity: value,
+                    child: child,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (book.subtitle != null) ...[
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    book.title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Serif',
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (book.subtitle != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      book.subtitle!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.outline,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Text(
-                    book.subtitle!,
+                    book.author,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.outline,
-                      fontStyle: FontStyle.italic,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ],
-                const SizedBox(height: 4),
-                Text(
-                  book.author,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  const SizedBox(height: 12),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final tagsAsync = ref.watch(bookTagsProvider(book.id));
+                      return tagsAsync.maybeWhen(
+                        data: (tags) {
+                          if (tags.isEmpty) return const SizedBox.shrink();
+                          return _CompactTagsDisplay(tags: tags);
+                        },
+                        orElse: () => const SizedBox.shrink(),
+                      );
+                    },
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                Consumer(
-                  builder: (context, ref, _) {
-                    final tagsAsync = ref.watch(bookTagsProvider(book.id));
-                    return tagsAsync.maybeWhen(
-                      data: (tags) {
-                        if (tags.isEmpty) return const SizedBox.shrink();
-                        return _CompactTagsDisplay(tags: tags);
-                      },
-                      orElse: () => const SizedBox.shrink(),
-                    );
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

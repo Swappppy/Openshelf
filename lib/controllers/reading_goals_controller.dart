@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 import '../services/database.dart';
@@ -34,24 +33,24 @@ final goalProgressProvider = StreamProvider.family<int, int>((ref, goalId) {
             ..where((t) => t.id.equals(goal.shelfId!)))
           .watchSingle()
           .switchMap((shelf) {
-        return db.bookDao
-            .watchBooksFiltered(
-              query: shelf.filterQuery,
-              author: shelf.filterAuthor,
-              publisher: shelf.filterPublisher,
-              isbn: shelf.filterIsbn,
-              collectionIds: shelf.filterCollectionIds != null
-                  ? (jsonDecode(shelf.filterCollectionIds!) as List).cast<int>()
-                  : null,
-              tagIds: shelf.filterTagIds != null
-                  ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>()
-                  : null,
-              imprintIds: shelf.filterImprintIds != null
-                  ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>()
-                  : null,
-              status: ReadingStatus.read,
-            )
-            .map((books) => books.length);
+        return db.shelfDao.watchTagsForShelf(shelf.id).switchMap((shelfTags) {
+          final tagIds = shelfTags.where((t) => t.type == TagType.tag).map((t) => t.id).toList();
+          final imprintIds = shelfTags.where((t) => t.type == TagType.imprint).map((t) => t.id).toList();
+          final collectionIds = shelfTags.where((t) => t.type == TagType.collection).map((t) => t.id).toList();
+
+          return db.bookDao
+              .watchBooksFiltered(
+                query: shelf.filterQuery,
+                author: shelf.filterAuthor,
+                publisher: shelf.filterPublisher,
+                isbn: shelf.filterIsbn,
+                collectionIds: collectionIds.isEmpty ? null : collectionIds,
+                tagIds: tagIds.isEmpty ? null : tagIds,
+                imprintIds: imprintIds.isEmpty ? null : imprintIds,
+                status: ReadingStatus.read,
+              )
+              .map((books) => books.length);
+        });
       });
     }
     return Stream.value(0);

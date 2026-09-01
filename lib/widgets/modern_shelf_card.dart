@@ -33,10 +33,14 @@ class ModernShelfCard extends ConsumerWidget {
     
     return booksAsync.maybeWhen(
       data: (books) {
-        final progress = count > 0 ? readCount / count : 0.0;
+        // Usamos los datos del stream local para mayor reactividad inmediata
+        final currentCount = books.length;
+        final currentReadCount = books.where((b) => b.status == ReadingStatus.read).length;
+        final progress = currentCount > 0 ? currentReadCount / currentCount : 0.0;
+        
         ReadingStatus? activeStatus;
         if (shelf.filterStatus != null) {
-          activeStatus = ReadingStatus.values.firstWhere((s) => s.name == shelf.filterStatus);
+          activeStatus = ReadingStatus.values.firstWhere((s) => s.name == shelf.filterStatus, orElse: () => ReadingStatus.reading);
         }
 
         final displayName = (shelf.filterNoCover || shelf.name == '__auto_no_cover__')
@@ -71,7 +75,7 @@ class ModernShelfCard extends ConsumerWidget {
                       Positioned(
                         bottom: 4, left: 4, right: 4,
                         child: Text(
-                          '$count ${context.l10n.imprintBookCount(count).split(' ').last.toUpperCase()}',
+                          '$currentCount ${context.l10n.imprintBookCount(currentCount).split(' ').last.toUpperCase()}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 7, 
@@ -112,7 +116,7 @@ class ModernShelfCard extends ConsumerWidget {
                       const SizedBox(height: 6),
                       _SummaryDisplay(shelf: shelf, books: books),
                       const SizedBox(height: 12),
-                      StandardProgressRow(readCount: readCount, totalCount: count, progress: progress),
+                      StandardProgressRow(readCount: currentReadCount, totalCount: currentCount, progress: progress),
                     ],
                   ),
                 ),

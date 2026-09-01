@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../book_form/add_book_modal.dart';
 import '../shelves/shelves_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,6 +45,7 @@ class _LibraryViewState extends ConsumerState<LibraryView> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: (index) {
+          HapticFeedback.selectionClick();
           ref.read(libraryNavigationProvider.notifier).setIndex(index);
         },
         destinations: [

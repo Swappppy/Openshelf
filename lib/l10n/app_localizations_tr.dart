@@ -615,7 +615,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shelvesAddFirstShelf => 'Crear estantería';
 
   @override
-  String get shelfBooksEmpty => 'Sin libros en esta estantería';
+  String get shelfBooksEmpty => 'Esta estantería está vacía';
+
+  @override
+  String get shelfBooksEmptyHint =>
+      'Los libros que coincidan con sus filtros aparecerán aquí.';
 
   @override
   String get shelfStatusBooksEmpty => 'No hay libros aquí';
@@ -1332,6 +1336,16 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String searchFilterAuthorLabel(String author) {
     return 'Autor: $author';
+  }
+
+  @override
+  String searchFilterSubtitleLabel(String subtitle) {
+    return 'Subtítulo: $subtitle';
+  }
+
+  @override
+  String searchFilterTranslatorLabel(String translator) {
+    return 'Traductor: $translator';
   }
 
   @override

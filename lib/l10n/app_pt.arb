@@ -768,9 +768,13 @@
   "@shelvesAddFirstShelf": {
     "description": "Action button text for empty shelves state"
   },
-  "shelfBooksEmpty": "Sem livros nesta estante",
+  "shelfBooksEmpty": "Esta estante está vazia",
   "@shelfBooksEmpty": {
     "description": "Empty shelf books state"
+  },
+  "shelfBooksEmptyHint": "Os livros que correspondem aos seus critérios aparecerão aqui.",
+  "@shelfBooksEmptyHint": {
+    "description": "Hint for empty shelf"
   },
   "shelfStatusBooksEmpty": "Não há livros aqui",
   "@shelfStatusBooksEmpty": {

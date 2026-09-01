@@ -620,7 +620,11 @@ class AppLocalizationsCa extends AppLocalizations {
   String get shelvesAddFirstShelf => 'Crear prestatgeria';
 
   @override
-  String get shelfBooksEmpty => 'Sense llibres en aquesta prestatgeria';
+  String get shelfBooksEmpty => 'Aquesta prestatgeria està buida';
+
+  @override
+  String get shelfBooksEmptyHint =>
+      'Els llibres que coincideixin amb els seus filtres apareixeran aquí.';
 
   @override
   String get shelfStatusBooksEmpty => 'No hi ha cap llibre aquí';
@@ -1336,6 +1340,16 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String searchFilterAuthorLabel(String author) {
     return 'Autor: $author';
+  }
+
+  @override
+  String searchFilterSubtitleLabel(String subtitle) {
+    return 'Subtítulo: $subtitle';
+  }
+
+  @override
+  String searchFilterTranslatorLabel(String translator) {
+    return 'Traductor: $translator';
   }
 
   @override

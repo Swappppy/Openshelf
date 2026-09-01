@@ -62,7 +62,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(context.l10n.settingsTitle),
-          toolbarHeight: 40,
+          toolbarHeight: 56,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

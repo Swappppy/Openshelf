@@ -583,9 +583,13 @@
   "@settingsButton": {
     "description": "Settings button label"
   },
-  "shelfBooksEmpty": "",
+  "shelfBooksEmpty": "Dieses Regal ist leer",
   "@shelfBooksEmpty": {
     "description": "Empty shelf books state"
+  },
+  "shelfBooksEmptyHint": "Bücher, die den Kriterien entsprechen, werden hier angezeigt.",
+  "@shelfBooksEmptyHint": {
+    "description": "Hint for empty shelf"
   },
   "settingsApiKeyClear": "",
   "@settingsApiKeyClear": {

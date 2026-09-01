@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/shelf.dart';
 import '../../services/database.dart';
@@ -41,8 +42,9 @@ class ShelfBooksView extends ConsumerWidget {
         ),
         title: Hero(
           tag: 'shelf_title_${shelf.id}',
-          child: Material(
-            color: Colors.transparent,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -86,19 +88,23 @@ class ShelfBooksView extends ConsumerWidget {
             ),
           ),
         ),
-        toolbarHeight: 64,
+        toolbarHeight: 72,
         actions: [
           IconButton(
             icon: Consumer(builder: (context, ref, _) {
               final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
               return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
             }),
-            onPressed: () => ref.read(displayPreferencesProvider.notifier).toggleViewMode(),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              ref.read(displayPreferencesProvider.notifier).toggleViewMode();
+            },
           ),
         ],
       ),
       body: BooksListOrGrid(
         booksAsync: booksAsync,
+        emptySubtitle: context.l10n.shelfBooksEmptyHint,
       ),
     );
   }
@@ -151,20 +157,24 @@ class TagBooksView extends ConsumerWidget {
             ),
           ),
         ),
-        toolbarHeight: 40,
+        toolbarHeight: 56,
         actions: [
           IconButton(
             icon: Consumer(builder: (context, ref, _) {
               final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
               return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
             }),
-            onPressed: () => ref.read(displayPreferencesProvider.notifier).toggleViewMode(),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              ref.read(displayPreferencesProvider.notifier).toggleViewMode();
+            },
           ),
         ],
       ),
       body: BooksListOrGrid(
         booksAsync: booksAsync,
         isCollection: tag.type == TagType.collection,
+        emptySubtitle: context.l10n.shelfBooksEmptyHint,
       ),
     );
   }
@@ -197,19 +207,23 @@ class StatusBooksView extends ConsumerWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        toolbarHeight: 40,
+        toolbarHeight: 56,
         actions: [
           IconButton(
             icon: Consumer(builder: (context, ref, _) {
               final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
               return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
             }),
-            onPressed: () => ref.read(displayPreferencesProvider.notifier).toggleViewMode(),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              ref.read(displayPreferencesProvider.notifier).toggleViewMode();
+            },
           ),
         ],
       ),
       body: BooksListOrGrid(
         booksAsync: booksAsync,
+        emptySubtitle: context.l10n.shelfBooksEmptyHint,
       ),
     );
   }

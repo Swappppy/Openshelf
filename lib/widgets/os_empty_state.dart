@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'bookshelf_icon.dart';
 
 /// A redesigned reusable widget for displaying empty states across the app,
@@ -166,7 +167,10 @@ class _OsEmptyStateState extends State<OsEmptyState> with SingleTickerProviderSt
                           if (widget.actionLabel != null && widget.onActionPressed != null) ...[
                             const SizedBox(height: 40),
                             FilledButton(
-                              onPressed: widget.onActionPressed,
+                              onPressed: () {
+                                HapticFeedback.lightImpact();
+                                widget.onActionPressed!();
+                              },
                               style: FilledButton.styleFrom(
                                 backgroundColor: effectiveAccentColor,
                                 foregroundColor: Colors.white,

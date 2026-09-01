@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../services/database.dart';
 import '../../utils/pagination_helper.dart';
 import '../../widgets/app_color_picker.dart';
@@ -161,6 +162,7 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: validationErrors.isNotEmpty ? null : () {
+              HapticFeedback.selectionClick();
               widget.onSave(PaginationConfig(
                 segments: _segments, 
                 markers: _markers,

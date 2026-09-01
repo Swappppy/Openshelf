@@ -768,9 +768,13 @@
   "@shelvesAddFirstShelf": {
     "description": "Texto del botón de acción en el estado vacío de las estanterías"
   },
-  "shelfBooksEmpty": "Sin libros en esta estantería",
+  "shelfBooksEmpty": "Esta estantería está vacía",
   "@shelfBooksEmpty": {
     "description": "Estado vacío de libros en una estantería"
+  },
+  "shelfBooksEmptyHint": "Los libros que coincidan con sus filtros aparecerán aquí.",
+  "@shelfBooksEmptyHint": {
+    "description": "Sugerencia para estantería vacía"
   },
   "shelfStatusBooksEmpty": "No hay libros aquí",
   "@shelfStatusBooksEmpty": {
@@ -1545,6 +1549,22 @@
   "@searchFilterAuthorLabel": {
     "placeholders": {
       "author": {
+        "type": "String"
+      }
+    }
+  },
+  "searchFilterSubtitleLabel": "Subtítulo: {subtitle}",
+  "@searchFilterSubtitleLabel": {
+    "placeholders": {
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "searchFilterTranslatorLabel": "Traductor: {translator}",
+  "@searchFilterTranslatorLabel": {
+    "placeholders": {
+      "translator": {
         "type": "String"
       }
     }

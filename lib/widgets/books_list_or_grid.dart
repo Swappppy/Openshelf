@@ -21,6 +21,7 @@ class BooksListOrGrid extends ConsumerWidget {
   final SearchFilters? filters;
   final bool isCollection;
   final String? emptyMessage;
+  final String? emptySubtitle;
   final VoidCallback? onAddPressed;
 
   const BooksListOrGrid({
@@ -30,6 +31,7 @@ class BooksListOrGrid extends ConsumerWidget {
     this.filters,
     this.isCollection = false,
     this.emptyMessage,
+    this.emptySubtitle,
     this.onAddPressed,
   });
 
@@ -65,6 +67,56 @@ class BooksListOrGrid extends ConsumerWidget {
     );
   }
 
+  Widget _buildSoberEmptyState(
+    BuildContext context,
+    String message,
+    String? subtitle, {
+    IconData icon = Icons.shelves,
+    Key? key,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      key: key ?? const ValueKey('sober_empty_state'),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: Icon(
+                  icon,
+                  size: 80,
+                  color: colorScheme.outline.withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildView(
     BuildContext context,
     WidgetRef ref,
@@ -77,20 +129,22 @@ class BooksListOrGrid extends ConsumerWidget {
 
     if (bookList.isEmpty) {
       final isSearching = filters != null && (!filters!.isEmpty || filters!.status != null);
-      
+
       if (isSearching) {
-        return Center(
+        return _buildSoberEmptyState(
+          context,
+          context.l10n.libraryNoResults,
+          context.l10n.libraryNoResultsHint,
+          icon: Icons.search_off,
           key: const ValueKey('empty_search_results'),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.search_off, size: 80, color: colorScheme.outline),
-                const SizedBox(height: 16),
-                Text(context.l10n.libraryNoResults, style: Theme.of(context).textTheme.titleLarge),
-              ],
-            ),
-          ),
+        );
+      }
+
+      if (onAddPressed == null) {
+        return _buildSoberEmptyState(
+          context,
+          emptyMessage ?? context.l10n.shelfBooksEmpty,
+          emptySubtitle ?? context.l10n.shelfBooksEmptyHint,
         );
       }
 
@@ -135,13 +189,27 @@ class BooksListOrGrid extends ConsumerWidget {
         itemCount: items.length,
         itemBuilder: (context, index) {
           final book = items[index];
-          return BookListTile(
-            book: book,
-            prefs: prefs,
-            collectionNumber: isCollection ? book.collectionNumber : null,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+          return TweenAnimationBuilder<double>(
+            duration: Duration(milliseconds: 300 + (index.clamp(0, 10) * 100)),
+            tween: Tween(begin: 0.0, end: 1.0),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset(0, 20 * (1 - value)),
+                child: Opacity(
+                  opacity: value,
+                  child: child,
+                ),
+              );
+            },
+            child: BookListTile(
+              book: book,
+              prefs: prefs,
+              collectionNumber: isCollection ? book.collectionNumber : null,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+              ),
             ),
           );
         },
@@ -160,13 +228,27 @@ class BooksListOrGrid extends ConsumerWidget {
         itemCount: items.length,
         itemBuilder: (context, index) {
           final book = items[index];
-          return BookGridCard(
-            book: book,
-            prefs: prefs,
-            overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+          return TweenAnimationBuilder<double>(
+            duration: Duration(milliseconds: 300 + (index.clamp(0, 10) * 100)),
+            tween: Tween(begin: 0.0, end: 1.0),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset(0, 20 * (1 - value)),
+                child: Opacity(
+                  opacity: value,
+                  child: child,
+                ),
+              );
+            },
+            child: BookGridCard(
+              book: book,
+              prefs: prefs,
+              overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+              ),
             ),
           );
         },
