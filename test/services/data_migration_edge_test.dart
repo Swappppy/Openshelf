@@ -19,7 +19,7 @@ void main() {
     migrationService = DataMigrationService(db);
     tempDir = await Directory.systemTemp.createTemp('openshelf_edge_test');
     
-    (TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger as TestDefaultBinaryMessenger).setMockMethodCallHandler(
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       const MethodChannel('plugins.flutter.io/path_provider'),
       (methodCall) async {
         return tempDir.path;
