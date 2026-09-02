@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'database.dart';
 import 'cover_service.dart';
 import 'import_export_base.dart';
+import '../utils/pagination_helper.dart';
 
 /// Service for exporting and importing the entire library database via CSV and ZIP.
 class DataMigrationService {
@@ -360,6 +361,10 @@ class DataMigrationService {
           final current = comp.currentPage.value ?? 0;
           final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
 
+          final Map<int, int> distributedProgress = (comp.paginationConfig.value?.segments.isNotEmpty ?? false)
+              ? PaginationHelper.distributePhysicalPage(progress, comp.paginationConfig.value!.segments)
+              : {0: progress};
+
           if (historyExist == null) {
             await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
               bookId: bookId,
@@ -367,12 +372,13 @@ class DataMigrationService {
               startedAt: comp.startedAt,
               finishedAt: comp.finishedAt,
               progress: Value(progress),
-              segmentProgress: Value(progress > 0 ? {0: progress} : null),
+              segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
             ));
           } else if (progress > historyExist.progress) {
              await _db.readHistoryDao.updateRead(historyExist.copyWith(
                progress: progress,
                finishedAt: comp.finishedAt,
+               segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
              ));
           }
 

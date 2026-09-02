@@ -15,7 +15,12 @@ class InventaireService {
   };
 
   /// Searches for books using the Inventaire search API.
-  static Future<List<BookSearchResult>> search(String query, {int limit = 40, String? preferredLanguage}) async {
+  static Future<List<BookSearchResult>> search(
+    String query, {
+    int limit = 40,
+    String? preferredLanguage,
+    http.Client? client,
+  }) async {
     if (query.trim().isEmpty) return [];
 
     // General search by title/author
@@ -28,7 +33,7 @@ class InventaireService {
       });
 
       debugPrint('Inventaire: Searching $uri');
-      final response = await http.get(uri, headers: _headers).timeout(_timeout);
+      final response = await (client?.get(uri, headers: _headers) ?? http.get(uri, headers: _headers)).timeout(_timeout);
       if (response.statusCode != 200) {
         debugPrint('Inventaire Search Error: HTTP ${response.statusCode}');
         return [];
@@ -125,7 +130,11 @@ class InventaireService {
   }
 
   /// Looks up a book by its ISBN via the entities endpoint.
-  static Future<BookSearchResult?> getByIsbn(String isbn, {String? preferredLanguage}) async {
+  static Future<BookSearchResult?> getByIsbn(
+    String isbn, {
+    String? preferredLanguage,
+    http.Client? client,
+  }) async {
     try {
       final cleanIsbn = isbn.replaceAll(RegExp(r'[^0-9X]'), '');
       final uri = Uri.https(_host, _entitiesPath, {
@@ -134,7 +143,7 @@ class InventaireService {
       });
 
       debugPrint('Inventaire: ISBN Lookup $uri');
-      final response = await http.get(uri, headers: _headers).timeout(_timeout);
+      final response = await (client?.get(uri, headers: _headers) ?? http.get(uri, headers: _headers)).timeout(_timeout);
       if (response.statusCode != 200) {
         debugPrint('Inventaire ISBN Error: HTTP ${response.statusCode} - ${response.body}');
         return null;
@@ -162,8 +171,10 @@ class InventaireService {
 
   /// Returns all editions (with covers) for a given work URI.
   /// [workUri] can be an Inventaire URI (inv:XXXX) or Wikidata URI (wd:QXXXX).
-  static Future<List<BookSearchResult>> getEditionsByWork(String workUri, {
+  static Future<List<BookSearchResult>> getEditionsByWork(
+    String workUri, {
     String? preferredLanguage,
+    http.Client? client,
   }) async {
     const editionsTimeout = Duration(seconds: 20);
     try {
@@ -193,10 +204,10 @@ LIMIT 50
       });
 
       debugPrint('Inventaire: SPARQL editions query for $workUri (lang: $preferredLanguage)');
-      final sparqlResponse = await http.get(
+      final sparqlResponse = await (client?.get(sparqlUri, headers: {..._headers, 'Accept': 'application/sparql-results+json'}) ?? http.get(
         sparqlUri,
         headers: {..._headers, 'Accept': 'application/sparql-results+json'},
-      ).timeout(editionsTimeout);
+      )).timeout(editionsTimeout);
 
       debugPrint('Inventaire: SPARQL HTTP ${sparqlResponse.statusCode}');
       if (sparqlResponse.statusCode != 200) {
@@ -235,7 +246,7 @@ LIMIT 50
       // Batch fetch edition data (max 50)
       final batch = editionUris.take(50).join('|');
       final fetchUri = Uri.https(_host, _entitiesPath, {'uris': batch});
-      final fetchResponse = await http.get(fetchUri, headers: _headers).timeout(editionsTimeout);
+      final fetchResponse = await (client?.get(fetchUri, headers: _headers) ?? http.get(fetchUri, headers: _headers)).timeout(editionsTimeout);
 
       if (fetchResponse.statusCode != 200) {
         debugPrint('Inventaire Editions Fetch Error: HTTP ${fetchResponse.statusCode}');

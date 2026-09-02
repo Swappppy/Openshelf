@@ -195,11 +195,16 @@ class BookFormController {
       final activeSessionNum = PaginationHelper.getActiveSessionNumber(status, completedReads);
       final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
 
+      final Map<int, int> distributedProgress = (finalConfig?.segments.isNotEmpty ?? false)
+          ? PaginationHelper.distributePhysicalPage(currentPage, finalConfig!.segments)
+          : {};
+
       if (activeSession != null) {
         await _db.readHistoryDao.updateRead(activeSession.copyWith(
           progress: currentPage,
           finishedAt: Value(finishedAt),
           startedAt: Value(startedAt),
+          segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
         ));
       } else if (status == ReadingStatus.reading || currentPage > 0 || status == ReadingStatus.read) {
         await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
@@ -208,6 +213,7 @@ class BookFormController {
           startedAt: Value(startedAt ?? DateTime.now()),
           finishedAt: Value(finishedAt),
           progress: Value(currentPage),
+          segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
         ));
       }
 
@@ -223,13 +229,23 @@ class BookFormController {
     } else {
       bookId = await _db.bookDao.insertBook(companion);
       
+      final Map<int, int> distributedProgress = (finalConfig?.segments.isNotEmpty ?? false)
+          ? PaginationHelper.distributePhysicalPage(currentPage, finalConfig!.segments)
+          : {};
+
       if (status == ReadingStatus.read) {
+        final total = totalPages > 0 ? totalPages : currentPage;
+        final Map<int, int> fullProgress = (finalConfig?.segments.isNotEmpty ?? false)
+            ? PaginationHelper.distributePhysicalPage(total, finalConfig!.segments)
+            : {};
+
         await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
           bookId: bookId,
           readNumber: 1,
           startedAt: Value(startedAt ?? DateTime.now()),
           finishedAt: Value(finishedAt ?? DateTime.now()),
-          progress: Value(totalPages),
+          progress: Value(total),
+          segmentProgress: Value(fullProgress.isEmpty ? null : fullProgress),
         ));
       } else if (currentPage > 0 || status == ReadingStatus.reading) {
         await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
@@ -237,6 +253,7 @@ class BookFormController {
           readNumber: 1,
           startedAt: Value(startedAt ?? DateTime.now()),
           progress: Value(currentPage),
+          segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
         ));
       }
 

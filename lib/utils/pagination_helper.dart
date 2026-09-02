@@ -170,4 +170,24 @@ class PaginationHelper {
     if (config.segments.isEmpty) return 0;
     return config.segments.map((s) => s.endPhysical).reduce((a, b) => a > b ? a : b);
   }
+
+  static Map<int, int> distributePhysicalPage(int physicalPage, List<PaginationSegment> segments) {
+    final Map<int, int> distribution = {};
+    if (physicalPage <= 0) return distribution;
+
+    for (int i = 0; i < segments.length; i++) {
+      final s = segments[i];
+      final segmentTotal = s.endPhysical - s.startPhysical + 1;
+
+      if (physicalPage < s.startPhysical) {
+        distribution[i] = 0;
+      } else if (physicalPage >= s.endPhysical) {
+        distribution[i] = segmentTotal;
+      } else {
+        // physicalPage is between s.startPhysical and s.endPhysical
+        distribution[i] = physicalPage - s.startPhysical + 1;
+      }
+    }
+    return distribution;
+  }
 }

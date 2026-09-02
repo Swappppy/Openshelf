@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
-import 'package:collection/collection.dart';
 import '../services/database.dart';
 import 'database_provider.dart';
 import 'app_settings_controller.dart';
@@ -16,7 +15,7 @@ class ShelfAutomationController extends Notifier<void> {
   @override
   void build() {
     // Observamos los factores que activan la automatización
-    // Al usar watch, el método build se vuelve a ejecutar si cambian,
+    // Al usar watch, el metodo build se vuelve a ejecutar si cambian,
     // y nosotros disparamos el check en un microtask.
     ref.watch(appSettingsProvider.select((s) => s.autoNoCoverShelf));
     final booksAsync = ref.watch(allBooksProvider);

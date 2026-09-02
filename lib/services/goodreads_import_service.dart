@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 
 import 'database.dart';
 import 'import_export_base.dart';
+import '../utils/pagination_helper.dart';
 
 /// Parses and imports a GoodReads CSV export into the app database.
 ///
@@ -113,13 +114,17 @@ class GoodreadsImportService {
             final progress = totalPages ?? 0;
             final finishedDate = n == readCount ? (finishedAt ?? createdAt) : createdAt;
             
+            final Map<int, int> distributedProgress = (companion.paginationConfig.value?.segments.isNotEmpty ?? false)
+                ? PaginationHelper.distributePhysicalPage(progress, companion.paginationConfig.value!.segments)
+                : {0: progress};
+
             await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
               bookId: bookId,
               readNumber: n,
               startedAt: Value(createdAt),
               finishedAt: Value(finishedDate),
               progress: Value(progress),
-              segmentProgress: Value(progress > 0 ? {0: progress} : null),
+              segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
             ));
 
             if (progress > 0) {
@@ -132,12 +137,16 @@ class GoodreadsImportService {
             }
           }
         } else if (companion.status.value == ReadingStatus.reading) {
+          final Map<int, int> distributedProgress = (companion.paginationConfig.value?.segments.isNotEmpty ?? false)
+              ? PaginationHelper.distributePhysicalPage(1, companion.paginationConfig.value!.segments)
+              : {0: 1};
+
           await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
             bookId: bookId,
             readNumber: 1,
             startedAt: Value(createdAt),
             progress: const Value(1),
-            segmentProgress: const Value({0: 1}),
+            segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
           ));
 
           final dateOnly = DateTime(createdAt.year, createdAt.month, createdAt.day);

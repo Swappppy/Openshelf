@@ -70,6 +70,13 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
        ));
     }
 
+    // REDISTRIBUTION LOGIC: 
+    // If we have segments but no segment progress was provided, 
+    // but we have a total initial progress, distribute it.
+    if (_segmentProgress.isEmpty && widget.initialProgress > 0 && _segments.isNotEmpty) {
+      _segmentProgress = PaginationHelper.distributePhysicalPage(widget.initialProgress, _segments);
+    }
+
     // Determine initial segment to show: 
     // 1. If explicit index provided, use it
     // 2. Otherwise, find the first incomplete one, or the first one

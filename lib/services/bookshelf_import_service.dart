@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 
 import 'database.dart';
 import 'import_export_base.dart';
+import '../utils/pagination_helper.dart';
 
 /// Parses and imports a Bookshelf CSV export into the app database.
 class BookshelfImportService {
@@ -96,13 +97,17 @@ class BookshelfImportService {
           final current = companion.currentPage.value ?? 0;
           final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
           
+          final Map<int, int> distributedProgress = (companion.paginationConfig.value?.segments.isNotEmpty ?? false)
+              ? PaginationHelper.distributePhysicalPage(progress, companion.paginationConfig.value!.segments)
+              : {0: progress};
+
           await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
             bookId: bookId,
             readNumber: 1,
             startedAt: Value(startedAt),
             finishedAt: Value(finishedAt),
             progress: Value(progress),
-            segmentProgress: Value(progress > 0 ? {0: progress} : null),
+            segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
           ));
 
           if (progress > 0) {
