@@ -20,7 +20,7 @@ void main() {
     tempDir = await Directory.systemTemp.createTemp('openshelf_test');
     
     // Mock path_provider
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+    (TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger as TestDefaultBinaryMessenger).setMockMethodCallHandler(
       const MethodChannel('plugins.flutter.io/path_provider'),
       (methodCall) async {
         if (methodCall.method == 'getTemporaryDirectory' || methodCall.method == 'getApplicationDocumentsDirectory') {

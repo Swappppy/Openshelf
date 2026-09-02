@@ -32,19 +32,19 @@ void main() {
       final container = createContainer();
       final controller = container.read(statsControllerProvider.notifier);
 
-      await controller.addWidget(StatWidgetType.booksRead, StatWidgetSize.medium);
+      await controller.addWidget(StatWidgetType.readByYear, StatWidgetSize.s2x1);
 
       final widgets = await db.statDao.watchWidgetConfigs().first;
       expect(widgets.length, 1);
-      expect(widgets.first.type, StatWidgetType.booksRead.name);
-      expect(widgets.first.size, StatWidgetSize.medium.name);
+      expect(widgets.first.type, StatWidgetType.readByYear.name);
+      expect(widgets.first.size, StatWidgetSize.s2x1.name);
     });
 
     test('removeWidget deletes a widget', () async {
       final container = createContainer();
       final controller = container.read(statsControllerProvider.notifier);
 
-      await controller.addWidget(StatWidgetType.pagesRead, StatWidgetSize.small);
+      await controller.addWidget(StatWidgetType.pages, StatWidgetSize.s1x1);
       final initialWidgets = await db.statDao.watchWidgetConfigs().first;
       expect(initialWidgets.length, 1);
 
@@ -57,18 +57,18 @@ void main() {
       final container = createContainer();
       final controller = container.read(statsControllerProvider.notifier);
 
-      await controller.addWidget(StatWidgetType.booksRead, StatWidgetSize.small);
-      await controller.addWidget(StatWidgetType.pagesRead, StatWidgetSize.small);
+      await controller.addWidget(StatWidgetType.readByYear, StatWidgetSize.s1x1);
+      await controller.addWidget(StatWidgetType.pages, StatWidgetSize.s1x1);
 
       final widgets = await db.statDao.watchWidgetConfigs().first;
-      expect(widgets[0].type, StatWidgetType.booksRead.name);
-      expect(widgets[1].type, StatWidgetType.pagesRead.name);
+      expect(widgets[0].type, StatWidgetType.readByYear.name);
+      expect(widgets[1].type, StatWidgetType.pages.name);
 
       await controller.reorderWidgets([widgets[1], widgets[0]]);
 
       final reordered = await db.statDao.watchWidgetConfigs().first;
-      expect(reordered[0].type, StatWidgetType.pagesRead.name);
-      expect(reordered[1].type, StatWidgetType.booksRead.name);
+      expect(reordered[0].type, StatWidgetType.pages.name);
+      expect(reordered[1].type, StatWidgetType.readByYear.name);
     });
   });
 }

@@ -40,7 +40,7 @@ void main() {
       final container = createContainer();
       
       // Ensure we are listening to the automation controller
-      container.listen(shelfAutomationProvider, (_, __) {});
+      container.listen(shelfAutomationProvider, (p, n) {});
 
       // Add a book without cover
       await db.bookDao.insertBook(const BooksCompanion(
@@ -65,7 +65,7 @@ void main() {
 
     test('Deletes auto-shelf when all books have covers', () async {
       final container = createContainer();
-      container.listen(shelfAutomationProvider, (_, __) {});
+      container.listen(shelfAutomationProvider, (p, n) {});
 
       // 1. Create shelf first
       await db.shelfDao.insertShelf(const ShelvesCompanion(
@@ -92,7 +92,7 @@ void main() {
 
     test('Deletes auto-shelf when setting is disabled', () async {
       final container = createContainer();
-      container.listen(shelfAutomationProvider, (_, __) {});
+      container.listen(shelfAutomationProvider, (p, n) {});
 
       // 1. Create shelf and add book without cover
       await db.shelfDao.insertShelf(const ShelvesCompanion(

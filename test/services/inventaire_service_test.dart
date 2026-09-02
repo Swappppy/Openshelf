@@ -133,7 +133,6 @@ void main() {
       };
 
       // Sequential response setup
-      int callCount = 0;
       when(() => mockClient.get(any(), headers: any(named: 'headers')))
           .thenAnswer((invocation) async {
         final uri = invocation.positionalArguments.first as Uri;

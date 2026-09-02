@@ -19,9 +19,12 @@ void main() {
     migrationService = DataMigrationService(db);
     tempDir = await Directory.systemTemp.createTemp('openshelf_edge_test');
     
-    const MethodChannel('plugins.flutter.io/path_provider').setMockMethodCallHandler((methodCall) async {
-      return tempDir.path;
-    });
+    (TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger as TestDefaultBinaryMessenger).setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (methodCall) async {
+        return tempDir.path;
+      },
+    );
   });
 
   tearDown(() async {
@@ -41,7 +44,7 @@ void main() {
     test('ZIP import fails if books.csv is missing', () async {
       final archive = Archive();
       archive.addFile(ArchiveFile('other.csv', 5, [1, 2, 3, 4, 5]));
-      final zipData = ZipEncoder().encode(archive)!;
+      final zipData = ZipEncoder().encode(archive);
       final zipFile = File(p.join(tempDir.path, 'bad_backup.zip'))..writeAsBytesSync(zipData);
 
       expect(() => migrationService.importFromBackup(zipFile), throwsA(isA<Exception>().having((e) => e.toString(), 'message', contains('books.csv missing'))));

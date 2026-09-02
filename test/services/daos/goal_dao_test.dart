@@ -1,7 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openshelf/services/database.dart';
-import 'package:drift/drift.dart' hide isNull, isNotNull;
 
 void main() {
   late AppDatabase db;
@@ -20,7 +19,7 @@ void main() {
       await db.goalDao.insertGoal(ReadingGoalsCompanion.insert(
         title: 'Read 50 books',
         type: 'books',
-        target: 50,
+        targetValue: 50,
         startDate: now,
         endDate: now.add(const Duration(days: 365)),
       ));
@@ -28,7 +27,7 @@ void main() {
       final goals = await db.goalDao.watchAllGoals().first;
       expect(goals.length, 1);
       expect(goals.first.title, 'Read 50 books');
-      expect(goals.first.target, 50);
+      expect(goals.first.targetValue, 50);
     });
 
     test('updateGoal', () async {
@@ -36,17 +35,17 @@ void main() {
       final id = await db.goalDao.insertGoal(ReadingGoalsCompanion.insert(
         title: 'Initial Goal',
         type: 'books',
-        target: 10,
+        targetValue: 10,
         startDate: now,
         endDate: now.add(const Duration(days: 30)),
       ));
 
       final goal = await (db.select(db.readingGoals)..where((t) => t.id.equals(id))).getSingle();
-      await db.goalDao.updateGoal(goal.copyWith(title: 'Updated Goal', target: 20));
+      await db.goalDao.updateGoal(goal.copyWith(title: 'Updated Goal', targetValue: 20));
 
       final updated = await (db.select(db.readingGoals)..where((t) => t.id.equals(id))).getSingle();
       expect(updated.title, 'Updated Goal');
-      expect(updated.target, 20);
+      expect(updated.targetValue, 20);
     });
 
     test('deleteGoal', () async {
@@ -54,7 +53,7 @@ void main() {
       final id = await db.goalDao.insertGoal(ReadingGoalsCompanion.insert(
         title: 'To be deleted',
         type: 'books',
-        target: 5,
+        targetValue: 5,
         startDate: now,
         endDate: now.add(const Duration(days: 7)),
       ));
