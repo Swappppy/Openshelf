@@ -27,8 +27,12 @@ void main() {
       ),
     );
 
-    // Wait for all initializations and animations to settle
-    await tester.pumpAndSettle();
+    // Wait for initial load
+    await tester.pump();
+    // Pump several frames to allow microtasks and initial animations to run
+    for (int i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     // Verify that the app builds and shows something
     expect(find.byType(OpenshelfApp), findsOneWidget);
@@ -36,8 +40,8 @@ void main() {
     // Close the database to clean up resources
     await db.close();
     
-    // Explicitly dispose the widget tree and wait for cleanup timers
+    // Explicitly dispose the widget tree
     await tester.pumpWidget(Container());
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
   });
 }
