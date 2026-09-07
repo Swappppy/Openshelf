@@ -82,16 +82,21 @@ class ShelvesSettingsMenu extends ConsumerWidget {
           const SizedBox(height: 12),
           Flexible(
             child: ReorderableListView(
+              buildDefaultDragHandles: false,
               onReorderStart: (index) => HapticFeedback.mediumImpact(),
               onReorderItem: (oldIndex, newIndex) {
                 controller.reorderShelvesSections(oldIndex, newIndex);
               },
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: p.shelvesSectionOrder.map((section) {
+              children: p.shelvesSectionOrder.asMap().entries.map((entry) {
+                final index = entry.key;
+                final section = entry.value;
                 return ListTile(
                   key: ValueKey(section),
-                  leading: const Icon(Icons.drag_handle),
+                  leading: ReorderableDragStartListener(
+                    index: index,
+                    child: const Icon(Icons.drag_handle),
+                  ),
                   title: Text(sectionLabels[section] ?? section),
                 );
               }).toList(),

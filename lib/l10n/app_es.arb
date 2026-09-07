@@ -1806,5 +1806,19 @@
   "cameraPermissionExplanation": "Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.",
   "@cameraPermissionExplanation": {
     "description": "Explicación del permiso de cámara denegado permanentemente"
-  }
+  },
+  "settingsAutoPruneTagsTitle": "Limpiar categorías huérfanas",
+  "settingsAutoPruneTagsSub": "Elimina automáticamente las categorías que no se usan en ningún libro",
+  "settingsExcludedPruneTagsTitle": "Categorías excluidas",
+  "settingsExcludedPruneTagsSub": "{count, plural, =0{Sin categorías excluidas} =1{1 categoría protegida} other{{count} categorías protegidas}}",
+  "@settingsExcludedPruneTagsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPruneWarningTitle": "Categorías huérfanas detectadas",
+  "settingsPruneWarningContent": "Activar esta opción eliminará las siguientes categorías porque no se usan en ningún libro. ¿Quieres continuar?",
+  "settingsAutomationTitle": "Automatización"
 }

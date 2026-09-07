@@ -39,27 +39,33 @@ class SearchSection extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 ReorderableListView(
+                  buildDefaultDragHandles: false,
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
                   onReorderStart: (index) => HapticFeedback.mediumImpact(),
                   onReorderItem: (oldIndex, newIndex) {
                     final list = List<BookSearchServer>.from(searchServers);
-                    if (newIndex > oldIndex) newIndex -= 1;
                     final item = list.removeAt(oldIndex);
                     list.insert(newIndex, item);
                     controller.setSearchServers(list);
                   },
-                  children: searchServers.map((server) => ListTile(
-                    key: ValueKey(server),
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.drag_handle),
-                    title: Text(_SearchServerHelper.label(context, server)),
-                    subtitle: Text(_SearchServerHelper.url(server),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: colorScheme.outline)),
-                  )).toList(),
+                  children: searchServers.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final server = entry.value;
+                    return ListTile(
+                      key: ValueKey(server),
+                      contentPadding: EdgeInsets.zero,
+                      leading: ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(Icons.drag_handle),
+                      ),
+                      title: Text(_SearchServerHelper.label(context, server)),
+                      subtitle: Text(_SearchServerHelper.url(server),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: colorScheme.outline)),
+                    );
+                  }).toList(),
                 ),
               ],
             ),

@@ -1830,4 +1830,37 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Kullanılmayan kategorileri temizle';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Herhangi bir kitap tarafından kullanılmayan kategorileri otomatik olarak sil';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Hariç tutulan kategoriler';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kategori koruma altında',
+      one: '1 kategori koruma altında',
+      zero: 'Hariç tutulan kategori yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle =>
+      'Kullanılmayan kategoriler tespit edildi';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Bu seçeneği etkinleştirmek, herhangi bir kitap tarafından kullanılmadıkları için aşağıdaki kategorileri silecektir. Devam etmek istiyor musunuz?';
+
+  @override
+  String get settingsAutomationTitle => 'Otomasyon';
 }

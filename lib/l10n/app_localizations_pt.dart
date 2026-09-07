@@ -1831,6 +1831,38 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'Para tirar uma foto precisas de conceder acesso à câmara. Podes fazê-lo nas definições da aplicação.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Limpar categorias órfãs';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Eliminar automaticamente as categorias que não são usadas em nenhum libro';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Categorias excluídas';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count categorias protegidas',
+      one: '1 categoria protegida',
+      zero: 'Sem categorias excluídas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Categorias órfãs detetadas';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Ativar esta opção irá eliminar as seguintes categorias porque não são usadas em nenhum livro. Deseja continuar?';
+
+  @override
+  String get settingsAutomationTitle => 'Automatização';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -3531,4 +3563,36 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get cameraPermissionExplanation =>
       'Para tirar uma foto você precisa conceder acesso à câmera. Você pode fazer isso nas configurações do aplicativo.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Limpar categorias órfãs';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Excluir automaticamente as categorias que não são usadas em nenhum livro';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Categorias excluídas';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count categorias protegidas',
+      one: '1 categoria protegida',
+      zero: 'Sem categorias excluídas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Categorias órfãs detectadas';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Ativar esta opção irá excluir as seguintes categorias porque não são usadas em nenhum livro. Deseja continuar?';
+
+  @override
+  String get settingsAutomationTitle => 'Automação';
 }

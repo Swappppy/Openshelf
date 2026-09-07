@@ -94,17 +94,64 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
     });
   }
 
-  Future<void> pruneOrphanTags() async {
-    final allTags = await select(tags).get();
+  Future<List<Tag>> getOrphanTags({List<int>? excludedIds, List<int>? candidateIds}) async {
+    if (candidateIds != null && candidateIds.isEmpty) return [];
+
+    final query = select(tags);
+    query.where((t) {
+      Expression<bool> expr = t.type.equals(TagType.tag.name);
+      if (candidateIds != null) {
+        expr = expr & t.id.isIn(candidateIds);
+      }
+      return expr;
+    });
+
+    final allTags = await query.get();
+    
+    final orphans = <Tag>[];
     for (final tag in allTags) {
-      // Imprints and collections are managed manually, don't auto-prune
-      if (tag.type == TagType.imprint || tag.type == TagType.collection) continue;
-      final refs = await (select(bookTags)
-        ..where((bt) => bt.tagId.equals(tag.id))).get();
-      if (refs.isEmpty) {
-        await (delete(tags)..where((t) => t.id.equals(tag.id))).go();
+      if (excludedIds != null && excludedIds.contains(tag.id)) continue;
+      
+      final used = await isTagUsed(tag.id);
+      if (!used) {
+        orphans.add(tag);
       }
     }
+    return orphans;
+  }
+
+  Future<bool> isTagUsed(int tagId) async {
+    // 1. Check bookTags (Categories/Collections linked to books)
+    final btMatch = await (selectOnly(bookTags)
+      ..addColumns([bookTags.bookId])
+      ..where(bookTags.tagId.equals(tagId))
+      ..limit(1)).getSingleOrNull();
+    if (btMatch != null) return true;
+
+    // 2. Check shelves
+    final usedByShelf = await db.shelfDao.isTagUsedByAnyShelf(tagId);
+    if (usedByShelf) return true;
+
+    // 3. Check direct columns in Books (Imprint or primary Collection)
+    final bMatch = await (selectOnly(books)
+      ..addColumns([books.id])
+      ..where(books.imprintId.equals(tagId) | books.collectionId.equals(tagId))
+      ..limit(1)).getSingleOrNull();
+    
+    return bMatch != null;
+  }
+
+  Future<void> pruneOrphanTags({bool enabled = true, List<int>? excludedIds, List<int>? candidateIds}) async {
+    if (!enabled) return;
+    
+    final orphans = await getOrphanTags(excludedIds: excludedIds, candidateIds: candidateIds);
+    if (orphans.isEmpty) return;
+
+    await transaction(() async {
+      for (final tag in orphans) {
+        await (delete(tags)..where((t) => t.id.equals(tag.id))).go();
+      }
+    });
   }
 
   Stream<List<Tag>> watchTagsForBook(int bookId) {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../controllers/app_settings_controller.dart';
 import '../../../controllers/database_provider.dart';
@@ -54,9 +54,6 @@ class _StorageSectionState extends ConsumerState<StorageSection> {
 
   @override
   Widget build(BuildContext context) {
-    // Refresh permission when widget is built to ensure it's up to date 
-    // without needing an observer for now, as it might be causing crashes.
-    // We can also trigger it manually after returning from settings.
     final coversPath = ref.watch(appSettingsProvider.select((s) => s.coversPath));
     final dbPath = ref.watch(appSettingsProvider.select((s) => s.dbPath));
     final controller = ref.read(appSettingsProvider.notifier);
@@ -229,7 +226,6 @@ class _StorageMigrationHelper {
     try {
       debugPrint('StorageSection: Starting DB migration to $newPath');
       
-      // 1. Verify destination is writable
       final testFile = File(p.join(newPath, '.write_test'));
       try {
         await testFile.writeAsString('test');
@@ -269,30 +265,23 @@ class _StorageMigrationHelper {
         throw Exception('Source database file not found at ${sourceFile.path}');
       }
 
-      // 2. IMPORTANT: Close connection before moving
       debugPrint('StorageSection: Closing database connection...');
       try {
-        // Drift's close() can sometimes hang if there are active streams or transactions.
-        // We give it a short timeout and proceed anyway as we are restarting the app soon.
         await ref.read(databaseProvider).close().timeout(const Duration(seconds: 2));
         debugPrint('StorageSection: Database connection closed successfully.');
       } catch (e) {
         debugPrint('StorageSection: Database close timed out or failed ($e). Proceeding with copy...');
       }
       
-      // Give it a moment to release file handles
       await Future.delayed(const Duration(milliseconds: 500));
       
-      // 3. Perform copy
       debugPrint('StorageSection: Copying file...');
       await sourceFile.copy(dest.path);
       debugPrint('StorageSection: Main DB file copied.');
       
-      // Also copy WAL and SHM files if they exist (common in Drift/SQLite on Android)
       await _copyOptionalFile('${sourceFile.path}-wal', '${dest.path}-wal');
       await _copyOptionalFile('${sourceFile.path}-shm', '${dest.path}-shm');
       
-      // 4. Update settings
       debugPrint('StorageSection: Updating settings in SharedPreferences...');
       await ref.read(appSettingsProvider.notifier).setDbPath(newPath);
 
@@ -306,7 +295,6 @@ class _StorageMigrationHelper {
       }
 
       debugPrint('StorageSection: Migration complete. Triggering restart...');
-      // Wait for snackbar to be visible
       await Future.delayed(const Duration(seconds: 2));
       
       final activeIcon = ref.read(appSettingsProvider).activeIconName;

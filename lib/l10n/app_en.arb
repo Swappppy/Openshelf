@@ -1785,5 +1785,19 @@
     "cameraPermissionExplanation": "To take a photo you need to grant camera access. You can do this from the application settings.",
     "@cameraPermissionExplanation": {
         "description": "Explanation for permanently denied camera permission"
-    }
+    },
+    "settingsAutoPruneTagsTitle": "Clean orphan categories",
+    "settingsAutoPruneTagsSub": "Automatically delete categories that are not used by any book",
+    "settingsExcludedPruneTagsTitle": "Excluded categories",
+    "settingsExcludedPruneTagsSub": "{count, plural, =0{No categories excluded} =1{1 category protected} other{{count} categories protected}}",
+    "@settingsExcludedPruneTagsSub": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "settingsPruneWarningTitle": "Orphan categories detected",
+    "settingsPruneWarningContent": "Activating this option will delete the following categories because they are not used by any book. Do you want to continue?",
+    "settingsAutomationTitle": "Automation"
 }

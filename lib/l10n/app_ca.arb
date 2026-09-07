@@ -1756,5 +1756,19 @@
   "cameraPermissionExplanation": "Per fer una foto cal que concedeixis accés a la càmera. Pots fer-ho des dels ajusts de l'aplicació.",
   "@cameraPermissionExplanation": {
     "description": "Explanation for permanently denied camera permission"
-  }
+  },
+  "settingsAutoPruneTagsTitle": "Netejar categories orfes",
+  "settingsAutoPruneTagsSub": "Elimina automàticament les categories que no s'utilitzen en cap llibre",
+  "settingsExcludedPruneTagsTitle": "Categories excloses",
+  "settingsExcludedPruneTagsSub": "{count, plural, =0{Sense categories excloses} =1{1 categoria protegida} other{{count} categories protegides}}",
+  "@settingsExcludedPruneTagsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPruneWarningTitle": "Categories orfes detectades",
+  "settingsPruneWarningContent": "Activar aquesta opció eliminarà les següents categories perquè no s'utilitzen en cap llibre. Vols continuar?",
+  "settingsAutomationTitle": "Automatització"
 }

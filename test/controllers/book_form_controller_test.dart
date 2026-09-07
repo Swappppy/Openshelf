@@ -8,6 +8,8 @@ import 'package:openshelf/controllers/reading_log_controller.dart';
 import 'package:openshelf/controllers/shelf_automation_controller.dart';
 import 'package:openshelf/services/database.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
+import 'package:openshelf/controllers/shared_prefs_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockReadingLogController extends Notifier<void> with Mock implements ReadingLogController {}
 class MockShelfAutomationController extends Notifier<void> with Mock implements ShelfAutomationController {}
@@ -16,8 +18,11 @@ void main() {
   late AppDatabase db;
   late MockReadingLogController mockReadingLog;
   late MockShelfAutomationController mockShelfAuto;
+  late SharedPreferences prefs;
 
-  setUp(() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    prefs = await SharedPreferences.getInstance();
     db = AppDatabase(NativeDatabase.memory());
     mockReadingLog = MockReadingLogController();
     mockShelfAuto = MockShelfAutomationController();
@@ -33,6 +38,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(db),
+        sharedPrefsProvider.overrideWithValue(prefs),
         readingLogControllerProvider.overrideWith(() => mockReadingLog),
         shelfAutomationProvider.overrideWith(() => mockShelfAuto),
       ],

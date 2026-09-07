@@ -1756,5 +1756,19 @@
   "cameraPermissionExplanation": "Para tirar uma foto precisas de conceder acesso à câmara. Podes fazê-lo nas definições da aplicação.",
   "@cameraPermissionExplanation": {
     "description": "Explanation for permanently denied camera permission"
-  }
+  },
+  "settingsAutoPruneTagsTitle": "Limpar categorias órfãs",
+  "settingsAutoPruneTagsSub": "Eliminar automaticamente as categorias que não são usadas em nenhum libro",
+  "settingsExcludedPruneTagsTitle": "Categorias excluídas",
+  "settingsExcludedPruneTagsSub": "{count, plural, =0{Sem categorias excluídas} =1{1 categoria protegida} other{{count} categorias protegidas}}",
+  "@settingsExcludedPruneTagsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPruneWarningTitle": "Categorias órfãs detetadas",
+  "settingsPruneWarningContent": "Ativar esta opção irá eliminar as seguintes categorias porque não são usadas em nenhum livro. Deseja continuar?",
+  "settingsAutomationTitle": "Automatização"
 }

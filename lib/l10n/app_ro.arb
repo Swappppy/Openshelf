@@ -1161,5 +1161,19 @@
   },
   "settingsAllFilesAccess": "All Files Access",
   "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
-  "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder."
+  "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.",
+  "settingsAutoPruneTagsTitle": "Curățare categorii orfane",
+  "settingsAutoPruneTagsSub": "Șterge automat categoriile care nu sunt folosite de niciun volum",
+  "settingsExcludedPruneTagsTitle": "Categorii excluse",
+  "settingsExcludedPruneTagsSub": "{count, plural, =0{Nicio categorie exclusă} =1{1 categorie protejată} other{{count} categorii protejate}}",
+  "@settingsExcludedPruneTagsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPruneWarningTitle": "Categorii orfane detectate",
+  "settingsPruneWarningContent": "Activarea acestei opțiuni va șterge următoarele categorii deoarece nu sunt folosite de niciun volum. Doriți să continuați?",
+  "settingsAutomationTitle": "Automatizare"
 }

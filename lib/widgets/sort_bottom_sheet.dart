@@ -164,10 +164,10 @@ class _SortBottomSheetState extends ConsumerState<SortBottomSheet> {
           ),
           const SizedBox(height: 12),
           ReorderableListView(
+            buildDefaultDragHandles: false,
             onReorderStart: (index) => HapticFeedback.heavyImpact(),
             onReorderItem: widget.onReorder,
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
             children: currentOrder.map((criteria) {
               final isAsc = currentDirections[criteria] ?? true;
               final isAlphabetical = ['name', 'title', 'author', 'publisher', 'collection', 'imprint'].contains(criteria);

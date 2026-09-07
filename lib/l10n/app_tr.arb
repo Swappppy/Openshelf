@@ -104,5 +104,19 @@
     },
     "settingsAllFilesAccess": "All Files Access",
     "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
-    "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder."
+    "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.",
+    "settingsAutoPruneTagsTitle": "Kullanılmayan kategorileri temizle",
+    "settingsAutoPruneTagsSub": "Herhangi bir kitap tarafından kullanılmayan kategorileri otomatik olarak sil",
+    "settingsExcludedPruneTagsTitle": "Hariç tutulan kategoriler",
+    "settingsExcludedPruneTagsSub": "{count, plural, =0{Hariç tutulan kategori yok} =1{1 kategori koruma altında} other{{count} kategori koruma altında}}",
+    "@settingsExcludedPruneTagsSub": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "settingsPruneWarningTitle": "Kullanılmayan kategoriler tespit edildi",
+    "settingsPruneWarningContent": "Bu seçeneği etkinleştirmek, herhangi bir kitap tarafından kullanılmadıkları için aşağıdaki kategorileri silecektir. Devam etmek istiyor musunuz?",
+    "settingsAutomationTitle": "Otomasyon"
 }

@@ -1782,4 +1782,36 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cameraPermissionExplanation => '';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Verwaiste Kategorien bereinigen';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Kategorien, die von keinem Buch verwendet werden, automatisch löschen';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Ausgeschlossene Kategorien';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Kategorien geschützt',
+      one: '1 Kategorie geschützt',
+      zero: 'Keine Kategorien ausgeschlossen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Verwaiste Kategorien erkannt';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Das Aktivieren dieser Option löscht die folgenden Kategorien, da sie von keinem Buch verwendet werden. Fortfahren?';
+
+  @override
+  String get settingsAutomationTitle => 'Automatisierung';
 }

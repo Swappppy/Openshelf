@@ -1801,4 +1801,36 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Очистка пустых категорий';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Автоматически удалять категории, которые не используются ни в одной книге';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Исключенные категории';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count категорий защищено',
+      one: '1 категория защищена',
+      zero: 'Нет исключенных категорий',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Обнаружены пустые категории';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Активация этой опции удалит следующие категории, так как они не используются ни в одной книге. Продолжить?';
+
+  @override
+  String get settingsAutomationTitle => 'Автоматизация';
 }

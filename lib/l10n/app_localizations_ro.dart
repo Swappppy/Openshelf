@@ -1801,4 +1801,36 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Curățare categorii orfane';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Șterge automat categoriile care nu sunt folosite de niciun volum';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Categorii excluse';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count categorii protejate',
+      one: '1 categorie protejată',
+      zero: 'Nicio categorie exclusă',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Categorii orfane detectate';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Activarea acestei opțiuni va șterge următoarele categorii deoarece nu sunt folosite de niciun volum. Doriți să continuați?';
+
+  @override
+  String get settingsAutomationTitle => 'Automatizare';
 }

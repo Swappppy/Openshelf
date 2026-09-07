@@ -1495,5 +1495,19 @@
   "fieldDescription": "",
   "@fieldDescription": {
     "description": "Description field label"
-  }
+  },
+  "settingsAutoPruneTagsTitle": "Puhasta orbkategooriad",
+  "settingsAutoPruneTagsSub": "Kustuta automaatselt kategooriad, mida ükski raamat ei kasuta",
+  "settingsExcludedPruneTagsTitle": "Välistatud kategooriad",
+  "settingsExcludedPruneTagsSub": "{count, plural, =0{Kategooriaid pole välistatud} =1{1 kategooria kaitstud} other{{count} kategooriat kaitstud}}",
+  "@settingsExcludedPruneTagsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPruneWarningTitle": "Tuvastati orbkategooriad",
+  "settingsPruneWarningContent": "Selle valiku aktiveerimine kustutab järgmised kategooriad, kuna ükski raamat ei kasuta neid. Kas soovid jätkata?",
+  "settingsAutomationTitle": "Automatiseerimine"
 }

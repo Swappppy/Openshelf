@@ -61,7 +61,6 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
 
   void reorderFields(int oldIndex, int newIndex) {
     final order = List<String>.from(state.fieldOrder);
-    if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
     _save(state.copyWith(fieldOrder: order));
@@ -69,7 +68,6 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
 
   void reorderShelvesSections(int oldIndex, int newIndex) {
     final order = List<String>.from(state.shelvesSectionOrder);
-    if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
     _save(state.copyWith(shelvesSectionOrder: order));
@@ -77,7 +75,6 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
 
   void reorderSort(int oldIndex, int newIndex) {
     final order = List<String>.from(state.sortOrder);
-    if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
     _save(state.copyWith(sortOrder: order));
@@ -85,7 +82,6 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
 
   void reorderShelfSort(int oldIndex, int newIndex) {
     final order = List<String>.from(state.shelfSortOrder);
-    if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
     _save(state.copyWith(shelfSortOrder: order));
@@ -93,7 +89,6 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
 
   void reorderCategorySort(int oldIndex, int newIndex) {
     final order = List<String>.from(state.categorySortOrder);
-    if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
     _save(state.copyWith(categorySortOrder: order));
@@ -101,7 +96,6 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
 
   void reorderImprintSort(int oldIndex, int newIndex) {
     final order = List<String>.from(state.imprintSortOrder);
-    if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
     _save(state.copyWith(imprintSortOrder: order));
@@ -109,7 +103,6 @@ class DisplayPreferencesController extends Notifier<DisplayPreferences> {
 
   void reorderCollectionSort(int oldIndex, int newIndex) {
     final order = List<String>.from(state.collectionSortOrder);
-    if (newIndex > oldIndex) newIndex--;
     final item = order.removeAt(oldIndex);
     order.insert(newIndex, item);
     _save(state.copyWith(collectionSortOrder: order));

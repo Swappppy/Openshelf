@@ -1837,4 +1837,36 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'Pour prendre une photo, vous devez accorder l\'accès à l\'appareil photo. Vous pouvez le faire dans les paramètres de l\'application.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Nettoyer les catégories orphelines';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Supprimer automatiquement les catégories qui ne sont utilisées par aucun livre';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Catégories exclues';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count catégories protégées',
+      one: '1 catégorie protégée',
+      zero: 'Aucune catégorie exclue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Catégories orphelines détectées';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'L\'activation de cette option supprimera les catégories suivantes car elles ne sont utilisées par aucun livre. Voulez-vous continuer ?';
+
+  @override
+  String get settingsAutomationTitle => 'Automatisation';
 }

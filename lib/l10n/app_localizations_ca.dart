@@ -1834,4 +1834,36 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'Per fer una foto cal que concedeixis accés a la càmera. Pots fer-ho des dels ajusts de l\'aplicació.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Netejar categories orfes';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Elimina automàticament les categories que no s\'utilitzen en cap llibre';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Categories excloses';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count categories protegides',
+      one: '1 categoria protegida',
+      zero: 'Sense categories excloses',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Categories orfes detectades';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Activar aquesta opció eliminarà les següents categories perquè no s\'utilitzen en cap llibre. Vols continuar?';
+
+  @override
+  String get settingsAutomationTitle => 'Automatització';
 }

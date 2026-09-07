@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_settings.dart';
 import 'shared_prefs_provider.dart';
+import 'database_provider.dart';
 
 /// Manages application-wide settings such as theme, locale, and storage paths.
 class AppSettingsController extends Notifier<AppSettings> {
@@ -18,6 +20,8 @@ class AppSettingsController extends Notifier<AppSettings> {
   static const _keyDynamicIconEnabled = 'app_dynamic_icon_enabled';
   static const _keyActiveIconName = 'app_active_icon_name';
   static const _keyHasSeenOnboarding = 'app_has_seen_onboarding';
+  static const _keyPruneOrphanCategories = 'app_prune_orphan_categories';
+  static const _keyExcludedCategoriesFromPruning = 'app_excluded_categories_from_pruning';
 
   @override
   AppSettings build() {
@@ -67,6 +71,15 @@ class AppSettingsController extends Notifier<AppSettings> {
     final dynamicIcon = prefs.getBool(_keyDynamicIconEnabled) ?? false;
     final activeIcon = prefs.getString(_keyActiveIconName);
     final hasSeenOnboarding = prefs.getBool(_keyHasSeenOnboarding) ?? false;
+    final pruneOrphan = prefs.getBool(_keyPruneOrphanCategories) ?? true;
+    
+    final excludedCategoriesJson = prefs.getString(_keyExcludedCategoriesFromPruning);
+    List<int> excludedCategories = [];
+    if (excludedCategoriesJson != null) {
+      try {
+        excludedCategories = (jsonDecode(excludedCategoriesJson) as List).cast<int>();
+      } catch (_) {}
+    }
 
     return AppSettings(
       themeMode: theme,
@@ -86,6 +99,8 @@ class AppSettingsController extends Notifier<AppSettings> {
       dynamicIconEnabled: dynamicIcon,
       activeIconName: activeIcon,
       hasSeenOnboarding: hasSeenOnboarding,
+      pruneOrphanCategories: pruneOrphan,
+      excludedCategoriesFromPruning: excludedCategories,
     );
   }
 
@@ -178,6 +193,32 @@ class AppSettingsController extends Notifier<AppSettings> {
   void setHasSeenOnboarding(bool seen) {
     state = state.copyWith(hasSeenOnboarding: seen);
     ref.read(sharedPrefsProvider).setBool(_keyHasSeenOnboarding, seen);
+  }
+
+  void setPruneOrphanCategories(bool enabled) {
+    state = state.copyWith(pruneOrphanCategories: enabled);
+    ref.read(sharedPrefsProvider).setBool(_keyPruneOrphanCategories, enabled);
+    
+    if (enabled) {
+      ref.read(databaseProvider).tagDao.pruneOrphanTags(
+        enabled: true,
+        excludedIds: state.excludedCategoriesFromPruning,
+      );
+    }
+  }
+
+  void setExcludedCategoriesFromPruning(List<int> ids) {
+    state = state.copyWith(excludedCategoriesFromPruning: ids);
+    ref.read(sharedPrefsProvider).setString(_keyExcludedCategoriesFromPruning, jsonEncode(ids));
+    
+    // If auto-pruning is enabled, trigger a prune cycle for all orphan tags
+    // (excluding the new list of protected tags)
+    if (state.pruneOrphanCategories) {
+      ref.read(databaseProvider).tagDao.pruneOrphanTags(
+        enabled: true,
+        excludedIds: ids,
+      );
+    }
   }
 }
 

@@ -1801,4 +1801,35 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => '未使用のカテゴリを削除';
+
+  @override
+  String get settingsAutoPruneTagsSub => 'どの本にも使用されていないカテゴリを自動的に削除します';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => '除外されたカテゴリ';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countつのカテゴリが保護されています',
+      one: '1つのカテゴリが保護されています',
+      zero: '除外されたカテゴリはありません',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => '未使用のカテゴリが見つかりました';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'このオプションを有効にすると、どの本にも使用されていない以下のカテゴリが削除されます。続行しますか？';
+
+  @override
+  String get settingsAutomationTitle => '自動化';
 }

@@ -1782,4 +1782,36 @@ class AppLocalizationsEt extends AppLocalizations {
 
   @override
   String get cameraPermissionExplanation => '';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Puhasta orbkategooriad';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Kustuta automaatselt kategooriad, mida ükski raamat ei kasuta';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Välistatud kategooriad';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kategooriat kaitstud',
+      one: '1 kategooria kaitstud',
+      zero: 'Kategooriaid pole välistatud',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Tuvastati orbkategooriad';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Selle valiku aktiveerimine kustutab järgmised kategooriad, kuna ükski raamat ei kasuta neid. Kas soovid jätkata?';
+
+  @override
+  String get settingsAutomationTitle => 'Automatiseerimine';
 }

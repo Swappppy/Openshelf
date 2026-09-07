@@ -18,6 +18,7 @@ import 'widgets/main_tab.dart';
 import 'widgets/details_tab.dart';
 import 'widgets/new_reading_bottom_sheet.dart';
 import '../../controllers/read_history_controller.dart';
+import '../../controllers/app_settings_controller.dart';
 
 /// Comprehensive detailed view for a specific book.
 /// Provides access to all metadata, reading progress, and management options (edit/delete).
@@ -372,7 +373,12 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
           ),
           FilledButton(
             onPressed: () {
-              ref.read(databaseProvider).bookDao.deleteBook(widget.book.id);
+              final settings = ref.read(appSettingsProvider);
+              ref.read(databaseProvider).bookDao.deleteBook(
+                widget.book.id,
+                pruneEnabled: settings.pruneOrphanCategories,
+                excludedIds: settings.excludedCategoriesFromPruning,
+              );
               Navigator.pop(ctx); // Close dialog
               Navigator.pop(context); // Go back to library
             },

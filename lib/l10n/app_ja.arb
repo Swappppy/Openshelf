@@ -1161,5 +1161,19 @@
   },
   "settingsAllFilesAccess": "All Files Access",
   "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
-  "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder."
+  "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.",
+  "settingsAutoPruneTagsTitle": "未使用のカテゴリを削除",
+  "settingsAutoPruneTagsSub": "どの本にも使用されていないカテゴリを自動的に削除します",
+  "settingsExcludedPruneTagsTitle": "除外されたカテゴリ",
+  "settingsExcludedPruneTagsSub": "{count, plural, =0{除外されたカテゴリはありません} =1{1つのカテゴリが保護されています} other{{count}つのカテゴリが保護されています}}",
+  "@settingsExcludedPruneTagsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPruneWarningTitle": "未使用のカテゴリが見つかりました",
+  "settingsPruneWarningContent": "このオプションを有効にすると、どの本にも使用されていない以下のカテゴリが削除されます。続行しますか？",
+  "settingsAutomationTitle": "自動化"
 }

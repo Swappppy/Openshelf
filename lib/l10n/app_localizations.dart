@@ -3424,6 +3424,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Para hacer una foto necesitas conceder acceso a la cámara. Puedes hacerlo desde los ajustes de la aplicación.'**
   String get cameraPermissionExplanation;
+
+  /// No description provided for @settingsAutoPruneTagsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar categorías huérfanas'**
+  String get settingsAutoPruneTagsTitle;
+
+  /// No description provided for @settingsAutoPruneTagsSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Elimina automáticamente las categorías que no se usan en ningún libro'**
+  String get settingsAutoPruneTagsSub;
+
+  /// No description provided for @settingsExcludedPruneTagsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías excluidas'**
+  String get settingsExcludedPruneTagsTitle;
+
+  /// No description provided for @settingsExcludedPruneTagsSub.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =0{Sin categorías excluidas} =1{1 categoría protegida} other{{count} categorías protegidas}}'**
+  String settingsExcludedPruneTagsSub(int count);
+
+  /// No description provided for @settingsPruneWarningTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías huérfanas detectadas'**
+  String get settingsPruneWarningTitle;
+
+  /// No description provided for @settingsPruneWarningContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Activar esta opción eliminará las siguientes categorías porque no se usan en ningún libro. ¿Quieres continuar?'**
+  String get settingsPruneWarningContent;
+
+  /// No description provided for @settingsAutomationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Automatización'**
+  String get settingsAutomationTitle;
 }
 
 class _AppLocalizationsDelegate

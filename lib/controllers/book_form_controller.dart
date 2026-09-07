@@ -9,6 +9,7 @@ import '../services/permission_service.dart';
 import 'database_provider.dart';
 import 'shelf_automation_controller.dart';
 import 'reading_log_controller.dart';
+import 'app_settings_controller.dart';
 import '../utils/pagination_helper.dart';
 
 final bookFormControllerProvider = Provider((ref) => BookFormController(ref));
@@ -271,8 +272,21 @@ class BookFormController {
       }
     }
 
+    // Collect candidates for orphan pruning: both old and new tags
+    final Set<int> pruningCandidates = {...tagIds};
+    if (existingBook != null) {
+      final oldTags = await _db.tagDao.watchTagsForBook(existingBook.id).first;
+      pruningCandidates.addAll(oldTags.map((t) => t.id));
+    }
+
     await _db.tagDao.setBookTags(bookId, tagIds, collections: collections);
-    await _db.tagDao.pruneOrphanTags();
+    
+    final settings = ref.read(appSettingsProvider);
+    await _db.tagDao.pruneOrphanTags(
+      enabled: settings.pruneOrphanCategories,
+      excludedIds: settings.excludedCategoriesFromPruning,
+      candidateIds: pruningCandidates.toList(),
+    );
     ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
 
     return bookId;

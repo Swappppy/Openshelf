@@ -6,6 +6,7 @@ import '../../widgets/loading_overlay.dart';
 import 'sections/appearance_section.dart';
 import 'sections/storage_section.dart';
 import 'sections/search_section.dart';
+import 'sections/automation_section.dart';
 import 'sections/data_section.dart';
 
 /// Main settings view for global application configuration.
@@ -71,6 +72,8 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
               const AppearanceSection(),
               const SizedBox(height: 24),
               const StorageSection(),
+              const SizedBox(height: 24),
+              const AutomationSection(),
               const SizedBox(height: 24),
               const SearchSection(),
               const SizedBox(height: 24),

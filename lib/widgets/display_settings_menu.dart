@@ -105,12 +105,12 @@ class DisplaySettingsMenu extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ReorderableListView(
+                    buildDefaultDragHandles: false,
                     onReorderStart: (index) => HapticFeedback.mediumImpact(),
                     onReorderItem: (oldIndex, newIndex) {
                       controller.reorderFields(oldIndex, newIndex);
                     },
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
                     children: p.fieldOrder.map((field) {
                       return ListTile(
                         key: ValueKey(field),

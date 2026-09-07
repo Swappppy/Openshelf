@@ -1499,5 +1499,19 @@
   "fieldDescription": "",
   "@fieldDescription": {
     "description": "Description field label"
-  }
+  },
+  "settingsAutoPruneTagsTitle": "Verwaiste Kategorien bereinigen",
+  "settingsAutoPruneTagsSub": "Kategorien, die von keinem Buch verwendet werden, automatisch löschen",
+  "settingsExcludedPruneTagsTitle": "Ausgeschlossene Kategorien",
+  "settingsExcludedPruneTagsSub": "{count, plural, =0{Keine Kategorien ausgeschlossen} =1{1 Kategorie geschützt} other{{count} Kategorien geschützt}}",
+  "@settingsExcludedPruneTagsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPruneWarningTitle": "Verwaiste Kategorien erkannt",
+  "settingsPruneWarningContent": "Das Aktivieren dieser Option löscht die folgenden Kategorien, da sie von keinem Buch verwendet werden. Fortfahren?",
+  "settingsAutomationTitle": "Automatisierung"
 }

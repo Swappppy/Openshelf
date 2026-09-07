@@ -21,6 +21,8 @@ class AppSettings {
   final bool dynamicIconEnabled;
   final String? activeIconName;
   final bool hasSeenOnboarding;
+  final bool pruneOrphanCategories;
+  final List<int> excludedCategoriesFromPruning;
 
   const AppSettings({
     this.themeMode = ThemeMode.system,
@@ -40,6 +42,8 @@ class AppSettings {
     this.dynamicIconEnabled = false,
     this.activeIconName,
     this.hasSeenOnboarding = false,
+    this.pruneOrphanCategories = true,
+    this.excludedCategoriesFromPruning = const [],
   });
 
   AppSettings copyWith({
@@ -59,6 +63,8 @@ class AppSettings {
     String? activeIconName,
     bool clearActiveIconName = false,
     bool? hasSeenOnboarding,
+    bool? pruneOrphanCategories,
+    List<int>? excludedCategoriesFromPruning,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -74,6 +80,8 @@ class AppSettings {
       dynamicIconEnabled: dynamicIconEnabled ?? this.dynamicIconEnabled,
       activeIconName: clearActiveIconName ? null : (activeIconName ?? this.activeIconName),
       hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
+      pruneOrphanCategories: pruneOrphanCategories ?? this.pruneOrphanCategories,
+      excludedCategoriesFromPruning: excludedCategoriesFromPruning ?? this.excludedCategoriesFromPruning,
     );
   }
 }

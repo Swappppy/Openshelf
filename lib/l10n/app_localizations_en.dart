@@ -1818,4 +1818,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get cameraPermissionExplanation =>
       'To take a photo you need to grant camera access. You can do this from the application settings.';
+
+  @override
+  String get settingsAutoPruneTagsTitle => 'Clean orphan categories';
+
+  @override
+  String get settingsAutoPruneTagsSub =>
+      'Automatically delete categories that are not used by any book';
+
+  @override
+  String get settingsExcludedPruneTagsTitle => 'Excluded categories';
+
+  @override
+  String settingsExcludedPruneTagsSub(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count categories protected',
+      one: '1 category protected',
+      zero: 'No categories excluded',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsPruneWarningTitle => 'Orphan categories detected';
+
+  @override
+  String get settingsPruneWarningContent =>
+      'Activating this option will delete the following categories because they are not used by any book. Do you want to continue?';
+
+  @override
+  String get settingsAutomationTitle => 'Automation';
 }
