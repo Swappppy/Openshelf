@@ -40,31 +40,46 @@ class _LibraryViewState extends ConsumerState<LibraryView> {
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(libraryNavigationProvider);
 
-    return Scaffold(
-      body: _screens[currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
-          HapticFeedback.selectionClick();
-          ref.read(libraryNavigationProvider.notifier).setIndex(index);
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.menu_book_outlined),
-            selectedIcon: const Icon(Icons.menu_book),
-            label: context.l10n.navLibrary,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.bookmarks_outlined),
-            selectedIcon: const Icon(Icons.bookmarks),
-            label: context.l10n.navShelves,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.bar_chart_outlined),
-            selectedIcon: const Icon(Icons.bar_chart),
-            label: context.l10n.navStats,
-          ),
-        ],
+    return PopScope(
+      canPop: currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        
+        // If not on the first tab, go back to it
+        if (currentIndex != 0) {
+          HapticFeedback.lightImpact();
+          ref.read(libraryNavigationProvider.notifier).setIndex(0);
+        }
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: currentIndex,
+          children: _screens,
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: currentIndex,
+          onDestinationSelected: (index) {
+            HapticFeedback.selectionClick();
+            ref.read(libraryNavigationProvider.notifier).setIndex(index);
+          },
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.menu_book_outlined),
+              selectedIcon: const Icon(Icons.menu_book),
+              label: context.l10n.navLibrary,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.bookmarks_outlined),
+              selectedIcon: const Icon(Icons.bookmarks),
+              label: context.l10n.navShelves,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.bar_chart_outlined),
+              selectedIcon: const Icon(Icons.bar_chart),
+              label: context.l10n.navStats,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -117,82 +132,92 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
       orElse: () => false,
     );
 
-    return Scaffold(
-      appBar: LibraryAppBar(
-        searchVisible: _searchVisible,
-        onSearchToggle: () {
-          setState(() => _searchVisible = !_searchVisible);
-          if (!_searchVisible) {
-            ref.read(searchFiltersProvider.notifier).clearAll();
-          }
-        },
-      ),
-      body: Column(
-        children: [
-          ScrollableSelectionBar<ReadingStatus?>(
-            items: [
-              SelectionItem(value: null, label: context.l10n.shelfAllBooks),
-              SelectionItem(value: ReadingStatus.reading, label: context.l10n.statusReading, color: Colors.blue),
-              SelectionItem(value: ReadingStatus.wantToRead, label: context.l10n.statusWantToRead, color: Colors.orange),
-              SelectionItem(value: ReadingStatus.read, label: context.l10n.statusRead, color: Colors.green),
-              SelectionItem(value: ReadingStatus.paused, label: context.l10n.statusPaused, color: const Color(0xFFB39DDB)),
-              SelectionItem(value: ReadingStatus.abandoned, label: context.l10n.statusAbandoned, color: Colors.red),
-            ],
-            selectedValue: filters.status,
-            onSelected: (status) {
-              ref.read(searchFiltersProvider.notifier).setStatus(status);
-            },
-            onSortTap: () {
-              final controller = ref.read(displayPreferencesProvider.notifier);
-              final l10n = context.l10n;
+    return PopScope(
+      canPop: !_searchVisible,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_searchVisible) {
+          setState(() => _searchVisible = false);
+          ref.read(searchFiltersProvider.notifier).clearAll();
+        }
+      },
+      child: Scaffold(
+        appBar: LibraryAppBar(
+          searchVisible: _searchVisible,
+          onSearchToggle: () {
+            setState(() => _searchVisible = !_searchVisible);
+            if (!_searchVisible) {
+              ref.read(searchFiltersProvider.notifier).clearAll();
+            }
+          },
+        ),
+        body: Column(
+          children: [
+            ScrollableSelectionBar<ReadingStatus?>(
+              items: [
+                SelectionItem(value: null, label: context.l10n.shelfAllBooks),
+                SelectionItem(value: ReadingStatus.reading, label: context.l10n.statusReading, color: Colors.blue),
+                SelectionItem(value: ReadingStatus.wantToRead, label: context.l10n.statusWantToRead, color: Colors.orange),
+                SelectionItem(value: ReadingStatus.read, label: context.l10n.statusRead, color: Colors.green),
+                SelectionItem(value: ReadingStatus.paused, label: context.l10n.statusPaused, color: const Color(0xFFB39DDB)),
+                SelectionItem(value: ReadingStatus.abandoned, label: context.l10n.statusAbandoned, color: Colors.red),
+              ],
+              selectedValue: filters.status,
+              onSelected: (status) {
+                ref.read(searchFiltersProvider.notifier).setStatus(status);
+              },
+              onSortTap: () {
+                final controller = ref.read(displayPreferencesProvider.notifier);
+                final l10n = context.l10n;
 
-              SortBottomSheet.show(
-                context,
-                title: l10n.sortTitle,
-                orderSelector: (p) => p.sortOrder,
-                directionsSelector: (p) => p.sortDirections,
-                labels: {
-                  'title': l10n.fieldTitle,
-                  'author': l10n.fieldAuthor,
-                  'publisher': l10n.fieldPublisher,
-                  'collection': l10n.fieldCollection,
-                  'imprint': l10n.managementImprints,
-                  'publishYear': l10n.fieldYear,
-                  'createdAt': l10n.bookDetailFieldAdded,
-                  'rating': l10n.fieldRating,
-                },
-                onReorder: controller.reorderSort,
-                onToggleDirection: controller.toggleFieldSortDirection,
-                showEmptyToggle: true,
-                emptyAtEndSelector: (p) => p.emptyAtEnd,
-                onToggleEmpty: controller.toggleEmptyAtEnd,
-              );
-            },
-          ),
-          if (_searchVisible)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SearchPanel(
-                filters: filters,
-                onChanged: (f) =>
-                    ref.read(searchFiltersProvider.notifier).setFilters(f),
-                onSaveAsShelf: () => _openShelfCreation(filters),
+                SortBottomSheet.show(
+                  context,
+                  title: l10n.sortTitle,
+                  orderSelector: (p) => p.sortOrder,
+                  directionsSelector: (p) => p.sortDirections,
+                  labels: {
+                    'title': l10n.fieldTitle,
+                    'author': l10n.fieldAuthor,
+                    'publisher': l10n.fieldPublisher,
+                    'collection': l10n.fieldCollection,
+                    'imprint': l10n.managementImprints,
+                    'publishYear': l10n.fieldYear,
+                    'createdAt': l10n.bookDetailFieldAdded,
+                    'rating': l10n.fieldRating,
+                  },
+                  onReorder: controller.reorderSort,
+                  onToggleDirection: controller.toggleFieldSortDirection,
+                  showEmptyToggle: true,
+                  emptyAtEndSelector: (p) => p.emptyAtEnd,
+                  onToggleEmpty: controller.toggleEmptyAtEnd,
+                );
+              },
+            ),
+            if (_searchVisible)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SearchPanel(
+                  filters: filters,
+                  onChanged: (f) =>
+                      ref.read(searchFiltersProvider.notifier).setFilters(f),
+                  onSaveAsShelf: () => _openShelfCreation(filters),
+                ),
+              ),
+            Expanded(
+              child: Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: BooksListOrGrid(
+                  booksAsync: booksAsync,
+                  scrollController: _scrollController,
+                  filters: filters,
+                  onAddPressed: () => AddBookModal.show(context),
+                ),
               ),
             ),
-          Expanded(
-            child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: BooksListOrGrid(
-                booksAsync: booksAsync,
-                scrollController: _scrollController,
-                filters: filters,
-                onAddPressed: () => AddBookModal.show(context),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
+        floatingActionButton: isEmpty ? null : AddEntityFab(visible: isFabVisible),
       ),
-      floatingActionButton: isEmpty ? null : AddEntityFab(visible: isFabVisible),
     );
   }
 }

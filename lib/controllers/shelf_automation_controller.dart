@@ -15,31 +15,33 @@ class ShelfAutomationController extends Notifier<void> {
   @override
   void build() {
     // Observamos los factores que activan la automatización
-    // Al usar watch, el metodo build se vuelve a ejecutar si cambian,
-    // y nosotros disparamos el check en un microtask.
+    // Usamos watch para reaccionar a cambios, pero controlamos la ejecución
     ref.watch(appSettingsProvider.select((s) => s.autoNoCoverShelf));
     final booksAsync = ref.watch(allBooksProvider);
 
-    if (booksAsync.hasValue) {
+    // Solo disparamos si tenemos datos válidos y no hay una ejecución en curso
+    if (booksAsync.hasValue && booksAsync.value != null) {
+      // Usamos un microtask para no bloquear el build actual
       Future.microtask(() => checkNoCoverShelf());
     }
   }
 
   Future<void> checkNoCoverShelf() async {
+    // Si ya estamos comprobando, marcamos como pendiente para re-ejecutar al terminar
     if (_isChecking) {
       _pendingCheck = true;
       return;
     }
+    
     _isChecking = true;
     _pendingCheck = false;
 
     try {
       final settings = ref.read(appSettingsProvider);
       final db = ref.read(databaseProvider);
-      // Aquí usamos read porque ya sabemos que tiene valor por el watch del build
-      final booksAsync = ref.read(allBooksProvider);
-      final books = booksAsync.asData?.value;
-
+      
+      // Obtenemos el valor actual de los libros
+      final books = ref.read(allBooksProvider).value;
       if (books == null) return;
 
       final autoShelf = await db.shelfDao.getShelfByName(internalName);
@@ -77,7 +79,11 @@ class ShelfAutomationController extends Notifier<void> {
     } catch (e, stack) {
       debugPrint('ShelfAutomation error: $e\n$stack');
     } finally {
+      // Pequeña espera para evitar saturar el loop de microtasks en cambios masivos
+      await Future.delayed(const Duration(milliseconds: 100));
       _isChecking = false;
+      
+      // Si hubo cambios mientras procesábamos, volvemos a comprobar
       if (_pendingCheck) {
         checkNoCoverShelf();
       }
