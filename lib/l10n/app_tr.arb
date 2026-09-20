@@ -1729,5 +1729,9 @@
     "fieldDescription": "",
     "@fieldDescription": {
         "description": "Nombre del campo sinopsis/descripción"
+    },
+    "settingsApiKeyStep6": "",
+    "@settingsApiKeyStep6": {
+        "description": "Paso 6 de instrucciones de API key"
     }
 }
