@@ -768,7 +768,7 @@
     "@shelvesAddFirstShelf": {
         "description": "Action button text for empty shelves state"
     },
-    "shelfBooksEmpty": "Esta estante está vazia",
+    "shelfBooksEmpty": "Sem livros nesta estante",
     "@shelfBooksEmpty": {
         "description": "Empty shelf books state"
     },
@@ -862,23 +862,23 @@
     },
     "shelfStatusLabelReading": "Lendo",
     "@shelfStatusLabelReading": {
-    "description": "Reading status label"
+        "description": "Reading status label"
     },
     "shelfStatusLabelRead": "Lidos",
     "@shelfStatusLabelRead": {
-    "description": "Read status label"
+        "description": "Read status label"
     },
     "shelfStatusLabelWantToRead": "Quero ler",
     "@shelfStatusLabelWantToRead": {
-    "description": "To read status label"
+        "description": "To read status label"
     },
     "shelfStatusLabelAbandoned": "Abandonados",
     "@shelfStatusLabelAbandoned": {
-    "description": "Abandoned status label"
+        "description": "Abandoned status label"
     },
     "shelfStatusLabelPaused": "Pausados",
     "@shelfStatusLabelPaused": {
-    "description": "Paused status label"
+        "description": "Paused status label"
     },
     "managementCategories": "Categorias",
     "@managementCategories": {
@@ -1158,7 +1158,7 @@
     "dataManagementRestoreBackup": "Restaurar cópia de segurança",
     "dataManagementRestoreBackupHint": "Restaurar do CSV/ZIP do OpenShelf",
     "dataManagementCreateBackup": "Criar cópia de segurança",
-    "dataManagementCreateBackupHint": "Full export with covers option",
+    "dataManagementCreateBackupHint": "Exportación completa con opción de capas",
     "settingsImportBookshelf": "Importar do Bookshelf",
     "@settingsImportBookshelf": {
         "description": "Import from Bookshelf option"
@@ -1316,7 +1316,7 @@
     "@settingsApiKeyStep3": {
         "description": "Step 3"
     },
-    "settingsApiKeyStep4": "Vá em APIs e serviços → Credenciais → Criar credenciais → API Key.",
+    "settingsApiKeyStep4": "Vá em APIs e serviços → Credenciais → Criar credenciais → Chave de API.",
     "@settingsApiKeyStep4": {
         "description": "Step 4"
     },
@@ -1414,7 +1414,7 @@
             }
         }
     },
-    "searchActiveFilters": "{count, plural, =1{1 filtro ativo} other{{count} filtres ativos}}",
+    "searchActiveFilters": "{count, plural, =1{1 filtro ativo} other{{count} filtros ativos}}",
     "@searchActiveFilters": {
         "placeholders": {
             "count": {
@@ -1543,7 +1543,7 @@
     },
     "statsGoalTitle": "META",
     "statsGoalFullTitle": "META DE LEITURA",
-    "statsGoalUnitBooks": "livros",
+    "statsGoalUnitBooks": "libros",
     "statsGoalUnitPages": "págs",
     "statsGoalRemaining": "Faltam {count}",
     "@statsGoalRemaining": {
@@ -1591,7 +1591,7 @@
     "statsOptStatusTitle": "Estados de leitura",
     "statsOptStatusSub": "Libros por estado",
     "statsOptCurrentTitle": "Livro atual",
-    "statsOptCurrentSub": "Progresso de leitura em andamento",
+    "statsOptCurrentSub": "Progreso de leitura em andamento",
     "statsOptAddedTimeTitle": "Livros adicionados",
     "statsOptAddedTimeSub": "Gráfico temporal de aquisições",
     "statsOptCategoriesTitle": "Categorias",

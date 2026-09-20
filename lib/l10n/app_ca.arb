@@ -1,1774 +1,1774 @@
 {
-  "@@locale": "ca",
-  "appTitle": "Openshelf",
-  "@appTitle": {
-    "description": "Application name"
-  },
-  "errorPrefix": "Error: {message}",
-  "@errorPrefix": {
-    "description": "Generic error prefix",
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
-  "errorGeneric": "Error: {error}",
-  "@errorGeneric": {
-    "description": "Generic error message with parameter",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "criticalStartError": "Error en iniciar l'aplicació: {error}",
-  "@criticalStartError": {
-    "description": "Critical app startup error",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "navLibrary": "Biblioteca",
-  "@navLibrary": {
-    "description": "Nav tab: library"
-  },
-  "navShelves": "Prestatgeries",
-  "@navShelves": {
-    "description": "Nav tab: shelves"
-  },
-  "navStats": "Estadístiques",
-  "@navStats": {
-    "description": "Nav tab: stats"
-  },
-  "libraryTitle": "Biblioteca",
-  "@libraryTitle": {
-    "description": "Library screen title"
-  },
-  "libraryEmpty": "La teva biblioteca està buida",
-  "@libraryEmpty": {
-    "description": "Empty library state"
-  },
-  "libraryEmptyHint": "Quin serà el teu primer llibre?",
-  "@libraryEmptyHint": {
-    "description": "Hint when library is empty"
-  },
-  "libraryAddFirstBook": "Afegir primer llibre",
-  "@libraryAddFirstBook": {
-    "description": "Text for the action button in the empty library state"
-  },
-  "libraryNoResults": "Sense resultats",
-  "@libraryNoResults": {
-    "description": "No search results"
-  },
-  "libraryNoResultsHint": "Prova amb altres filtres",
-  "@libraryNoResultsHint": {
-    "description": "Hint when no search results"
-  },
-  "addBook": "Afegir llibre",
-  "@addBook": {
-    "description": "Add book FAB label"
-  },
-  "displaySettings": "Mostra a la biblioteca",
-  "@displaySettings": {
-    "description": "Display settings title"
-  },
-  "displaySettingsDragHint": "Arrossega per reordenar",
-  "@displaySettingsDragHint": {
-    "description": "Reorder hint"
-  },
-  "settingsButton": "Ajusts",
-  "@settingsButton": {
-    "description": "Settings button label"
-  },
-  "fieldAuthor": "Autor",
-  "@fieldAuthor": {
-    "description": "Author field name"
-  },
-  "fieldPublisher": "Editorial",
-  "@fieldPublisher": {
-    "description": "Publisher field name"
-  },
-  "fieldYear": "Any de publicació",
-  "@fieldYear": {
-    "description": "Year field name"
-  },
-  "fieldRating": "Valoració",
-  "@fieldRating": {
-    "description": "Rating field name"
-  },
-  "fieldTags": "Etiquetes",
-  "@fieldTags": {
-    "description": "Tags field name"
-  },
-  "fieldReadingProgress": "Progrés de lectura",
-  "@fieldReadingProgress": {
-    "description": "Reading progress field"
-  },
-  "fieldStatusChip": "Xip d'estat",
-  "@fieldStatusChip": {
-    "description": "Status chip field"
-  },
-  "searchHint": "Cerca per títol...",
-  "@searchHint": {
-    "description": "Library search placeholder"
-  },
-  "filterAuthor": "Autor",
-  "@filterAuthor": {
-    "description": "Author filter placeholder"
-  },
-  "filterIsbn": "ISBN",
-  "@filterIsbn": {
-    "description": "ISBN filter placeholder"
-  },
-  "filterPublisher": "Editorial",
-  "@filterPublisher": {
-    "description": "Publisher filter placeholder"
-  },
-  "filterCollection": "Col·lecció",
-  "@filterCollection": {
-    "description": "Collection filter placeholder"
-  },
-  "filterImprintLabel": "Segell editorial",
-  "@filterImprintLabel": {
-    "description": "Imprint filter label"
-  },
-  "imprintBookCount": "{count} llibres",
-  "@imprintBookCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "filterTagsLabel": "Categories",
-  "@filterTagsLabel": {
-    "description": "Categories filter label"
-  },
-  "done": "Fet",
-  "@done": {
-    "description": "Generic close button"
-  },
-  "loading": "S'està carregant...",
-  "@loading": {
-    "description": "Generic loading message"
-  },
-  "loadingImport": "S'estan important els llibres, espera un moment...",
-  "@loadingImport": {
-    "description": "Loading message during import"
-  },
-  "loadingExport": "S'estan exportant els llibres, espera un moment...",
-  "@loadingExport": {
-    "description": "Loading message during export"
-  },
-  "exportProgressData": "S'estan exportant les dades...",
-  "exportProgressMedia": "S'estan preparant els fitxers multimèdia...",
-  "exportProgressCompress": "S'està comprimint la còpia de seguretat...",
-  "exportProgressFinalize": "S'està obrint el menú de compartir...",
-  "exportSaveSuccess": "Còpia de seguretat desada a {path}",
-  "@exportSaveSuccess": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "cancel": "Cancel·lar",
-  "@cancel": {
-    "description": "Generic cancel button"
-  },
-  "save": "Desar",
-  "@save": {
-    "description": "Generic save button"
-  },
-  "delete": "Eliminar",
-  "@delete": {
-    "description": "Generic delete button"
-  },
-  "create": "Crear",
-  "@create": {
-    "description": "Generic create button"
-  },
-  "edit": "Editar",
-  "@edit": {
-    "description": "Generic edit button"
-  },
-  "duplicate": "Duplicar",
-  "@duplicate": {
-    "description": "Generic duplicate action"
-  },
-  "photo": "Foto",
-  "@photo": {
-    "description": "Take photo button"
-  },
-  "url": "URL",
-  "@url": {
-    "description": "Enter URL button"
-  },
-  "download": "Descarregar",
-  "@download": {
-    "description": "Download button"
-  },
-  "retry": "Reintentar",
-  "@retry": {
-    "description": "Retry button"
-  },
-  "share": "Compartir",
-  "@share": {
-    "description": "Share action"
-  },
-  "saveToDevice": "Desar al dispositiu",
-  "@saveToDevice": {
-    "description": "Save to device action"
-  },
-  "addBookModalTitle": "Afegir llibre",
-  "@addBookModalTitle": {
-    "description": "Add book modal title"
-  },
-  "addBookModalSubtitle": "Tria com vols afegir el teu llibre",
-  "@addBookModalSubtitle": {
-    "description": "Add book modal subtitle"
-  },
-  "addManually": "Afegir manualment",
-  "@addManually": {
-    "description": "Add book manually option"
-  },
-  "addManuallySubtitle": "Omple les dades tu mateix",
-  "@addManuallySubtitle": {
-    "description": "Add manually option subtitle"
-  },
-  "searchBook": "Cercar llibre",
-  "@searchBook": {
-    "description": "Search book online option"
-  },
-  "searchBookSubtitle": "Per títol, autor o ISBN",
-  "@searchBookSubtitle": {
-    "description": "Search book option subtitle"
-  },
-  "scanBarcode": "Escanejar codi de barres",
-  "@scanBarcode": {
-    "description": "Scan barcode option"
-  },
-  "scanBarcodeSubtitle": "Apunta la càmera a l'ISBN",
-  "@scanBarcodeSubtitle": {
-    "description": "Scan barcode option subtitle"
-  },
-  "scanIsbnText": "Escanejar número ISBN",
-  "@scanIsbnText": {
-    "description": "Option to scan ISBN as text"
-  },
-  "scanIsbnTextSubtitle": "Apunta al número imprès",
-  "@scanIsbnTextSubtitle": {
-    "description": "Subtitle for scanning ISBN as text"
-  },
-  "scanIsbnSelect": "Toca un ISBN per seleccionar-lo",
-  "@scanIsbnSelect": {
-    "description": "Instruction to tap a detected ISBN"
-  },
-  "scanOcrHoldMessage": "Manté la imatge uns segons...",
-  "@scanOcrHoldMessage": {
-    "description": "Instruction to hold the camera steady for OCR"
-  },
-  "scanBarcodePermission": "Es requereix permís de càmera per escanejar codis",
-  "@scanBarcodePermission": {
-    "description": "Camera permission missing message"
-  },
-  "scanBatch": "Escanejar en lot",
-  "@scanBatch": {
-    "description": "Batch scan option"
-  },
-  "scanBatchSubtitle": "Escaneja diversos llibres seguits",
-  "@scanBatchSubtitle": {
-    "description": "Batch scan option subtitle"
-  },
-  "scanModeBarcode": "Codi de barres",
-  "@scanModeBarcode": {
-    "description": "Label for scanner mode: barcode"
-  },
-  "scanModeIsbn": "Número ISBN",
-  "@scanModeIsbn": {
-    "description": "Label for scanner mode: ISBN number / text"
-  },
-  "bookFormNewTitle": "Nou llibre",
-  "@bookFormNewTitle": {
-    "description": "New book form title"
-  },
-  "bookFormEditTitle": "Editar llibre",
-  "@bookFormEditTitle": {
-    "description": "Edit book form title"
-  },
-  "tabMain": "Principal",
-  "@tabMain": {
-    "description": "Main tab label"
-  },
-  "tabDetails": "Detalls",
-  "@tabDetails": {
-    "description": "Details tab label"
-  },
-  "fieldTitle": "Títol",
-  "@fieldTitle": {
-    "description": "Title field label"
-  },
-  "fieldSubtitle": "Subtítol",
-  "@fieldSubtitle": {
-    "description": "Subtitle field label"
-  },
-  "fieldDescription": "Sinopsi",
-  "@fieldDescription": {
-    "description": "Description field label"
-  },
-  "fieldIsbn": "ISBN",
-  "@fieldIsbn": {
-    "description": "ISBN field label"
-  },
-  "fieldLanguage": "Idioma",
-  "@fieldLanguage": {
-    "description": "Language field label"
-  },
-  "fieldIsTranslation": "És una traducció?",
-  "@fieldIsTranslation": {
-    "description": "Toggle for translation fields"
-  },
-  "fieldOriginalTitle": "Títol original",
-  "@fieldOriginalTitle": {
-    "description": "Original title field label"
-  },
-  "fieldOriginalLanguage": "Idioma original",
-  "@fieldOriginalLanguage": {
-    "description": "Original language field label"
-  },
-  "fieldTranslator": "Traductor",
-  "@fieldTranslator": {
-    "description": "Translator field label"
-  },
-  "fieldReads": "Lectures",
-  "@fieldReads": {
-    "description": "Name of the reads field"
-  },
-  "fieldCopies": "Còpies",
-  "@fieldCopies": {
-    "description": "Name of the copies field"
-  },
-  "fieldTotalPages": "Pàgines totals",
-  "@fieldTotalPages": {
-    "description": "Total pages field"
-  },
-  "fieldTotalBooks": "Llibres totals",
-  "@fieldTotalBooks": {
-    "description": "Total books field"
-  },
-  "fieldCurrentPage": "Pàgina actual",
-  "@fieldCurrentPage": {
-    "description": "Current page field"
-  },
-  "fieldNotes": "Notes",
-  "@fieldNotes": {
-    "description": "Notes field label"
-  },
-  "fieldCollection": "Col·lecció / Sèrie",
-  "@fieldCollection": {
-    "description": "Collection field label"
-  },
-  "fieldCollectionNumber": "Número a la col·lecció",
-  "@fieldCollectionNumber": {
-    "description": "Number in collection field"
-  },
-  "sectionBasicInfo": "Informació bàsica",
-  "@sectionBasicInfo": {
-    "description": "Basic info header"
-  },
-  "sectionCategories": "Categories",
-  "@sectionCategories": {
-    "description": "Categories header"
-  },
-  "sectionReadingStatus": "Estat de lectura",
-  "@sectionReadingStatus": {
-    "description": "Reading status header"
-  },
-  "sectionFormat": "Format",
-  "@sectionFormat": {
-    "description": "Format header"
-  },
-  "sectionRating": "Valoració",
-  "@sectionRating": {
-    "description": "Rating header"
-  },
-  "sectionImprint": "Segell editorial",
-  "@sectionImprint": {
-    "description": "Imprint header"
-  },
-  "coverPickPhoto": "Foto",
-  "@coverPickPhoto": {
-    "description": "Photo pick button"
-  },
-  "coverPickUrl": "URL",
-  "@coverPickUrl": {
-    "description": "URL pick button"
-  },
-  "coverSearch": "Cercar",
-  "@coverSearch": {
-    "description": "Cover search button"
-  },
-  "coverUrlDialogTitle": "URL de la portada",
-  "@coverUrlDialogTitle": {
-    "description": "Cover URL dialog title"
-  },
-  "coverUrlHint": "https://exemple.com/portada.jpg",
-  "@coverUrlHint": {
-    "description": "Cover URL placeholder"
-  },
-  "coverDownloadError": "No s'ha pogut descarregar la imatge",
-  "@coverDownloadError": {
-    "description": "Download error message"
-  },
-  "imageProcessError": "No s'ha pogut processar la imatge",
-  "@imageProcessError": {
-    "description": "Error when image processing fails"
-  },
-  "cropCoverTitle": "Retallar portada",
-  "@cropCoverTitle": {
-    "description": "Title for cover cropping screen"
-  },
-  "cropImprintTitle": "Retallar segell",
-  "@cropImprintTitle": {
-    "description": "Title for imprint cropping screen"
-  },
-  "tagSearchOrCreate": "Cercar o crear categoria",
-  "@tagSearchOrCreate": {
-    "description": "Tag search placeholder"
-  },
-  "tagCreateHint": "Escriu i prem Retorn per afegir o crear",
-  "@tagCreateHint": {
-    "description": "Tag create hint"
-  },
-  "tagNoCategories": "Encara no hi ha cap categoria creada",
-  "@tagNoCategories": {
-    "description": "No categories message"
-  },
-  "imprintSearch": "Cercar segell editorial",
-  "@imprintSearch": {
-    "description": "Imprint search placeholder"
-  },
-  "requiredField": "Camp obligatori",
-  "@requiredField": {
-    "description": "Required field validation message"
-  },
-  "statusWantToRead": "Per llegir",
-  "@statusWantToRead": {
-    "description": "Status: want to read"
-  },
-  "statusReading": "Llegint",
-  "@statusReading": {
-    "description": "Status: reading"
-  },
-  "statusRead": "Llegit",
-  "@statusRead": {
-    "description": "Status: read"
-  },
-  "statusAbandoned": "Abandonat",
-  "@statusAbandoned": {
-    "description": "Status: abandoned"
-  },
-  "statusPaused": "En pausa",
-  "@statusPaused": {
-    "description": "Status: paused"
-  },
-  "ownershipStatusBought": "Comprat",
-  "@ownershipStatusBought": {
-    "description": "Ownership: bought"
-  },
-  "ownershipStatusGifted": "Regalat",
-  "@ownershipStatusGifted": {
-    "description": "Ownership: gifted"
-  },
-  "ownershipStatusBorrowed": "Deixat",
-  "@ownershipStatusBorrowed": {
-    "description": "Ownership: borrowed"
-  },
-  "ownershipStatusReturned": "Retornat",
-  "@ownershipStatusReturned": {
-    "description": "Ownership: returned"
-  },
-  "ownershipStatusSold": "Venut",
-  "@ownershipStatusSold": {
-    "description": "Ownership: sold"
-  },
-  "ownershipStatusOther": "Altre",
-  "@ownershipStatusOther": {
-    "description": "Ownership: other"
-  },
-  "formatPaperback": "Tapa blana",
-  "@formatPaperback": {
-    "description": "Format: paperback"
-  },
-  "formatHardcover": "Tapa dura",
-  "@formatHardcover": {
-    "description": "Format: hardcover"
-  },
-  "formatLeatherbound": "Pell",
-  "@formatLeatherbound": {
-    "description": "Format: leatherbound"
-  },
-  "formatRustic": "Rústica",
-  "@formatRustic": {
-    "description": "Format: rustic"
-  },
-  "formatDigital": "Digital",
-  "@formatDigital": {
-    "description": "Format: digital"
-  },
-  "formatOther": "Altre",
-  "@formatOther": {
-    "description": "Format: other"
-  },
-  "bookDetailNotFound": "Llibre no trobat",
-  "@bookDetailNotFound": {
-    "description": "Book not found message"
-  },
-  "bookDetailPagePickerTitle": "Pàgina actual",
-  "@bookDetailPagePickerTitle": {
-    "description": "Page picker title"
-  },
-  "bookDetailNotesTitle": "Notes personals",
-  "@bookDetailNotesTitle": {
-    "description": "Personal notes section title"
-  },
-  "bookDetailNotesHint": "Escriu les teves notes aquí...",
-  "@bookDetailNotesHint": {
-    "description": "Notes field placeholder"
-  },
-  "bookDetailNotesEmpty": "Toca per afegir notes...",
-  "@bookDetailNotesEmpty": {
-    "description": "Notes empty message"
-  },
-  "bookDetailDeleteTitle": "Eliminar llibre",
-  "@bookDetailDeleteTitle": {
-    "description": "Delete book dialog title"
-  },
-  "bookDetailDeleteConfirm": "Vols eliminar \"{title}\"? Aquesta acció no es pot desfer.",
-  "@bookDetailDeleteConfirm": {
-    "description": "Delete book confirmation",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "bookDetailDuplicateTitle": "Duplicar llibre",
-  "@bookDetailDuplicateTitle": {
-    "description": "Duplicate book dialog title"
-  },
-  "bookDetailDuplicateConfirm": "Vols crear una còpia exacta de \"{title}\"?",
-  "@bookDetailDuplicateConfirm": {
-    "description": "Duplicate book confirmation",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "bookDetailNewReadingWholeBook": "Tot el llibre",
-  "bookDetailNewReadingWholeBookDescription": "Es registrarà una relectura completa a partir d'avui.",
-  "bookDetailNewReadingSections": "Seccions",
-  "bookDetailNewReadingSectionsCount": "{count, plural, =1{1 secció} other{{count} seccions}}",
-  "@bookDetailNewReadingSectionsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "bookDetailNewReadingReadCount": "Llegida {count}x",
-  "bookDetailNewReadingSelectSections": "Seleccionar seccions per rellegir",
-  "bookDetailStartNewReadingPrompt": "Vols començar una nova lectura?",
-  "bookDetailStartNewReadingTitle": "Nova lectura",
-  "bookDetailStartNewReadingButton": "Començar nova lectura",
-  "selectAll": "Seleccionar-ho tot",
-  "bookDetailDeleteReadPrompt": "Vols eliminar l'última lectura en curs? Es perdran les dates d'aquesta sessió.",
-  "bookDetailReadHistoryTitle": "HISTORIAL DE LECTURES",
-  "bookDetailReadOngoing": "en curs",
-  "bookDetailReadNumber": "Lectura {number}",
-  "@bookDetailReadNumber": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "bookDetailReadEditDialogTitle": "Editar lectura {number}",
-  "bookDetailReadDeleteConfirm": "Vols eliminar aquesta entrada de l'historial?",
-  "bookDetailReadNumberLabel": "Número de lectura",
-  "bookDetailFieldPages": "PÀGINES",
-  "@bookDetailFieldPages": {
-    "description": "Pages field label"
-  },
-  "bookDetailFieldCategories": "CATEGORIES",
-  "@bookDetailFieldCategories": {
-    "description": "Categories field label"
-  },
-  "bookDetailFieldFormat": "Format",
-  "@bookDetailFieldFormat": {
-    "description": "Format field label"
-  },
-  "bookDetailFieldRating": "VALORACIÓ",
-  "@bookDetailFieldRating": {
-    "description": "Rating field label"
-  },
-  "bookDetailFieldImprintSection": "SEGELL EDITORIAL",
-  "@bookDetailFieldImprintSection": {
-    "description": "Imprint section label"
-  },
-  "bookDetailFieldPersonalNotes": "NOTES PERSONALS",
-  "@bookDetailFieldPersonalNotes": {
-    "description": "Notes section label"
-  },
-  "bookDetailFieldAdded": "Afegit",
-  "@bookDetailFieldAdded": {
-    "description": "Date added label"
-  },
-  "bookDetailFieldStarted": "Inici lectura",
-  "@bookDetailFieldStarted": {
-    "description": "Date started label"
-  },
-  "bookDetailFieldFinished": "Fi lectura",
-  "@bookDetailFieldFinished": {
-    "description": "Date finished label"
-  },
-  "fieldOwnershipStatus": "Estat de propietat",
-  "@fieldOwnershipStatus": {
-    "description": "Ownership status field label"
-  },
-  "ownershipHistoryTitle": "HISTORIAL DE PROPIETAT",
-  "@ownershipHistoryTitle": {
-    "description": "Ownership history section title"
-  },
-  "ownershipLogEmpty": "No hi ha cap esdeveniment de propietat registrat.",
-  "@ownershipLogEmpty": {
-    "description": "Empty ownership log message"
-  },
-  "ownershipEventPerson": "Persona / Qui",
-  "@ownershipEventPerson": {
-    "description": "Person in ownership event"
-  },
-  "ownershipEventDate": "Data",
-  "@ownershipEventDate": {
-    "description": "Date of ownership event"
-  },
-  "ownershipEventNotes": "Notes",
-  "@ownershipEventNotes": {
-    "description": "Notes for ownership event"
-  },
-  "pageProgress": "{current} / {total} pàgs. · {percent}%",
-  "@pageProgress": {
-    "description": "Reading progress pages",
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "total": {
-        "type": "String"
-      },
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "pageProgressShort": "{current} / {total}",
-  "@pageProgressShort": {
-    "description": "Short reading progress",
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "total": {
-        "type": "String"
-      }
-    }
-  },
-  "pageSuffix": "{count} pàgs.",
-  "@pageSuffix": {
-    "description": "Page count with suffix",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "pagesLabel": "pàgines",
-  "@pagesLabel": {
-    "description": "Generic pages label"
-  },
-  "shelvesTitle": "Prestatgeries",
-  "@shelvesTitle": {
-    "description": "Shelves screen title"
-  },
-  "shelvesSectionByStatus": "Per estat",
-  "@shelvesSectionByStatus": {
-    "description": "Status section header"
-  },
-  "shelvesSectionMine": "Prestatgeries",
-  "@shelvesSectionMine": {
-    "description": "Custom shelves section header"
-  },
-  "shelvesSectionManagement": "Gestió",
-  "@shelvesSectionManagement": {
-    "description": "Management section header"
-  },
-  "shelfAllBooks": "Tots els llibres",
-  "@shelfAllBooks": {
-    "description": "All books shelf"
-  },
-  "shelfReading": "Llegint",
-  "@shelfReading": {
-    "description": "Reading shelf"
-  },
-  "shelfRead": "Llegits",
-  "@shelfRead": {
-    "description": "Read shelf"
-  },
-  "booksReadProgress": "{readCount} / {totalCount} llibres llegits",
-  "@booksReadProgress": {
-    "description": "Progress label for read books",
-    "placeholders": {
-      "readCount": {
-        "type": "int"
-      },
-      "totalCount": {
-        "type": "int"
-      }
-    }
-  },
-  "shelfWantToRead": "Per llegir",
-  "@shelfWantToRead": {
-    "description": "To read shelf"
-  },
-  "shelfAbandoned": "Abandonats",
-  "@shelfAbandoned": {
-    "description": "Abandoned shelf"
-  },
-  "shelfPaused": "En pausa",
-  "@shelfPaused": {
-    "description": "Paused shelf"
-  },
-  "shelfNewTooltip": "Nova prestatgeria",
-  "@shelfNewTooltip": {
-    "description": "New shelf tooltip"
-  },
-  "shelfEmpty": "No tens cap prestatgeria personalitzada",
-  "@shelfEmpty": {
-    "description": "Empty custom shelves state"
-  },
-  "shelfEmptySubtitle": "Organitza les teves lectures com vulguis",
-  "@shelfEmptySubtitle": {
-    "description": "Empty shelves state subtitle"
-  },
-  "shelvesAddFirstShelf": "Crear prestatgeria",
-  "@shelvesAddFirstShelf": {
-    "description": "Action button text for empty shelves state"
-  },
-  "shelfBooksEmpty": "Aquesta prestatgeria està buida",
-  "@shelfBooksEmpty": {
-    "description": "Empty shelf books state"
-  },
-  "shelfBooksEmptyHint": "Els llibres que coincideixin amb els seus filtres apareixeran aquí.",
-  "@shelfBooksEmptyHint": {
-    "description": "Hint for empty shelf"
-  },
-  "shelfStatusBooksEmpty": "No hi ha cap llibre aquí",
-  "@shelfStatusBooksEmpty": {
-    "description": "Empty status books state"
-  },
-  "shelfFormNew": "Nova prestatgeria",
-  "@shelfFormNew": {
-    "description": "New shelf form title"
-  },
-  "shelfFormEdit": "Editar prestatgeria",
-  "@shelfFormEdit": {
-    "description": "Edit shelf form title"
-  },
-  "shelfFormNameLabel": "Nom de la prestatgeria",
-  "@shelfFormNameLabel": {
-    "description": "Shelf name field label"
-  },
-  "collectionNameLabel": "Nom de la col·lecció",
-  "@collectionNameLabel": {
-    "description": "Collection name field label"
-  },
-  "shelfFormSectionStatus": "Estat de lectura",
-  "@shelfFormSectionStatus": {
-    "description": "Shelf form status section"
-  },
-  "shelfFormSectionTitle": "Títol",
-  "@shelfFormSectionTitle": {
-    "description": "Shelf form title section"
-  },
-  "shelfFormSectionAuthor": "Autor",
-  "@shelfFormSectionAuthor": {
-    "description": "Shelf form author section"
-  },
-  "shelfFormSectionPublisher": "Editorial",
-  "@shelfFormSectionPublisher": {
-    "description": "Shelf form publisher section"
-  },
-  "shelfFormSectionIsbn": "ISBN",
-  "@shelfFormSectionIsbn": {
-    "description": "Shelf form ISBN section"
-  },
-  "shelfFormSectionCollection": "Col·lecció",
-  "@shelfFormSectionCollection": {
-    "description": "Shelf form collection section"
-  },
-  "shelfFormSectionCategories": "Categories",
-  "@shelfFormSectionCategories": {
-    "description": "Shelf form categories section"
-  },
-  "shelfFormSectionImprint": "Segell editorial",
-  "@shelfFormSectionImprint": {
-    "description": "Shelf form imprint section"
-  },
-  "shelfFormHintTitle": "Cerca al títol",
-  "@shelfFormHintTitle": {
-    "description": "Shelf form title hint"
-  },
-  "shelfFormHintAuthor": "Nom de l'autor",
-  "@shelfFormHintAuthor": {
-    "description": "Shelf form author hint"
-  },
-  "shelfFormHintPublisher": "Nom de l'editorial",
-  "@shelfFormHintPublisher": {
-    "description": "Shelf form publisher hint"
-  },
-  "shelfFormHintIsbn": "ISBN",
-  "@shelfFormHintIsbn": {
-    "description": "Shelf form ISBN hint"
-  },
-  "shelfFormHintCollection": "Nom de la col·lecció",
-  "@shelfFormHintCollection": {
-    "description": "Shelf form collection hint"
-  },
-  "shelfFormStatusAny": "Qualsevol",
-  "@shelfFormStatusAny": {
-    "description": "Shelf form any status"
-  },
-  "shelfOptionEdit": "Editar prestatgeria",
-  "@shelfOptionEdit": {
-    "description": "Edit shelf option"
-  },
-  "shelfOptionDelete": "Eliminar",
-  "@shelfOptionDelete": {
-    "description": "Delete shelf option"
-  },
-  "shelfStatusLabelReading": "Llegint",
-  "@shelfStatusLabelReading": {
-    "description": "Reading status label"
-  },
-  "shelfStatusLabelRead": "Llegits",
-  "@shelfStatusLabelRead": {
-    "description": "Read status label"
-  },
-  "shelfStatusLabelWantToRead": "Per llegir",
-  "@shelfStatusLabelWantToRead": {
-    "description": "To read status label"
-  },
-  "shelfStatusLabelAbandoned": "Abandonats",
-  "@shelfStatusLabelAbandoned": {
-    "description": "Abandoned status label"
-  },
-  "shelfStatusLabelPaused": "En pausa",
-  "@shelfStatusLabelPaused": {
-    "description": "Paused status label"
-  },
-  "managementCategories": "Categories",
-  "@managementCategories": {
-    "description": "Management: categories"
-  },
-  "managementCategoryCount": "Núm. de llibres",
-  "@managementCategoryCount": {
-    "description": "Number of books in a category"
-  },
-  "managementImprints": "Segells",
-  "@managementImprints": {
-    "description": "Management: imprints"
-  },
-  "managementCollections": "Col·leccions",
-  "@managementCollections": {
-    "description": "Management: collections"
-  },
-  "managementCategoryCloudCurve": "Corba algorítmica (Llibres)",
-  "tagNone": "Encara no hi ha cap categoria",
-  "@tagNone": {
-    "description": "Empty categories state"
-  },
-  "tagNoneSubtitle": "Les categories t'ajuden a trobar llibres i a construir un mapa mental de la teva biblioteca",
-  "@tagNoneSubtitle": {
-    "description": "Empty categories state subtitle"
-  },
-  "categoriesAddFirst": "Nova categoria",
-  "@categoriesAddFirst": {
-    "description": "Action button text for empty categories state"
-  },
-  "tagNew": "Nova categoria",
-  "@tagNew": {
-    "description": "New category button"
-  },
-  "tagNewDialogTitle": "Nova categoria",
-  "@tagNewDialogTitle": {
-    "description": "New category title"
-  },
-  "tagNameLabel": "Nom",
-  "@tagNameLabel": {
-    "description": "Category name field label"
-  },
-  "tagColorLabel": "Color",
-  "@tagColorLabel": {
-    "description": "Category color field label"
-  },
-  "tagDeleteTitle": "Eliminar categoria",
-  "@tagDeleteTitle": {
-    "description": "Delete category title"
-  },
-  "tagDeleteConfirm": "Vols eliminar \"{name}\"?",
-  "@tagDeleteConfirm": {
-    "description": "Delete category confirmation",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "imprintNone": "Encara no hi ha cap segell",
-  "@imprintNone": {
-    "description": "Empty imprints state"
-  },
-  "imprintNoneSubtitle": "Agrupa els teus llibres per editorials o els seus segells",
-  "@imprintNoneSubtitle": {
-    "description": "Empty imprints state subtitle"
-  },
-  "imprintsAddFirst": "Afegir segell",
-  "@imprintsAddFirst": {
-    "description": "Action button text for empty imprints state"
-  },
-  "imprintNew": "Nou segell",
-  "@imprintNew": {
-    "description": "New imprint button"
-  },
-  "imprintNewDialogTitle": "Nou segell editorial",
-  "@imprintNewDialogTitle": {
-    "description": "New imprint title"
-  },
-  "imprintEditDialogTitle": "Editar segell",
-  "@imprintEditDialogTitle": {
-    "description": "Edit imprint title"
-  },
-  "imprintNameLabel": "Nom del segell",
-  "@imprintNameLabel": {
-    "description": "Imprint name field label"
-  },
-  "imprintAddImageHint": "Prem per afegir una imatge",
-  "@imprintAddImageHint": {
-    "description": "Add imprint image hint"
-  },
-  "imprintChangeImageHint": "Prem per canviar la imatge",
-  "@imprintChangeImageHint": {
-    "description": "Change imprint image hint"
-  },
-  "imprintUrlDialogTitle": "URL de la imatge",
-  "@imprintUrlDialogTitle": {
-    "description": "Imprint URL title"
-  },
-  "imprintUrlHint": "https://exemple.com/segell.jpg",
-  "@imprintUrlHint": {
-    "description": "Imprint URL placeholder"
-  },
-  "imprintDeleteTitle": "Eliminar segell",
-  "@imprintDeleteTitle": {
-    "description": "Delete imprint title"
-  },
-  "imprintDeleteConfirm": "Vols eliminar \"{name}\"?",
-  "@imprintDeleteConfirm": {
-    "description": "Delete imprint confirmation",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "imprintNoImprints": "No hi ha cap segell creat",
-  "@imprintNoImprints": {
-    "description": "Shelf form no imprints message"
-  },
-  "collectionNone": "Encara no hi ha cap col·lecció",
-  "@collectionNone": {
-    "description": "Empty collections state"
-  },
-  "collectionNoneSubtitle": "Crea col·leccions i organitza els teus llibres",
-  "@collectionNoneSubtitle": {
-    "description": "Empty collections state subtitle"
-  },
-  "collectionsAddFirst": "Nova col·lecció",
-  "@collectionsAddFirst": {
-    "description": "Action button text for empty collections state"
-  },
-  "collectionDeleteTitle": "Eliminar col·lecció",
-  "@collectionDeleteTitle": {
-    "description": "Delete collection title"
-  },
-  "collectionDeleteConfirm": "Vols eliminar \"{name}\"?",
-  "@collectionDeleteConfirm": {
-    "description": "Delete collection confirmation",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "onboardingWelcomeTitle": "Benvingut a Openshelf",
-  "onboardingWelcomeSub": "La teva biblioteca personal, reimaginada",
-  "onboardingOrganizeTitle": "Organitza el teu món",
-  "onboardingOrganizeSub": "Crea prestatgeries intel·ligents i col·leccions temàtiques",
-  "onboardingProgressTitle": "Segueix el teu progrés",
-  "onboardingProgressSub": "Objectius de lectura i estadístiques detallades",
-  "onboardingAddTitle": "Afegeix a l'instant",
-  "onboardingAddSub": "Escaneja codis de barres o cerca al núvol",
-  "onboardingNext": "Següent",
-  "onboardingStart": "Comença ara",
-  "settingsApplyIcon": "Aplicar canvi d'icona",
-  "settingsDynamicIcon": "Icona de l'aplicació dinàmica",
-  "settingsDynamicIconSub": "Canvia l'icona de la pantalla d'inici perquè coincideixi amb el color triat (L'aplicació es reiniciarà)",
-  "settingsLibraryColumns": "Columnes a la biblioteca",
-  "settingsLibraryColumnsSub": "Ajusta el nombre de llibres per fila a la vista de quadrícula",
-  "settingsTitle": "Ajusts",
-  "@settingsTitle": {
-    "description": "Settings screen title"
-  },
-  "settingsSectionAppearance": "Aparença",
-  "@settingsSectionAppearance": {
-    "description": "Appearance section header"
-  },
-  "settingsLanguage": "Idioma",
-  "@settingsLanguage": {
-    "description": "Language selector label"
-  },
-  "settingsLanguageSystem": "Sistema (automàtic)",
-  "@settingsLanguageSystem": {
-    "description": "Language option: system"
-  },
-  "settingsLanguageSpanish": "Espanyol",
-  "@settingsLanguageSpanish": {
-    "description": "Language option: spanish"
-  },
-  "settingsLanguageEnglish": "Anglès",
-  "@settingsLanguageEnglish": {
-    "description": "Language option: english"
-  },
-  "settingsLanguageFrench": "Francès",
-  "@settingsLanguageFrench": {
-    "description": "Language option: french"
-  },
-  "settingsLanguageItalian": "Italià",
-  "@settingsLanguageItalian": {
-    "description": "Language option: italian"
-  },
-  "settingsLanguageCatalan": "Català",
-  "@settingsLanguageCatalan": {
-    "description": "Language option: catalan"
-  },
-  "settingsLanguagePortuguese": "Portuguès (Portugal)",
-  "@settingsLanguagePortuguese": {
-    "description": "Language option: portuguese"
-  },
-  "settingsLanguagePortugueseBR": "Portuguès (Brasil)",
-  "@settingsLanguagePortugueseBR": {
-    "description": "Language option: portuguese brazilian"
-  },
-  "settingsThemeMode": "Mode de tema",
-  "@settingsThemeMode": {
-    "description": "Theme mode label"
-  },
-  "settingsThemeLight": "Clar",
-  "@settingsThemeLight": {
-    "description": "Light theme option"
-  },
-  "settingsThemeSystem": "Sistema",
-  "@settingsThemeSystem": {
-    "description": "System theme option"
-  },
-  "settingsThemeDark": "Fosc",
-  "@settingsThemeDark": {
-    "description": "Dark theme option"
-  },
-  "settingsAccentColor": "Color d'accent",
-  "@settingsAccentColor": {
-    "description": "Accent color label"
-  },
-  "settingsAccentColorHint": "Toca un color per aplicar-lo",
-  "@settingsAccentColorHint": {
-    "description": "Accent color hint"
-  },
-  "settingsSectionStorage": "Emmagatzematge",
-  "@settingsSectionStorage": {
-    "description": "Storage section header"
-  },
-  "settingsCoversFolder": "Carpeta de portades",
-  "@settingsCoversFolder": {
-    "description": "Covers folder label"
-  },
-  "settingsDatabase": "Base de dades",
-  "@settingsDatabase": {
-    "description": "Database label"
-  },
-  "settingsDefaultDir": "Directori per defecte",
-  "@settingsDefaultDir": {
-    "description": "Default directory label"
-  },
-  "settingsDbMoveTitle": "Moure la base de dades",
-  "@settingsDbMoveTitle": {
-    "description": "Move database dialog title"
-  },
-  "settingsDbMoveContent": "Moure la base de dades requereix reiniciar l'aplicació. Les dades es copiaran al nou directori. Vols continuar?",
-  "@settingsDbMoveContent": {
-    "description": "Move database dialog content"
-  },
-  "settingsDbMoveConfirm": "Moure i reiniciar",
-  "@settingsDbMoveConfirm": {
-    "description": "Move database confirmation"
-  },
-  "settingsSectionSearch": "Cerca de llibres",
-  "@settingsSectionSearch": {
-    "description": "Search section header"
-  },
-  "settingsSearchServer": "Servidor",
-  "@settingsSearchServer": {
-    "description": "Search server label"
-  },
-  "settingsSearchServerHint": "S'utilitzarà per cercar llibres per ISBN o títol",
-  "@settingsSearchServerHint": {
-    "description": "Search server hint"
-  },
-  "settingsSectionData": "Gestió de dades",
-  "@settingsSectionData": {
-    "description": "Data management section header"
-  },
-  "dataManagementOpenShelf": "OpenShelf",
-  "dataManagementBookshelf": "Bookshelf",
-  "dataManagementGoodreads": "Goodreads",
-  "dataManagementLibraryThing": "LibraryThing",
-  "dataManagementImport": "Importar llibres",
-  "dataManagementExport": "Exportar llibres",
-  "dataManagementImportHint": "Importar des de CSV de {source}",
-  "dataManagementImportHintJson": "Importar des de JSON de {source}",
-  "@dataManagementImportHint": {
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "dataManagementExportHint": "Exportar a CSV de {source}",
-  "dataManagementExportHintJson": "Exportar a JSON de {source}",
-  "@dataManagementExportHint": {
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "dataManagementRestoreBackup": "Restaurar còpia de seguretat",
-  "dataManagementRestoreBackupHint": "Restaurar des de CSV/ZIP de OpenShelf",
-  "dataManagementCreateBackup": "Crear còpia de seguretat",
-  "dataManagementCreateBackupHint": "Full export with covers option",
-  "settingsImportBookshelf": "Importar des de Bookshelf",
-  "@settingsImportBookshelf": {
-    "description": "Import from Bookshelf option"
-  },
-  "settingsImportBookshelfHint": "Importar llibres des d'un fitxer CSV",
-  "@settingsImportBookshelfHint": {
-    "description": "Import hint"
-  },
-  "settingsExportCsv": "Exportar biblioteca",
-  "@settingsExportCsv": {
-    "description": "Export title"
-  },
-  "settingsExportCsvHint": "Exportar tots els llibres a un fitxer CSV",
-  "@settingsExportCsvHint": {
-    "description": "Export hint"
-  },
-  "settingsFullBackup": "Restaurar biblioteca",
-  "@settingsFullBackup": {
-    "description": "Restore title"
-  },
-  "settingsFullBackupHint": "Restaurar llibres des d'una còpia de seguretat CSV",
-  "@settingsFullBackupHint": {
-    "description": "Restore hint"
-  },
-  "settingsAllFilesAccess": "Accés a tots els fitxers",
-  "settingsAllFilesAccessSub": "Necessari per moure la base de dades a carpetes externes (Android 11+)",
-  "settingsAllFilesAccessInfo": "Aquest permís permet a Openshelf gestionar fitxers fora del seu directori privat. És necessari per moure la base de dades a una carpeta personalitzada.",
-  "settingsAutoNoCoverTitle": "Prestatgeria sense portades",
-  "settingsAutoNoCoverSub": "Crea automàticament una prestatgeria si falten portades",
-  "noCoverShelfTitle": "Llibres sense portada",
-  "settingsCompressImagesTitle": "Comprimir portades automàticament",
-  "settingsCompressImagesSub": "Redueix el pes de les imatges en desar-les o importar-les",
-  "settingsBatchCompressTitle": "Optimitzar la biblioteca ara",
-  "settingsBatchCompressSub": "Comprimeix totes les portades existents que no estiguin optimitzades",
-  "settingsBatchCompressSuccess": "S'han optimitzat {count} portades.",
-  "@settingsBatchCompressSuccess": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "exportTitle": "Exportar biblioteca",
-  "@exportTitle": {
-    "description": "Export dialog title"
-  },
-  "exportCoversPrompt": "Vols incloure les imatges de les portades a la còpia de seguretat? (Es crearà un fitxer ZIP juntament amb el CSV)",
-  "@exportCoversPrompt": {
-    "description": "Export covers prompt"
-  },
-  "importRestoreCoversTitle": "Restaurar portades",
-  "@importRestoreCoversTitle": {
-    "description": "Import covers title"
-  },
-  "importRestoreCoversPrompt": "Tens també un fitxer ZIP amb les portades per restaurar?",
-  "@importRestoreCoversPrompt": {
-    "description": "Import covers prompt"
-  },
-  "yes": "Sí",
-  "@yes": {
-    "description": "Yes button"
-  },
-  "no": "No",
-  "@no": {
-    "description": "No button"
-  },
-  "devDeleteAllBooks": "ESBORRAR TOTS ELS LLIBRES (DEV)",
-  "@devDeleteAllBooks": {
-    "description": "Developer option to clear database"
-  },
-  "settingsDevClearDbSub": "Eina de desenvolupador: netejar base de dades",
-  "settingsDevDbCleared": "Base de dades netejada",
-  "settingsImportSelectBackup": "Seleccionar còpia de seguretat d'Openshelf",
-  "settingsImportSelectCovers": "Seleccionar ZIP de portades d'Openshelf",
-  "devDeleteConfirmTitle": "Vols buidar la biblioteca?",
-  "@devDeleteConfirmTitle": {
-    "description": "Dev delete confirmation title"
-  },
-  "devDeleteConfirmContent": "Això eliminará permanentment TOTS els llibres i categories. Només per a proves. Vols continuar?",
-  "@devDeleteConfirmContent": {
-    "description": "Dev delete confirmation content"
-  },
-  "importSuccess": "Importació completada: s'han afegit {count} llibres.",
-  "@importSuccess": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "importPartial": "Importació parcial: {added} afegits, {skipped} omesos.",
-  "@importPartial": {
-    "placeholders": {
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsApiKeyTitle": "Clau de l'API de Google Books",
-  "@settingsApiKeyTitle": {
-    "description": "API key card title"
-  },
-  "settingsApiKeyConfigured": "Clau configurada. Google Books està disponible.",
-  "@settingsApiKeyConfigured": {
-    "description": "Key configured message"
-  },
-  "settingsApiKeyMissing": "Sense clau, Google Books utilitzarà Open Library com a alternativa.",
-  "@settingsApiKeyMissing": {
-    "description": "Key missing message"
-  },
-  "settingsApiKeyHint": "AIza...",
-  "@settingsApiKeyHint": {
-    "description": "API key placeholder"
-  },
-  "settingsApiKeyShow": "Mostra",
-  "@settingsApiKeyShow": {
-    "description": "Show key tooltip"
-  },
-  "settingsApiKeyHide": "Amaga",
-  "@settingsApiKeyHide": {
-    "description": "Hide key tooltip"
-  },
-  "settingsApiKeySave": "Desar la clau",
-  "@settingsApiKeySave": {
-    "description": "Save key button"
-  },
-  "settingsApiKeySaved": "Clau desada",
-  "@settingsApiKeySaved": {
-    "description": "Key saved confirmation"
-  },
-  "settingsApiKeyClear": "Esborrar la clau",
-  "@settingsApiKeyClear": {
-    "description": "Clear key tooltip"
-  },
-  "settingsApiKeyHowTo": "Com obtenir-la",
-  "@settingsApiKeyHowTo": {
-    "description": "How to get key button"
-  },
-  "settingsApiKeyInstructionsTitle": "Com obtenir una clau de Google Books",
-  "@settingsApiKeyInstructionsTitle": {
-    "description": "Instructions title"
-  },
-  "settingsApiKeyStep1": "Obre console.cloud.google.com i inicia sessió amb el teu compte de Google.",
-  "@settingsApiKeyStep1": {
-    "description": "Step 1"
-  },
-  "settingsApiKeyStep2": "Crea un projecte nou (el nom és indiferent).",
-  "@settingsApiKeyStep2": {
-    "description": "Step 2"
-  },
-  "settingsApiKeyStep3": "Ves a API i serveis → Biblioteca, cerca \"Books API\" i activa-la.",
-  "@settingsApiKeyStep3": {
-    "description": "Step 3"
-  },
-  "settingsApiKeyStep4": "Ves a API i serveis → Credencials → Crear credencials → Clau d'API.",
-  "@settingsApiKeyStep4": {
-    "description": "Step 4"
-  },
-  "settingsApiKeyStep5": "Opcional però recomanat: restringeix la clau només a la Books API.",
-  "@settingsApiKeyStep5": {
-    "description": "Step 5"
-  },
-  "settingsApiKeyStep6": "Copia la clau resultant (comença per \"AIza…\") i enganxa-la al camp de dalt.",
-  "@settingsApiKeyStep6": {
-    "description": "Step 6"
-  },
-  "settingsApiKeyNote": "La clau és gratuïta i permet fins a 1.000 cerques diàries. No es comparteix amb ningú: es desa només en aquest dispositiu.",
-  "@settingsApiKeyNote": {
-    "description": "API key information note"
-  },
-  "bookSearchHint": "Títol, autor o ISBN...",
-  "@bookSearchHint": {
-    "description": "Book search field hint"
-  },
-  "bookSearchPrompt": "Cerca per títol, autor o ISBN",
-  "@bookSearchPrompt": {
-    "description": "Initial search prompt"
-  },
-  "bookSearchNoResults": "Sense resultats per a \"{query}\"",
-  "@bookSearchNoResults": {
-    "description": "Search no results message",
-    "placeholders": {
-      "query": {
-        "type": "String"
-      }
-    }
-  },
-  "bookSearchProvidersNotice": "Resultats de: {providers}.",
-  "@bookSearchProvidersNotice": {
-    "description": "Notice of providers that contributed to the search",
-    "placeholders": {
-      "providers": {
-        "type": "String"
-      }
-    }
-  },
-  "bookSearchRecommended": "RECOMANAT PER OPENSHELF",
-  "@bookSearchRecommended": {
-    "description": "Label for recommended result"
-  },
-  "bookSearchRecommendedSource": "Recomanat per Openshelf",
-  "bookSearchServerOpenLibrary": "Open Library",
-  "bookSearchServerGoogleBooks": "Google Books",
-  "bookSearchServerInventaire": "Inventaire.io",
-  "searchTabStatus": "Estat",
-  "@searchTabStatus": {
-    "description": "Search panel: Status tab"
-  },
-  "searchTabImprint": "Segell",
-  "@searchTabImprint": {
-    "description": "Search panel: Imprint tab"
-  },
-  "searchTabCategory": "Categoria",
-  "@searchTabCategory": {
-    "description": "Search panel: Category tab"
-  },
-  "searchTabCollection": "Col·lecció",
-  "@searchTabCollection": {
-    "description": "Search panel: Collection tab"
-  },
-  "searchFilterStatus": "Estat: {value}",
-  "@searchFilterStatus": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "searchFilterImprint": "Segell: {value}",
-  "@searchFilterImprint": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "searchFilterCategory": "Cat.: {value}",
-  "@searchFilterCategory": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "searchFilterCollection": "Col.: {value}",
-  "@searchFilterCollection": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "searchActiveFilters": "{count, plural, =1{1 filtre actiu} other{{count} filtres actius}}",
-  "@searchActiveFilters": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "searchSaveAsShelf": "Desar com a prestatgeria",
-  "shelfShowInLibrary": "Mostra a la biblioteca",
-  "searchClearAll": "Neteja-ho tot",
-  "@searchClearAll": {
-    "description": "Button to clear all search filters"
-  },
-  "addedToLibrary": "Afegit a la biblioteca",
-  "@addedToLibrary": {
-    "description": "Success message when book is added"
-  },
-  "errorDuplicateIsbn": "Ja és a la biblioteca",
-  "@errorDuplicateIsbn": {
-    "description": "Error when book ISBN already exists"
-  },
-  "bookDuplicateTitle": "Llibre duplicat",
-  "@bookDuplicateTitle": {
-    "description": "Duplicate book warning title"
-  },
-  "bookDuplicateContent": "Ja tens un llibre amb l'ISBN {isbn} a la teva biblioteca.",
-  "@bookDuplicateContent": {
-    "description": "Duplicate book warning content",
-    "placeholders": {
-      "isbn": {
-        "type": "String"
-      }
-    }
-  },
-  "bookSearchErrorNoApiKey": "Google Books requereix una clau d'API.\nConfigura-la a Ajusts → Cerca de llibres.",
-  "@bookSearchErrorNoApiKey": {
-    "description": "Error: no API key"
-  },
-  "bookSearchErrorRateLimit": "Google Books ha limitat les peticions.\nEspera un moment i torna-ho a provar.",
-  "@bookSearchErrorRateLimit": {
-    "description": "Error: rate limit"
-  },
-  "bookSearchErrorNetwork": "No s'ha pogut connectar amb cap servidor.\nComprova la teva connexió i torna-ho a provar.",
-  "@bookSearchErrorNetwork": {
-    "description": "Search network error"
-  },
-  "coverPickerTitle": "Portades",
-  "@coverPickerTitle": {
-    "description": "Cover picker sheet title"
-  },
-  "coverPickerIsbnLabel": "ISBN {isbn}",
-  "@coverPickerIsbnLabel": {
-    "description": "Sheet subtitle with ISBN",
-    "placeholders": {
-      "isbn": {
-        "type": "String"
-      }
-    }
-  },
-  "coverPickerNoResults": "No s'han trobat portades per a aquest llibre.",
-  "@coverPickerNoResults": {
-    "description": "No covers found message"
-  },
-  "coverPickerNetworkError": "No s'ha pogut connectar. Comprova la teva connexió.",
-  "@coverPickerNetworkError": {
-    "description": "Cover search network error"
-  },
-  "coverPickerProgress": "{loaded} / {total}",
-  "@coverPickerProgress": {
-    "description": "Cover load progress",
-    "placeholders": {
-      "loaded": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "statsTitle": "Estadístiques",
-  "@statsTitle": {
-    "description": "Stats screen title"
-  },
-  "statsPlaceholder": "Les teves estadístiques apareixeran aquí",
-  "@statsPlaceholder": {
-    "description": "Stats placeholder"
-  },
-  "statsEmptySubtitle": "Afegeix ginys per veure els teus hàbits de lectura, objectius i rècords personals.",
-  "@statsEmptySubtitle": {
-    "description": "Empty stats state subtitle"
-  },
-  "statsAddFirstWidget": "Afegir primer giny",
-  "statsAddWidgetTitle": "Afegir giny",
-  "statsGoalTargetShelf": "Prestatgeria objectiu",
-  "searchFilterIsbnLabel": "ISBN: {isbn}",
-  "@searchFilterIsbnLabel": {
-    "placeholders": {
-      "isbn": {
-        "type": "String"
-      }
-    }
-  },
-  "searchFilterLanguageLabel": "Idioma: {language}",
-  "@searchFilterLanguageLabel": {
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "searchFilterAuthorLabel": "Autor: {author}",
-  "@searchFilterAuthorLabel": {
-    "placeholders": {
-      "author": {
-        "type": "String"
-      }
-    }
-  },
-  "searchFilterPublisherLabel": "Editorial: {publisher}",
-  "@searchFilterPublisherLabel": {
-    "placeholders": {
-      "publisher": {
-        "type": "String"
-      }
-    }
-  },
-  "statsGoalTitle": "OBJECTIU",
-  "statsGoalFullTitle": "OBJECTIU DE LECTURA",
-  "statsGoalUnitBooks": "llibres",
-  "statsGoalUnitPages": "pàgs.",
-  "statsGoalRemaining": "En falten {count}",
-  "@statsGoalRemaining": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "statsGoalCompleted": "Fet!",
-  "statsGoalNew": "Nou objectiu",
-  "statsGoalEdit": "Editar objectiu",
-  "statsGoalDelete": "Eliminar",
-  "statsGoalNameLabel": "Nom (ex: Repte 2026)",
-  "statsGoalTypeLabel": "Tipus",
-  "statsGoalTypeBooks": "Llibres llegits",
-  "statsGoalTypePages": "Pàgines llegides",
-  "statsGoalTargetLabel": "Objectiu numèric",
-  "statsGoalFromLabel": "Des de",
-  "statsGoalToLabel": "Fins a",
-  "statsPagesTitle": "PÀGINES",
-  "statsPagesSub": "pàgines llegides",
-  "statsStreakTitle": "RATXA",
-  "statsStreakSub": "dies seguits",
-  "statsStatusTitle": "ESTATS",
-  "statsAddedTitle": "LLIBRES AFEGITS",
-  "statsAddedNoData": "Sense dades",
-  "statsCategoriesTitle": "CATEGORIES",
-  "statsYearsTitle": "ANYS DE PUBLICACIÓ",
-  "statsReadingTitle": "LECTURA",
-  "statsReadingNowTitle": "LLEGINT ARA",
-  "statsReadingNone": "Res en lectura",
-  "statsReadByYearTitle": "LLIBRES LLEGITS PER ANY",
-  "statsCollectionsTitle": "COL·LECCIONS",
-  "statsLastAddedTitle": "ÚLTIMS AFEGITS",
-  "statsDailyReadingTitle": "LECTURA DIÀRIA",
-  "statsAvgPagesTitle": "MITJANA DE PÀGINES",
-  "statsAvgPagesSub": "pàgines per llibre",
-  "statsOptPagesTitle": "Total de pàgines",
-  "statsOptPagesSub": "Total de pàgines llegides",
-  "statsOptStreakTitle": "Ratxa",
-  "statsOptStreakSub": "Dies consecutius llegint",
-  "statsOptGoalTitle": "Objectiu de lectura",
-  "statsOptGoalSub": "Llibres, prestatgeries o col·leccions",
-  "statsOptStatusTitle": "Estats de lectura",
-  "statsOptStatusSub": "Libros por estado",
-  "statsOptCurrentTitle": "Llibre actual",
-  "statsOptCurrentSub": "Progrés de lectura en curs",
-  "statsOptAddedTimeTitle": "Llibres afegits",
-  "statsOptAddedTimeSub": "Gràfic temporal d'adquisicions",
-  "statsOptCategoriesTitle": "Categories",
-  "statsOptCategoriesSub": "Distribució per gèneres",
-  "statsOptYearsTitle": "Any de publicació",
-  "statsOptYearsSub": "Histograma històric",
-  "statsOptReadYearTitle": "Llegits per any",
-  "statsOptReadYearSub": "Gràfic de lectura anual",
-  "statsOptCollectionsTitle": "Col·leccions",
-  "statsOptCollectionsSub": "Libros por colección",
-  "statsOptLastAddedTitle": "Últims afegits",
-  "statsOptLastAddedSub": "Acabats d'arribar",
-  "statsOptAvgPagesTitle": "Extensió mitjana",
-  "statsOptAvgPagesSub": "Average pages per book",
-  "statsOptReadListTitle": "Llista de llegits",
-  "statsOptReadListSub": "Llibres llegits en un període",
-  "statsOptAvgCompletionTitle": "Temps de lectura",
-  "statsOptAvgCompletionSub": "Average time to finish a book",
-  "statsOptDailyReadingTitle": "Lectura diària",
-  "statsOptDailyReadingSub": "Pages read per day",
-  "statsAvgCompletionValue": "{days} dies",
-  "@statsAvgCompletionValue": {
-    "placeholders": {
-      "days": {
-        "type": "String"
-      }
-    }
-  },
-  "statsPeriodThisMonth": "Llegits aquest mes",
-  "statsPeriodLast3Months": "Últims 3 mesos",
-  "statsPeriodThisYear": "Llegits aquest any",
-  "statsPeriodLast3Years": "Últims 3 anys",
-  "tabMore": "més",
-  "sortTitle": "Ordena",
-  "openSettings": "Obre els ajusts",
-  "@openSettings": {
-    "description": "Button to open system settings"
-  },
-  "permissionRequired": "Permís necessari",
-  "@permissionRequired": {
-    "description": "Title for permanently denied permission dialog"
-  },
-  "paginationMarkersAndIndices": "Seccions i marcadors",
-  "paginationSaveProgress": "Desar el progrés",
-  "paginationAllPagesAssigned": "Totes les pàgines ja han estat assignades.",
-  "paginationChooseColor": "Tria un color",
-  "paginationSegmentRequired": "Segment {index}: Tots els camps de pàgina són obligatoris.",
-  "paginationSegmentStartGreater": "Segment {index}: L'inici no pot ser major que la fi.",
-  "paginationSegmentExceedsTotal": "Segment {index}: Els valors excedeixen el total de pàgines ({total}).",
-  "@paginationSegmentExceedsTotal": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "paginationSegmentOverlap": "El segment {index1} se solapa amb el segment {index2}",
-  "@paginationSegmentOverlap": {
-    "placeholders": {
-      "index1": {
-        "type": "String"
-      },
-      "index2": {
-        "type": "String"
-      }
-    }
-  },
-  "paginationAdvancedConfig": "Configuració avançada",
-  "paginationBlocksSegments": "BLOCS / SEGMENTS",
-  "paginationNoSegmentsDefined": "No hi ha cap segment definit. S'utilitza el rang 1-N per defecte.",
-  "paginationAddBlock": "Afegir bloc",
-  "paginationAllPagesAssignedNote": "Nota: Ja has assignat totes les pàgines disponibles.",
-  "paginationPagesRemainingWarning": "Avís: Qeden {count} pàgines físiques sense assignar.",
-  "@paginationPagesRemainingWarning": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "paginationPhysicalTotalNote": "Nota: Total pages refer to the physical pages of the book (total sheets).",
-  "paginationCorrectErrors": "CORREGEIX ELS SEGÜENTS ERRORS:",
-  "paginationMarkersLabels": "MARCADORS / ETIQUETES",
-  "paginationMarkerDefaultName": "Marcador",
-  "paginationSegmentsDefaultName": "Bloc",
-  "paginationAddMarker": "Afegir marcador",
-  "paginationLabelOptional": "Etiqueta (opcional)",
-  "paginationType": "Tipus:",
-  "paginationArabic": "Aràbic",
-  "paginationRoman": "Romà",
-  "paginationOffset": "Desplaçament (offset)",
-  "paginationMarkerLabel": "Etiqueta del marcador",
-  "paginationVisualPage": "Pàgina visual",
-  "paginationVisualPageHint": "Ex: xiv o 501",
-  "paginationPhysicalLabel": "Física: {page}",
-  "paginationAdjustsAutomatically": "S'ajusta automàticament",
-  "paginationVisualMode": "Mode visual",
-  "paginationEquivalentPhysical": "Equival a físiques: {start} - {end}",
-  "@paginationEquivalentPhysical": {
-    "placeholders": {
-      "start": {
-        "type": "int"
-      },
-      "end": {
-        "type": "int"
-      }
-    }
-  },
-  "paginationSectionLabel": "Secció {index}",
-  "@paginationSectionLabel": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      }
-    }
-  },
-  "paginationProgress": "{current} / {total}",
-  "@paginationProgress": {
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "total": {
-        "type": "String"
-      }
-    }
-  },
-  "paginationCurrentPageShort": "Pàg.",
-  "paginationStartPhysical": "Inici (físic)",
-  "paginationEndPhysical": "Fi (físic)",
-  "paginationStartVisual": "Inici (visual)",
-  "paginationEndVisual": "Fi (visual)",
-  "paginationAdvancedButton": "Avançada",
-  "unknownAuthor": "Desconegut",
-  "storagePermissionExplanation": "Per seleccionar una portada cal que concedeixis accés a l'emmagatzematge. Pots fer-ho des dels ajusts de l'aplicació.",
-  "@storagePermissionExplanation": {
-    "description": "Explanation for permanently denied storage permission"
-  },
-  "cameraPermissionExplanation": "Per fer una foto cal que concedeixis accés a la càmera. Pots fer-ho des dels ajusts de l'aplicació.",
-  "@cameraPermissionExplanation": {
-    "description": "Explanation for permanently denied camera permission"
-  },
-  "settingsAutoPruneTagsTitle": "Netejar categories orfes",
-  "settingsAutoPruneTagsSub": "Elimina automàticament les categories que no s'utilitzen en cap llibre",
-  "settingsExcludedPruneTagsTitle": "Categories excloses",
-  "settingsExcludedPruneTagsSub": "{count, plural, =0{Sense categories excloses} =1{1 categoria protegida} other{{count} categories protegides}}",
-  "@settingsExcludedPruneTagsSub": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsPruneWarningTitle": "Categories orfes detectades",
-  "settingsPruneWarningContent": "Activar aquesta opció eliminarà les següents categories perquè no s'utilitzen en cap llibre. Vols continuar?",
-  "settingsAutomationTitle": "Automatització"
+    "@@locale": "ca",
+    "appTitle": "Openshelf",
+    "@appTitle": {
+        "description": "Application name"
+    },
+    "errorPrefix": "Error: {message}",
+    "@errorPrefix": {
+        "description": "Generic error prefix",
+        "placeholders": {
+            "message": {
+                "type": "String"
+            }
+        }
+    },
+    "errorGeneric": "Error: {error}",
+    "@errorGeneric": {
+        "description": "Generic error message with parameter",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "criticalStartError": "Error en iniciar l'aplicació: {error}",
+    "@criticalStartError": {
+        "description": "Critical app startup error",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "navLibrary": "Biblioteca",
+    "@navLibrary": {
+        "description": "Nav tab: library"
+    },
+    "navShelves": "Prestatgeries",
+    "@navShelves": {
+        "description": "Nav tab: shelves"
+    },
+    "navStats": "Estadístiques",
+    "@navStats": {
+        "description": "Nav tab: stats"
+    },
+    "libraryTitle": "Biblioteca",
+    "@libraryTitle": {
+        "description": "Library screen title"
+    },
+    "libraryEmpty": "La teva biblioteca està buida",
+    "@libraryEmpty": {
+        "description": "Empty library state"
+    },
+    "libraryEmptyHint": "Quin serà el teu primer llibre?",
+    "@libraryEmptyHint": {
+        "description": "Hint when library is empty"
+    },
+    "libraryAddFirstBook": "Afegir primer llibre",
+    "@libraryAddFirstBook": {
+        "description": "Text for the action button in the empty library state"
+    },
+    "libraryNoResults": "Sense resultats",
+    "@libraryNoResults": {
+        "description": "No search results"
+    },
+    "libraryNoResultsHint": "Prova amb altres filtres",
+    "@libraryNoResultsHint": {
+        "description": "Hint when no search results"
+    },
+    "addBook": "Afegir llibre",
+    "@addBook": {
+        "description": "Add book FAB label"
+    },
+    "displaySettings": "Mostra a la biblioteca",
+    "@displaySettings": {
+        "description": "Display settings title"
+    },
+    "displaySettingsDragHint": "Arrossega per reordenar",
+    "@displaySettingsDragHint": {
+        "description": "Reorder hint"
+    },
+    "settingsButton": "Ajusts",
+    "@settingsButton": {
+        "description": "Settings button label"
+    },
+    "fieldAuthor": "Autor",
+    "@fieldAuthor": {
+        "description": "Author field name"
+    },
+    "fieldPublisher": "Editorial",
+    "@fieldPublisher": {
+        "description": "Publisher field name"
+    },
+    "fieldYear": "Any de publicació",
+    "@fieldYear": {
+        "description": "Year field name"
+    },
+    "fieldRating": "Valoració",
+    "@fieldRating": {
+        "description": "Rating field name"
+    },
+    "fieldTags": "Etiquetes",
+    "@fieldTags": {
+        "description": "Tags field name"
+    },
+    "fieldReadingProgress": "Progrés de lectura",
+    "@fieldReadingProgress": {
+        "description": "Reading progress field"
+    },
+    "fieldStatusChip": "Xip d'estat",
+    "@fieldStatusChip": {
+        "description": "Status chip field"
+    },
+    "searchHint": "Cerca per títol...",
+    "@searchHint": {
+        "description": "Library search placeholder"
+    },
+    "filterAuthor": "Autor",
+    "@filterAuthor": {
+        "description": "Author filter placeholder"
+    },
+    "filterIsbn": "ISBN",
+    "@filterIsbn": {
+        "description": "ISBN filter placeholder"
+    },
+    "filterPublisher": "Editorial",
+    "@filterPublisher": {
+        "description": "Publisher filter placeholder"
+    },
+    "filterCollection": "Col·lecció",
+    "@filterCollection": {
+        "description": "Collection filter placeholder"
+    },
+    "filterImprintLabel": "Segell editorial",
+    "@filterImprintLabel": {
+        "description": "Imprint filter label"
+    },
+    "imprintBookCount": "{count} llibres",
+    "@imprintBookCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "filterTagsLabel": "Categories",
+    "@filterTagsLabel": {
+        "description": "Categories filter label"
+    },
+    "done": "Fet",
+    "@done": {
+        "description": "Generic close button"
+    },
+    "loading": "S'està carregant...",
+    "@loading": {
+        "description": "Generic loading message"
+    },
+    "loadingImport": "S'estan important els llibres, espera un moment...",
+    "@loadingImport": {
+        "description": "Loading message during import"
+    },
+    "loadingExport": "S'estan exportant els llibres, espera un moment...",
+    "@loadingExport": {
+        "description": "Loading message during export"
+    },
+    "exportProgressData": "S'estan exportant les dades...",
+    "exportProgressMedia": "S'estan preparant els fitxers multimèdia...",
+    "exportProgressCompress": "S'està comprimint la còpia de seguretat...",
+    "exportProgressFinalize": "S'està obrint el menú de compartir...",
+    "exportSaveSuccess": "Còpia de seguretat desada a {path}",
+    "@exportSaveSuccess": {
+        "placeholders": {
+            "path": {
+                "type": "String"
+            }
+        }
+    },
+    "cancel": "Cancel·lar",
+    "@cancel": {
+        "description": "Generic cancel button"
+    },
+    "save": "Desar",
+    "@save": {
+        "description": "Generic save button"
+    },
+    "delete": "Eliminar",
+    "@delete": {
+        "description": "Generic delete button"
+    },
+    "create": "Crear",
+    "@create": {
+        "description": "Generic create button"
+    },
+    "edit": "Editar",
+    "@edit": {
+        "description": "Generic edit button"
+    },
+    "duplicate": "Duplicar",
+    "@duplicate": {
+        "description": "Generic duplicate action"
+    },
+    "photo": "Foto",
+    "@photo": {
+        "description": "Take photo button"
+    },
+    "url": "URL",
+    "@url": {
+        "description": "Enter URL button"
+    },
+    "download": "Descarregar",
+    "@download": {
+        "description": "Download button"
+    },
+    "retry": "Reintentar",
+    "@retry": {
+        "description": "Retry button"
+    },
+    "share": "Compartir",
+    "@share": {
+        "description": "Share action"
+    },
+    "saveToDevice": "Desar al dispositiu",
+    "@saveToDevice": {
+        "description": "Save to device action"
+    },
+    "addBookModalTitle": "Afegir llibre",
+    "@addBookModalTitle": {
+        "description": "Add book modal title"
+    },
+    "addBookModalSubtitle": "Tria com vols afegir el teu llibre",
+    "@addBookModalSubtitle": {
+        "description": "Add book modal subtitle"
+    },
+    "addManually": "Afegir manualment",
+    "@addManually": {
+        "description": "Add book manually option"
+    },
+    "addManuallySubtitle": "Omple les dades tu mateix",
+    "@addManuallySubtitle": {
+        "description": "Add manually option subtitle"
+    },
+    "searchBook": "Cercar llibre",
+    "@searchBook": {
+        "description": "Search book online option"
+    },
+    "searchBookSubtitle": "Per títol, autor o ISBN",
+    "@searchBookSubtitle": {
+        "description": "Search book option subtitle"
+    },
+    "scanBarcode": "Escanejar codi de barres",
+    "@scanBarcode": {
+        "description": "Scan barcode option"
+    },
+    "scanBarcodeSubtitle": "Apunta la càmera a l'ISBN",
+    "@scanBarcodeSubtitle": {
+        "description": "Scan barcode option subtitle"
+    },
+    "scanIsbnText": "Escanejar número ISBN",
+    "@scanIsbnText": {
+        "description": "Option to scan ISBN as text"
+    },
+    "scanIsbnTextSubtitle": "Apunta al número imprès",
+    "@scanIsbnTextSubtitle": {
+        "description": "Subtitle for scanning ISBN as text"
+    },
+    "scanIsbnSelect": "Toca un ISBN per seleccionar-lo",
+    "@scanIsbnSelect": {
+        "description": "Instruction to tap a detected ISBN"
+    },
+    "scanOcrHoldMessage": "Manté la imatge uns segons...",
+    "@scanOcrHoldMessage": {
+        "description": "Instruction to hold the camera steady for OCR"
+    },
+    "scanBarcodePermission": "Es requereix permís de càmera per escanejar codis",
+    "@scanBarcodePermission": {
+        "description": "Camera permission missing message"
+    },
+    "scanBatch": "Escanejar en lot",
+    "@scanBatch": {
+        "description": "Batch scan option"
+    },
+    "scanBatchSubtitle": "Escaneja diversos llibres seguits",
+    "@scanBatchSubtitle": {
+        "description": "Batch scan option subtitle"
+    },
+    "scanModeBarcode": "Codi de barres",
+    "@scanModeBarcode": {
+        "description": "Label for scanner mode: barcode"
+    },
+    "scanModeIsbn": "Número ISBN",
+    "@scanModeIsbn": {
+        "description": "Label for scanner mode: ISBN number / text"
+    },
+    "bookFormNewTitle": "Nou llibre",
+    "@bookFormNewTitle": {
+        "description": "New book form title"
+    },
+    "bookFormEditTitle": "Editar llibre",
+    "@bookFormEditTitle": {
+        "description": "Edit book form title"
+    },
+    "tabMain": "Principal",
+    "@tabMain": {
+        "description": "Main tab label"
+    },
+    "tabDetails": "Detalls",
+    "@tabDetails": {
+        "description": "Details tab label"
+    },
+    "fieldTitle": "Títol",
+    "@fieldTitle": {
+        "description": "Title field label"
+    },
+    "fieldSubtitle": "Subtítol",
+    "@fieldSubtitle": {
+        "description": "Subtitle field label"
+    },
+    "fieldDescription": "Sinopsi",
+    "@fieldDescription": {
+        "description": "Description field label"
+    },
+    "fieldIsbn": "ISBN",
+    "@fieldIsbn": {
+        "description": "ISBN field label"
+    },
+    "fieldLanguage": "Idioma",
+    "@fieldLanguage": {
+        "description": "Language field label"
+    },
+    "fieldIsTranslation": "És una traducció?",
+    "@fieldIsTranslation": {
+        "description": "Toggle for translation fields"
+    },
+    "fieldOriginalTitle": "Títol original",
+    "@fieldOriginalTitle": {
+        "description": "Original title field label"
+    },
+    "fieldOriginalLanguage": "Idioma original",
+    "@fieldOriginalLanguage": {
+        "description": "Original language field label"
+    },
+    "fieldTranslator": "Traductor",
+    "@fieldTranslator": {
+        "description": "Translator field label"
+    },
+    "fieldReads": "Lectures",
+    "@fieldReads": {
+        "description": "Name of the reads field"
+    },
+    "fieldCopies": "Còpies",
+    "@fieldCopies": {
+        "description": "Name of the copies field"
+    },
+    "fieldTotalPages": "Pàgines totals",
+    "@fieldTotalPages": {
+        "description": "Total pages field"
+    },
+    "fieldTotalBooks": "Llibres totals",
+    "@fieldTotalBooks": {
+        "description": "Total books field"
+    },
+    "fieldCurrentPage": "Pàgina actual",
+    "@fieldCurrentPage": {
+        "description": "Current page field"
+    },
+    "fieldNotes": "Notes",
+    "@fieldNotes": {
+        "description": "Notes field label"
+    },
+    "fieldCollection": "Col·lecció / Sèrie",
+    "@fieldCollection": {
+        "description": "Collection field label"
+    },
+    "fieldCollectionNumber": "Número a la col·lecció",
+    "@fieldCollectionNumber": {
+        "description": "Number in collection field"
+    },
+    "sectionBasicInfo": "Informació bàsica",
+    "@sectionBasicInfo": {
+        "description": "Basic info header"
+    },
+    "sectionCategories": "Categories",
+    "@sectionCategories": {
+        "description": "Categories header"
+    },
+    "sectionReadingStatus": "Estat de lectura",
+    "@sectionReadingStatus": {
+        "description": "Reading status header"
+    },
+    "sectionFormat": "Format",
+    "@sectionFormat": {
+        "description": "Format header"
+    },
+    "sectionRating": "Valoració",
+    "@sectionRating": {
+        "description": "Rating header"
+    },
+    "sectionImprint": "Segell editorial",
+    "@sectionImprint": {
+        "description": "Imprint header"
+    },
+    "coverPickPhoto": "Foto",
+    "@coverPickPhoto": {
+        "description": "Photo pick button"
+    },
+    "coverPickUrl": "URL",
+    "@coverPickUrl": {
+        "description": "URL pick button"
+    },
+    "coverSearch": "Cercar",
+    "@coverSearch": {
+        "description": "Cover search button"
+    },
+    "coverUrlDialogTitle": "URL de la portada",
+    "@coverUrlDialogTitle": {
+        "description": "Cover URL dialog title"
+    },
+    "coverUrlHint": "https://exemple.com/portada.jpg",
+    "@coverUrlHint": {
+        "description": "Cover URL placeholder"
+    },
+    "coverDownloadError": "No s'ha pogut descarregar la imatge",
+    "@coverDownloadError": {
+        "description": "Download error message"
+    },
+    "imageProcessError": "No s'ha pogut processar la imatge",
+    "@imageProcessError": {
+        "description": "Error when image processing fails"
+    },
+    "cropCoverTitle": "Retallar portada",
+    "@cropCoverTitle": {
+        "description": "Title for cover cropping screen"
+    },
+    "cropImprintTitle": "Retallar segell",
+    "@cropImprintTitle": {
+        "description": "Title for imprint cropping screen"
+    },
+    "tagSearchOrCreate": "Cercar o crear categoria",
+    "@tagSearchOrCreate": {
+        "description": "Tag search placeholder"
+    },
+    "tagCreateHint": "Escriu i prem Retorn per afegir o crear",
+    "@tagCreateHint": {
+        "description": "Tag create hint"
+    },
+    "tagNoCategories": "Encara no hi ha cap categoria creada",
+    "@tagNoCategories": {
+        "description": "No categories message"
+    },
+    "imprintSearch": "Cercar segell editorial",
+    "@imprintSearch": {
+        "description": "Imprint search placeholder"
+    },
+    "requiredField": "Camp obligatori",
+    "@requiredField": {
+        "description": "Required field validation message"
+    },
+    "statusWantToRead": "Per llegir",
+    "@statusWantToRead": {
+        "description": "Status: want to read"
+    },
+    "statusReading": "Llegint",
+    "@statusReading": {
+        "description": "Status: reading"
+    },
+    "statusRead": "Llegit",
+    "@statusRead": {
+        "description": "Status: read"
+    },
+    "statusAbandoned": "Abandonat",
+    "@statusAbandoned": {
+        "description": "Status: abandoned"
+    },
+    "statusPaused": "En pausa",
+    "@statusPaused": {
+        "description": "Status: paused"
+    },
+    "ownershipStatusBought": "Comprat",
+    "@ownershipStatusBought": {
+        "description": "Ownership: bought"
+    },
+    "ownershipStatusGifted": "Regalat",
+    "@ownershipStatusGifted": {
+        "description": "Ownership: gifted"
+    },
+    "ownershipStatusBorrowed": "Deixat",
+    "@ownershipStatusBorrowed": {
+        "description": "Ownership: borrowed"
+    },
+    "ownershipStatusReturned": "Retornat",
+    "@ownershipStatusReturned": {
+        "description": "Ownership: returned"
+    },
+    "ownershipStatusSold": "Venut",
+    "@ownershipStatusSold": {
+        "description": "Ownership: sold"
+    },
+    "ownershipStatusOther": "Altre",
+    "@ownershipStatusOther": {
+        "description": "Ownership: other"
+    },
+    "formatPaperback": "Tapa blana",
+    "@formatPaperback": {
+        "description": "Format: paperback"
+    },
+    "formatHardcover": "Tapa dura",
+    "@formatHardcover": {
+        "description": "Format: hardcover"
+    },
+    "formatLeatherbound": "Pell",
+    "@formatLeatherbound": {
+        "description": "Format: leatherbound"
+    },
+    "formatRustic": "Rústica",
+    "@formatRustic": {
+        "description": "Format: rustic"
+    },
+    "formatDigital": "Digital",
+    "@formatDigital": {
+        "description": "Format: digital"
+    },
+    "formatOther": "Altre",
+    "@formatOther": {
+        "description": "Format: other"
+    },
+    "bookDetailNotFound": "Llibre no trobat",
+    "@bookDetailNotFound": {
+        "description": "Book not found message"
+    },
+    "bookDetailPagePickerTitle": "Pàgina actual",
+    "@bookDetailPagePickerTitle": {
+        "description": "Page picker title"
+    },
+    "bookDetailNotesTitle": "Notes personals",
+    "@bookDetailNotesTitle": {
+        "description": "Personal notes section title"
+    },
+    "bookDetailNotesHint": "Escriu les teves notes aquí...",
+    "@bookDetailNotesHint": {
+        "description": "Notes field placeholder"
+    },
+    "bookDetailNotesEmpty": "Toca per afegir notes...",
+    "@bookDetailNotesEmpty": {
+        "description": "Notes empty message"
+    },
+    "bookDetailDeleteTitle": "Eliminar llibre",
+    "@bookDetailDeleteTitle": {
+        "description": "Delete book dialog title"
+    },
+    "bookDetailDeleteConfirm": "Vols eliminar \"{title}\"? Aquesta acció no es pot desfer.",
+    "@bookDetailDeleteConfirm": {
+        "description": "Delete book confirmation",
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "bookDetailDuplicateTitle": "Duplicar llibre",
+    "@bookDetailDuplicateTitle": {
+        "description": "Duplicate book dialog title"
+    },
+    "bookDetailDuplicateConfirm": "Vols crear una còpia exacta de \"{title}\"?",
+    "@bookDetailDuplicateConfirm": {
+        "description": "Duplicate book confirmation",
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "bookDetailNewReadingWholeBook": "Tot el llibre",
+    "bookDetailNewReadingWholeBookDescription": "Es registrarà una relectura completa a partir d'avui.",
+    "bookDetailNewReadingSections": "Seccions",
+    "bookDetailNewReadingSectionsCount": "{count, plural, =1{1 secció} other{{count} seccions}}",
+    "@bookDetailNewReadingSectionsCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "bookDetailNewReadingReadCount": "Llegida {count}x",
+    "bookDetailNewReadingSelectSections": "Seleccionar seccions per rellegir",
+    "bookDetailStartNewReadingPrompt": "Vols començar una nova lectura?",
+    "bookDetailStartNewReadingTitle": "Nova lectura",
+    "bookDetailStartNewReadingButton": "Començar nova lectura",
+    "selectAll": "Seleccionar-ho tot",
+    "bookDetailDeleteReadPrompt": "Vols eliminar l'última lectura en curs? Es perdran les dates d'aquesta sessió.",
+    "bookDetailReadHistoryTitle": "HISTORIAL DE LECTURES",
+    "bookDetailReadOngoing": "en curs",
+    "bookDetailReadNumber": "Lectura {number}",
+    "@bookDetailReadNumber": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "bookDetailReadEditDialogTitle": "Editar lectura {number}",
+    "bookDetailReadDeleteConfirm": "Vols eliminar aquesta entrada de l'historial?",
+    "bookDetailReadNumberLabel": "Número de lectura",
+    "bookDetailFieldPages": "PÀGINES",
+    "@bookDetailFieldPages": {
+        "description": "Pages field label"
+    },
+    "bookDetailFieldCategories": "CATEGORIES",
+    "@bookDetailFieldCategories": {
+        "description": "Categories field label"
+    },
+    "bookDetailFieldFormat": "Format",
+    "@bookDetailFieldFormat": {
+        "description": "Format field label"
+    },
+    "bookDetailFieldRating": "VALORACIÓ",
+    "@bookDetailFieldRating": {
+        "description": "Rating field label"
+    },
+    "bookDetailFieldImprintSection": "SEGELL EDITORIAL",
+    "@bookDetailFieldImprintSection": {
+        "description": "Imprint section label"
+    },
+    "bookDetailFieldPersonalNotes": "NOTES PERSONALS",
+    "@bookDetailFieldPersonalNotes": {
+        "description": "Notes section label"
+    },
+    "bookDetailFieldAdded": "Afegit",
+    "@bookDetailFieldAdded": {
+        "description": "Date added label"
+    },
+    "bookDetailFieldStarted": "Inici lectura",
+    "@bookDetailFieldStarted": {
+        "description": "Date started label"
+    },
+    "bookDetailFieldFinished": "Fi lectura",
+    "@bookDetailFieldFinished": {
+        "description": "Date finished label"
+    },
+    "fieldOwnershipStatus": "Estat de propietat",
+    "@fieldOwnershipStatus": {
+        "description": "Ownership status field label"
+    },
+    "ownershipHistoryTitle": "HISTORIAL DE PROPIETAT",
+    "@ownershipHistoryTitle": {
+        "description": "Ownership history section title"
+    },
+    "ownershipLogEmpty": "No hi ha cap esdeveniment de propietat registrat.",
+    "@ownershipLogEmpty": {
+        "description": "Empty ownership log message"
+    },
+    "ownershipEventPerson": "Persona / Qui",
+    "@ownershipEventPerson": {
+        "description": "Person in ownership event"
+    },
+    "ownershipEventDate": "Data",
+    "@ownershipEventDate": {
+        "description": "Date of ownership event"
+    },
+    "ownershipEventNotes": "Notes",
+    "@ownershipEventNotes": {
+        "description": "Notes for ownership event"
+    },
+    "pageProgress": "{current} / {total} pàgs. · {percent}%",
+    "@pageProgress": {
+        "description": "Reading progress pages",
+        "placeholders": {
+            "current": {
+                "type": "String"
+            },
+            "total": {
+                "type": "String"
+            },
+            "percent": {
+                "type": "String"
+            }
+        }
+    },
+    "pageProgressShort": "{current} / {total}",
+    "@pageProgressShort": {
+        "description": "Short reading progress",
+        "placeholders": {
+            "current": {
+                "type": "String"
+            },
+            "total": {
+                "type": "String"
+            }
+        }
+    },
+    "pageSuffix": "{count} pàgs.",
+    "@pageSuffix": {
+        "description": "Page count with suffix",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "pagesLabel": "pàgines",
+    "@pagesLabel": {
+        "description": "Generic pages label"
+    },
+    "shelvesTitle": "Prestatgeries",
+    "@shelvesTitle": {
+        "description": "Shelves screen title"
+    },
+    "shelvesSectionByStatus": "Per estat",
+    "@shelvesSectionByStatus": {
+        "description": "Status section header"
+    },
+    "shelvesSectionMine": "Prestatgeries",
+    "@shelvesSectionMine": {
+        "description": "Custom shelves section header"
+    },
+    "shelvesSectionManagement": "Gestió",
+    "@shelvesSectionManagement": {
+        "description": "Management section header"
+    },
+    "shelfAllBooks": "Tots els llibres",
+    "@shelfAllBooks": {
+        "description": "All books shelf"
+    },
+    "shelfReading": "Llegint",
+    "@shelfReading": {
+        "description": "Reading shelf"
+    },
+    "shelfRead": "Llegits",
+    "@shelfRead": {
+        "description": "Read shelf"
+    },
+    "booksReadProgress": "{readCount} / {totalCount} llibres llegits",
+    "@booksReadProgress": {
+        "description": "Progress label for read books",
+        "placeholders": {
+            "readCount": {
+                "type": "int"
+            },
+            "totalCount": {
+                "type": "int"
+            }
+        }
+    },
+    "shelfWantToRead": "Per llegir",
+    "@shelfWantToRead": {
+        "description": "To read shelf"
+    },
+    "shelfAbandoned": "Abandonats",
+    "@shelfAbandoned": {
+        "description": "Abandoned shelf"
+    },
+    "shelfPaused": "En pausa",
+    "@shelfPaused": {
+        "description": "Paused shelf"
+    },
+    "shelfNewTooltip": "Nova prestatgeria",
+    "@shelfNewTooltip": {
+        "description": "New shelf tooltip"
+    },
+    "shelfEmpty": "No tens cap prestatgeria personalitzada",
+    "@shelfEmpty": {
+        "description": "Empty custom shelves state"
+    },
+    "shelfEmptySubtitle": "Organitza les teves lectures com vulguis",
+    "@shelfEmptySubtitle": {
+        "description": "Empty shelves state subtitle"
+    },
+    "shelvesAddFirstShelf": "Crear prestatgeria",
+    "@shelvesAddFirstShelf": {
+        "description": "Action button text for empty shelves state"
+    },
+    "shelfBooksEmpty": "Sense llibres en aquesta prestatgeria",
+    "@shelfBooksEmpty": {
+        "description": "Empty shelf books state"
+    },
+    "shelfBooksEmptyHint": "Els llibres que coincideixin amb els seus filtres apareixeran aquí.",
+    "@shelfBooksEmptyHint": {
+        "description": "Hint for empty shelf"
+    },
+    "shelfStatusBooksEmpty": "No hi ha cap llibre aquí",
+    "@shelfStatusBooksEmpty": {
+        "description": "Empty status books state"
+    },
+    "shelfFormNew": "Nova prestatgeria",
+    "@shelfFormNew": {
+        "description": "New shelf form title"
+    },
+    "shelfFormEdit": "Editar prestatgeria",
+    "@shelfFormEdit": {
+        "description": "Edit shelf form title"
+    },
+    "shelfFormNameLabel": "Nom de la prestatgeria",
+    "@shelfFormNameLabel": {
+        "description": "Shelf name field label"
+    },
+    "collectionNameLabel": "Nom de la col·lecció",
+    "@collectionNameLabel": {
+        "description": "Collection name field label"
+    },
+    "shelfFormSectionStatus": "Estat de lectura",
+    "@shelfFormSectionStatus": {
+        "description": "Shelf form status section"
+    },
+    "shelfFormSectionTitle": "Títol",
+    "@shelfFormSectionTitle": {
+        "description": "Shelf form title section"
+    },
+    "shelfFormSectionAuthor": "Autor",
+    "@shelfFormSectionAuthor": {
+        "description": "Shelf form author section"
+    },
+    "shelfFormSectionPublisher": "Editorial",
+    "@shelfFormSectionPublisher": {
+        "description": "Shelf form publisher section"
+    },
+    "shelfFormSectionIsbn": "ISBN",
+    "@shelfFormSectionIsbn": {
+        "description": "Shelf form ISBN section"
+    },
+    "shelfFormSectionCollection": "Col·lecció",
+    "@shelfFormSectionCollection": {
+        "description": "Shelf form collection section"
+    },
+    "shelfFormSectionCategories": "Categories",
+    "@shelfFormSectionCategories": {
+        "description": "Shelf form categories section"
+    },
+    "shelfFormSectionImprint": "Segell editorial",
+    "@shelfFormSectionImprint": {
+        "description": "Shelf form imprint section"
+    },
+    "shelfFormHintTitle": "Cerca al títol",
+    "@shelfFormHintTitle": {
+        "description": "Shelf form title hint"
+    },
+    "shelfFormHintAuthor": "Nom de l'autor",
+    "@shelfFormHintAuthor": {
+        "description": "Shelf form author hint"
+    },
+    "shelfFormHintPublisher": "Nom de l'editorial",
+    "@shelfFormHintPublisher": {
+        "description": "Shelf form publisher hint"
+    },
+    "shelfFormHintIsbn": "ISBN",
+    "@shelfFormHintIsbn": {
+        "description": "Shelf form ISBN hint"
+    },
+    "shelfFormHintCollection": "Nom de la col·lecció",
+    "@shelfFormHintCollection": {
+        "description": "Shelf form collection hint"
+    },
+    "shelfFormStatusAny": "Qualsevol",
+    "@shelfFormStatusAny": {
+        "description": "Shelf form any status"
+    },
+    "shelfOptionEdit": "Editar prestatgeria",
+    "@shelfOptionEdit": {
+        "description": "Edit shelf option"
+    },
+    "shelfOptionDelete": "Eliminar",
+    "@shelfOptionDelete": {
+        "description": "Delete shelf option"
+    },
+    "shelfStatusLabelReading": "Llegint",
+    "@shelfStatusLabelReading": {
+        "description": "Reading status label"
+    },
+    "shelfStatusLabelRead": "Llegits",
+    "@shelfStatusLabelRead": {
+        "description": "Read status label"
+    },
+    "shelfStatusLabelWantToRead": "Per llegir",
+    "@shelfStatusLabelWantToRead": {
+        "description": "To read status label"
+    },
+    "shelfStatusLabelAbandoned": "Abandonats",
+    "@shelfStatusLabelAbandoned": {
+        "description": "Abandoned status label"
+    },
+    "shelfStatusLabelPaused": "En pausa",
+    "@shelfStatusLabelPaused": {
+        "description": "Paused status label"
+    },
+    "managementCategories": "Categories",
+    "@managementCategories": {
+        "description": "Management: categories"
+    },
+    "managementCategoryCount": "Núm. de llibres",
+    "@managementCategoryCount": {
+        "description": "Number of books in a category"
+    },
+    "managementImprints": "Segells",
+    "@managementImprints": {
+        "description": "Management: imprints"
+    },
+    "managementCollections": "Col·leccions",
+    "@managementCollections": {
+        "description": "Management: collections"
+    },
+    "managementCategoryCloudCurve": "Corba algorítmica (Llibres)",
+    "tagNone": "Encara no hi ha cap categoria",
+    "@tagNone": {
+        "description": "Empty categories state"
+    },
+    "tagNoneSubtitle": "Les categories t'ajuden a trobar llibres i a construir un mapa mental de la teva biblioteca",
+    "@tagNoneSubtitle": {
+        "description": "Empty categories state subtitle"
+    },
+    "categoriesAddFirst": "Nova categoria",
+    "@categoriesAddFirst": {
+        "description": "Action button text for empty categories state"
+    },
+    "tagNew": "Nova categoria",
+    "@tagNew": {
+        "description": "New category button"
+    },
+    "tagNewDialogTitle": "Nova categoria",
+    "@tagNewDialogTitle": {
+        "description": "New category title"
+    },
+    "tagNameLabel": "Nom",
+    "@tagNameLabel": {
+        "description": "Category name field label"
+    },
+    "tagColorLabel": "Color",
+    "@tagColorLabel": {
+        "description": "Category color field label"
+    },
+    "tagDeleteTitle": "Eliminar categoria",
+    "@tagDeleteTitle": {
+        "description": "Delete category title"
+    },
+    "tagDeleteConfirm": "Vols eliminar \"{name}\"?",
+    "@tagDeleteConfirm": {
+        "description": "Delete category confirmation",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "imprintNone": "Encara no hi ha cap segell",
+    "@imprintNone": {
+        "description": "Empty imprints state"
+    },
+    "imprintNoneSubtitle": "Agrupa els teus llibres per editorials o els seus segells",
+    "@imprintNoneSubtitle": {
+        "description": "Empty imprints state subtitle"
+    },
+    "imprintsAddFirst": "Afegir segell",
+    "@imprintsAddFirst": {
+        "description": "Action button text for empty imprints state"
+    },
+    "imprintNew": "Nou segell",
+    "@imprintNew": {
+        "description": "New imprint button"
+    },
+    "imprintNewDialogTitle": "Nou segell editorial",
+    "@imprintNewDialogTitle": {
+        "description": "New imprint title"
+    },
+    "imprintEditDialogTitle": "Editar segell",
+    "@imprintEditDialogTitle": {
+        "description": "Edit imprint title"
+    },
+    "imprintNameLabel": "Nom del segell",
+    "@imprintNameLabel": {
+        "description": "Imprint name field label"
+    },
+    "imprintAddImageHint": "Prem per afegir una imatge",
+    "@imprintAddImageHint": {
+        "description": "Add imprint image hint"
+    },
+    "imprintChangeImageHint": "Prem per canviar la imatge",
+    "@imprintChangeImageHint": {
+        "description": "Change imprint image hint"
+    },
+    "imprintUrlDialogTitle": "URL de la imatge",
+    "@imprintUrlDialogTitle": {
+        "description": "Imprint URL title"
+    },
+    "imprintUrlHint": "https://exemple.com/segell.jpg",
+    "@imprintUrlHint": {
+        "description": "Imprint URL placeholder"
+    },
+    "imprintDeleteTitle": "Eliminar segell",
+    "@imprintDeleteTitle": {
+        "description": "Delete imprint title"
+    },
+    "imprintDeleteConfirm": "Vols eliminar \"{name}\"?",
+    "@imprintDeleteConfirm": {
+        "description": "Delete imprint confirmation",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "imprintNoImprints": "No hi ha cap segell creat",
+    "@imprintNoImprints": {
+        "description": "Shelf form no imprints message"
+    },
+    "collectionNone": "Encara no hi ha cap col·lecció",
+    "@collectionNone": {
+        "description": "Empty collections state"
+    },
+    "collectionNoneSubtitle": "Crea col·leccions i organitza els teus llibres",
+    "@collectionNoneSubtitle": {
+        "description": "Empty collections state subtitle"
+    },
+    "collectionsAddFirst": "Nova col·lecció",
+    "@collectionsAddFirst": {
+        "description": "Action button text for empty collections state"
+    },
+    "collectionDeleteTitle": "Eliminar col·lecció",
+    "@collectionDeleteTitle": {
+        "description": "Delete collection title"
+    },
+    "collectionDeleteConfirm": "Vols eliminar \"{name}\"?",
+    "@collectionDeleteConfirm": {
+        "description": "Delete collection confirmation",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "onboardingWelcomeTitle": "Benvingut a Openshelf",
+    "onboardingWelcomeSub": "La teva biblioteca personal, reimaginada",
+    "onboardingOrganizeTitle": "Organitza el teu món",
+    "onboardingOrganizeSub": "Crea prestatgeries intel·ligents i col·leccions temàtiques",
+    "onboardingProgressTitle": "Segueix el teu progrés",
+    "onboardingProgressSub": "Objectius de lectura i estadístiques detallades",
+    "onboardingAddTitle": "Afegeix a l'instant",
+    "onboardingAddSub": "Escaneja codis de barres o cerca al núvol",
+    "onboardingNext": "Següent",
+    "onboardingStart": "Comença ara",
+    "settingsApplyIcon": "Aplicar canvi d'icona",
+    "settingsDynamicIcon": "Icona de l'aplicació dinàmica",
+    "settingsDynamicIconSub": "Canvia l'icona de la pantalla d'inici perquè coincideixi amb el color triat (L'aplicació es reiniciarà)",
+    "settingsLibraryColumns": "Columnes a la biblioteca",
+    "settingsLibraryColumnsSub": "Ajusta el nombre de llibres per fila a la vista de quadrícula",
+    "settingsTitle": "Ajusts",
+    "@settingsTitle": {
+        "description": "Settings screen title"
+    },
+    "settingsSectionAppearance": "Aparença",
+    "@settingsSectionAppearance": {
+        "description": "Appearance section header"
+    },
+    "settingsLanguage": "Idioma",
+    "@settingsLanguage": {
+        "description": "Language selector label"
+    },
+    "settingsLanguageSystem": "Sistema (automàtic)",
+    "@settingsLanguageSystem": {
+        "description": "Language option: system"
+    },
+    "settingsLanguageSpanish": "Espanyol",
+    "@settingsLanguageSpanish": {
+        "description": "Language option: spanish"
+    },
+    "settingsLanguageEnglish": "Anglès",
+    "@settingsLanguageEnglish": {
+        "description": "Language option: english"
+    },
+    "settingsLanguageFrench": "Francès",
+    "@settingsLanguageFrench": {
+        "description": "Language option: french"
+    },
+    "settingsLanguageItalian": "Italià",
+    "@settingsLanguageItalian": {
+        "description": "Language option: italian"
+    },
+    "settingsLanguageCatalan": "Català",
+    "@settingsLanguageCatalan": {
+        "description": "Language option: catalan"
+    },
+    "settingsLanguagePortuguese": "Portuguès (Portugal)",
+    "@settingsLanguagePortuguese": {
+        "description": "Language option: portuguese"
+    },
+    "settingsLanguagePortugueseBR": "Portuguès (Brasil)",
+    "@settingsLanguagePortugueseBR": {
+        "description": "Language option: portuguese brazilian"
+    },
+    "settingsThemeMode": "Mode de tema",
+    "@settingsThemeMode": {
+        "description": "Theme mode label"
+    },
+    "settingsThemeLight": "Clar",
+    "@settingsThemeLight": {
+        "description": "Light theme option"
+    },
+    "settingsThemeSystem": "Sistema",
+    "@settingsThemeSystem": {
+        "description": "System theme option"
+    },
+    "settingsThemeDark": "Fosc",
+    "@settingsThemeDark": {
+        "description": "Dark theme option"
+    },
+    "settingsAccentColor": "Color d'accent",
+    "@settingsAccentColor": {
+        "description": "Accent color label"
+    },
+    "settingsAccentColorHint": "Toca un color per aplicar-lo",
+    "@settingsAccentColorHint": {
+        "description": "Accent color hint"
+    },
+    "settingsSectionStorage": "Emmagatzematge",
+    "@settingsSectionStorage": {
+        "description": "Storage section header"
+    },
+    "settingsCoversFolder": "Carpeta de portades",
+    "@settingsCoversFolder": {
+        "description": "Covers folder label"
+    },
+    "settingsDatabase": "Base de dades",
+    "@settingsDatabase": {
+        "description": "Database label"
+    },
+    "settingsDefaultDir": "Directori per defecte",
+    "@settingsDefaultDir": {
+        "description": "Default directory label"
+    },
+    "settingsDbMoveTitle": "Moure la base de dades",
+    "@settingsDbMoveTitle": {
+        "description": "Move database dialog title"
+    },
+    "settingsDbMoveContent": "Moure la base de dades requereix reiniciar l'aplicació. Les dades es copiaran al nou directori. Vols continuar?",
+    "@settingsDbMoveContent": {
+        "description": "Move database dialog content"
+    },
+    "settingsDbMoveConfirm": "Moure i reiniciar",
+    "@settingsDbMoveConfirm": {
+        "description": "Move database confirmation"
+    },
+    "settingsSectionSearch": "Cerca de llibres",
+    "@settingsSectionSearch": {
+        "description": "Search section header"
+    },
+    "settingsSearchServer": "Servidor",
+    "@settingsSearchServer": {
+        "description": "Search server label"
+    },
+    "settingsSearchServerHint": "S'utilitzarà per cercar llibres per ISBN o títol",
+    "@settingsSearchServerHint": {
+        "description": "Search server hint"
+    },
+    "settingsSectionData": "Gestió de dades",
+    "@settingsSectionData": {
+        "description": "Data management section header"
+    },
+    "dataManagementOpenShelf": "OpenShelf",
+    "dataManagementBookshelf": "Bookshelf",
+    "dataManagementGoodreads": "Goodreads",
+    "dataManagementLibraryThing": "LibraryThing",
+    "dataManagementImport": "Importar llibres",
+    "dataManagementExport": "Exportar llibres",
+    "dataManagementImportHint": "Importar des de CSV de {source}",
+    "@dataManagementImportHint": {
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "dataManagementImportHintJson": "Importar des de JSON de {source}",
+    "dataManagementExportHint": "Exportar a CSV de {source}",
+    "@dataManagementExportHint": {
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "dataManagementExportHintJson": "Exportar a JSON de {source}",
+    "dataManagementRestoreBackup": "Restaurar còpia de seguretat",
+    "dataManagementRestoreBackupHint": "Restaurar des de CSV/ZIP de OpenShelf",
+    "dataManagementCreateBackup": "Crear còpia de seguretat",
+    "dataManagementCreateBackupHint": "Exportació completa amb opció de portades",
+    "settingsImportBookshelf": "Importar des de Bookshelf",
+    "@settingsImportBookshelf": {
+        "description": "Import from Bookshelf option"
+    },
+    "settingsImportBookshelfHint": "Importar llibres des d'un fitxer CSV",
+    "@settingsImportBookshelfHint": {
+        "description": "Import hint"
+    },
+    "settingsExportCsv": "Exportar biblioteca",
+    "@settingsExportCsv": {
+        "description": "Export title"
+    },
+    "settingsExportCsvHint": "Exportar tots els llibres a un fitxer CSV",
+    "@settingsExportCsvHint": {
+        "description": "Export hint"
+    },
+    "settingsFullBackup": "Restaurar biblioteca",
+    "@settingsFullBackup": {
+        "description": "Restore title"
+    },
+    "settingsFullBackupHint": "Restaurar llibres des d'una còpia de seguretat CSV",
+    "@settingsFullBackupHint": {
+        "description": "Restore hint"
+    },
+    "settingsAllFilesAccess": "Accés a tots els fitxers",
+    "settingsAllFilesAccessSub": "Necessari per moure la base de dades a carpetes externes (Android 11+)",
+    "settingsAllFilesAccessInfo": "Aquest permís permet a Openshelf gestionar fitxers fora del seu directori privat. És necessari per moure la base de dades a una carpeta personalitzada.",
+    "settingsAutoNoCoverTitle": "Prestatgeria sense portades",
+    "settingsAutoNoCoverSub": "Crea automàticament una prestatgeria si falten portades",
+    "noCoverShelfTitle": "Llibres sense portada",
+    "settingsCompressImagesTitle": "Comprimir portades automàticament",
+    "settingsCompressImagesSub": "Redueix el pes de les imatges en desar-les o importar-les",
+    "settingsBatchCompressTitle": "Optimitzar la biblioteca ara",
+    "settingsBatchCompressSub": "Comprimeix totes les portades existents que no estiguin optimitzades",
+    "settingsBatchCompressSuccess": "S'han optimitzat {count} portades.",
+    "@settingsBatchCompressSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "exportTitle": "Exportar biblioteca",
+    "@exportTitle": {
+        "description": "Export dialog title"
+    },
+    "exportCoversPrompt": "Vols incloure les imatges de les portades a la còpia de seguretat? (Es crearà un fitxer ZIP juntament amb el CSV)",
+    "@exportCoversPrompt": {
+        "description": "Export covers prompt"
+    },
+    "importRestoreCoversTitle": "Restaurar portades",
+    "@importRestoreCoversTitle": {
+        "description": "Import covers title"
+    },
+    "importRestoreCoversPrompt": "Tens també un fitxer ZIP amb les portades per restaurar?",
+    "@importRestoreCoversPrompt": {
+        "description": "Import covers prompt"
+    },
+    "yes": "Sí",
+    "@yes": {
+        "description": "Yes button"
+    },
+    "no": "No",
+    "@no": {
+        "description": "No button"
+    },
+    "devDeleteAllBooks": "ESBORRAR TOTS ELS LLIBRES (DEV)",
+    "@devDeleteAllBooks": {
+        "description": "Developer option to clear database"
+    },
+    "settingsDevClearDbSub": "Eina de desenvolupador: netejar base de dades",
+    "settingsDevDbCleared": "Base de dades netejada",
+    "settingsImportSelectBackup": "Seleccionar còpia de seguretat d'Openshelf",
+    "settingsImportSelectCovers": "Seleccionar ZIP de portades d'Openshelf",
+    "devDeleteConfirmTitle": "Vols buidar la biblioteca?",
+    "@devDeleteConfirmTitle": {
+        "description": "Dev delete confirmation title"
+    },
+    "devDeleteConfirmContent": "Això eliminará permanentment TOTS els llibres i categories. Només per a proves. Vols continuar?",
+    "@devDeleteConfirmContent": {
+        "description": "Dev delete confirmation content"
+    },
+    "importSuccess": "Importació completada: s'han afegit {count} llibres.",
+    "@importSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "importPartial": "Importació parcial: {added} afegits, {skipped} omesos.",
+    "@importPartial": {
+        "placeholders": {
+            "added": {
+                "type": "int"
+            },
+            "skipped": {
+                "type": "int"
+            }
+        }
+    },
+    "settingsApiKeyTitle": "Clau de l'API de Google Books",
+    "@settingsApiKeyTitle": {
+        "description": "API key card title"
+    },
+    "settingsApiKeyConfigured": "Clau configurada. Google Books està disponible.",
+    "@settingsApiKeyConfigured": {
+        "description": "Key configured message"
+    },
+    "settingsApiKeyMissing": "Sense clau, Google Books utilitzarà Open Library com a alternativa.",
+    "@settingsApiKeyMissing": {
+        "description": "Key missing message"
+    },
+    "settingsApiKeyHint": "AIza...",
+    "@settingsApiKeyHint": {
+        "description": "API key placeholder"
+    },
+    "settingsApiKeyShow": "Mostra",
+    "@settingsApiKeyShow": {
+        "description": "Show key tooltip"
+    },
+    "settingsApiKeyHide": "Amaga",
+    "@settingsApiKeyHide": {
+        "description": "Hide key tooltip"
+    },
+    "settingsApiKeySave": "Desar la clau",
+    "@settingsApiKeySave": {
+        "description": "Save key button"
+    },
+    "settingsApiKeySaved": "Clau desada",
+    "@settingsApiKeySaved": {
+        "description": "Key saved confirmation"
+    },
+    "settingsApiKeyClear": "Esborrar la clau",
+    "@settingsApiKeyClear": {
+        "description": "Clear key tooltip"
+    },
+    "settingsApiKeyHowTo": "Com obtenir-la",
+    "@settingsApiKeyHowTo": {
+        "description": "How to get key button"
+    },
+    "settingsApiKeyInstructionsTitle": "Com obtenir una clau de Google Books",
+    "@settingsApiKeyInstructionsTitle": {
+        "description": "Instructions title"
+    },
+    "settingsApiKeyStep1": "Obre console.cloud.google.com i inicia sessió amb el teu compte de Google.",
+    "@settingsApiKeyStep1": {
+        "description": "Step 1"
+    },
+    "settingsApiKeyStep2": "Crea un projecte nou (el nom és indiferent).",
+    "@settingsApiKeyStep2": {
+        "description": "Step 2"
+    },
+    "settingsApiKeyStep3": "Ves a API i serveis → Biblioteca, cerca \"Books API\" i activa-la.",
+    "@settingsApiKeyStep3": {
+        "description": "Step 3"
+    },
+    "settingsApiKeyStep4": "Ves a API i serveis → Credencials → Crear credencials → Clau d'API.",
+    "@settingsApiKeyStep4": {
+        "description": "Step 4"
+    },
+    "settingsApiKeyStep5": "Opcional però recomanat: restringeix la clau només a la Books API.",
+    "@settingsApiKeyStep5": {
+        "description": "Step 5"
+    },
+    "settingsApiKeyStep6": "Copia la clau resultant (comença per \"AIza…\") i enganxa-la al camp de dalt.",
+    "@settingsApiKeyStep6": {
+        "description": "Step 6"
+    },
+    "settingsApiKeyNote": "La clau és gratuïta i permet fins a 1.000 cerques diàries. No es comparteix amb ningú: es desa només en aquest dispositiu.",
+    "@settingsApiKeyNote": {
+        "description": "API key information note"
+    },
+    "bookSearchHint": "Títol, autor o ISBN...",
+    "@bookSearchHint": {
+        "description": "Book search field hint"
+    },
+    "bookSearchPrompt": "Cerca per títol, autor o ISBN",
+    "@bookSearchPrompt": {
+        "description": "Initial search prompt"
+    },
+    "bookSearchNoResults": "Sense resultats per a \"{query}\"",
+    "@bookSearchNoResults": {
+        "description": "Search no results message",
+        "placeholders": {
+            "query": {
+                "type": "String"
+            }
+        }
+    },
+    "bookSearchProvidersNotice": "Resultats de: {providers}.",
+    "@bookSearchProvidersNotice": {
+        "description": "Notice of providers that contributed to the search",
+        "placeholders": {
+            "providers": {
+                "type": "String"
+            }
+        }
+    },
+    "bookSearchRecommended": "RECOMANAT PER OPENSHELF",
+    "@bookSearchRecommended": {
+        "description": "Label for recommended result"
+    },
+    "bookSearchRecommendedSource": "Recomanat per Openshelf",
+    "bookSearchServerOpenLibrary": "Open Library",
+    "bookSearchServerGoogleBooks": "Google Books",
+    "bookSearchServerInventaire": "Inventaire.io",
+    "searchTabStatus": "Estat",
+    "@searchTabStatus": {
+        "description": "Search panel: Status tab"
+    },
+    "searchTabImprint": "Segell",
+    "@searchTabImprint": {
+        "description": "Search panel: Imprint tab"
+    },
+    "searchTabCategory": "Categoria",
+    "@searchTabCategory": {
+        "description": "Search panel: Category tab"
+    },
+    "searchTabCollection": "Col·lecció",
+    "@searchTabCollection": {
+        "description": "Search panel: Collection tab"
+    },
+    "searchFilterStatus": "Estat: {value}",
+    "@searchFilterStatus": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFilterImprint": "Segell: {value}",
+    "@searchFilterImprint": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFilterCategory": "Cat.: {value}",
+    "@searchFilterCategory": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFilterCollection": "Col.: {value}",
+    "@searchFilterCollection": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "searchActiveFilters": "{count, plural, =1{1 filtre actiu} other{{count} filtres actius}}",
+    "@searchActiveFilters": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "searchSaveAsShelf": "Desar com a prestatgeria",
+    "shelfShowInLibrary": "Mostra a la biblioteca",
+    "searchClearAll": "Neteja-ho tot",
+    "@searchClearAll": {
+        "description": "Button to clear all search filters"
+    },
+    "addedToLibrary": "Afegit a la biblioteca",
+    "@addedToLibrary": {
+        "description": "Success message when book is added"
+    },
+    "errorDuplicateIsbn": "Ja és a la biblioteca",
+    "@errorDuplicateIsbn": {
+        "description": "Error when book ISBN already exists"
+    },
+    "bookDuplicateTitle": "Llibre duplicat",
+    "@bookDuplicateTitle": {
+        "description": "Duplicate book warning title"
+    },
+    "bookDuplicateContent": "Ja tens un llibre amb l'ISBN {isbn} a la teva biblioteca.",
+    "@bookDuplicateContent": {
+        "description": "Duplicate book warning content",
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "bookSearchErrorNoApiKey": "Google Books requereix una clau d'API.\nConfigura-la a Ajusts → Cerca de llibres.",
+    "@bookSearchErrorNoApiKey": {
+        "description": "Error: no API key"
+    },
+    "bookSearchErrorRateLimit": "Google Books ha limitat les peticions.\nEspera un moment i torna-ho a provar.",
+    "@bookSearchErrorRateLimit": {
+        "description": "Error: rate limit"
+    },
+    "bookSearchErrorNetwork": "No s'ha pogut connectar amb cap servidor.\nComprova la teva connexió i torna-ho a provar.",
+    "@bookSearchErrorNetwork": {
+        "description": "Search network error"
+    },
+    "coverPickerTitle": "Portades",
+    "@coverPickerTitle": {
+        "description": "Cover picker sheet title"
+    },
+    "coverPickerIsbnLabel": "ISBN {isbn}",
+    "@coverPickerIsbnLabel": {
+        "description": "Sheet subtitle with ISBN",
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "coverPickerNoResults": "No s'han trobat portades per a aquest llibre.",
+    "@coverPickerNoResults": {
+        "description": "No covers found message"
+    },
+    "coverPickerNetworkError": "No s'ha pogut connectar. Comprova la teva connexió.",
+    "@coverPickerNetworkError": {
+        "description": "Cover search network error"
+    },
+    "coverPickerProgress": "{loaded} / {total}",
+    "@coverPickerProgress": {
+        "description": "Cover load progress",
+        "placeholders": {
+            "loaded": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "statsTitle": "Estadístiques",
+    "@statsTitle": {
+        "description": "Stats screen title"
+    },
+    "statsPlaceholder": "Les teves estadístiques apareixeran aquí",
+    "@statsPlaceholder": {
+        "description": "Stats placeholder"
+    },
+    "statsEmptySubtitle": "Afegeix ginys per veure els teus hàbits de lectura, objectius i rècords personals.",
+    "@statsEmptySubtitle": {
+        "description": "Empty stats state subtitle"
+    },
+    "statsAddFirstWidget": "Afegir primer giny",
+    "statsAddWidgetTitle": "Afegir giny",
+    "statsGoalTargetShelf": "Prestatgeria objectiu",
+    "searchFilterIsbnLabel": "ISBN: {isbn}",
+    "@searchFilterIsbnLabel": {
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFilterLanguageLabel": "Idioma: {language}",
+    "@searchFilterLanguageLabel": {
+        "placeholders": {
+            "language": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFilterAuthorLabel": "Autor: {author}",
+    "@searchFilterAuthorLabel": {
+        "placeholders": {
+            "author": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFilterPublisherLabel": "Editorial: {publisher}",
+    "@searchFilterPublisherLabel": {
+        "placeholders": {
+            "publisher": {
+                "type": "String"
+            }
+        }
+    },
+    "statsGoalTitle": "OBJECTIU",
+    "statsGoalFullTitle": "OBJECTIU DE LECTURA",
+    "statsGoalUnitBooks": "llibres",
+    "statsGoalUnitPages": "pàgs.",
+    "statsGoalRemaining": "En falten {count}",
+    "@statsGoalRemaining": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statsGoalCompleted": "Fet!",
+    "statsGoalNew": "Nou objectiu",
+    "statsGoalEdit": "Editar objectiu",
+    "statsGoalDelete": "Eliminar",
+    "statsGoalNameLabel": "Nom (ex: Repte 2026)",
+    "statsGoalTypeLabel": "Tipus",
+    "statsGoalTypeBooks": "Llibres llegits",
+    "statsGoalTypePages": "Pàgines llegides",
+    "statsGoalTargetLabel": "Objectiu numèric",
+    "statsGoalFromLabel": "Des de",
+    "statsGoalToLabel": "Fins a",
+    "statsPagesTitle": "PÀGINES",
+    "statsPagesSub": "pàgines llegides",
+    "statsStreakTitle": "RATXA",
+    "statsStreakSub": "dies seguits",
+    "statsStatusTitle": "ESTATS",
+    "statsAddedTitle": "LLIBRES AFEGITS",
+    "statsAddedNoData": "Sense dades",
+    "statsCategoriesTitle": "CATEGORIES",
+    "statsYearsTitle": "ANYS DE PUBLICACIÓ",
+    "statsReadingTitle": "LECTURA",
+    "statsReadingNowTitle": "LLEGINT ARA",
+    "statsReadingNone": "Res en lectura",
+    "statsReadByYearTitle": "LLIBRES LLEGITS PER ANY",
+    "statsCollectionsTitle": "COL·LECCIONS",
+    "statsLastAddedTitle": "ÚLTIMS AFEGITS",
+    "statsDailyReadingTitle": "LECTURA DIÀRIA",
+    "statsAvgPagesTitle": "MITJANA DE PÀGINES",
+    "statsAvgPagesSub": "pàgines per llibre",
+    "statsOptPagesTitle": "Pàgines totals",
+    "statsOptPagesSub": "Total de pàgines llegides",
+    "statsOptStreakTitle": "Ratxa",
+    "statsOptStreakSub": "Dies consecutius llegint",
+    "statsOptGoalTitle": "Objectiu de lectura",
+    "statsOptGoalSub": "Llibres, prestatgeries o col·leccions",
+    "statsOptStatusTitle": "Estats de lectura",
+    "statsOptStatusSub": "Llibres per estat",
+    "statsOptCurrentTitle": "Llibre actual",
+    "statsOptCurrentSub": "Progrés de lectura en curs",
+    "statsOptAddedTimeTitle": "Llibres afegits",
+    "statsOptAddedTimeSub": "Gràfic temporal d'adquisicions",
+    "statsOptCategoriesTitle": "Categories",
+    "statsOptCategoriesSub": "Distribució per gèneres",
+    "statsOptYearsTitle": "Any de publicació",
+    "statsOptYearsSub": "Histograma històric",
+    "statsOptReadYearTitle": "Llegits per any",
+    "statsOptReadYearSub": "Gràfic de lectura anual",
+    "statsOptCollectionsTitle": "Col·leccions",
+    "statsOptCollectionsSub": "Llibres per col·lecció",
+    "statsOptLastAddedTitle": "Últims afegits",
+    "statsOptLastAddedSub": "Acabats d'arribar",
+    "statsOptAvgPagesTitle": "Extensió mitjana",
+    "statsOptAvgPagesSub": "Mitjana de pàgines per llibre",
+    "statsOptReadListTitle": "Llista de llegits",
+    "statsOptReadListSub": "Llibres llegits en un període",
+    "statsOptAvgCompletionTitle": "Temps de lectura",
+    "statsOptAvgCompletionSub": "Temps mitjà per acabar un llibre",
+    "statsOptDailyReadingTitle": "Lectura diària",
+    "statsOptDailyReadingSub": "Pàgines llegides per dia",
+    "statsAvgCompletionValue": "{days} dies",
+    "@statsAvgCompletionValue": {
+        "placeholders": {
+            "days": {
+                "type": "String"
+            }
+        }
+    },
+    "statsPeriodThisMonth": "Llegits aquest mes",
+    "statsPeriodLast3Months": "Últims 3 mesos",
+    "statsPeriodThisYear": "Llegits aquest any",
+    "statsPeriodLast3Years": "Últims 3 anys",
+    "tabMore": "més",
+    "sortTitle": "Ordena",
+    "openSettings": "Obre els ajusts",
+    "@openSettings": {
+        "description": "Button to open system settings"
+    },
+    "permissionRequired": "Permís necessari",
+    "@permissionRequired": {
+        "description": "Title for permanently denied permission dialog"
+    },
+    "paginationMarkersAndIndices": "Seccions i marcadors",
+    "paginationSaveProgress": "Desar el progrés",
+    "paginationAllPagesAssigned": "Totes les pàgines ja han estat assignades.",
+    "paginationChooseColor": "Tria un color",
+    "paginationSegmentRequired": "Segment {index}: Tots els camps de pàgina són obligatoris.",
+    "paginationSegmentStartGreater": "Segment {index}: L'inici no pot ser major que la fi.",
+    "paginationSegmentExceedsTotal": "Segment {index}: Els valors excedeixen el total de pàgines ({total}).",
+    "@paginationSegmentExceedsTotal": {
+        "placeholders": {
+            "index": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "paginationSegmentOverlap": "El segment {index1} se solapa amb el segment {index2}",
+    "@paginationSegmentOverlap": {
+        "placeholders": {
+            "index1": {
+                "type": "String"
+            },
+            "index2": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationAdvancedConfig": "Configuració avançada",
+    "paginationBlocksSegments": "BLOCS / SEGMENTS",
+    "paginationNoSegmentsDefined": "No hi ha cap segment definit. S'utilitza el rang 1-N per defecte.",
+    "paginationAddBlock": "Afegir bloc",
+    "paginationAllPagesAssignedNote": "Nota: Ja has assignat totes les pàgines disponibles.",
+    "paginationPagesRemainingWarning": "Avís: Qeden {count} pàgines físiques sense assignar.",
+    "@paginationPagesRemainingWarning": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "paginationPhysicalTotalNote": "Nota: El total de pàgines es refereix a les pàgines físiques del llibre (fulls totals).",
+    "paginationCorrectErrors": "CORREGEIX ELS SEGÜENTS ERRORS:",
+    "paginationMarkersLabels": "MARCADORS / ETIQUETES",
+    "paginationMarkerDefaultName": "Marcador",
+    "paginationSegmentsDefaultName": "Bloc",
+    "paginationAddMarker": "Afegir marcador",
+    "paginationLabelOptional": "Etiqueta (opcional)",
+    "paginationType": "Tipus:",
+    "paginationArabic": "Aràbic",
+    "paginationRoman": "Romà",
+    "paginationOffset": "Desplaçament (offset)",
+    "paginationMarkerLabel": "Etiqueta del marcador",
+    "paginationVisualPage": "Pàgina visual",
+    "paginationVisualPageHint": "Ex: xiv o 501",
+    "paginationPhysicalLabel": "Física: {page}",
+    "paginationAdjustsAutomatically": "S'ajusta automàticament",
+    "paginationVisualMode": "Mode visual",
+    "paginationEquivalentPhysical": "Equival a físiques: {start} - {end}",
+    "@paginationEquivalentPhysical": {
+        "placeholders": {
+            "start": {
+                "type": "int"
+            },
+            "end": {
+                "type": "int"
+            }
+        }
+    },
+    "paginationSectionLabel": "Secció {index}",
+    "@paginationSectionLabel": {
+        "placeholders": {
+            "index": {
+                "type": "int"
+            }
+        }
+    },
+    "paginationProgress": "{current} / {total}",
+    "@paginationProgress": {
+        "placeholders": {
+            "current": {
+                "type": "String"
+            },
+            "total": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationCurrentPageShort": "Pàg.",
+    "paginationStartPhysical": "Inici (físic)",
+    "paginationEndPhysical": "Fi (físic)",
+    "paginationStartVisual": "Inici (visual)",
+    "paginationEndVisual": "Fi (visual)",
+    "paginationAdvancedButton": "Avançada",
+    "unknownAuthor": "Desconegut",
+    "storagePermissionExplanation": "Per seleccionar una portada cal que concedeixis accés a l'emmagatzematge. Pots fer-ho des dels ajusts de l'aplicació.",
+    "@storagePermissionExplanation": {
+        "description": "Explanation for permanently denied storage permission"
+    },
+    "cameraPermissionExplanation": "Per fer una foto cal que concedeixis accés a la càmera. Pots fer-ho des dels ajusts de l'aplicació.",
+    "@cameraPermissionExplanation": {
+        "description": "Explanation for permanently denied camera permission"
+    },
+    "settingsAutoPruneTagsTitle": "Netejar categories orfes",
+    "settingsAutoPruneTagsSub": "Elimina automàticament les categories que no s'utilitzen en cap llibre",
+    "settingsExcludedPruneTagsTitle": "Categories excloses",
+    "settingsExcludedPruneTagsSub": "{count, plural, =0{Sense categories excloses} =1{1 categoria protegida} other{{count} categories protegides}}",
+    "@settingsExcludedPruneTagsSub": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "settingsPruneWarningTitle": "Categories orfes detectades",
+    "settingsPruneWarningContent": "Activar aquesta opció eliminarà les següents categories perquè no s'utilitzen en cap llibre. Vols continuar?",
+    "settingsAutomationTitle": "Automatització"
 }
