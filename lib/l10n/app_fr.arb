@@ -439,7 +439,7 @@
     "@tagSearchOrCreate": {
         "description": "Tag search placeholder"
     },
-    "tagCreateHint": "Écrivez et appuyez sur Entrée pour ajouter ou créer",
+    "tagCreateHint": "Écrivez et appuyez sur Entrée para ajouter ou créer",
     "@tagCreateHint": {
         "description": "Tag create hint"
     },
@@ -451,7 +451,7 @@
     "@imprintSearch": {
         "description": "Imprint search placeholder"
     },
-    "requiredField": "Champ obligatoire",
+    "requiredField": "Champ obligatorio",
     "@requiredField": {
         "description": "Required field validation message"
     },
@@ -768,7 +768,7 @@
     "@shelvesAddFirstShelf": {
         "description": "Action button text for empty shelves state"
     },
-    "shelfBooksEmpty": "Cette étagère est vide",
+    "shelfBooksEmpty": "Aucun livre dans cette étagère",
     "@shelfBooksEmpty": {
         "description": "Empty shelf books state"
     },
@@ -1083,7 +1083,7 @@
     "@settingsAccentColor": {
         "description": "Accent color label"
     },
-    "settingsAccentColorHint": "Appuyez sur une couleur pour l'appliquer",
+    "settingsAccentColorHint": "Appuyez sur une couleur para l'appliquer",
     "@settingsAccentColorHint": {
         "description": "Accent color hint"
     },
@@ -1158,7 +1158,7 @@
     "dataManagementRestoreBackup": "Restaurer une sauvegarde",
     "dataManagementRestoreBackupHint": "Restaurer depuis un CSV/ZIP d'OpenShelf",
     "dataManagementCreateBackup": "Créer une sauvegarde",
-    "dataManagementCreateBackupHint": "Full export with covers option",
+    "dataManagementCreateBackupHint": "Exportation complète avec option de couvertures",
     "settingsImportBookshelf": "Importer depuis Bookshelf",
     "@settingsImportBookshelf": {
         "description": "Import from Bookshelf option"
@@ -1316,7 +1316,7 @@
     "@settingsApiKeyStep3": {
         "description": "Step 3"
     },
-    "settingsApiKeyStep4": "Allez dans API et services → Identifiants → Créer des identifiants → API Key.",
+    "settingsApiKeyStep4": "Allez dans API et services → Identifiants → Créer des identifiants → Clave de API.",
     "@settingsApiKeyStep4": {
         "description": "Step 4"
     },
