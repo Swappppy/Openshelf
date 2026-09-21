@@ -1875,4 +1875,13 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automatització';
+
+  @override
+  String get removeFromCollection => 'Eliminar de la col·lecció';
+
+  @override
+  String get removeFromImprint => 'Eliminar del segell';
+
+  @override
+  String get removeFromCategory => 'Eliminar de la categoria';
 }

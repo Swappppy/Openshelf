@@ -17,6 +17,7 @@ class BookListTile extends ConsumerWidget {
   final Book book;
   final DisplayPreferences prefs;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final int? collectionNumber;
 
   const BookListTile({
@@ -24,6 +25,7 @@ class BookListTile extends ConsumerWidget {
     required this.book,
     required this.prefs,
     this.onTap,
+    this.onLongPress,
     this.collectionNumber,
   });
 
@@ -34,6 +36,7 @@ class BookListTile extends ConsumerWidget {
 
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         height: 160, // Accommodates the larger cover image
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

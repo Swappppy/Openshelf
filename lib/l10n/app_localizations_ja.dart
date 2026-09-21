@@ -1841,4 +1841,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => '自動化';
+
+  @override
+  String get removeFromCollection => 'コレクションから削除';
+
+  @override
+  String get removeFromImprint => 'インプリントから削除';
+
+  @override
+  String get removeFromCategory => 'カテゴリから削除';
 }

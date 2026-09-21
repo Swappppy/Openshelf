@@ -1782,5 +1782,8 @@
   },
   "settingsPruneWarningTitle": "Categories orfes detectades",
   "settingsPruneWarningContent": "Activar aquesta opció eliminarà les següents categories perquè no s'utilitzen en cap llibre. Vols continuar?",
-  "settingsAutomationTitle": "Automatització"
+  "settingsAutomationTitle": "Automatització",
+  "removeFromCollection": "Eliminar de la col·lecció",
+  "removeFromImprint": "Eliminar del segell",
+  "removeFromCategory": "Eliminar de la categoria"
 }

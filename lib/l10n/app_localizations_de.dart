@@ -1823,4 +1823,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automatisierung';
+
+  @override
+  String get removeFromCollection => 'Aus Sammlung entfernen';
+
+  @override
+  String get removeFromImprint => 'Aus Verlagsmarke entfernen';
+
+  @override
+  String get removeFromCategory => 'Aus Kategorie entfernen';
 }

@@ -15,6 +15,7 @@ class BookGridCard extends ConsumerWidget {
   final Book book;
   final DisplayPreferences prefs;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final String? overlayLabel;
 
   const BookGridCard({
@@ -22,6 +23,7 @@ class BookGridCard extends ConsumerWidget {
     required this.book,
     required this.prefs,
     this.onTap,
+    this.onLongPress,
     this.overlayLabel,
   });
 
@@ -51,6 +53,7 @@ class BookGridCard extends ConsumerWidget {
           ),
           child: InkWell(
             onTap: onTap,
+            onLongPress: onLongPress,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

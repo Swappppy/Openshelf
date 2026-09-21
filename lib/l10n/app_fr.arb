@@ -1762,5 +1762,8 @@
     },
     "settingsPruneWarningTitle": "Catégories orphelines détectées",
     "settingsPruneWarningContent": "L'activation de cette option supprimera les catégories suivantes car elles ne sont utilisées par aucun livre. Voulez-vous continuer ?",
-    "settingsAutomationTitle": "Automatisation"
+    "settingsAutomationTitle": "Automatisation",
+    "removeFromCollection": "Retirer de la collection",
+    "removeFromImprint": "Retirer de la maison d'édition",
+    "removeFromCategory": "Retirer de la catégorie"
 }

@@ -23,6 +23,7 @@ class BooksListOrGrid extends ConsumerWidget {
   final String? emptyMessage;
   final String? emptySubtitle;
   final VoidCallback? onAddPressed;
+  final void Function(Book)? onLongPress;
 
   const BooksListOrGrid({
     super.key,
@@ -33,6 +34,7 @@ class BooksListOrGrid extends ConsumerWidget {
     this.emptyMessage,
     this.emptySubtitle,
     this.onAddPressed,
+    this.onLongPress,
   });
 
   @override
@@ -210,6 +212,7 @@ class BooksListOrGrid extends ConsumerWidget {
                 context,
                 MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
               ),
+              onLongPress: onLongPress != null ? () => onLongPress!(book) : null,
             ),
           );
         },
@@ -249,6 +252,7 @@ class BooksListOrGrid extends ConsumerWidget {
                 context,
                 MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
               ),
+              onLongPress: onLongPress != null ? () => onLongPress!(book) : null,
             ),
           );
         },

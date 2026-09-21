@@ -1782,5 +1782,8 @@
   },
   "settingsPruneWarningTitle": "Categorias órfãs detetadas",
   "settingsPruneWarningContent": "Ativar esta opção irá eliminar as seguintes categorias porque não são usadas em nenhum livro. Deseja continuar?",
-  "settingsAutomationTitle": "Automatização"
+  "settingsAutomationTitle": "Automatização",
+  "removeFromCollection": "Remover da coleção",
+  "removeFromImprint": "Remover da chancela",
+  "removeFromCategory": "Remover da categoria"
 }

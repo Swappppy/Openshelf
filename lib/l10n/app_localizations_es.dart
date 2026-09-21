@@ -1871,4 +1871,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automatización';
+
+  @override
+  String get removeFromCollection => 'Eliminar de la colección';
+
+  @override
+  String get removeFromImprint => 'Eliminar del sello';
+
+  @override
+  String get removeFromCategory => 'Eliminar de la categoría';
 }

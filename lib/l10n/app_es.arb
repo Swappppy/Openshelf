@@ -1832,5 +1832,8 @@
   },
   "settingsPruneWarningTitle": "Categorías huérfanas detectadas",
   "settingsPruneWarningContent": "Activar esta opción eliminará las siguientes categorías porque no se usan en ningún libro. ¿Quieres continuar?",
-  "settingsAutomationTitle": "Automatización"
+  "settingsAutomationTitle": "Automatización",
+  "removeFromCollection": "Eliminar de la colección",
+  "removeFromImprint": "Eliminar del sello",
+  "removeFromCategory": "Eliminar de la categoría"
 }

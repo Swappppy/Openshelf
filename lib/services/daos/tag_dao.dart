@@ -299,4 +299,23 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
       await (delete(tags)..where((t) => t.id.equals(collectionId))).go();
     }
   }
+
+  Future<void> removeTagFromBook(int bookId, Tag tag) async {
+    await transaction(() async {
+      if (tag.type == TagType.collection) {
+        // Primary collection reference
+        await (update(books)..where((b) => b.id.equals(bookId) & b.collectionId.equals(tag.id))).write(const BooksCompanion(
+          collectionId: Value(null),
+        ));
+        // Also secondary collection links in bookTags
+        await (delete(bookTags)..where((bt) => bt.bookId.equals(bookId) & bt.tagId.equals(tag.id))).go();
+      } else if (tag.type == TagType.imprint) {
+        await (update(books)..where((b) => b.id.equals(bookId) & b.imprintId.equals(tag.id))).write(const BooksCompanion(
+          imprintId: Value(null),
+        ));
+      } else {
+        await (delete(bookTags)..where((bt) => bt.bookId.equals(bookId) & bt.tagId.equals(tag.id))).go();
+      }
+    });
+  }
 }

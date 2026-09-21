@@ -136,6 +136,9 @@
     "settingsPruneWarningTitle": "Kullanılmayan kategoriler tespit edildi",
     "settingsPruneWarningContent": "Bu seçeneği etkinleştirmek, herhangi bir kitap tarafından kullanılmadıkları için aşağıdaki kategorileri silecektir. Devam etmek istiyor musunuz?",
     "settingsAutomationTitle": "Otomasyon",
+    "removeFromCollection": "Koleksiyondan kaldır",
+    "removeFromImprint": "Künyeden kaldır",
+    "removeFromCategory": "Kategoriden kaldır",
     "shelfWantToRead": "",
     "@shelfWantToRead": {
         "description": "Estantería de libros por leer"

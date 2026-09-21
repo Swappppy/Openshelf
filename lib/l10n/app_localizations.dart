@@ -3484,6 +3484,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Automatización'**
   String get settingsAutomationTitle;
+
+  /// No description provided for @removeFromCollection.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar de la colección'**
+  String get removeFromCollection;
+
+  /// No description provided for @removeFromImprint.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar del sello'**
+  String get removeFromImprint;
+
+  /// No description provided for @removeFromCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar de la categoría'**
+  String get removeFromCategory;
 }
 
 class _AppLocalizationsDelegate

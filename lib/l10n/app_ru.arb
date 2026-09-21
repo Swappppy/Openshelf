@@ -1168,6 +1168,9 @@
   "settingsPruneWarningTitle": "Обнаружены пустые категории",
   "settingsPruneWarningContent": "Активация этой опции удалит следующие категории, так как они не используются ни в одной книге. Продолжить?",
   "settingsAutomationTitle": "Автоматизация",
+  "removeFromCollection": "Удалить из коллекции",
+  "removeFromImprint": "Удалить из импринта",
+  "removeFromCategory": "Удалить из категории",
   "imageProcessError": "",
   "@imageProcessError": {
     "description": "Error when image processing fails"

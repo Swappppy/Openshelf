@@ -1177,6 +1177,9 @@
   "settingsPruneWarningTitle": "未使用のカテゴリが見つかりました",
   "settingsPruneWarningContent": "このオプションを有効にすると、どの本にも使用されていない以下のカテゴリが削除されます。続行しますか？",
   "settingsAutomationTitle": "自動化",
+  "removeFromCollection": "コレクションから削除",
+  "removeFromImprint": "インプリントから削除",
+  "removeFromCategory": "カテゴリから削除",
   "imageProcessError": "",
   "@imageProcessError": {
     "description": "Error when image processing fails"

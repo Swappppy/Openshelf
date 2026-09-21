@@ -1842,4 +1842,13 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automatizare';
+
+  @override
+  String get removeFromCollection => 'Eliminați din colecție';
+
+  @override
+  String get removeFromImprint => 'Eliminați din amprentă';
+
+  @override
+  String get removeFromCategory => 'Eliminați din categorie';
 }

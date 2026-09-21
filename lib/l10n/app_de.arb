@@ -1515,6 +1515,9 @@
   "settingsPruneWarningTitle": "Verwaiste Kategorien erkannt",
   "settingsPruneWarningContent": "Das Aktivieren dieser Option löscht die folgenden Kategorien, da sie von keinem Buch verwendet werden. Fortfahren?",
   "settingsAutomationTitle": "Automatisierung",
+  "removeFromCollection": "Aus Sammlung entfernen",
+  "removeFromImprint": "Aus Verlagsmarke entfernen",
+  "removeFromCategory": "Aus Kategorie entfernen",
   "imageProcessError": "",
   "@imageProcessError": {
     "description": "Error when image processing fails"

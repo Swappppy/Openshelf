@@ -1511,6 +1511,9 @@
   "settingsPruneWarningTitle": "Tuvastati orbkategooriad",
   "settingsPruneWarningContent": "Selle valiku aktiveerimine kustutab järgmised kategooriad, kuna ükski raamat ei kasuta neid. Kas soovid jätkata?",
   "settingsAutomationTitle": "Automatiseerimine",
+  "removeFromCollection": "Eemalda kogust",
+  "removeFromImprint": "Eemalda pitserist",
+  "removeFromCategory": "Eemalda kategooriast",
   "imageProcessError": "",
   "@imageProcessError": {
     "description": "Error when image processing fails"

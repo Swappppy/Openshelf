@@ -1809,4 +1809,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Otomasyon';
+
+  @override
+  String get removeFromCollection => 'Koleksiyondan kaldır';
+
+  @override
+  String get removeFromImprint => 'Künyeden kaldır';
+
+  @override
+  String get removeFromCategory => 'Kategoriden kaldır';
 }

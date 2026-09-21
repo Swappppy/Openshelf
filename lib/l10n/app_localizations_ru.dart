@@ -1842,4 +1842,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Автоматизация';
+
+  @override
+  String get removeFromCollection => 'Удалить из коллекции';
+
+  @override
+  String get removeFromImprint => 'Удалить из импринта';
+
+  @override
+  String get removeFromCategory => 'Удалить из категории';
 }

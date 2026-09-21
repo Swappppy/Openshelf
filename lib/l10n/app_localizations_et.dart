@@ -1823,4 +1823,13 @@ class AppLocalizationsEt extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automatiseerimine';
+
+  @override
+  String get removeFromCollection => 'Eemalda kogust';
+
+  @override
+  String get removeFromImprint => 'Eemalda pitserist';
+
+  @override
+  String get removeFromCategory => 'Eemalda kategooriast';
 }

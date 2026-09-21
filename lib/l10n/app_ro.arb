@@ -1177,6 +1177,9 @@
   "settingsPruneWarningTitle": "Categorii orfane detectate",
   "settingsPruneWarningContent": "Activarea acestei opțiuni va șterge următoarele categorii deoarece nu sunt folosite de niciun volum. Doriți să continuați?",
   "settingsAutomationTitle": "Automatizare",
+  "removeFromCollection": "Eliminați din colecție",
+  "removeFromImprint": "Eliminați din amprentă",
+  "removeFromCategory": "Eliminați din categorie",
   "imageProcessError": "",
   "@imageProcessError": {
     "description": "Error when image processing fails"

@@ -1811,5 +1811,8 @@
     },
     "settingsPruneWarningTitle": "Orphan categories detected",
     "settingsPruneWarningContent": "Activating this option will delete the following categories because they are not used by any book. Do you want to continue?",
-    "settingsAutomationTitle": "Automation"
+    "settingsAutomationTitle": "Automation",
+  "removeFromCollection": "Remove from collection",
+  "removeFromImprint": "Remove from imprint",
+  "removeFromCategory": "Remove from category"
 }

@@ -1872,6 +1872,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automatização';
+
+  @override
+  String get removeFromCollection => 'Remover da coleção';
+
+  @override
+  String get removeFromImprint => 'Remover da chancela';
+
+  @override
+  String get removeFromCategory => 'Remover da categoria';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -3614,4 +3623,13 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get settingsAutomationTitle => 'Automação';
+
+  @override
+  String get removeFromCollection => 'Remover da coleção';
+
+  @override
+  String get removeFromImprint => 'Remover do selo';
+
+  @override
+  String get removeFromCategory => 'Remover da categoria';
 }
