@@ -336,6 +336,15 @@ class AppLocalizationsCa extends AppLocalizations {
   String get imageProcessError => 'No s\'ha pogut processar la imatge';
 
   @override
+  String get imageProcessing => 'Processant la imatge...';
+
+  @override
+  String get imagePreparing => 'Preparant la imatge...';
+
+  @override
+  String get imageOptimizing => 'Optimitzant la imatge...';
+
+  @override
   String get cropCoverTitle => 'Retallar portada';
 
   @override

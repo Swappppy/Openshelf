@@ -427,6 +427,18 @@
   "@imageProcessError": {
     "description": "Error cuando falla el procesamiento de la imagen"
   },
+  "imageProcessing": "Procesando imagen...",
+  "@imageProcessing": {
+    "description": "Texto mostrado en el diálogo mientras se procesa la imagen"
+  },
+  "imagePreparing": "Preparando imagen...",
+  "@imagePreparing": {
+    "description": "Texto mostrado mientras se prepara la imagen para recortar"
+  },
+  "imageOptimizing": "Optimizando imagen...",
+  "@imageOptimizing": {
+    "description": "Texto mostrado mientras se comprime la imagen"
+  },
   "cropCoverTitle": "Recortar portada",
   "@cropCoverTitle": {
     "description": "Título de la pantalla de recorte de portada"

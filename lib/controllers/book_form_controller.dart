@@ -24,6 +24,7 @@ class BookFormController {
     required String cropTitle,
     required String doneTitle,
     required String cancelTitle,
+    void Function(String?)? onStatusChanged,
   }) async {
     try {
       final result = await PermissionService.requestGallery();
@@ -33,17 +34,28 @@ class BookFormController {
       final picked = await picker.pickImage(source: ImageSource.gallery);
       if (picked == null) return null;
 
+      // Small delay to allow picker activity to fully close on Android 14
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Processing starts after picking
+      onStatusChanged?.call('preparing');
       final cropped = await CoverService.cropCover(
         picked.path,
         title: cropTitle,
         doneButtonTitle: doneTitle,
         cancelButtonTitle: cancelTitle,
+        onStatusChanged: onStatusChanged, // We'll add this to CoverService
       );
 
       if (cropped != null) {
-        return await CoverService.saveLocalCover(cropped);
+        onStatusChanged?.call('optimizing');
+        final saved = await CoverService.saveLocalCover(cropped);
+        onStatusChanged?.call(null); // Hide dialog
+        return saved;
       }
+      onStatusChanged?.call(null); // Hide dialog if crop cancelled
     } catch (e) {
+      onStatusChanged?.call(null);
       debugPrint('BookFormController: Error picking cover from gallery: $e');
       rethrow;
     }
@@ -54,6 +66,7 @@ class BookFormController {
     required String cropTitle,
     required String doneTitle,
     required String cancelTitle,
+    void Function(String?)? onStatusChanged,
   }) async {
     try {
       final granted = await PermissionService.requestCamera();
@@ -63,17 +76,26 @@ class BookFormController {
       final picked = await picker.pickImage(source: ImageSource.camera);
       if (picked == null) return null;
 
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      onStatusChanged?.call('preparing');
       final cropped = await CoverService.cropCover(
         picked.path,
         title: cropTitle,
         doneButtonTitle: doneTitle,
         cancelButtonTitle: cancelTitle,
+        onStatusChanged: onStatusChanged,
       );
 
       if (cropped != null) {
-        return await CoverService.saveLocalCover(cropped);
+        onStatusChanged?.call('optimizing');
+        final saved = await CoverService.saveLocalCover(cropped);
+        onStatusChanged?.call(null);
+        return saved;
       }
+      onStatusChanged?.call(null);
     } catch (e) {
+      onStatusChanged?.call(null);
       debugPrint('BookFormController: Error taking photo: $e');
       rethrow;
     }
@@ -84,12 +106,14 @@ class BookFormController {
     required String cropTitle,
     required String doneTitle,
     required String cancelTitle,
+    void Function(String?)? onStatusChanged,
   }) async {
     return await CoverService.saveCoverFromUrl(
       url,
       cropTitle: cropTitle,
       doneButtonTitle: doneTitle,
       cancelButtonTitle: cancelTitle,
+      onStatusChanged: onStatusChanged,
     );
   }
 

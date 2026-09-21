@@ -328,7 +328,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get coverDownloadError => '';
 
   @override
-  String get imageProcessError => 'No se pudo procesar la imagen';
+  String get imageProcessError => '';
+
+  @override
+  String get imageProcessing => 'Bild wird verarbeitet...';
+
+  @override
+  String get imagePreparing => 'Bild wird vorbereitet...';
+
+  @override
+  String get imageOptimizing => 'Bild wird optimiert...';
 
   @override
   String get cropCoverTitle => '';

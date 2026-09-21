@@ -743,6 +743,24 @@ abstract class AppLocalizations {
   /// **'No se pudo procesar la imagen'**
   String get imageProcessError;
 
+  /// Texto mostrado en el diálogo mientras se procesa la imagen
+  ///
+  /// In es, this message translates to:
+  /// **'Procesando imagen...'**
+  String get imageProcessing;
+
+  /// Texto mostrado mientras se prepara la imagen para recortar
+  ///
+  /// In es, this message translates to:
+  /// **'Preparando imagen...'**
+  String get imagePreparing;
+
+  /// Texto mostrado mientras se comprime la imagen
+  ///
+  /// In es, this message translates to:
+  /// **'Optimizando imagen...'**
+  String get imageOptimizing;
+
   /// Título de la pantalla de recorte de portada
   ///
   /// In es, this message translates to:

@@ -427,6 +427,18 @@
     "@imageProcessError": {
         "description": "Error when image processing fails"
     },
+    "imageProcessing": "Processing image...",
+    "@imageProcessing": {
+        "description": "Text shown in dialog while processing image"
+    },
+    "imagePreparing": "Preparing image...",
+    "@imagePreparing": {
+        "description": "Text shown in dialog while preparing image for cropper"
+    },
+    "imageOptimizing": "Optimizing image...",
+    "@imageOptimizing": {
+        "description": "Text shown in dialog while compressing image"
+    },
     "cropCoverTitle": "Crop cover",
     "@cropCoverTitle": {
         "description": "Title for cover cropping screen"

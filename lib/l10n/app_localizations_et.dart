@@ -328,7 +328,16 @@ class AppLocalizationsEt extends AppLocalizations {
   String get coverDownloadError => '';
 
   @override
-  String get imageProcessError => 'No se pudo procesar la imagen';
+  String get imageProcessError => '';
+
+  @override
+  String get imageProcessing => 'Pildi töötlemine...';
+
+  @override
+  String get imagePreparing => 'Pildi ettevalmistamine...';
+
+  @override
+  String get imageOptimizing => 'Pildi optimeerimine...';
 
   @override
   String get cropCoverTitle => '';

@@ -1,4 +1,5 @@
 {
+    "@@locale": "tr",
     "appTitle": "Openshelf",
     "@appTitle": {
         "description": "Application name"
@@ -101,6 +102,22 @@
     "fieldTags": "Etiketler",
     "@fieldTags": {
         "description": "Tags field name"
+    },
+    "imageProcessError": "",
+    "@imageProcessError": {
+        "description": "Error when image processing fails"
+    },
+    "imageProcessing": "Görüntü işleniyor...",
+    "@imageProcessing": {
+        "description": "Görüntü işleme sırasında iletişim kutusunda gösterilen metin"
+    },
+    "imagePreparing": "Görüntü hazırlanıyor...",
+    "@imagePreparing": {
+        "description": "Text shown in dialog while preparing image for cropper"
+    },
+    "imageOptimizing": "Görüntü optimize ediliyor...",
+    "@imageOptimizing": {
+        "description": "Text shown in dialog while compressing image"
     },
     "settingsAllFilesAccess": "All Files Access",
     "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
@@ -924,10 +941,6 @@
         "description": "Error de red en búsqueda de portadas"
     },
     "exportProgressCompress": "",
-    "imageProcessError": "",
-    "@imageProcessError": {
-        "description": "Error cuando falla el procesamiento de la imagen"
-    },
     "shelfStatusLabelRead": "",
     "@shelfStatusLabelRead": {
         "description": "Etiqueta de estado: leídos en subtítulo de estantería"

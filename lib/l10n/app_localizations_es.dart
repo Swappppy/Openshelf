@@ -332,6 +332,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get imageProcessError => 'No se pudo procesar la imagen';
 
   @override
+  String get imageProcessing => 'Procesando imagen...';
+
+  @override
+  String get imagePreparing => 'Preparando imagen...';
+
+  @override
+  String get imageOptimizing => 'Optimizando imagen...';
+
+  @override
   String get cropCoverTitle => 'Recortar portada';
 
   @override

@@ -333,6 +333,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get imageProcessError => 'Não foi possível processar a imagem';
 
   @override
+  String get imageProcessing => 'Processando imagem...';
+
+  @override
+  String get imagePreparing => 'Preparando imagem...';
+
+  @override
+  String get imageOptimizing => 'Otimizando imagem...';
+
+  @override
   String get cropCoverTitle => 'Recortar capa';
 
   @override
@@ -2194,6 +2203,15 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get imageProcessError => 'Não foi possível processar a imagem';
 
   @override
+  String get imageProcessing => 'Processando imagem...';
+
+  @override
+  String get imagePreparing => 'Preparando imagem...';
+
+  @override
+  String get imageOptimizing => 'Otimizando imagem...';
+
+  @override
   String get cropCoverTitle => 'Cortar a imagem';
 
   @override
@@ -2477,7 +2495,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get shelvesAddFirstShelf => 'Criar estante';
 
   @override
-  String get shelfBooksEmpty => 'Esta estante está vazia';
+  String get shelfBooksEmpty => 'Sem livros nesta estante';
 
   @override
   String get shelfBooksEmptyHint =>
@@ -2838,7 +2856,8 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get dataManagementCreateBackup => 'Criar cópia de segurança';
 
   @override
-  String get dataManagementCreateBackupHint => 'Full export with covers option';
+  String get dataManagementCreateBackupHint =>
+      'Exportación completa con opción de capas';
 
   @override
   String get settingsImportBookshelf => 'Importar do Bookshelf';
@@ -3005,7 +3024,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get settingsApiKeyStep4 =>
-      'Vá em APIs e serviços → Credenciais → Criar credenciais → API Key.';
+      'Vá em APIs e serviços → Credenciais → Criar credenciais → Chave de API.';
 
   @override
   String get settingsApiKeyStep5 =>
@@ -3087,7 +3106,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count filtres ativos',
+      other: '$count filtros ativos',
       one: '1 filtro ativo',
     );
     return '$_temp0';
@@ -3195,7 +3214,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get statsGoalFullTitle => 'META DE LEITURA';
 
   @override
-  String get statsGoalUnitBooks => 'livros';
+  String get statsGoalUnitBooks => 'libros';
 
   @override
   String get statsGoalUnitPages => 'págs';
@@ -3320,7 +3339,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get statsOptCurrentTitle => 'Livro atual';
 
   @override
-  String get statsOptCurrentSub => 'Progresso de leitura em andamento';
+  String get statsOptCurrentSub => 'Progreso de leitura em andamento';
 
   @override
   String get statsOptAddedTimeTitle => 'Livros adicionados';

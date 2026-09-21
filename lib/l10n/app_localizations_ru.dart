@@ -328,7 +328,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coverDownloadError => '';
 
   @override
-  String get imageProcessError => 'No se pudo procesar la imagen';
+  String get imageProcessError => '';
+
+  @override
+  String get imageProcessing => 'Обработка изображения...';
+
+  @override
+  String get imagePreparing => 'Подготовка изображения...';
+
+  @override
+  String get imageOptimizing => 'Оптимизация изображения...';
 
   @override
   String get cropCoverTitle => '';

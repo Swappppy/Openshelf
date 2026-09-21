@@ -333,6 +333,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get imageProcessError => 'Impossible de traiter l\'image';
 
   @override
+  String get imageProcessing => 'Traitement de l\'image...';
+
+  @override
+  String get imagePreparing => 'Préparation de l\'image...';
+
+  @override
+  String get imageOptimizing => 'Optimisation de l\'image...';
+
+  @override
   String get cropCoverTitle => 'Recadrer la couverture';
 
   @override
@@ -343,7 +352,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tagCreateHint =>
-      'Écrivez et appuyez sur Entrée pour ajouter ou créer';
+      'Écrivez et appuyez sur Entrée para ajouter ou créer';
 
   @override
   String get tagNoCategories => 'Aucune catégorie créée pour le moment';
@@ -352,7 +361,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get imprintSearch => 'Rechercher une maison d\'édition';
 
   @override
-  String get requiredField => 'Champ obligatoire';
+  String get requiredField => 'Champ obligatorio';
 
   @override
   String get statusWantToRead => 'À lire';
@@ -619,7 +628,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get shelvesAddFirstShelf => 'Créer une étagère';
 
   @override
-  String get shelfBooksEmpty => 'Cette étagère est vide';
+  String get shelfBooksEmpty => 'Aucun livre dans cette étagère';
 
   @override
   String get shelfBooksEmptyHint =>
@@ -912,7 +921,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsAccentColorHint =>
-      'Appuyez sur une couleur pour l\'appliquer';
+      'Appuyez sur une couleur para l\'appliquer';
 
   @override
   String get settingsSectionStorage => 'Stockage';
@@ -998,7 +1007,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dataManagementCreateBackup => 'Créer une sauvegarde';
 
   @override
-  String get dataManagementCreateBackupHint => 'Full export with covers option';
+  String get dataManagementCreateBackupHint =>
+      'Exportation complète avec option de couvertures';
 
   @override
   String get settingsImportBookshelf => 'Importer depuis Bookshelf';
@@ -1168,7 +1178,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsApiKeyStep4 =>
-      'Allez dans API et services → Identifiants → Créer des identifiants → API Key.';
+      'Allez dans API et services → Identifiants → Créer des identifiants → Clave de API.';
 
   @override
   String get settingsApiKeyStep5 =>

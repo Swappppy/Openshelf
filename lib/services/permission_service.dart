@@ -13,13 +13,10 @@ class PermissionService {
     if (Platform.isAndroid) {
       final info = await DeviceInfoPlugin().androidInfo;
       if (info.version.sdkInt >= 33) {
-        final photos = await Permission.photos.request();
-        debugPrint('>>> photos status: $photos');
-        if (photos.isGranted || photos.isLimited) {
-          return GalleryPermissionResult.granted;
-        }
-        if (photos.isPermanentlyDenied) return GalleryPermissionResult.permanentlyDenied;
-        return GalleryPermissionResult.denied;
+        // En Android 13+ (SDK 33+), se utiliza el Photo Picker nativo que no requiere 
+        // permisos de almacenamiento o medios para seleccionar un archivo.
+        // Solicitar Permission.photos aquí provoca un diálogo redundante en Android 14+.
+        return GalleryPermissionResult.granted;
       }
 
       final storage = await Permission.storage.request();

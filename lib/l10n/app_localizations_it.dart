@@ -333,6 +333,15 @@ class AppLocalizationsIt extends AppLocalizations {
   String get imageProcessError => 'Impossibile elaborare l\'immagine';
 
   @override
+  String get imageProcessing => 'Elaborazione dell\'immagine...';
+
+  @override
+  String get imagePreparing => 'Preparazione dell\'immagine...';
+
+  @override
+  String get imageOptimizing => 'Ottimizzazione dell\'immagine...';
+
+  @override
   String get cropCoverTitle => 'Ritaglia copertina';
 
   @override
