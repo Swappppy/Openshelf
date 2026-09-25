@@ -1398,6 +1398,7 @@
   "bookSearchServerOpenLibrary": "Open Library",
   "bookSearchServerGoogleBooks": "Google Books",
   "bookSearchServerInventaire": "Inventaire.io",
+  "bookSearchServerAnnasArchive": "Anna's Archive",
   "searchTabStatus": "Estado",
   "@searchTabStatus": {
     "description": "Panel de búsqueda: pestaña Estado"

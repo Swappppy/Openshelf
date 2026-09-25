@@ -2327,6 +2327,12 @@ abstract class AppLocalizations {
   /// **'Inventaire.io'**
   String get bookSearchServerInventaire;
 
+  /// No description provided for @bookSearchServerAnnasArchive.
+  ///
+  /// In es, this message translates to:
+  /// **'Anna\'s Archive'**
+  String get bookSearchServerAnnasArchive;
+
   /// Panel de búsqueda: pestaña Estado
   ///
   /// In es, this message translates to:

@@ -6,6 +6,7 @@ import '../models/book_search_result.dart';
 import 'google_books_service.dart';
 import 'open_library_service.dart';
 import 'inventaire_service.dart';
+import 'annas_archive_service.dart';
 
 /// Represents a potential cover image found online.
 class CoverCandidate {
@@ -29,6 +30,7 @@ class CoverSearchService {
       BookSearchServer.googleBooks,
       BookSearchServer.openLibrary,
       BookSearchServer.inventaire,
+      BookSearchServer.annasArchive,
     ],
   }) {
     bool isCancelled = false;
@@ -77,6 +79,12 @@ class CoverSearchService {
                     addCandidate(res.coverUrl!, 'Inventaire');
                   }
                   break;
+                case BookSearchServer.annasArchive:
+                  final res = await AnnasArchiveService.getByIsbn(isbn);
+                  if (res?.coverUrl != null && _isRelevant(res!.title, title ?? '')) {
+                    addCandidate(res.coverUrl!, 'Anna\'s Archive');
+                  }
+                  break;
               }
             } catch (e) {
               debugPrint('CoverSearch: ISBN Error from ${server.name}: $e');
@@ -109,6 +117,9 @@ class CoverSearchService {
                   break;
                 case BookSearchServer.inventaire:
                   results = await InventaireService.search(query, preferredLanguage: preferredLanguage);
+                  break;
+                case BookSearchServer.annasArchive:
+                  results = await AnnasArchiveService.search(query);
                   break;
               }
               for (final res in results) {
@@ -152,6 +163,9 @@ class CoverSearchService {
                   break;
                 case BookSearchServer.inventaire:
                   results = await InventaireService.search(query, preferredLanguage: preferredLanguage);
+                  break;
+                case BookSearchServer.annasArchive:
+                  results = await AnnasArchiveService.search(query);
                   break;
               }
               for (final res in results) {
@@ -470,6 +484,8 @@ class BookSearchService {
         return await OpenLibraryService.getByIsbn(isbn);
       case BookSearchServer.inventaire:
         return await InventaireService.getByIsbn(isbn, preferredLanguage: preferredLanguage);
+      case BookSearchServer.annasArchive:
+        return await AnnasArchiveService.getByIsbn(isbn);
     }
   }
 
@@ -486,6 +502,8 @@ class BookSearchService {
         return await OpenLibraryService.search(query);
       case BookSearchServer.inventaire:
         return await InventaireService.search(query, preferredLanguage: preferredLanguage);
+      case BookSearchServer.annasArchive:
+        return await AnnasArchiveService.search(query);
     }
   }
 

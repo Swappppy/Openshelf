@@ -12,9 +12,20 @@ class SearchSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final searchServers = ref.watch(appSettingsProvider.select((s) => s.searchServers));
+    final disabledSearchServers = ref.watch(appSettingsProvider.select((s) => s.disabledSearchServers));
     final googleBooksApiKey = ref.watch(appSettingsProvider.select((s) => s.googleBooksApiKey));
     final controller = ref.read(appSettingsProvider.notifier);
     final colorScheme = Theme.of(context).colorScheme;
+
+    final allServers = <BookSearchServer>[
+      ...searchServers,
+      ...disabledSearchServers,
+    ];
+    for (final s in BookSearchServer.values) {
+      if (!allServers.contains(s)) {
+        allServers.add(s);
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,14 +54,21 @@ class SearchSection extends ConsumerWidget {
                   shrinkWrap: true,
                   onReorderStart: (index) => HapticFeedback.mediumImpact(),
                   onReorderItem: (oldIndex, newIndex) {
-                    final list = List<BookSearchServer>.from(searchServers);
+                    final list = List<BookSearchServer>.from(allServers);
                     final item = list.removeAt(oldIndex);
                     list.insert(newIndex, item);
-                    controller.setSearchServers(list);
+
+                    final newActive = list.where((s) => searchServers.contains(s)).toList();
+                    final newDisabled = list.where((s) => !searchServers.contains(s)).toList();
+
+                    controller.setSearchServers(newActive, disabledServers: newDisabled);
                   },
-                  children: searchServers.asMap().entries.map((entry) {
+                  children: allServers.asMap().entries.map((entry) {
                     final index = entry.key;
                     final server = entry.value;
+                    final isEnabled = searchServers.contains(server);
+                    final isOnlyActive = isEnabled && searchServers.length == 1;
+
                     return ListTile(
                       key: ValueKey(server),
                       contentPadding: EdgeInsets.zero,
@@ -58,12 +76,25 @@ class SearchSection extends ConsumerWidget {
                         index: index,
                         child: const Icon(Icons.drag_handle),
                       ),
-                      title: Text(_SearchServerHelper.label(context, server)),
+                      title: Text(
+                        _SearchServerHelper.label(context, server),
+                        style: TextStyle(
+                          color: isEnabled ? null : colorScheme.outline,
+                        ),
+                      ),
                       subtitle: Text(_SearchServerHelper.url(server),
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
                               ?.copyWith(color: colorScheme.outline)),
+                      trailing: Switch.adaptive(
+                        value: isEnabled,
+                        onChanged: isOnlyActive
+                            ? null
+                            : (val) {
+                                controller.toggleSearchServer(server, val);
+                              },
+                      ),
                     );
                   }).toList(),
                 ),
@@ -90,6 +121,8 @@ class _SearchServerHelper {
         return 'Google Books';
       case BookSearchServer.inventaire:
         return 'Inventaire.io';
+      case BookSearchServer.annasArchive:
+        return 'Anna\'s Archive';
     }
   }
 
@@ -101,6 +134,8 @@ class _SearchServerHelper {
         return 'books.googleapis.com';
       case BookSearchServer.inventaire:
         return 'inventaire.io';
+      case BookSearchServer.annasArchive:
+        return 'annas-archive.org';
     }
   }
 }

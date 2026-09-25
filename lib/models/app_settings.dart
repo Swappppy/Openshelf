@@ -4,6 +4,7 @@ enum BookSearchServer {
   openLibrary,
   googleBooks,
   inventaire,
+  annasArchive,
 }
 
 /// Global application settings persisted in shared preferences.
@@ -14,6 +15,7 @@ class AppSettings {
   final String? coversPath;
   final String? dbPath;
   final List<BookSearchServer> searchServers;
+  final List<BookSearchServer> disabledSearchServers;
   final String? googleBooksApiKey;
   final int libraryGridColumns;
   final bool autoNoCoverShelf;
@@ -34,7 +36,9 @@ class AppSettings {
       BookSearchServer.googleBooks,
       BookSearchServer.openLibrary,
       BookSearchServer.inventaire,
+      BookSearchServer.annasArchive,
     ],
+    this.disabledSearchServers = const [],
     this.googleBooksApiKey,
     this.libraryGridColumns = 3,
     this.autoNoCoverShelf = true,
@@ -54,6 +58,7 @@ class AppSettings {
     String? coversPath,
     String? dbPath,
     List<BookSearchServer>? searchServers,
+    List<BookSearchServer>? disabledSearchServers,
     String? googleBooksApiKey,
     bool clearGoogleBooksApiKey = false,
     int? libraryGridColumns,
@@ -73,6 +78,7 @@ class AppSettings {
       coversPath: coversPath ?? this.coversPath,
       dbPath: dbPath ?? this.dbPath,
       searchServers: searchServers ?? this.searchServers,
+      disabledSearchServers: disabledSearchServers ?? this.disabledSearchServers,
       googleBooksApiKey: clearGoogleBooksApiKey ? null : (googleBooksApiKey ?? this.googleBooksApiKey),
       libraryGridColumns: libraryGridColumns ?? this.libraryGridColumns,
       autoNoCoverShelf: autoNoCoverShelf ?? this.autoNoCoverShelf,

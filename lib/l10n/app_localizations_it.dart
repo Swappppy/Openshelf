@@ -1211,6 +1211,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get bookSearchServerInventaire => 'Inventaire.io';
 
   @override
+  String get bookSearchServerAnnasArchive => 'Anna\'s Archive';
+
+  @override
   String get searchTabStatus => 'Stato';
 
   @override

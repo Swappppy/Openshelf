@@ -1403,6 +1403,7 @@
         "description": "Placeholder del campo de búsqueda de libros"
     },
     "bookSearchServerInventaire": "",
+  "bookSearchServerAnnasArchive": "Anna's Archive",
     "settingsApiKeyStep1": "",
     "@settingsApiKeyStep1": {
         "description": "Paso 1 de instrucciones de API key"

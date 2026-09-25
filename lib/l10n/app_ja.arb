@@ -1050,6 +1050,7 @@
     "description": "Number of books in a category"
   },
   "bookSearchServerInventaire": "",
+  "bookSearchServerAnnasArchive": "Anna's Archive",
   "bookSearchServerOpenLibrary": "",
   "statsGoalFromLabel": "",
   "settingsDevClearDbSub": "",

@@ -1170,6 +1170,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bookSearchServerInventaire => '';
 
   @override
+  String get bookSearchServerAnnasArchive => 'Anna\'s Archive';
+
+  @override
   String get searchTabStatus => '';
 
   @override

@@ -30,6 +30,8 @@ dependencies:
   # API Open Library
   http: ^1.2.2
 
+  annas_archive_client: ^0.1.0
+
   # Iconos
   cupertino_icons: ^1.0.8
 

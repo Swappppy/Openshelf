@@ -168,6 +168,7 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     BookSearchServer.openLibrary => context.l10n.bookSearchServerOpenLibrary,
     BookSearchServer.googleBooks => context.l10n.bookSearchServerGoogleBooks,
     BookSearchServer.inventaire => context.l10n.bookSearchServerInventaire,
+    BookSearchServer.annasArchive => context.l10n.bookSearchServerAnnasArchive,
   };
 
   Widget _buildBody(ColorScheme colorScheme) {
