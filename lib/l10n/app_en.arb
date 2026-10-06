@@ -1813,7 +1813,28 @@
     "settingsPruneWarningTitle": "Orphan categories detected",
     "settingsPruneWarningContent": "Activating this option will delete the following categories because they are not used by any book. Do you want to continue?",
     "settingsAutomationTitle": "Automation",
-  "removeFromCollection": "Remove from collection",
-  "removeFromImprint": "Remove from imprint",
-  "removeFromCategory": "Remove from category"
+    "removeFromCollection": "Remove from collection",
+    "removeFromImprint": "Remove from imprint",
+    "removeFromCategory": "Remove from category",
+    "settingsLanguagePortugueseBR": "",
+    "@settingsLanguagePortugueseBR": {
+        "description": "Opción de idioma: portugués brasileño"
+    },
+    "settingsLanguagePortuguese": "",
+    "@settingsLanguagePortuguese": {
+        "description": "Opción de idioma: portugués"
+    },
+    "searchFieldHasNotes": "",
+    "settingsLanguageItalian": "",
+    "@settingsLanguageItalian": {
+        "description": "Opción de idioma: italiano"
+    },
+    "settingsLanguageFrench": "",
+    "@settingsLanguageFrench": {
+        "description": "Opción de idioma: francés"
+    },
+    "settingsLanguageCatalan": "",
+    "@settingsLanguageCatalan": {
+        "description": "Opción de idioma: catalán"
+    }
 }
