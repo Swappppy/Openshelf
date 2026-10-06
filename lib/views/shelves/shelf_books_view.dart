@@ -5,6 +5,7 @@ import '../../models/shelf.dart';
 import '../../services/database.dart';
 import '../../controllers/books_controller.dart';
 import '../../controllers/display_preferences_controller.dart';
+import '../../controllers/database_provider.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../models/display_preferences.dart';
 import '../../widgets/books_list_or_grid.dart';
@@ -175,6 +176,88 @@ class TagBooksView extends ConsumerWidget {
         booksAsync: booksAsync,
         isCollection: tag.type == TagType.collection,
         emptySubtitle: context.l10n.shelfBooksEmptyHint,
+        onLongPress: (book) => _showBookOptions(context, ref, book),
+      ),
+    );
+  }
+
+  void _showBookOptions(BuildContext context, WidgetRef ref, Book book) {
+    HapticFeedback.lightImpact();
+    final l10n = context.l10n;
+    final db = ref.read(databaseProvider);
+
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  book.title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.label_off_outlined),
+                title: Text(switch (tag.type) {
+                  TagType.collection => l10n.removeFromCollection,
+                  TagType.imprint => l10n.removeFromImprint,
+                  _ => l10n.removeFromCategory,
+                }),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await db.tagDao.removeTagFromBook(book.id, tag);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+                title: Text(
+                  l10n.delete,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmDeleteBook(context, ref, book);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteBook(BuildContext context, WidgetRef ref, Book book) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.bookDetailDeleteTitle),
+        content: Text(context.l10n.bookDetailDeleteConfirm(book.title)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await ref.read(databaseProvider).bookDao.deleteBook(book.id);
+            },
+            child: Text(
+              context.l10n.delete,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        ],
       ),
     );
   }

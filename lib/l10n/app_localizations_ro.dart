@@ -328,7 +328,16 @@ class AppLocalizationsRo extends AppLocalizations {
   String get coverDownloadError => '';
 
   @override
-  String get imageProcessError => 'No se pudo procesar la imagen';
+  String get imageProcessError => '';
+
+  @override
+  String get imageProcessing => 'Se procesează imaginea...';
+
+  @override
+  String get imagePreparing => 'Se pregătește imaginea...';
+
+  @override
+  String get imageOptimizing => 'Se optimizează imaginea...';
 
   @override
   String get cropCoverTitle => '';
@@ -1183,6 +1192,9 @@ class AppLocalizationsRo extends AppLocalizations {
   String get bookSearchServerInventaire => '';
 
   @override
+  String get bookSearchServerAnnasArchive => 'Anna\'s Archive';
+
+  @override
   String get searchTabStatus => 'Estado';
 
   @override
@@ -1833,4 +1845,13 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automatizare';
+
+  @override
+  String get removeFromCollection => 'Eliminați din colecție';
+
+  @override
+  String get removeFromImprint => 'Eliminați din amprentă';
+
+  @override
+  String get removeFromCategory => 'Eliminați din categorie';
 }

@@ -427,6 +427,18 @@
   "@imageProcessError": {
     "description": "Error cuando falla el procesamiento de la imagen"
   },
+  "imageProcessing": "Procesando imagen...",
+  "@imageProcessing": {
+    "description": "Texto mostrado en el diálogo mientras se procesa la imagen"
+  },
+  "imagePreparing": "Preparando imagen...",
+  "@imagePreparing": {
+    "description": "Texto mostrado mientras se prepara la imagen para recortar"
+  },
+  "imageOptimizing": "Optimizando imagen...",
+  "@imageOptimizing": {
+    "description": "Texto mostrado mientras se comprime la imagen"
+  },
   "cropCoverTitle": "Recortar portada",
   "@cropCoverTitle": {
     "description": "Título de la pantalla de recorte de portada"
@@ -1386,6 +1398,7 @@
   "bookSearchServerOpenLibrary": "Open Library",
   "bookSearchServerGoogleBooks": "Google Books",
   "bookSearchServerInventaire": "Inventaire.io",
+  "bookSearchServerAnnasArchive": "Anna's Archive",
   "searchTabStatus": "Estado",
   "@searchTabStatus": {
     "description": "Panel de búsqueda: pestaña Estado"
@@ -1820,5 +1833,8 @@
   },
   "settingsPruneWarningTitle": "Categorías huérfanas detectadas",
   "settingsPruneWarningContent": "Activar esta opción eliminará las siguientes categorías porque no se usan en ningún libro. ¿Quieres continuar?",
-  "settingsAutomationTitle": "Automatización"
+  "settingsAutomationTitle": "Automatización",
+  "removeFromCollection": "Eliminar de la colección",
+  "removeFromImprint": "Eliminar del sello",
+  "removeFromCategory": "Eliminar de la categoría"
 }

@@ -332,6 +332,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get imageProcessError => 'No se pudo procesar la imagen';
 
   @override
+  String get imageProcessing => 'Procesando imagen...';
+
+  @override
+  String get imagePreparing => 'Preparando imagen...';
+
+  @override
+  String get imageOptimizing => 'Optimizando imagen...';
+
+  @override
   String get cropCoverTitle => 'Recortar portada';
 
   @override
@@ -1206,6 +1215,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bookSearchServerInventaire => 'Inventaire.io';
 
   @override
+  String get bookSearchServerAnnasArchive => 'Anna\'s Archive';
+
+  @override
   String get searchTabStatus => 'Estado';
 
   @override
@@ -1862,4 +1874,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automatización';
+
+  @override
+  String get removeFromCollection => 'Eliminar de la colección';
+
+  @override
+  String get removeFromImprint => 'Eliminar del sello';
+
+  @override
+  String get removeFromCategory => 'Eliminar de la categoría';
 }

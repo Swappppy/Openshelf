@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -16,6 +17,7 @@ class CoverService {
     String? doneButtonTitle,
     String? cancelButtonTitle,
     bool shouldCrop = true,
+    void Function(String?)? onStatusChanged,
   }) async {
     try {
       final response = await http.get(Uri.parse(url));
@@ -29,6 +31,7 @@ class CoverService {
         if (shouldCrop) {
           final isGood = await isRatioCorrect(tempPath, 2 / 3);
           if (isGood) {
+            onStatusChanged?.call('optimizing');
             final finalPath = await saveCover(tempPath);
             await tempFile.delete();
             return finalPath;
@@ -39,14 +42,17 @@ class CoverService {
             title: cropTitle ?? 'Crop Cover',
             doneButtonTitle: doneButtonTitle,
             cancelButtonTitle: cancelButtonTitle,
+            onStatusChanged: onStatusChanged,
           );
           if (cropped != null) {
+            onStatusChanged?.call('optimizing');
             final finalPath = await saveCover(cropped);
             await tempFile.delete();
             return finalPath;
           }
         }
         
+        onStatusChanged?.call('optimizing');
         final finalPath = await saveCover(tempPath);
         return finalPath;
       }
@@ -79,16 +85,19 @@ class CoverService {
   static Future<bool> isRatioCorrect(String path, double targetRatio, {double tolerance = 0.1}) async {
     try {
       final bytes = await File(path).readAsBytes();
-      final image = img.decodeImage(bytes);
-      if (image == null) return false;
       
-      final currentRatio = image.width / image.height;
-      final diff = (currentRatio - targetRatio).abs();
-      final threshold = targetRatio * tolerance;
-      
-      final isCorrect = diff <= threshold;
-      debugPrint('CoverService: SmartCrop check - current=$currentRatio, target=$targetRatio, diff=$diff, threshold=$threshold, result=$isCorrect');
-      return isCorrect;
+      final result = await Isolate.run(() {
+        final image = img.decodeImage(bytes);
+        if (image == null) return false;
+        
+        final currentRatio = image.width / image.height;
+        final diff = (currentRatio - targetRatio).abs();
+        final threshold = targetRatio * tolerance;
+        return diff <= threshold;
+      });
+
+      debugPrint('CoverService: SmartCrop check for $path - result=$result');
+      return result;
     } catch (e) {
       debugPrint('Error checking image ratio: $e');
       return false;
@@ -176,13 +185,14 @@ class CoverService {
       if (size < 150 * 1024) return false;
 
       final bytes = await file.readAsBytes();
-      final image = img.decodeImage(bytes);
-      if (image == null) return false;
-
-      // If height is large (> 1000px), it should be compressed/resized
-      if (image.height > 1000) return true;
       
-      return false;
+      return await Isolate.run(() {
+        final image = img.decodeImage(bytes);
+        if (image == null) return false;
+
+        // If height is large (> 1000px), it should be compressed/resized
+        return image.height > 1000;
+      });
     } catch (_) {
       return false;
     }
@@ -192,23 +202,29 @@ class CoverService {
   static Future<void> compressImage(String sourcePath, String targetPath, {int maxHeight = 1000, int quality = 75}) async {
     try {
       final bytes = await File(sourcePath).readAsBytes();
-      img.Image? image = img.decodeImage(bytes);
       
-      if (image == null) {
+      final compressedBytes = await Isolate.run(() {
+        img.Image? image = img.decodeImage(bytes);
+        
+        if (image == null) return null;
+
+        // Resize if height exceeds limit
+        if (image.height > maxHeight) {
+          image = img.copyResize(image, height: maxHeight, interpolation: img.Interpolation.linear);
+        }
+
+        // Encode as compressed JPEG
+        return img.encodeJpg(image, quality: quality);
+      });
+
+      if (compressedBytes == null) {
         // Fallback to simple copy if decoding fails
         await File(sourcePath).copy(targetPath);
         return;
       }
 
-      // Resize if height exceeds limit
-      if (image.height > maxHeight) {
-        image = img.copyResize(image, height: maxHeight, interpolation: img.Interpolation.linear);
-      }
-
-      // Encode as compressed JPEG
-      final compressedBytes = img.encodeJpg(image, quality: quality);
       await File(targetPath).writeAsBytes(compressedBytes);
-      debugPrint('CoverService: Compressed image saved to $targetPath (Quality: $quality, Height: ${image.height})');
+      debugPrint('CoverService: Compressed image saved to $targetPath (Quality: $quality)');
     } catch (e) {
       debugPrint('Error compressing image: $e');
       // Final fallback
@@ -221,9 +237,14 @@ class CoverService {
     required String title,
     String? doneButtonTitle,
     String? cancelButtonTitle,
+    void Function(String?)? onStatusChanged,
   }) async {
     try {
       final preparedPath = await _prepareImageForCropper(path);
+      
+      // Hide dialog before opening cropper activity to avoid conflicts
+      onStatusChanged?.call(null);
+
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: preparedPath,
         uiSettings: [
@@ -260,14 +281,18 @@ class CoverService {
 
     try {
       final bytes = await File(sourcePath).readAsBytes();
-      final image = img.decodeImage(bytes);
-      if (image == null) return sourcePath;
+      
+      final encoded = await Isolate.run(() {
+        final image = img.decodeImage(bytes);
+        if (image == null) return null;
+        // package:image encodeJpg produces baseline JPEGs which BitmapRegionDecoder can handle.
+        return img.encodeJpg(image);
+      });
+
+      if (encoded == null) return sourcePath;
 
       final directory = await getTemporaryDirectory();
       final tempPath = p.join(directory.path, 'crop_prep_${DateTime.now().millisecondsSinceEpoch}.jpg');
-      
-      // package:image encodeJpg produces baseline JPEGs which BitmapRegionDecoder can handle.
-      final encoded = img.encodeJpg(image);
       await File(tempPath).writeAsBytes(encoded);
       
       debugPrint('CoverService: Pre-processed image for Android cropper: $tempPath');
@@ -279,12 +304,13 @@ class CoverService {
   }
 
   /// Copies a local file to the app's permanent storage directory with compression.
-  static Future<String?> saveLocalCover(String tempPath) async {
+  static Future<String?> saveLocalCover(String tempPath, {void Function(String?)? onStatusChanged}) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final filePath = p.join(directory.path, fileName);
       
+      onStatusChanged?.call('optimizing');
       await compressImage(tempPath, filePath);
       return filePath;
     } catch (e) {
@@ -316,9 +342,13 @@ class CoverService {
     required String title,
     String? doneButtonTitle,
     String? cancelButtonTitle,
+    void Function(String?)? onStatusChanged,
   }) async {
     try {
       final preparedPath = await _prepareImageForCropper(path);
+
+      onStatusChanged?.call(null);
+
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: preparedPath,
         uiSettings: [
@@ -372,6 +402,7 @@ class CoverService {
     required String cropTitle,
     String? doneButtonTitle,
     String? cancelButtonTitle,
+    void Function(String?)? onStatusChanged,
   }) async {
     final temp = await downloadForPreview(url);
     if (temp == null) return null;
@@ -380,8 +411,10 @@ class CoverService {
       title: cropTitle,
       doneButtonTitle: doneButtonTitle,
       cancelButtonTitle: cancelButtonTitle,
+      onStatusChanged: onStatusChanged,
     );
     if (cropped == null) return null;
+    onStatusChanged?.call('optimizing');
     return saveImprintImage(cropped);
   }
 

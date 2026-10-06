@@ -427,6 +427,18 @@
     "@imageProcessError": {
         "description": "Error when image processing fails"
     },
+    "imageProcessing": "Traitement de l'image...",
+    "@imageProcessing": {
+        "description": "Texte affiché dans le dialogue pendant le traitement de l'image"
+    },
+    "imagePreparing": "Préparation de l'image...",
+    "@imagePreparing": {
+        "description": "Text shown in dialog while preparing image for cropper"
+    },
+    "imageOptimizing": "Optimisation de l'image...",
+    "@imageOptimizing": {
+        "description": "Text shown in dialog while compressing image"
+    },
     "cropCoverTitle": "Recadrer la couverture",
     "@cropCoverTitle": {
         "description": "Title for cover cropping screen"
@@ -1366,6 +1378,7 @@
     "bookSearchServerOpenLibrary": "Open Library",
     "bookSearchServerGoogleBooks": "Google Books",
     "bookSearchServerInventaire": "Inventaire.io",
+    "bookSearchServerAnnasArchive": "Anna's Archive",
     "searchTabStatus": "État",
     "@searchTabStatus": {
         "description": "Search panel: Status tab"
@@ -1750,5 +1763,8 @@
     },
     "settingsPruneWarningTitle": "Catégories orphelines détectées",
     "settingsPruneWarningContent": "L'activation de cette option supprimera les catégories suivantes car elles ne sont utilisées par aucun livre. Voulez-vous continuer ?",
-    "settingsAutomationTitle": "Automatisation"
+    "settingsAutomationTitle": "Automatisation",
+    "removeFromCollection": "Retirer de la collection",
+    "removeFromImprint": "Retirer de la maison d'édition",
+    "removeFromCategory": "Retirer de la catégorie"
 }

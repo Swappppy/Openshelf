@@ -396,6 +396,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
     if (source.contains('Google')) return 'Google';
     if (source.contains('Inventaire')) return 'Inventaire';
     if (source.contains('Open Library')) return 'OL';
+    if (source.contains('Anna')) return 'Anna\'s Archive';
     return source;
   }
 }

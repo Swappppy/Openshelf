@@ -328,7 +328,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get coverDownloadError => '';
 
   @override
-  String get imageProcessError => 'No se pudo procesar la imagen';
+  String get imageProcessError => '';
+
+  @override
+  String get imageProcessing => '画像を処理中...';
+
+  @override
+  String get imagePreparing => '画像を準備中...';
+
+  @override
+  String get imageOptimizing => '画像を最適化中...';
 
   @override
   String get cropCoverTitle => '';
@@ -1183,6 +1192,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bookSearchServerInventaire => '';
 
   @override
+  String get bookSearchServerAnnasArchive => 'Anna\'s Archive';
+
+  @override
   String get searchTabStatus => 'Estado';
 
   @override
@@ -1832,4 +1844,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => '自動化';
+
+  @override
+  String get removeFromCollection => 'コレクションから削除';
+
+  @override
+  String get removeFromImprint => 'インプリントから削除';
+
+  @override
+  String get removeFromCategory => 'カテゴリから削除';
 }

@@ -427,6 +427,18 @@
     "@imageProcessError": {
         "description": "Error when image processing fails"
     },
+    "imageProcessing": "Processing image...",
+    "@imageProcessing": {
+        "description": "Text shown in dialog while processing image"
+    },
+    "imagePreparing": "Preparing image...",
+    "@imagePreparing": {
+        "description": "Text shown in dialog while preparing image for cropper"
+    },
+    "imageOptimizing": "Optimizing image...",
+    "@imageOptimizing": {
+        "description": "Text shown in dialog while compressing image"
+    },
     "cropCoverTitle": "Crop cover",
     "@cropCoverTitle": {
         "description": "Title for cover cropping screen"
@@ -1366,6 +1378,7 @@
     "bookSearchServerOpenLibrary": "Open Library",
     "bookSearchServerGoogleBooks": "Google Books",
     "bookSearchServerInventaire": "Inventaire.io",
+    "bookSearchServerAnnasArchive": "Anna's Archive",
     "searchTabStatus": "Status",
     "@searchTabStatus": {
         "description": "Search panel: Status tab"
@@ -1799,5 +1812,8 @@
     },
     "settingsPruneWarningTitle": "Orphan categories detected",
     "settingsPruneWarningContent": "Activating this option will delete the following categories because they are not used by any book. Do you want to continue?",
-    "settingsAutomationTitle": "Automation"
+    "settingsAutomationTitle": "Automation",
+  "removeFromCollection": "Remove from collection",
+  "removeFromImprint": "Remove from imprint",
+  "removeFromCategory": "Remove from category"
 }

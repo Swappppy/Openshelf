@@ -332,6 +332,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imageProcessError => 'Could not process image';
 
   @override
+  String get imageProcessing => 'Processing image...';
+
+  @override
+  String get imagePreparing => 'Preparing image...';
+
+  @override
+  String get imageOptimizing => 'Optimizing image...';
+
+  @override
   String get cropCoverTitle => 'Crop cover';
 
   @override
@@ -613,7 +622,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelvesAddFirstShelf => 'Create shelf';
 
   @override
-  String get shelfBooksEmpty => 'This shelf is empty';
+  String get shelfBooksEmpty => 'No books in this shelf';
 
   @override
   String get shelfBooksEmptyHint =>
@@ -1193,6 +1202,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookSearchServerInventaire => 'Inventaire.io';
+
+  @override
+  String get bookSearchServerAnnasArchive => 'Anna\'s Archive';
 
   @override
   String get searchTabStatus => 'Status';
@@ -1850,4 +1862,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAutomationTitle => 'Automation';
+
+  @override
+  String get removeFromCollection => 'Remove from collection';
+
+  @override
+  String get removeFromImprint => 'Remove from imprint';
+
+  @override
+  String get removeFromCategory => 'Remove from category';
 }

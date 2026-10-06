@@ -11,6 +11,7 @@ import 'cover_picker_sheet.dart';
 import 'widgets/main_tab.dart';
 import 'widgets/details_tab.dart';
 import 'package:openshelf/utils/pagination_helper.dart';
+import '../../widgets/loading_overlay.dart';
 
 /// Form for adding a new book or editing an existing one.
 /// Supports prefilling from external search results and handling M:M relationships.
@@ -51,6 +52,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   BookFormat? _format;
   double? _rating;
   bool _isSaving = false;
+  bool _isProcessingImage = false;
+  String? _processingMessage;
   String? _coverPath;
   DateTime? _startedAt;
   DateTime? _finishedAt;
@@ -193,20 +196,43 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     }
   }
 
+  void _handleImageStatus(String? status) {
+    if (!mounted) return;
+    setState(() {
+      if (status == null) {
+        _isProcessingImage = false;
+        _processingMessage = null;
+      } else {
+        _isProcessingImage = true;
+        final l10n = context.l10n;
+        _processingMessage = switch (status) {
+          'preparing' => l10n.imagePreparing,
+          'optimizing' => l10n.imageOptimizing,
+          'processing' => l10n.imageProcessing,
+          _ => l10n.imageProcessing,
+        };
+      }
+    });
+  }
+
   Future<void> _pickCover() async {
+    if (_isProcessingImage) return;
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
+    
     try {
       final saved = await ref.read(bookFormControllerProvider).pickCoverFromGallery(
         cropTitle: l10n.cropCoverTitle,
         doneTitle: l10n.done,
         cancelTitle: l10n.cancel,
+        onStatusChanged: _handleImageStatus,
       );
-      if (saved != null && mounted) {
+      if (mounted && saved != null) {
         setState(() => _coverPath = saved);
       }
     } catch (e) {
       if (mounted) {
+        _handleImageStatus(null);
         messenger.showSnackBar(
           SnackBar(content: Text(l10n.imageProcessError)),
         );
@@ -215,6 +241,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   }
 
   Future<void> _takePhoto() async {
+    if (_isProcessingImage) return;
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     try {
@@ -222,12 +249,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         cropTitle: l10n.cropCoverTitle,
         doneTitle: l10n.done,
         cancelTitle: l10n.cancel,
+        onStatusChanged: _handleImageStatus,
       );
-      if (saved != null && mounted) {
+      if (mounted && saved != null) {
         setState(() => _coverPath = saved);
       }
     } catch (e) {
       if (mounted) {
+        _handleImageStatus(null);
         messenger.showSnackBar(
           SnackBar(content: Text(l10n.imageProcessError)),
         );
@@ -267,19 +296,19 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (url == null || url.isEmpty) return;
     if (!mounted) return;
     
-    setState(() => _isSaving = true);
+    _handleImageStatus('processing');
     try {
       final saved = await ref.read(bookFormControllerProvider).downloadCover(
         url,
         cropTitle: l10n.cropCoverTitle,
         doneTitle: l10n.done,
         cancelTitle: l10n.cancel,
+        onStatusChanged: _handleImageStatus,
       );
       if (!mounted) return;
-      setState(() {
-        _isSaving = false;
-        if (saved != null) _coverPath = saved;
-      });
+      _handleImageStatus(null);
+      if (saved != null) setState(() => _coverPath = saved);
+      
       if (saved == null) {
         messenger.showSnackBar(
           SnackBar(content: Text(l10n.coverDownloadError)),
@@ -287,7 +316,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       }
     } catch (e) {
       if (!mounted) return;
-      setState(() => _isSaving = false);
+      _handleImageStatus(null);
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.imageProcessError)),
       );
@@ -495,94 +524,98 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.existingBook != null ? context.l10n.bookFormEditTitle : context.l10n.bookFormNewTitle),
-        toolbarHeight: 56,
-        actions: [
-          TextButton(
-            onPressed: _isSaving ? null : _save,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              child: _isSaving
-                  ? const SizedBox(
-                      key: ValueKey('saving'),
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(
-                      context.l10n.save,
-                      key: const ValueKey('save_text'),
-                    ),
+    return LoadingOverlay(
+      isLoading: _isProcessingImage,
+      message: _processingMessage,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.existingBook != null ? context.l10n.bookFormEditTitle : context.l10n.bookFormNewTitle),
+          toolbarHeight: 56,
+          actions: [
+            TextButton(
+              onPressed: _isSaving ? null : _save,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 150),
+                child: _isSaving
+                    ? const SizedBox(
+                        key: ValueKey('saving'),
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        context.l10n.save,
+                        key: const ValueKey('save_text'),
+                      ),
+              ),
             ),
+          ],
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(icon: const Icon(Icons.menu_book_outlined), text: context.l10n.tabMain),
+              Tab(icon: const Icon(Icons.label_outline), text: context.l10n.tabDetails),
+            ],
           ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(icon: const Icon(Icons.menu_book_outlined), text: context.l10n.tabMain),
-            Tab(icon: const Icon(Icons.label_outline), text: context.l10n.tabDetails),
-          ],
         ),
-      ),
-      body: Form(
-        key: _formKey,
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            MainTab(
-              titleCtrl: _titleCtrl,
-              subtitleCtrl: _subtitleCtrl,
-              authorCtrl: _authorCtrl,
-              descriptionCtrl: _descriptionCtrl,
-              publisherCtrl: _publisherCtrl,
-              totalPagesCtrl: _totalPagesCtrl,
-              currentPageCtrl: _currentPageCtrl,
-              status: _status,
-              format: _format,
-              rating: _rating,
-              coverPath: _coverPath,
-              onStatusChanged: _onStatusChanged,
-              onFormatChanged: (f) => setState(() => _format = f),
-              onRatingChanged: (r) => setState(() => _rating = r),
-              onPickCover: _pickCover,
-              onTakePhoto: _takePhoto,
-              selectedTags: _selectedTags,
-              onTagsChanged: (list) => setState(() => _selectedTags = list),
-              onPickCoverFromUrl: _pickCoverFromUrl,
-              onSearchCovers: _searchCovers,
-              paginationConfig: _paginationConfig,
-              onPaginationConfigChanged: (cfg) {
-                setState(() => _paginationConfig = cfg);
-                final newTotal = PaginationHelper.calculateTotalPhysicalPages(cfg);
-                if (newTotal > 0) _totalPagesCtrl.text = newTotal.toString();
-              },
-            ),
-            DetailsTab(
-              notesCtrl: _notesCtrl,
-              isbnCtrl: _isbnCtrl,
-              languageCtrl: _languageCtrl,
-              publishYearCtrl: _publishYearCtrl,
-              translatorCtrl: _translatorCtrl,
-              originalTitleCtrl: _originalTitleCtrl,
-              originalLanguageCtrl: _originalLanguageCtrl,
-              isTranslation: _isTranslation,
-              onIsTranslationChanged: (v) => setState(() => _isTranslation = v),
-              ownershipStatus: _ownershipStatus,
-              onOwnershipStatusChanged: (s) => setState(() => _ownershipStatus = s),
-              personNameCtrl: _personNameCtrl,
-              selectedCollections: _selectedCollections,
-              selectedImprint: _selectedImprint,
-              startedAt: _startedAt,
-              finishedAt: _finishedAt,
-              onStartedAtChanged: (d) => setState(() => _startedAt = d),
-              onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
-              onCollectionsChanged: (list) => setState(() => _selectedCollections = list),
-              onImprintChanged: (tag) => setState(() => _selectedImprint = tag),
-              copiesCtrl: _copiesCtrl,
-            ),
-          ],
+        body: Form(
+          key: _formKey,
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              MainTab(
+                titleCtrl: _titleCtrl,
+                subtitleCtrl: _subtitleCtrl,
+                authorCtrl: _authorCtrl,
+                descriptionCtrl: _descriptionCtrl,
+                publisherCtrl: _publisherCtrl,
+                totalPagesCtrl: _totalPagesCtrl,
+                currentPageCtrl: _currentPageCtrl,
+                status: _status,
+                format: _format,
+                rating: _rating,
+                coverPath: _coverPath,
+                onStatusChanged: _onStatusChanged,
+                onFormatChanged: (f) => setState(() => _format = f),
+                onRatingChanged: (r) => setState(() => _rating = r),
+                onPickCover: _pickCover,
+                onTakePhoto: _takePhoto,
+                selectedTags: _selectedTags,
+                onTagsChanged: (list) => setState(() => _selectedTags = list),
+                onPickCoverFromUrl: _pickCoverFromUrl,
+                onSearchCovers: _searchCovers,
+                paginationConfig: _paginationConfig,
+                onPaginationConfigChanged: (cfg) {
+                  setState(() => _paginationConfig = cfg);
+                  final newTotal = PaginationHelper.calculateTotalPhysicalPages(cfg);
+                  if (newTotal > 0) _totalPagesCtrl.text = newTotal.toString();
+                },
+              ),
+              DetailsTab(
+                notesCtrl: _notesCtrl,
+                isbnCtrl: _isbnCtrl,
+                languageCtrl: _languageCtrl,
+                publishYearCtrl: _publishYearCtrl,
+                translatorCtrl: _translatorCtrl,
+                originalTitleCtrl: _originalTitleCtrl,
+                originalLanguageCtrl: _originalLanguageCtrl,
+                isTranslation: _isTranslation,
+                onIsTranslationChanged: (v) => setState(() => _isTranslation = v),
+                ownershipStatus: _ownershipStatus,
+                onOwnershipStatusChanged: (s) => setState(() => _ownershipStatus = s),
+                personNameCtrl: _personNameCtrl,
+                selectedCollections: _selectedCollections,
+                selectedImprint: _selectedImprint,
+                startedAt: _startedAt,
+                finishedAt: _finishedAt,
+                onStartedAtChanged: (d) => setState(() => _startedAt = d),
+                onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
+                onCollectionsChanged: (list) => setState(() => _selectedCollections = list),
+                onImprintChanged: (tag) => setState(() => _selectedImprint = tag),
+                copiesCtrl: _copiesCtrl,
+              ),
+            ],
+          ),
         ),
       ),
     );

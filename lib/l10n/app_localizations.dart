@@ -743,6 +743,24 @@ abstract class AppLocalizations {
   /// **'No se pudo procesar la imagen'**
   String get imageProcessError;
 
+  /// Texto mostrado en el diálogo mientras se procesa la imagen
+  ///
+  /// In es, this message translates to:
+  /// **'Procesando imagen...'**
+  String get imageProcessing;
+
+  /// Texto mostrado mientras se prepara la imagen para recortar
+  ///
+  /// In es, this message translates to:
+  /// **'Preparando imagen...'**
+  String get imagePreparing;
+
+  /// Texto mostrado mientras se comprime la imagen
+  ///
+  /// In es, this message translates to:
+  /// **'Optimizando imagen...'**
+  String get imageOptimizing;
+
   /// Título de la pantalla de recorte de portada
   ///
   /// In es, this message translates to:
@@ -2309,6 +2327,12 @@ abstract class AppLocalizations {
   /// **'Inventaire.io'**
   String get bookSearchServerInventaire;
 
+  /// No description provided for @bookSearchServerAnnasArchive.
+  ///
+  /// In es, this message translates to:
+  /// **'Anna\'s Archive'**
+  String get bookSearchServerAnnasArchive;
+
   /// Panel de búsqueda: pestaña Estado
   ///
   /// In es, this message translates to:
@@ -3466,6 +3490,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Automatización'**
   String get settingsAutomationTitle;
+
+  /// No description provided for @removeFromCollection.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar de la colección'**
+  String get removeFromCollection;
+
+  /// No description provided for @removeFromImprint.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar del sello'**
+  String get removeFromImprint;
+
+  /// No description provided for @removeFromCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar de la categoría'**
+  String get removeFromCategory;
 }
 
 class _AppLocalizationsDelegate

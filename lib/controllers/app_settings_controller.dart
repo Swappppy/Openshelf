@@ -13,6 +13,7 @@ class AppSettingsController extends Notifier<AppSettings> {
   static const _keyCoversPath = 'app_covers_path';
   static const _keyDbPath = 'app_db_path';
   static const _keySearchServers = 'app_search_servers';
+  static const _keyDisabledSearchServers = 'app_disabled_search_servers';
   static const _keyGoogleApiKey = 'app_google_api_key';
   static const _keyLibraryColumns = 'app_library_columns';
   static const _keyAutoNoCoverShelf = 'app_auto_no_cover_shelf';
@@ -48,17 +49,26 @@ class AppSettingsController extends Notifier<AppSettings> {
     final dbPath = prefs.getString(_keyDbPath);
     
     final serversList = prefs.getStringList(_keySearchServers);
+    final disabledList = prefs.getStringList(_keyDisabledSearchServers);
+
     List<BookSearchServer>? servers;
+    List<BookSearchServer>? disabledServers;
+
     if (serversList != null) {
-      // Safely parse saved servers, ignoring unknown ones.
+      // Safely parse saved active servers.
       servers = serversList
           .map((s) => BookSearchServer.values.where((v) => v.name == s).firstOrNull)
           .whereType<BookSearchServer>()
           .toList();
+
+      disabledServers = (disabledList ?? [])
+          .map((s) => BookSearchServer.values.where((v) => v.name == s).firstOrNull)
+          .whereType<BookSearchServer>()
+          .toList();
       
-      // Ensure all known servers are present (migration for new additions like Inventaire).
+      // Ensure any newly added server in BookSearchServer.values is present.
       for (final server in BookSearchServer.values) {
-        if (!servers.contains(server)) {
+        if (!servers.contains(server) && !disabledServers.contains(server)) {
           servers.add(server);
         }
       }
@@ -91,7 +101,9 @@ class AppSettingsController extends Notifier<AppSettings> {
         BookSearchServer.googleBooks,
         BookSearchServer.openLibrary,
         BookSearchServer.inventaire,
+        BookSearchServer.annasArchive,
       ],
+      disabledSearchServers: disabledServers ?? const [],
       googleBooksApiKey: googleApiKey,
       libraryGridColumns: gridColumns,
       autoNoCoverShelf: autoNoCover,
@@ -141,12 +153,42 @@ class AppSettingsController extends Notifier<AppSettings> {
     }
   }
 
-  void setSearchServers(List<BookSearchServer> servers) {
-    state = state.copyWith(searchServers: servers);
+  void setSearchServers(
+    List<BookSearchServer> servers, {
+    List<BookSearchServer>? disabledServers,
+  }) {
+    final disabled = disabledServers ?? state.disabledSearchServers;
+    state = state.copyWith(
+      searchServers: servers,
+      disabledSearchServers: disabled,
+    );
     ref.read(sharedPrefsProvider).setStringList(
       _keySearchServers,
       servers.map((s) => s.name).toList(),
     );
+    ref.read(sharedPrefsProvider).setStringList(
+      _keyDisabledSearchServers,
+      disabled.map((s) => s.name).toList(),
+    );
+  }
+
+  void toggleSearchServer(BookSearchServer server, bool enabled) {
+    final active = List<BookSearchServer>.from(state.searchServers);
+    final disabled = List<BookSearchServer>.from(state.disabledSearchServers);
+
+    if (enabled) {
+      disabled.remove(server);
+      if (!active.contains(server)) {
+        active.add(server);
+      }
+    } else {
+      active.remove(server);
+      if (!disabled.contains(server)) {
+        disabled.add(server);
+      }
+    }
+
+    setSearchServers(active, disabledServers: disabled);
   }
 
   void setGoogleBooksApiKey(String? key) {
