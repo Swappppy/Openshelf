@@ -1766,5 +1766,75 @@
     "settingsAutomationTitle": "Automatisation",
     "removeFromCollection": "Retirer de la collection",
     "removeFromImprint": "Retirer de la maison d'édition",
-    "removeFromCategory": "Retirer de la catégorie"
+    "removeFromCategory": "Retirer de la catégorie",
+    "searchFieldIsbn": "",
+    "searchOpNotEquals": "",
+    "searchOpLessThan": "",
+    "searchModeBoolean": "",
+    "searchModeBasic": "",
+    "searchAddCondition": "",
+    "searchFieldPublisher": "",
+    "searchFieldNotes": "",
+    "searchFilterTranslatorLabel": "",
+    "@searchFilterTranslatorLabel": {
+        "placeholders": {
+            "translator": {
+                "type": "String"
+            }
+        }
+    },
+    "searchOpIs": "",
+    "searchFieldOriginalLanguage": "",
+    "searchFieldPages": "",
+    "searchOpNotIncludes": "",
+    "searchOpStartsWith": "",
+    "searchOpIncludesAll": "",
+    "searchFieldImprint": "",
+    "searchFieldTitle": "",
+    "searchFieldYear": "",
+    "settingsLanguagePortugueseBR": "",
+    "@settingsLanguagePortugueseBR": {
+        "description": "Opción de idioma: portugués brasileño"
+    },
+    "searchFieldNoCover": "",
+    "settingsLanguagePortuguese": "",
+    "@settingsLanguagePortuguese": {
+        "description": "Opción de idioma: portugués"
+    },
+    "searchFilterSubtitleLabel": "",
+    "@searchFilterSubtitleLabel": {
+        "placeholders": {
+            "subtitle": {
+                "type": "String"
+            }
+        }
+    },
+    "searchFieldHasNotes": "",
+    "searchModeAdvanced": "",
+    "searchOpEquals": "",
+    "searchFieldAuthor": "",
+    "searchOpIsNot": "",
+    "searchFieldOriginalTitle": "",
+    "settingsLanguageItalian": "",
+    "@settingsLanguageItalian": {
+        "description": "Opción de idioma: italiano"
+    },
+    "settingsLanguageFrench": "",
+    "@settingsLanguageFrench": {
+        "description": "Opción de idioma: francés"
+    },
+    "searchFieldCategory": "",
+    "searchFieldStatus": "",
+    "searchOpBetween": "",
+    "settingsLanguageCatalan": "",
+    "@settingsLanguageCatalan": {
+        "description": "Opción de idioma: catalán"
+    },
+    "searchFieldCollection": "",
+    "searchOpIncludes": "",
+    "searchOpGreaterThan": "",
+    "searchFieldLanguage": "",
+    "searchPreview": "",
+    "searchOpExactly": "",
+    "searchOpContains": ""
 }
