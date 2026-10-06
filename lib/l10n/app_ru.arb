@@ -1405,5 +1405,436 @@
     "@fieldIsTranslation": {
         "description": "Interruptor para campos de traducción"
     },
-    "bookDetailReadHistoryTitle": "ИСТОРИЯ ЧТЕНИЯ"
+    "bookDetailReadHistoryTitle": "ИСТОРИЯ ЧТЕНИЯ",
+    "paginationEndPhysical": "",
+    "searchFieldIsbn": "",
+    "searchOpNotEquals": "",
+    "paginationStartPhysical": "",
+    "paginationAdvancedButton": "",
+    "searchOpLessThan": "",
+    "searchModeBoolean": "",
+    "searchModeBasic": "",
+    "searchAddCondition": "",
+    "paginationPhysicalTotalNote": "",
+    "paginationChooseColor": "",
+    "searchFieldPublisher": "",
+    "statsOptStatusSub": "",
+    "statsReadByYearTitle": "",
+    "dataManagementExportHintJson": "",
+    "statsOptStreakTitle": "",
+    "settingsDevDbCleared": "",
+    "paginationMarkersLabels": "",
+    "searchFieldNotes": "",
+    "settingsImportBookshelf": "",
+    "@settingsImportBookshelf": {
+        "description": "Opción de importar desde Bookshelf"
+    },
+    "searchFilterTranslatorLabel": "",
+    "@searchFilterTranslatorLabel": {
+        "placeholders": {
+            "translator": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationAddMarker": "",
+    "exportTitle": "",
+    "@exportTitle": {
+        "description": "Título del diálogo de exportación"
+    },
+    "searchFilterCollection": "",
+    "@searchFilterCollection": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationVisualPageHint": "",
+    "dataManagementExportHint": "",
+    "@dataManagementExportHint": {
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationCorrectErrors": "",
+    "statsEmptySubtitle": "",
+    "@statsEmptySubtitle": {
+        "description": "Subtítulo del estado vacío de estadísticas"
+    },
+    "onboardingWelcomeSub": "",
+    "searchFilterAuthorLabel": "",
+    "@searchFilterAuthorLabel": {
+        "placeholders": {
+            "author": {
+                "type": "String"
+            }
+        }
+    },
+    "bookDuplicateTitle": "",
+    "@bookDuplicateTitle": {
+        "description": "Título del aviso de libro duplicado"
+    },
+    "searchClearAll": "",
+    "@searchClearAll": {
+        "description": "Botón para limpiar todos los filtros de búsqueda"
+    },
+    "statsOptReadYearSub": "",
+    "dataManagementRestoreBackupHint": "",
+    "paginationMarkerLabel": "",
+    "statsGoalTypePages": "",
+    "dataManagementRestoreBackup": "",
+    "devDeleteConfirmContent": "",
+    "@devDeleteConfirmContent": {
+        "description": "Contenido de confirmación de borrado dev"
+    },
+    "searchOpIs": "",
+    "no": "",
+    "@no": {
+        "description": "Botón No"
+    },
+    "settingsCompressImagesSub": "",
+    "imprintsAddFirst": "",
+    "@imprintsAddFirst": {
+        "description": "Texto del botón de acción en el estado vacío de los sellos"
+    },
+    "searchFieldOriginalLanguage": "",
+    "paginationType": "",
+    "statsGoalUnitBooks": "",
+    "statsPeriodLast3Months": "",
+    "statsDailyReadingTitle": "",
+    "dataManagementImportHint": "",
+    "@dataManagementImportHint": {
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "devDeleteConfirmTitle": "",
+    "@devDeleteConfirmTitle": {
+        "description": "Título de confirmación de borrado dev"
+    },
+    "searchFieldPages": "",
+    "paginationSaveProgress": "",
+    "searchFilterIsbnLabel": "",
+    "@searchFilterIsbnLabel": {
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "sortTitle": "",
+    "statsOptAvgCompletionTitle": "",
+    "settingsImportSelectBackup": "",
+    "statsGoalNew": "",
+    "noCoverShelfTitle": "",
+    "paginationVisualPage": "",
+    "settingsAutoNoCoverTitle": "",
+    "paginationAddBlock": "",
+    "paginationAllPagesAssignedNote": "",
+    "paginationEquivalentPhysical": "",
+    "@paginationEquivalentPhysical": {
+        "placeholders": {
+            "start": {
+                "type": "int"
+            },
+            "end": {
+                "type": "int"
+            }
+        }
+    },
+    "statsOptLastAddedTitle": "",
+    "searchOpNotIncludes": "",
+    "exportCoversPrompt": "",
+    "@exportCoversPrompt": {
+        "description": "Pregunta sobre portadas en exportación"
+    },
+    "searchOpStartsWith": "",
+    "statsPagesSub": "",
+    "searchOpIncludesAll": "",
+    "statsOptAvgPagesTitle": "",
+    "paginationBlocksSegments": "",
+    "statsGoalDelete": "",
+    "statsPeriodLast3Years": "",
+    "onboardingAddSub": "",
+    "searchFieldImprint": "",
+    "settingsFullBackup": "",
+    "@settingsFullBackup": {
+        "description": "Título de restauración"
+    },
+    "statsOptAvgPagesSub": "",
+    "searchFieldTitle": "",
+    "settingsSectionData": "",
+    "@settingsSectionData": {
+        "description": "Encabezado de sección de datos"
+    },
+    "paginationMarkerDefaultName": "",
+    "paginationNoSegmentsDefined": "",
+    "paginationStartVisual": "",
+    "paginationOffset": "",
+    "settingsLanguageEnglish": "",
+    "@settingsLanguageEnglish": {
+        "description": "Opción de idioma: inglés"
+    },
+    "shelfShowInLibrary": "",
+    "yes": "",
+    "@yes": {
+        "description": "Botón Sí"
+    },
+    "statsOptPagesTitle": "",
+    "settingsDynamicIconSub": "",
+    "paginationEndVisual": "",
+    "searchFilterLanguageLabel": "",
+    "@searchFilterLanguageLabel": {
+        "placeholders": {
+            "language": {
+                "type": "String"
+            }
+        }
+    },
+    "dataManagementImportHintJson": "",
+    "addedToLibrary": "",
+    "@addedToLibrary": {
+        "description": "Mensaje de éxito al añadir libro"
+    },
+    "onboardingNext": "",
+    "searchFieldYear": "",
+    "importPartial": "",
+    "@importPartial": {
+        "placeholders": {
+            "added": {
+                "type": "int"
+            },
+            "skipped": {
+                "type": "int"
+            }
+        }
+    },
+    "statsStatusTitle": "",
+    "tabMore": "",
+    "settingsLanguagePortugueseBR": "",
+    "@settingsLanguagePortugueseBR": {
+        "description": "Opción de idioma: portugués brasileño"
+    },
+    "importSuccess": "",
+    "@importSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statsGoalTypeLabel": "",
+    "dataManagementCreateBackupHint": "",
+    "statsPeriodThisYear": "",
+    "paginationSegmentStartGreater": "",
+    "statsAvgCompletionValue": "",
+    "@statsAvgCompletionValue": {
+        "placeholders": {
+            "days": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationArabic": "",
+    "paginationCurrentPageShort": "",
+    "statsAvgPagesTitle": "",
+    "errorDuplicateIsbn": "",
+    "@errorDuplicateIsbn": {
+        "description": "Error cuando el ISBN ya existe"
+    },
+    "searchFieldNoCover": "",
+    "settingsLibraryColumnsSub": "",
+    "searchTabCollection": "",
+    "@searchTabCollection": {
+        "description": "Panel de búsqueda: pestaña Colección"
+    },
+    "settingsLanguageSpanish": "",
+    "@settingsLanguageSpanish": {
+        "description": "Opción de idioma: español"
+    },
+    "paginationVisualMode": "",
+    "settingsFullBackupHint": "",
+    "@settingsFullBackupHint": {
+        "description": "Pista de restauración"
+    },
+    "settingsLanguagePortuguese": "",
+    "@settingsLanguagePortuguese": {
+        "description": "Opción de idioma: portugués"
+    },
+    "searchFilterSubtitleLabel": "",
+    "@searchFilterSubtitleLabel": {
+        "placeholders": {
+            "subtitle": {
+                "type": "String"
+            }
+        }
+    },
+    "bookSearchRecommended": "",
+    "@bookSearchRecommended": {
+        "description": "Etiqueta para el resultado recomendado"
+    },
+    "statsOptGoalSub": "",
+    "onboardingStart": "",
+    "managementCategoryCloudCurve": "",
+    "searchFieldHasNotes": "",
+    "searchModeAdvanced": "",
+    "statsGoalToLabel": "",
+    "statsOptReadListTitle": "",
+    "searchOpEquals": "",
+    "searchFieldAuthor": "",
+    "statsOptStreakSub": "",
+    "searchOpIsNot": "",
+    "paginationRoman": "",
+    "searchFieldOriginalTitle": "",
+    "categoriesAddFirst": "",
+    "@categoriesAddFirst": {
+        "description": "Texto del botón de acción en el estado vacío de las categorías"
+    },
+    "settingsLanguageItalian": "",
+    "@settingsLanguageItalian": {
+        "description": "Opción de idioma: italiano"
+    },
+    "statsOptAvgCompletionSub": "",
+    "importRestoreCoversTitle": "",
+    "@importRestoreCoversTitle": {
+        "description": "Título de restauración de portadas"
+    },
+    "settingsLanguageFrench": "",
+    "@settingsLanguageFrench": {
+        "description": "Opción de idioma: francés"
+    },
+    "statsGoalCompleted": "",
+    "statsOptGoalTitle": "",
+    "paginationSegmentExceedsTotal": "",
+    "@paginationSegmentExceedsTotal": {
+        "placeholders": {
+            "index": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "searchTabStatus": "",
+    "@searchTabStatus": {
+        "description": "Panel de búsqueda: pestaña Estado"
+    },
+    "settingsDynamicIcon": "",
+    "unknownAuthor": "",
+    "collectionsAddFirst": "",
+    "@collectionsAddFirst": {
+        "description": "Texto del botón de acción en el estado vacío de las colecciones"
+    },
+    "dataManagementBookshelf": "",
+    "imprintNoneSubtitle": "",
+    "@imprintNoneSubtitle": {
+        "description": "Subtítulo del estado vacío de sellos"
+    },
+    "onboardingAddTitle": "",
+    "searchActiveFilters": "",
+    "@searchActiveFilters": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "searchFilterImprint": "",
+    "@searchFilterImprint": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "dataManagementLibraryThing": "",
+    "searchFieldCategory": "",
+    "statsOptStatusTitle": "",
+    "searchFieldStatus": "",
+    "onboardingOrganizeSub": "",
+    "paginationPagesRemainingWarning": "",
+    "@paginationPagesRemainingWarning": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "dataManagementCreateBackup": "",
+    "dataManagementGoodreads": "",
+    "statsOptReadListSub": "",
+    "paginationProgress": "",
+    "@paginationProgress": {
+        "placeholders": {
+            "current": {
+                "type": "String"
+            },
+            "total": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsBatchCompressSuccess": "",
+    "@settingsBatchCompressSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "searchOpBetween": "",
+    "cameraPermissionExplanation": "",
+    "@cameraPermissionExplanation": {
+        "description": "Explicación del permiso de cámara denegado permanentemente"
+    },
+    "paginationMarkersAndIndices": "",
+    "shelfStatusLabelPaused": "",
+    "@shelfStatusLabelPaused": {
+        "description": "Etiqueta de estado: pausados en subtítulo de estantería"
+    },
+    "paginationLabelOptional": "",
+    "settingsLanguageCatalan": "",
+    "@settingsLanguageCatalan": {
+        "description": "Opción de idioma: catalán"
+    },
+    "paginationAllPagesAssigned": "",
+    "statsOptDailyReadingTitle": "",
+    "searchFieldCollection": "",
+    "searchOpIncludes": "",
+    "paginationSegmentsDefaultName": "",
+    "paginationAdjustsAutomatically": "",
+    "paginationSectionLabel": "",
+    "@paginationSectionLabel": {
+        "placeholders": {
+            "index": {
+                "type": "int"
+            }
+        }
+    },
+    "searchOpGreaterThan": "",
+    "searchFieldLanguage": "",
+    "searchPreview": "",
+    "paginationAdvancedConfig": "",
+    "searchOpExactly": "",
+    "paginationSegmentRequired": "",
+    "searchOpContains": "",
+    "paginationSegmentOverlap": "",
+    "@paginationSegmentOverlap": {
+        "placeholders": {
+            "index1": {
+                "type": "String"
+            },
+            "index2": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationPhysicalLabel": "",
+    "statsOptDailyReadingSub": ""
 }
