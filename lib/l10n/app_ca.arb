@@ -780,7 +780,7 @@
     "@shelvesAddFirstShelf": {
         "description": "Action button text for empty shelves state"
     },
-    "shelfBooksEmpty": "Aquesta prestatgeria està buida",
+    "shelfBooksEmpty": "Sense llibres en aquesta prestatgeria",
     "@shelfBooksEmpty": {
         "description": "Empty shelf books state"
     },
