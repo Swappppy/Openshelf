@@ -1403,7 +1403,7 @@
         "description": "Placeholder del campo de búsqueda de libros"
     },
     "bookSearchServerInventaire": "",
-  "bookSearchServerAnnasArchive": "Anna's Archive",
+    "bookSearchServerAnnasArchive": "Anna's Archive",
     "settingsApiKeyStep1": "",
     "@settingsApiKeyStep1": {
         "description": "Paso 1 de instrucciones de API key"
@@ -1750,5 +1750,91 @@
     "settingsApiKeyStep6": "",
     "@settingsApiKeyStep6": {
         "description": "Paso 6 de instrucciones de API key"
-    }
+    },
+    "searchFieldIsbn": "",
+    "searchOpNotEquals": "",
+    "searchOpLessThan": "",
+    "searchModeBoolean": "",
+    "searchModeBasic": "",
+    "searchAddCondition": "",
+    "searchFieldPublisher": "",
+    "searchFieldNotes": "",
+    "searchFilterTranslatorLabel": "",
+    "@searchFilterTranslatorLabel": {
+        "placeholders": {
+            "translator": {
+                "type": "String"
+            }
+        }
+    },
+    "searchOpIs": "",
+    "searchFieldOriginalLanguage": "",
+    "searchFieldPages": "",
+    "searchOpNotIncludes": "",
+    "searchOpStartsWith": "",
+    "searchOpIncludesAll": "",
+    "searchFieldImprint": "",
+    "searchFieldTitle": "",
+    "searchFieldYear": "",
+    "settingsLanguagePortugueseBR": "",
+    "@settingsLanguagePortugueseBR": {
+        "description": "Opción de idioma: portugués brasileño"
+    },
+    "searchFieldNoCover": "",
+    "settingsLanguagePortuguese": "",
+    "@settingsLanguagePortuguese": {
+        "description": "Opción de idioma: portugués"
+    },
+    "searchFilterSubtitleLabel": "",
+    "@searchFilterSubtitleLabel": {
+        "placeholders": {
+            "subtitle": {
+                "type": "String"
+            }
+        }
+    },
+    "booksReadProgress": "",
+    "@booksReadProgress": {
+        "description": "Etiqueta de progreso de libros leídos",
+        "placeholders": {
+            "readCount": {
+                "type": "int"
+            },
+            "totalCount": {
+                "type": "int"
+            }
+        }
+    },
+    "searchFieldHasNotes": "",
+    "searchModeAdvanced": "",
+    "searchOpEquals": "",
+    "searchFieldAuthor": "",
+    "searchOpIsNot": "",
+    "searchFieldOriginalTitle": "",
+    "settingsLanguageItalian": "",
+    "@settingsLanguageItalian": {
+        "description": "Opción de idioma: italiano"
+    },
+    "settingsLanguageFrench": "",
+    "@settingsLanguageFrench": {
+        "description": "Opción de idioma: francés"
+    },
+    "searchFieldCategory": "",
+    "searchFieldStatus": "",
+    "searchOpBetween": "",
+    "settingsLanguageCatalan": "",
+    "@settingsLanguageCatalan": {
+        "description": "Opción de idioma: catalán"
+    },
+    "searchFieldCollection": "",
+    "searchOpIncludes": "",
+    "searchOpGreaterThan": "",
+    "searchFieldLanguage": "",
+    "searchPreview": "",
+    "searchOpExactly": "",
+    "shelfBooksEmptyHint": "",
+    "@shelfBooksEmptyHint": {
+        "description": "Sugerencia para estantería vacía"
+    },
+    "searchOpContains": ""
 }
