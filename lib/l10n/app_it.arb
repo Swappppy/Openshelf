@@ -780,7 +780,7 @@
     "@shelvesAddFirstShelf": {
         "description": "Action button text for empty shelves state"
     },
-    "shelfBooksEmpty": "Questo scaffale è vuoto",
+    "shelfBooksEmpty": "Nessun libro in questo scaffale",
     "@shelfBooksEmpty": {
         "description": "Empty shelf books state"
     },
