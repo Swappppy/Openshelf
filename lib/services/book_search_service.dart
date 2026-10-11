@@ -323,7 +323,10 @@ class BookSearchService {
           preferredLanguage: preferredLanguage,
         );
       case BookSearchServer.openLibrary:
-        return await OpenLibraryService.searchStructured(query);
+        return await OpenLibraryService.searchStructured(
+          query,
+          preferredLanguage: preferredLanguage,
+        );
       case BookSearchServer.inventaire:
         return await InventaireService.searchStructured(query, preferredLanguage: preferredLanguage);
       case BookSearchServer.annasArchive:

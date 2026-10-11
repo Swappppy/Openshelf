@@ -1140,6 +1140,10 @@
   "@settingsLanguageEnglish": {
     "description": "Language option: english"
   },
+  "settingsLanguageRussian": "Russisch",
+  "@settingsLanguageRussian": {
+    "description": "Language option: russian"
+  },
   "shelfShowInLibrary": "",
   "yes": "",
   "@yes": {

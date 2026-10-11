@@ -904,6 +904,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get settingsLanguagePortugueseBR => 'Portuguès (Brasil)';
 
   @override
+  String get settingsLanguageRussian => 'Rus';
+
+  @override
   String get settingsThemeMode => 'Mode de tema';
 
   @override

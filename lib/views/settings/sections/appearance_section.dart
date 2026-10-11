@@ -82,6 +82,10 @@ class AppearanceSection extends ConsumerWidget {
                       value: 'pt_BR',
                       child: Text(context.l10n.settingsLanguagePortugueseBR),
                     ),
+                    DropdownMenuItem(
+                      value: 'ru',
+                      child: Text(context.l10n.settingsLanguageRussian),
+                    ),
                   ],
                   onChanged: (code) {
                     if (code == null) {

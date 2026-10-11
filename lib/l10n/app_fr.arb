@@ -1075,6 +1075,10 @@
   "@settingsLanguageEnglish": {
     "description": "Language option: english"
   },
+  "settingsLanguageRussian": "Russe",
+  "@settingsLanguageRussian": {
+    "description": "Language option: russian"
+  },
   "settingsThemeMode": "Mode du thème",
   "@settingsThemeMode": {
     "description": "Theme mode label"

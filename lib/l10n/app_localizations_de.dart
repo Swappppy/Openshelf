@@ -880,6 +880,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsLanguagePortugueseBR => '';
 
   @override
+  String get settingsLanguageRussian => 'Russisch';
+
+  @override
   String get settingsThemeMode => '';
 
   @override

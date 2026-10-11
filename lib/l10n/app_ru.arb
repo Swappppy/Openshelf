@@ -1620,6 +1620,10 @@
   "@settingsLanguagePortugueseBR": {
     "description": "Opción de idioma: portugués brasileño"
   },
+  "settingsLanguageRussian": "Русский",
+  "@settingsLanguageRussian": {
+    "description": "Language option: russian"
+  },
   "importSuccess": "Импорт завершён: добавлено книг: {count}.",
   "@importSuccess": {
     "placeholders": {

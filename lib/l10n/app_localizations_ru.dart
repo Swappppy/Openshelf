@@ -900,6 +900,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLanguagePortugueseBR => 'Португальский (Бразилия)';
 
   @override
+  String get settingsLanguageRussian => 'Русский';
+
+  @override
   String get settingsThemeMode => 'Тема';
 
   @override

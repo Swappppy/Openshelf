@@ -54,34 +54,7 @@ class OpenLibraryService {
         final docs = data['docs'] as List?;
         if (docs == null) return [];
 
-        final rawResults = docs.map((doc) => _parseDoc(doc)).toList();
-
-        final resolved = await Future.wait(rawResults.map((res) async {
-          if (res.openLibraryWorkKey != null && (res.editionCount ?? 0) > 1) {
-            try {
-              final editions = await getEditionsByWork(
-                res.openLibraryWorkKey!,
-                preferredLanguage: preferredLanguage,
-                baseAuthors: res.authors,
-                client: httpClient,
-              );
-              if (editions.isNotEmpty) {
-                final topEdition = editions.first;
-                return topEdition.copyWith(
-                  openLibraryWorkKey: res.openLibraryWorkKey,
-                  editionCount: res.editionCount,
-                  description: topEdition.description ?? res.description,
-                  pageCount: topEdition.pageCount ?? res.pageCount,
-                );
-              }
-            } catch (e) {
-              debugPrint('Error resolving Open Library work edition: $e');
-            }
-          }
-          return res;
-        }));
-
-        return resolved;
+        return docs.map((doc) => _parseDoc(doc)).toList();
       } else {
         debugPrint('Open Library Search Error: HTTP ${response.statusCode}');
       }
@@ -98,11 +71,11 @@ class OpenLibraryService {
 
   /// Looks up a book by its ISBN.
   static Future<BookSearchResult?> getByIsbn(String isbn, {String? preferredLanguage, http.Client? client}) async {
-    final results = await searchStructured(BookSearchQuery(isbn: isbn), client: client);
+    final results = await searchStructured(BookSearchQuery(isbn: isbn), preferredLanguage: preferredLanguage, client: client);
     if (results.isEmpty) return null;
     final res = results.first;
 
-    if (res.openLibraryWorkKey != null && (res.editionCount ?? 0) > 1) {
+    if (res.openLibraryWorkKey != null && (res.editionCount ?? 1) >= 1) {
       final editions = await getEditionsByWork(
         res.openLibraryWorkKey!,
         preferredLanguage: preferredLanguage,
@@ -196,8 +169,14 @@ class OpenLibraryService {
           final languages = entry['languages'] as List?;
           String? language;
           if (languages?.isNotEmpty == true) {
-            final langKey = languages!.first['key']?.toString();
-            language = _openLibraryLangToCode(langKey);
+            for (final langItem in languages!) {
+              final langKey = langItem is Map ? langItem['key']?.toString() : langItem.toString();
+              final code = _openLibraryLangToCode(langKey);
+              if (code != null) {
+                language = code;
+                break;
+              }
+            }
           }
 
           final pageCount = _parsePageCount(entry['number_of_pages'] ?? entry['pagination']);
@@ -268,8 +247,11 @@ class OpenLibraryService {
     if (preferredLanguage == null || preferredLanguage.isEmpty) return 0;
     final targetLang = preferredLanguage.toLowerCase().substring(0, 2);
 
-    final aMatch = (a.language != null && a.language!.toLowerCase().startsWith(targetLang)) ? 0 : 1;
-    final bMatch = (b.language != null && b.language!.toLowerCase().startsWith(targetLang)) ? 0 : 1;
+    final aLang = a.language?.toLowerCase().substring(0, 2);
+    final bLang = b.language?.toLowerCase().substring(0, 2);
+
+    final aMatch = (aLang == targetLang) ? 0 : (aLang != null ? 2 : 1);
+    final bMatch = (bLang == targetLang) ? 0 : (bLang != null ? 2 : 1);
 
     return aMatch.compareTo(bMatch);
   }
@@ -335,13 +317,19 @@ class OpenLibraryService {
 
   static String? _openLibraryLangToCode(String? langKey) {
     if (langKey == null) return null;
-    if (langKey.contains('spa')) return 'es';
-    if (langKey.contains('eng')) return 'en';
-    if (langKey.contains('fre') || langKey.contains('fra')) return 'fr';
-    if (langKey.contains('ger') || langKey.contains('deu')) return 'de';
-    if (langKey.contains('ita')) return 'it';
-    if (langKey.contains('por')) return 'pt';
-    if (langKey.contains('cat')) return 'ca';
+    final norm = langKey.toLowerCase();
+    if (norm.contains('spa')) return 'es';
+    if (norm.contains('eng')) return 'en';
+    if (norm.contains('fre') || norm.contains('fra')) return 'fr';
+    if (norm.contains('ger') || norm.contains('deu')) return 'de';
+    if (norm.contains('ita')) return 'it';
+    if (norm.contains('por')) return 'pt';
+    if (norm.contains('cat')) return 'ca';
+    if (norm.contains('rus')) return 'ru';
+    if (norm.contains('est')) return 'et';
+    if (norm.contains('jpn')) return 'ja';
+    if (norm.contains('rum') || norm.contains('ron')) return 'ro';
+    if (norm.contains('tur')) return 'tr';
     return null;
   }
 

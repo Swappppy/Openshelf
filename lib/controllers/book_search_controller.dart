@@ -26,7 +26,12 @@ class BookSearchController extends ChangeNotifier {
   String? _error;
   bool _searched = false;
 
-  BookSearchController(this.ref);
+  BookSearchController(this.ref) {
+    titleController.addListener(notifyListeners);
+    authorController.addListener(notifyListeners);
+    publisherController.addListener(notifyListeners);
+    isbnController.addListener(notifyListeners);
+  }
 
   List<BookSearchResult> get results => _results;
   bool get loading => _loading;
@@ -107,6 +112,10 @@ class BookSearchController extends ChangeNotifier {
 
   @override
   void dispose() {
+    titleController.removeListener(notifyListeners);
+    authorController.removeListener(notifyListeners);
+    publisherController.removeListener(notifyListeners);
+    isbnController.removeListener(notifyListeners);
     titleController.dispose();
     authorController.dispose();
     publisherController.dispose();

@@ -1095,6 +1095,10 @@
   "@settingsLanguagePortugueseBR": {
     "description": "Language option: portuguese brazilian"
   },
+  "settingsLanguageRussian": "Rus",
+  "@settingsLanguageRussian": {
+    "description": "Language option: russian"
+  },
   "settingsThemeMode": "Mode de tema",
   "@settingsThemeMode": {
     "description": "Theme mode label"

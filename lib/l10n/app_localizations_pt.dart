@@ -902,6 +902,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsLanguagePortugueseBR => 'Português (Brasil)';
 
   @override
+  String get settingsLanguageRussian => 'Russo';
+
+  @override
   String get settingsThemeMode => 'Modo de tema';
 
   @override
@@ -2794,6 +2797,9 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get settingsLanguagePortugueseBR => '';
+
+  @override
+  String get settingsLanguageRussian => 'Russo';
 
   @override
   String get settingsThemeMode => 'Modo de tema';

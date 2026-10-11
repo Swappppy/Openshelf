@@ -1787,6 +1787,12 @@ abstract class AppLocalizations {
   /// **'Portugués (Brasil)'**
   String get settingsLanguagePortugueseBR;
 
+  /// Opción de idioma: ruso
+  ///
+  /// In es, this message translates to:
+  /// **'Ruso'**
+  String get settingsLanguageRussian;
+
   /// Etiqueta de selector de modo de tema
   ///
   /// In es, this message translates to:

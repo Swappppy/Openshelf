@@ -36,7 +36,7 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
 
     try {
       final settings = ref.read(appSettingsProvider);
-      final preferredLanguage = settings.locale?.languageCode ?? 'es';
+      final preferredLanguage = settings.locale?.languageCode ?? Localizations.localeOf(context).languageCode;
 
       List<BookSearchResult> results = [];
 
@@ -221,10 +221,11 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
       ),
       itemBuilder: (context, index) {
         final ed = _editions[index];
+        final currentLangCode = (ref.read(appSettingsProvider).locale?.languageCode ??
+                Localizations.localeOf(context).languageCode)
+            .toLowerCase();
         final isPreferredLang = ed.language != null &&
-            ed.language!.toLowerCase().startsWith(
-                  (ref.read(appSettingsProvider).locale?.languageCode ?? 'es').toLowerCase(),
-                );
+            ed.language!.toLowerCase().startsWith(currentLangCode);
 
         return ListTile(
           onTap: () => _selectEdition(ed),

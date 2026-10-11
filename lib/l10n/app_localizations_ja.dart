@@ -879,6 +879,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsLanguagePortugueseBR => '';
 
   @override
+  String get settingsLanguageRussian => 'Ruso';
+
+  @override
   String get settingsThemeMode => '';
 
   @override
