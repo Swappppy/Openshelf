@@ -881,19 +881,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageEnglish => 'English';
 
   @override
-  String get settingsLanguageFrench => 'Francés';
+  String get settingsLanguageFrench => '';
 
   @override
-  String get settingsLanguageItalian => 'Italiano';
+  String get settingsLanguageItalian => '';
 
   @override
-  String get settingsLanguageCatalan => 'Catalán';
+  String get settingsLanguageCatalan => '';
 
   @override
-  String get settingsLanguagePortuguese => 'Portugués (Portugal)';
+  String get settingsLanguagePortuguese => '';
 
   @override
-  String get settingsLanguagePortugueseBR => 'Portugués (Brasil)';
+  String get settingsLanguagePortugueseBR => '';
 
   @override
   String get settingsThemeMode => 'Theme mode';
@@ -1761,7 +1761,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchFieldNotes => 'Notes';
 
   @override
-  String get searchFieldHasNotes => 'Tiene notas';
+  String get searchFieldHasNotes => '';
 
   @override
   String get searchOpContains => 'contains';
@@ -1871,4 +1871,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removeFromCategory => 'Remove from category';
+
+  @override
+  String get workEditionsEmpty => 'Could not load additional editions.';
+
+  @override
+  String get workEditionsUseGeneral => 'Use general metadata';
+
+  @override
+  String workEditionsCount(int count) {
+    return '$count ed.';
+  }
 }

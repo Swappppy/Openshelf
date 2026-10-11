@@ -629,7 +629,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get shelvesAddFirstShelf => 'Crear prestatgeria';
 
   @override
-  String get shelfBooksEmpty => 'Aquesta prestatgeria està buida';
+  String get shelfBooksEmpty => 'Sense llibres en aquesta prestatgeria';
 
   @override
   String get shelfBooksEmptyHint =>
@@ -1005,7 +1005,8 @@ class AppLocalizationsCa extends AppLocalizations {
   String get dataManagementCreateBackup => 'Crear còpia de seguretat';
 
   @override
-  String get dataManagementCreateBackupHint => 'Full export with covers option';
+  String get dataManagementCreateBackupHint =>
+      'Exportació completa amb opció de portades';
 
   @override
   String get settingsImportBookshelf => 'Importar des de Bookshelf';
@@ -1356,12 +1357,12 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String searchFilterSubtitleLabel(String subtitle) {
-    return 'Subtítulo: $subtitle';
+    return '';
   }
 
   @override
   String searchFilterTranslatorLabel(String translator) {
-    return 'Traductor: $translator';
+    return '';
   }
 
   @override
@@ -1474,7 +1475,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsAvgPagesSub => 'pàgines per llibre';
 
   @override
-  String get statsOptPagesTitle => 'Total de pàgines';
+  String get statsOptPagesTitle => 'Pàgines totals';
 
   @override
   String get statsOptPagesSub => 'Total de pàgines llegides';
@@ -1495,7 +1496,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsOptStatusTitle => 'Estats de lectura';
 
   @override
-  String get statsOptStatusSub => 'Libros por estado';
+  String get statsOptStatusSub => 'Llibres per estat';
 
   @override
   String get statsOptCurrentTitle => 'Llibre actual';
@@ -1531,7 +1532,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsOptCollectionsTitle => 'Col·leccions';
 
   @override
-  String get statsOptCollectionsSub => 'Libros por colección';
+  String get statsOptCollectionsSub => 'Llibres per col·lecció';
 
   @override
   String get statsOptLastAddedTitle => 'Últims afegits';
@@ -1543,7 +1544,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsOptAvgPagesTitle => 'Extensió mitjana';
 
   @override
-  String get statsOptAvgPagesSub => 'Average pages per book';
+  String get statsOptAvgPagesSub => 'Mitjana de pàgines per llibre';
 
   @override
   String get statsOptReadListTitle => 'Llista de llegits';
@@ -1555,13 +1556,13 @@ class AppLocalizationsCa extends AppLocalizations {
   String get statsOptAvgCompletionTitle => 'Temps de lectura';
 
   @override
-  String get statsOptAvgCompletionSub => 'Average time to finish a book';
+  String get statsOptAvgCompletionSub => 'Temps mitjà per acabar un llibre';
 
   @override
   String get statsOptDailyReadingTitle => 'Lectura diària';
 
   @override
-  String get statsOptDailyReadingSub => 'Pages read per day';
+  String get statsOptDailyReadingSub => 'Pàgines llegides per dia';
 
   @override
   String statsAvgCompletionValue(String days) {
@@ -1649,7 +1650,7 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get paginationPhysicalTotalNote =>
-      'Nota: Total pages refer to the physical pages of the book (total sheets).';
+      'Nota: El total de pàgines es refereix a les pàgines físiques del llibre (fulls totals).';
 
   @override
   String get paginationCorrectErrors => 'CORREGEIX ELS SEGÜENTS ERRORS:';
@@ -1717,106 +1718,106 @@ class AppLocalizationsCa extends AppLocalizations {
   }
 
   @override
-  String get searchModeBasic => 'Básica';
+  String get searchModeBasic => '';
 
   @override
-  String get searchModeAdvanced => 'Avanzada';
+  String get searchModeAdvanced => '';
 
   @override
-  String get searchModeBoolean => 'Booleana';
+  String get searchModeBoolean => '';
 
   @override
-  String get searchAddCondition => 'Añadir condición';
+  String get searchAddCondition => '';
 
   @override
-  String get searchPreview => 'Vista previa';
+  String get searchPreview => '';
 
   @override
-  String get searchFieldTitle => 'Título';
+  String get searchFieldTitle => '';
 
   @override
-  String get searchFieldAuthor => 'Autor';
+  String get searchFieldAuthor => '';
 
   @override
-  String get searchFieldPublisher => 'Editorial';
+  String get searchFieldPublisher => '';
 
   @override
-  String get searchFieldIsbn => 'ISBN';
+  String get searchFieldIsbn => '';
 
   @override
-  String get searchFieldLanguage => 'Idioma';
+  String get searchFieldLanguage => '';
 
   @override
-  String get searchFieldOriginalTitle => 'Título original';
+  String get searchFieldOriginalTitle => '';
 
   @override
-  String get searchFieldOriginalLanguage => 'Idioma original';
+  String get searchFieldOriginalLanguage => '';
 
   @override
-  String get searchFieldYear => 'Año';
+  String get searchFieldYear => '';
 
   @override
-  String get searchFieldPages => 'Páginas';
+  String get searchFieldPages => '';
 
   @override
-  String get searchFieldStatus => 'Estado';
+  String get searchFieldStatus => '';
 
   @override
-  String get searchFieldCategory => 'Categoría';
+  String get searchFieldCategory => '';
 
   @override
-  String get searchFieldImprint => 'Sello';
+  String get searchFieldImprint => '';
 
   @override
-  String get searchFieldCollection => 'Colección';
+  String get searchFieldCollection => '';
 
   @override
-  String get searchFieldNoCover => 'Sin portada';
+  String get searchFieldNoCover => '';
 
   @override
-  String get searchFieldNotes => 'Notas';
+  String get searchFieldNotes => '';
 
   @override
-  String get searchFieldHasNotes => 'Tiene notas';
+  String get searchFieldHasNotes => '';
 
   @override
-  String get searchOpContains => 'contiene';
+  String get searchOpContains => '';
 
   @override
-  String get searchOpExactly => 'es exactamente';
+  String get searchOpExactly => '';
 
   @override
-  String get searchOpStartsWith => 'empieza por';
+  String get searchOpStartsWith => '';
 
   @override
-  String get searchOpIncludes => 'incluye';
+  String get searchOpIncludes => '';
 
   @override
-  String get searchOpNotIncludes => 'no incluye';
+  String get searchOpNotIncludes => '';
 
   @override
-  String get searchOpIncludesAll => 'incluye todos';
+  String get searchOpIncludesAll => '';
 
   @override
-  String get searchOpEquals => '=';
+  String get searchOpEquals => '';
 
   @override
-  String get searchOpNotEquals => '≠';
+  String get searchOpNotEquals => '';
 
   @override
-  String get searchOpGreaterThan => '>';
+  String get searchOpGreaterThan => '';
 
   @override
-  String get searchOpLessThan => '<';
+  String get searchOpLessThan => '';
 
   @override
-  String get searchOpBetween => 'entre';
+  String get searchOpBetween => '';
 
   @override
-  String get searchOpIs => 'es';
+  String get searchOpIs => '';
 
   @override
-  String get searchOpIsNot => 'no es';
+  String get searchOpIsNot => '';
 
   @override
   String get paginationCurrentPageShort => 'Pàg.';
@@ -1887,4 +1888,16 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get removeFromCategory => 'Eliminar de la categoria';
+
+  @override
+  String get workEditionsEmpty =>
+      'No s\'han pogut carregar edicions addicionals.';
+
+  @override
+  String get workEditionsUseGeneral => 'Utilitzar metadades generals';
+
+  @override
+  String workEditionsCount(int count) {
+    return '$count ed.';
+  }
 }

@@ -3,8 +3,6 @@ import '../services/database.dart';
 
 /// Represents a book metadata result fetched from an external provider (Google Books, Open Library, etc.)
 class BookSearchResult {
-  /// Internal identifier for results synthesized by Openshelf's merging logic.
-  static const String recommendedSource = 'openshelf_recommended';
 
   final String title;
   final String? subtitle;
@@ -27,6 +25,15 @@ class BookSearchResult {
   /// Optional URI for Inventaire deep lookups (Works vs Editions)
   final String? inventaireWorkUri;
 
+  /// Optional Work Key for Open Library deep edition lookups (e.g. "/works/OL46241W")
+  final String? openLibraryWorkKey;
+
+  /// Number of known editions for this work (e.g. from Open Library).
+  final int? editionCount;
+
+  /// Physical book format if specified (paperback, hardcover, digital, etc.).
+  final BookFormat? format;
+
   const BookSearchResult({
     required this.title,
     this.subtitle,
@@ -44,6 +51,9 @@ class BookSearchResult {
     this.categories = const [],
     required this.source,
     this.inventaireWorkUri,
+    this.openLibraryWorkKey,
+    this.editionCount,
+    this.format,
   });
 
   BookSearchResult copyWith({
@@ -63,6 +73,9 @@ class BookSearchResult {
     List<String>? categories,
     String? source,
     String? inventaireWorkUri,
+    String? openLibraryWorkKey,
+    int? editionCount,
+    BookFormat? format,
   }) {
     return BookSearchResult(
       title: title ?? this.title,
@@ -81,6 +94,9 @@ class BookSearchResult {
       categories: categories ?? this.categories,
       source: source ?? this.source,
       inventaireWorkUri: inventaireWorkUri ?? this.inventaireWorkUri,
+      openLibraryWorkKey: openLibraryWorkKey ?? this.openLibraryWorkKey,
+      editionCount: editionCount ?? this.editionCount,
+      format: format ?? this.format,
     );
   }
 
@@ -99,6 +115,7 @@ class BookSearchResult {
       coverUrl: Value(coverUrl),
       totalPages: Value(pageCount),
       description: Value(description),
+      bookFormat: Value(format),
       status: ReadingStatus.wantToRead,
       publishYear: Value(publishYear),
     );

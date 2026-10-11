@@ -1,10 +1,23 @@
 import 'package:annas_archive_client/annas_archive_client.dart';
 import 'package:flutter/foundation.dart';
 import '../models/book_search_result.dart';
+import 'book_search_service.dart';
 
 /// Integration for Anna's Archive search.
 class AnnasArchiveService {
   static final _client = AnnasArchive();
+
+  /// Searches using structured query parameters.
+  static Future<List<BookSearchResult>> searchStructured(BookSearchQuery query) async {
+    if (query.hasIsbn) {
+      final res = await getByIsbn(query.isbn!);
+      if (res != null) return [res];
+    }
+
+    final rawQ = query.rawQuery ?? [query.title, query.author, query.publisher].whereType<String>().join(' ');
+    if (rawQ.trim().isEmpty) return [];
+    return search(rawQ);
+  }
 
   /// Searches for books using Anna's Archive.
   static Future<List<BookSearchResult>> search(String query) async {
@@ -59,8 +72,6 @@ class AnnasArchiveService {
   static Future<BookSearchResult?> getByIsbn(String isbn) async {
     final results = await search(isbn);
     if (results.isNotEmpty) {
-      // Filter results to ensure it's a good match if possible, 
-      // but Anna's Archive search by ISBN is usually very accurate.
       return results.first;
     }
     return null;

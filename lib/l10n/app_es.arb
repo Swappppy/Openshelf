@@ -1836,5 +1836,16 @@
   "settingsAutomationTitle": "Automatización",
   "removeFromCollection": "Eliminar de la colección",
   "removeFromImprint": "Eliminar del sello",
-  "removeFromCategory": "Eliminar de la categoría"
+  "removeFromCategory": "Eliminar de la categoría",
+  "workEditionsEmpty": "No se pudieron cargar ediciones adicionales.",
+  "workEditionsUseGeneral": "Usar metadatos generales",
+  "workEditionsCount": "{count} ed.",
+  "@workEditionsCount": {
+    "description": "Etiqueta para el número de ediciones en los resultados de búsqueda",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/book_search_result.dart';
+import 'book_search_service.dart';
 
 /// Integration for Inventaire.io, which provides high-quality Spanish and European metadata.
 class InventaireService {
@@ -13,6 +14,23 @@ class InventaireService {
     'User-Agent': 'Openshelf/1.0.0 (https://github.com/ftena/openshelf)',
     'Accept': 'application/json',
   };
+
+  /// Searches using structured query parameters.
+  static Future<List<BookSearchResult>> searchStructured(
+    BookSearchQuery query, {
+    int limit = 40,
+    String? preferredLanguage,
+    http.Client? client,
+  }) async {
+    if (query.hasIsbn) {
+      final res = await getByIsbn(query.isbn!, preferredLanguage: preferredLanguage, client: client);
+      if (res != null) return [res];
+    }
+
+    final rawQ = query.rawQuery ?? [query.title, query.author, query.publisher].whereType<String>().join(' ');
+    if (rawQ.trim().isEmpty) return [];
+    return search(rawQ, limit: limit, preferredLanguage: preferredLanguage, client: client);
+  }
 
   /// Searches for books using the Inventaire search API.
   static Future<List<BookSearchResult>> search(

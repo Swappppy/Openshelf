@@ -1,1840 +1,1850 @@
 {
-    "@@locale": "ru",
-    "shelfWantToRead": "К прочтению",
-    "@shelfWantToRead": {
-        "description": "To read shelf"
-    },
-    "fieldReadingProgress": "Прогресс чтения",
-    "@fieldReadingProgress": {
-        "description": "Reading progress field"
-    },
-    "imprintSearch": "Найти издательскую марку",
-    "@imprintSearch": {
-        "description": "Imprint search placeholder"
-    },
-    "statsTitle": "Статистика",
-    "@statsTitle": {
-        "description": "Stats screen title"
-    },
-    "bookFormEditTitle": "Редактировать книгу",
-    "@bookFormEditTitle": {
-        "description": "Edit book form title"
-    },
-    "settingsApiKeySaved": "Ключ сохранён",
-    "@settingsApiKeySaved": {
-        "description": "Key saved confirmation"
-    },
-    "statsPlaceholder": "Здесь появится ваша статистика",
-    "@statsPlaceholder": {
-        "description": "Stats placeholder"
-    },
-    "tabDetails": "Информация",
-    "@tabDetails": {
-        "description": "Details tab label"
-    },
-    "tagNewDialogTitle": "Новая категория",
-    "@tagNewDialogTitle": {
-        "description": "New category title"
-    },
-    "shelfAbandoned": "Брошено",
-    "@shelfAbandoned": {
-        "description": "Abandoned shelf"
-    },
-    "coverPickPhoto": "Фото",
-    "@coverPickPhoto": {
-        "description": "Photo pick button"
-    },
-    "save": "Сохранить",
-    "@save": {
-        "description": "Generic save button"
-    },
-    "pageSuffix": "{count} страниц.",
-    "@pageSuffix": {
-        "description": "Page count with suffix",
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "imprintUrlHint": "https://ejemplo.com/sello.jpg",
-    "@imprintUrlHint": {
-        "description": "Imprint URL placeholder"
-    },
-    "settingsApiKeyHide": "Скрыть",
-    "@settingsApiKeyHide": {
-        "description": "Hide key tooltip"
-    },
-    "formatRustic": "Мягкий переплёт",
-    "@formatRustic": {
-        "description": "Format: rustic"
-    },
-    "collectionNone": "Коллекций пока нет",
-    "@collectionNone": {
-        "description": "Empty collections state"
-    },
-    "managementCategories": "Категории",
-    "@managementCategories": {
-        "description": "Management: categories"
-    },
-    "coverPickerNoResults": "Обложки для этой книги не найдены.",
-    "@coverPickerNoResults": {
-        "description": "No covers found message"
-    },
-    "shelfFormSectionPublisher": "Издатель",
-    "@shelfFormSectionPublisher": {
-        "description": "Shelf form publisher section"
-    },
-    "bookDetailNotesTitle": "Личная заметка",
-    "@bookDetailNotesTitle": {
-        "description": "Personal notes section title"
-    },
-    "settingsSearchServerHint": "Используется для поиска книг по ISBN или названию",
-    "@settingsSearchServerHint": {
-        "description": "Search server hint"
-    },
-    "collectionDeleteTitle": "Удалить коллекцию",
-    "@collectionDeleteTitle": {
-        "description": "Delete collection title"
-    },
-    "bookDetailFieldFormat": "Формат",
-    "@bookDetailFieldFormat": {
-        "description": "Format field label"
-    },
-    "fieldAuthor": "Автор",
-    "@fieldAuthor": {
-        "description": "Author field name"
-    },
-    "shelvesSectionManagement": "Управление",
-    "@shelvesSectionManagement": {
-        "description": "Management section header"
-    },
-    "shelfStatusLabelReading": "Читаю",
-    "@shelfStatusLabelReading": {
-        "description": "Reading status label"
-    },
-    "shelfFormSectionStatus": "Статус чтения",
-    "@shelfFormSectionStatus": {
-        "description": "Shelf form status section"
-    },
-    "imprintAddImageHint": "Нажмите, чтобы добавить изображение",
-    "@imprintAddImageHint": {
-        "description": "Add imprint image hint"
-    },
-    "shelfFormEdit": "Редактировать полку",
-    "@shelfFormEdit": {
-        "description": "Edit shelf form title"
-    },
-    "fieldNotes": "Заметки",
-    "@fieldNotes": {
-        "description": "Notes field label"
-    },
-    "shelfFormHintIsbn": "ISBN",
-    "@shelfFormHintIsbn": {
-        "description": "Shelf form ISBN hint"
-    },
-    "imprintNew": "Новая издательская марка",
-    "@imprintNew": {
-        "description": "New imprint button"
-    },
-    "tagNoCategories": "Категории пока не созданы",
-    "@tagNoCategories": {
-        "description": "No categories message"
-    },
-    "shelfFormStatusAny": "Любой",
-    "@shelfFormStatusAny": {
-        "description": "Shelf form any status"
-    },
-    "bookDetailFieldStarted": "Начало чтения",
-    "@bookDetailFieldStarted": {
-        "description": "Date started label"
-    },
-    "sectionCategories": "Категории",
-    "@sectionCategories": {
-        "description": "Categories header"
-    },
-    "shelfEmpty": "У вас нет созданных полок",
-    "@shelfEmpty": {
-        "description": "Empty custom shelves state"
-    },
-    "settingsApiKeyStep5": "Необязательно, но рекомендуется: ограничьте ключ только для Books API.",
-    "@settingsApiKeyStep5": {
-        "description": "Step 5"
-    },
-    "statusAbandoned": "Брошено",
-    "@statusAbandoned": {
-        "description": "Status: abandoned"
-    },
-    "create": "Создать",
-    "@create": {
-        "description": "Generic create button"
-    },
-    "filterCollection": "Коллекция",
-    "@filterCollection": {
-        "description": "Collection filter placeholder"
-    },
-    "imprintEditDialogTitle": "Редактировать издательскую марку",
-    "@imprintEditDialogTitle": {
-        "description": "Edit imprint title"
-    },
-    "imprintNoImprints": "Издательские марки не созданы",
-    "@imprintNoImprints": {
-        "description": "Shelf form no imprints message"
-    },
-    "bookSearchErrorRateLimit": "Google Books ограничил количество запросов.\nПодождите немного и попробуйте снова.",
-    "@bookSearchErrorRateLimit": {
-        "description": "Error: rate limit"
-    },
-    "shelvesSectionMine": "Полки",
-    "@shelvesSectionMine": {
-        "description": "Custom shelves section header"
-    },
-    "filterAuthor": "Автор",
-    "@filterAuthor": {
-        "description": "Author filter placeholder"
-    },
-    "cropImprintTitle": "Обрезать издательскую марку",
-    "@cropImprintTitle": {
-        "description": "Title for imprint cropping screen"
-    },
-    "settingsAccentColor": "Акцентный цвет",
-    "@settingsAccentColor": {
-        "description": "Accent color label"
-    },
-    "addBook": "Добавьте книгу",
-    "@addBook": {
-        "description": "Add book FAB label"
-    },
-    "tagNameLabel": "Название",
-    "@tagNameLabel": {
-        "description": "Category name field label"
-    },
-    "imprintNameLabel": "Название издательской марки",
-    "@imprintNameLabel": {
-        "description": "Imprint name field label"
-    },
-    "bookDetailFieldPages": "СТРАНИЦЫ",
-    "@bookDetailFieldPages": {
-        "description": "Pages field label"
-    },
-    "formatLeatherbound": "Кожаный переплет",
-    "@formatLeatherbound": {
-        "description": "Format: leatherbound"
-    },
-    "settingsDbMoveConfirm": "Переместить и перезапустить",
-    "@settingsDbMoveConfirm": {
-        "description": "Move database confirmation"
-    },
-    "settingsApiKeySave": "Сохранить ключ",
-    "@settingsApiKeySave": {
-        "description": "Save key button"
-    },
-    "edit": "Редактировать",
-    "@edit": {
-        "description": "Generic edit button"
-    },
-    "requiredField": "Обязательное поле",
-    "@requiredField": {
-        "description": "Required field validation message"
-    },
-    "libraryNoResultsHint": "Попробуйте другие фильтры",
-    "@libraryNoResultsHint": {
-        "description": "Hint when no search results"
-    },
-    "scanBarcodeSubtitle": "Направьте камеру на ISBN",
-    "@scanBarcodeSubtitle": {
-        "description": "Scan barcode option subtitle"
-    },
-    "coverDownloadError": "Невозможно загрузить изображение",
-    "@coverDownloadError": {
-        "description": "Download error message"
-    },
-    "bookDetailFieldImprintSection": "ИЗДАТЕЛЬ",
-    "@bookDetailFieldImprintSection": {
-        "description": "Imprint section label"
-    },
-    "bookFormNewTitle": "Новая книга",
-    "@bookFormNewTitle": {
-        "description": "New book form title"
-    },
-    "cropCoverTitle": "Обрезать обложку",
-    "@cropCoverTitle": {
-        "description": "Title for cover cropping screen"
-    },
-    "libraryNoResults": "Нет результатов",
-    "@libraryNoResults": {
-        "description": "No search results"
-    },
-    "tabMain": "Главная",
-    "@tabMain": {
-        "description": "Main tab label"
-    },
-    "shelfFormHintAuthor": "Имя автора",
-    "@shelfFormHintAuthor": {
-        "description": "Shelf form author hint"
-    },
-    "shelfFormSectionAuthor": "Автор",
-    "@shelfFormSectionAuthor": {
-        "description": "Shelf form author section"
-    },
-    "addBookModalTitle": "Добавьте книгу",
-    "@addBookModalTitle": {
-        "description": "Add book modal title"
-    },
-    "sectionFormat": "Формат",
-    "@sectionFormat": {
-        "description": "Format header"
-    },
-    "libraryTitle": "Библиотека",
-    "@libraryTitle": {
-        "description": "Library screen title"
-    },
-    "sectionReadingStatus": "Прогресс чтения",
-    "@sectionReadingStatus": {
-        "description": "Reading status header"
-    },
-    "addBookModalSubtitle": "Выберите, как вы хотите добавить свою книгу",
-    "@addBookModalSubtitle": {
-        "description": "Add book modal subtitle"
-    },
-    "shelfReading": "Чтение",
-    "@shelfReading": {
-        "description": "Reading shelf"
-    },
-    "settingsDbMoveContent": "Для перемещения базы данных требуется перезапустить приложение. Данные будут скопированы в новый каталог. Продолжить?",
-    "@settingsDbMoveContent": {
-        "description": "Move database dialog content"
-    },
-    "coverPickUrl": "URL",
-    "@coverPickUrl": {
-        "description": "URL pick button"
-    },
-    "imprintDeleteConfirm": "Удалить «{name}»?",
-    "@imprintDeleteConfirm": {
-        "description": "Delete imprint confirmation",
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "addManuallySubtitle": "Заполните данные самостоятельно",
-    "@addManuallySubtitle": {
-        "description": "Add manually option subtitle"
-    },
-    "bookSearchPrompt": "Поиск по названию, автору или ISBN",
-    "@bookSearchPrompt": {
-        "description": "Initial search prompt"
-    },
-    "scanBatchSubtitle": "Сканировать несколько книг подряд",
-    "@scanBatchSubtitle": {
-        "description": "Batch scan option subtitle"
-    },
-    "bookDetailDeleteTitle": "Удалите книгу",
-    "@bookDetailDeleteTitle": {
-        "description": "Delete book dialog title"
-    },
-    "formatHardcover": "Твердая обложка",
-    "@formatHardcover": {
-        "description": "Format: hardcover"
-    },
-    "shelfRead": "Читаю",
-    "@shelfRead": {
-        "description": "Read shelf"
-    },
-    "settingsApiKeyHint": "AIza...",
-    "@settingsApiKeyHint": {
-        "description": "API key placeholder"
-    },
-    "searchBook": "Поиск книг",
-    "@searchBook": {
-        "description": "Search book online option"
-    },
-    "settingsApiKeyTitle": "Ключ API Google Books",
-    "@settingsApiKeyTitle": {
-        "description": "API key card title"
-    },
-    "pagesLabel": "страницы",
-    "@pagesLabel": {
-        "description": "Generic pages label"
-    },
-    "settingsApiKeyStep2": "Создайте новый проект (название не имеет значения).",
-    "@settingsApiKeyStep2": {
-        "description": "Step 2"
-    },
-    "searchHint": "Поиск по заголовку...",
-    "@searchHint": {
-        "description": "Library search placeholder"
-    },
-    "criticalStartError": "Ошибка запуска приложения: {error}",
-    "@criticalStartError": {
-        "description": "Critical app startup error",
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "fieldCurrentPage": "Текущая страница",
-    "@fieldCurrentPage": {
-        "description": "Current page field"
-    },
-    "shelfFormSectionImprint": "Издательская марка",
-    "@shelfFormSectionImprint": {
-        "description": "Shelf form imprint section"
-    },
-    "navStats": "Статистика",
-    "@navStats": {
-        "description": "Nav tab: stats"
-    },
-    "delete": "Удалить",
-    "@delete": {
-        "description": "Generic delete button"
-    },
-    "bookDetailFieldFinished": "Окончание чтения",
-    "@bookDetailFieldFinished": {
-        "description": "Date finished label"
-    },
-    "pageProgressShort": "{current} / {total}",
-    "@pageProgressShort": {
-        "description": "Short reading progress",
-        "placeholders": {
-            "current": {
-                "type": "String"
-            },
-            "total": {
-                "type": "String"
-            }
-        }
-    },
-    "settingsDatabase": "База данных",
-    "@settingsDatabase": {
-        "description": "Database label"
-    },
-    "bookDetailFieldRating": "РЕЙТИНГ",
-    "@bookDetailFieldRating": {
-        "description": "Rating field label"
-    },
-    "statusReading": "Чтение",
-    "@statusReading": {
-        "description": "Status: reading"
-    },
-    "sectionImprint": "Издательская марка",
-    "@sectionImprint": {
-        "description": "Imprint header"
-    },
-    "appTitle": "Openshelf",
-    "@appTitle": {
-        "description": "Application name"
-    },
-    "url": "URL",
-    "@url": {
-        "description": "Enter URL button"
-    },
-    "navLibrary": "Библиотека",
-    "@navLibrary": {
-        "description": "Nav tab: library"
-    },
-    "shelfFormSectionCollection": "Коллекции",
-    "@shelfFormSectionCollection": {
-        "description": "Shelf form collection section"
-    },
-    "settingsApiKeyMissing": "Без ключа Google Books будет использовать Open Library в качестве альтернативы.",
-    "@settingsApiKeyMissing": {
-        "description": "Key missing message"
-    },
-    "tagNew": "Новая категория",
-    "@tagNew": {
-        "description": "New category button"
-    },
-    "fieldCollection": "Коллекция/серия",
-    "@fieldCollection": {
-        "description": "Collection field label"
-    },
-    "retry": "Повторить",
-    "@retry": {
-        "description": "Retry button"
-    },
-    "shelfFormNew": "Новая полка",
-    "@shelfFormNew": {
-        "description": "New shelf form title"
-    },
-    "settingsLanguage": "Язык",
-    "@settingsLanguage": {
-        "description": "Language selector label"
-    },
-    "settingsApiKeyInstructionsTitle": "Как получить ключ Google Books",
-    "@settingsApiKeyInstructionsTitle": {
-        "description": "Instructions title"
-    },
-    "shelfStatusBooksEmpty": "Здесь нет книг",
-    "@shelfStatusBooksEmpty": {
-        "description": "Empty status books state"
-    },
-    "pageProgress": "{current} / {total} стр. · {percent}%",
-    "@pageProgress": {
-        "description": "Reading progress pages",
-        "placeholders": {
-            "current": {
-                "type": "String"
-            },
-            "total": {
-                "type": "String"
-            },
-            "percent": {
-                "type": "String"
-            }
-        }
-    },
-    "shelfFormSectionCategories": "Категории",
-    "@shelfFormSectionCategories": {
-        "description": "Shelf form categories section"
-    },
-    "coverPickerNetworkError": "Не удалось подключиться. Проверьте соединение.",
-    "@coverPickerNetworkError": {
-        "description": "Cover search network error"
-    },
-    "shelfStatusLabelRead": "Прочитанные",
-    "@shelfStatusLabelRead": {
-        "description": "Read status label"
-    },
-    "bookDetailPagePickerTitle": "Текущая страница",
-    "@bookDetailPagePickerTitle": {
-        "description": "Page picker title"
-    },
-    "settingsApiKeyShow": "Показать",
-    "@settingsApiKeyShow": {
-        "description": "Show key tooltip"
-    },
-    "photo": "Фото",
-    "@photo": {
-        "description": "Take photo button"
-    },
-    "settingsThemeMode": "Тема",
-    "@settingsThemeMode": {
-        "description": "Theme mode label"
-    },
-    "fieldCollectionNumber": "Количество в коллекциях",
-    "@fieldCollectionNumber": {
-        "description": "Number in collection field"
-    },
-    "navShelves": "Полки",
-    "@navShelves": {
-        "description": "Nav tab: shelves"
-    },
-    "download": "Скачать",
-    "@download": {
-        "description": "Download button"
-    },
-    "imprintUrlDialogTitle": "URL изображения",
-    "@imprintUrlDialogTitle": {
-        "description": "Imprint URL title"
-    },
-    "shelfFormNameLabel": "Название полки",
-    "@shelfFormNameLabel": {
-        "description": "Shelf name field label"
-    },
-    "bookSearchErrorNetwork": "Не удалось подключиться ни к одному серверу.\nПроверьте соединение и попробуйте снова.",
-    "@bookSearchErrorNetwork": {
-        "description": "Search network error"
-    },
-    "filterPublisher": "Издатель",
-    "@filterPublisher": {
-        "description": "Publisher filter placeholder"
-    },
-    "fieldIsbn": "ISBN",
-    "@fieldIsbn": {
-        "description": "ISBN field label"
-    },
-    "settingsThemeSystem": "Системная",
-    "@settingsThemeSystem": {
-        "description": "System theme option"
-    },
-    "shelfOptionEdit": "Редактирование полки",
-    "@shelfOptionEdit": {
-        "description": "Edit shelf option"
-    },
-    "settingsApiKeyStep3": "Перейдите в «API и сервисы» → «Библиотека», найдите «Books API» и включите её.",
-    "@settingsApiKeyStep3": {
-        "description": "Step 3"
-    },
-    "tagDeleteConfirm": "Удалить «{name}»?",
-    "@tagDeleteConfirm": {
-        "description": "Delete category confirmation",
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "fieldStatusChip": "Метка статуса",
-    "@fieldStatusChip": {
-        "description": "Status chip field"
-    },
-    "settingsButton": "Настройки",
-    "@settingsButton": {
-        "description": "Settings button label"
-    },
-    "shelfBooksEmpty": "Нет книг в этой полке",
-    "@shelfBooksEmpty": {
-        "description": "Empty shelf books state"
-    },
-    "settingsApiKeyClear": "Удалить ключ",
-    "@settingsApiKeyClear": {
-        "description": "Clear key tooltip"
-    },
-    "imprintNone": "Издательских марок пока нет",
-    "@imprintNone": {
-        "description": "Empty imprints state"
-    },
-    "scanBatch": "Сканировать несколько",
-    "@scanBatch": {
-        "description": "Batch scan option"
-    },
-    "imprintNewDialogTitle": "Новая издательская марка",
-    "@imprintNewDialogTitle": {
-        "description": "New imprint title"
-    },
-    "settingsApiKeyStep4": "Перейдите в «API и сервисы» → «Учетные данные» → «Создать учетные данные» → «Ключ API».",
-    "@settingsApiKeyStep4": {
-        "description": "Step 4"
-    },
-    "bookSearchErrorNoApiKey": "Для Google Books требуется ключ API.\nНастройте его в «Настройки» → «Поиск книг».",
-    "@bookSearchErrorNoApiKey": {
-        "description": "Error: no API key"
-    },
-    "tagCreateHint": "Введите текст и нажмите ввод, чтобы добавить или создать",
-    "@tagCreateHint": {
-        "description": "Tag create hint"
-    },
-    "addManually": "Добавить вручную",
-    "@addManually": {
-        "description": "Add book manually option"
-    },
-    "shelfFormHintPublisher": "Название идателя",
-    "@shelfFormHintPublisher": {
-        "description": "Shelf form publisher hint"
-    },
-    "libraryEmpty": "Ваша библиотека пуста",
-    "@libraryEmpty": {
-        "description": "Empty library state"
-    },
-    "shelvesSectionByStatus": "По статусу",
-    "@shelvesSectionByStatus": {
-        "description": "Status section header"
-    },
-    "scanBarcode": "Сканировать штрихкод",
-    "@scanBarcode": {
-        "description": "Scan barcode option"
-    },
-    "fieldTitle": "Название книги",
-    "@fieldTitle": {
-        "description": "Title field label"
-    },
-    "cancel": "Отмена",
-    "@cancel": {
-        "description": "Generic cancel button"
-    },
-    "imprintChangeImageHint": "Нажмите, чтобы изменить изображение",
-    "@imprintChangeImageHint": {
-        "description": "Change imprint image hint"
-    },
-    "searchBookSubtitle": "Поиск по имени, автору или ISBN",
-    "@searchBookSubtitle": {
-        "description": "Search book option subtitle"
-    },
-    "shelfOptionDelete": "Удалить",
-    "@shelfOptionDelete": {
-        "description": "Delete shelf option"
-    },
-    "bookDetailNotesHint": "Напишите свои заметки здесь...",
-    "@bookDetailNotesHint": {
-        "description": "Notes field placeholder"
-    },
-    "settingsApiKeyNote": "Ключ бесплатный и позволяет выполнять до 1 000 поисковых запросов в день. Ключ хранится только на этом устройстве.",
-    "@settingsApiKeyNote": {
-        "description": "API key information note"
-    },
-    "formatOther": "Другой",
-    "@formatOther": {
-        "description": "Format: other"
-    },
-    "settingsThemeDark": "Тёмная",
-    "@settingsThemeDark": {
-        "description": "Dark theme option"
-    },
-    "sectionBasicInfo": "Базовая информация",
-    "@sectionBasicInfo": {
-        "description": "Basic info header"
-    },
-    "settingsSearchServer": "Сервер",
-    "@settingsSearchServer": {
-        "description": "Search server label"
-    },
-    "managementImprints": "Издательские марки",
-    "@managementImprints": {
-        "description": "Management: imprints"
-    },
-    "statusRead": "Читаю",
-    "@statusRead": {
-        "description": "Status: read"
-    },
-    "displaySettings": "Показать в библиотеке",
-    "@displaySettings": {
-        "description": "Display settings title"
-    },
-    "coverPickerIsbnLabel": "ISBN {isbn}",
-    "@coverPickerIsbnLabel": {
-        "description": "Sheet subtitle with ISBN",
-        "placeholders": {
-            "isbn": {
-                "type": "String"
-            }
-        }
-    },
-    "managementCollections": "Коллекции",
-    "@managementCollections": {
-        "description": "Management: collections"
-    },
-    "shelfStatusLabelAbandoned": "Заброшенные",
-    "@shelfStatusLabelAbandoned": {
-        "description": "Abandoned status label"
-    },
-    "coverPickerTitle": "Обложки",
-    "@coverPickerTitle": {
-        "description": "Cover picker sheet title"
-    },
-    "coverPickerProgress": "{loaded} / {total}",
-    "@coverPickerProgress": {
-        "description": "Cover load progress",
-        "placeholders": {
-            "loaded": {
-                "type": "int"
-            },
-            "total": {
-                "type": "int"
-            }
-        }
-    },
-    "displaySettingsDragHint": "Перетащите для изменения порядка",
-    "@displaySettingsDragHint": {
-        "description": "Reorder hint"
-    },
-    "settingsApiKeyConfigured": "Ключ настроен. Google Books доступен.",
-    "@settingsApiKeyConfigured": {
-        "description": "Key configured message"
-    },
-    "bookSearchHint": "Название, автор или ISBN...",
-    "@bookSearchHint": {
-        "description": "Book search field hint"
-    },
-    "settingsApiKeyStep1": "Откройте console.cloud.google.com и войдите в свой аккаунт Google.",
-    "@settingsApiKeyStep1": {
-        "description": "Step 1"
-    },
-    "fieldTags": "Метки",
-    "@fieldTags": {
-        "description": "Tags field name"
-    },
-    "tagDeleteTitle": "Удалить категорию",
-    "@tagDeleteTitle": {
-        "description": "Delete category title"
-    },
-    "settingsApiKeyHowTo": "Как получить ключ",
-    "@settingsApiKeyHowTo": {
-        "description": "How to get key button"
-    },
-    "settingsTitle": "Настройки",
-    "@settingsTitle": {
-        "description": "Settings screen title"
-    },
-    "formatPaperback": "Мягкая обложка",
-    "@formatPaperback": {
-        "description": "Format: paperback"
-    },
-    "shelfFormSectionTitle": "Название",
-    "@shelfFormSectionTitle": {
-        "description": "Shelf form title section"
-    },
-    "bookDetailNotesEmpty": "Нажмите, чтобы добавить заметки...",
-    "@bookDetailNotesEmpty": {
-        "description": "Notes empty message"
-    },
-    "filterTagsLabel": "Категории",
-    "@filterTagsLabel": {
-        "description": "Categories filter label"
-    },
-    "tagNone": "Категорий пока нет",
-    "@tagNone": {
-        "description": "Empty categories state"
-    },
-    "bookDetailFieldPersonalNotes": "ПЕРСОНАЛЬНЫЕ ЗАМЕТКИ",
-    "@bookDetailFieldPersonalNotes": {
-        "description": "Notes section label"
-    },
-    "bookDetailFieldCategories": "КАТЕГОРИИ",
-    "@bookDetailFieldCategories": {
-        "description": "Categories field label"
-    },
-    "fieldPublisher": "Издатель",
-    "@fieldPublisher": {
-        "description": "Publisher field name"
-    },
-    "fieldRating": "Рейтинг",
-    "@fieldRating": {
-        "description": "Rating field name"
-    },
-    "coverUrlHint": "https://ejemplo.com/portada.jpg",
-    "@coverUrlHint": {
-        "description": "Cover URL placeholder"
-    },
-    "libraryEmptyHint": "Какой будет ваша первая книга?",
-    "@libraryEmptyHint": {
-        "description": "Hint when library is empty"
-    },
-    "tagSearchOrCreate": "Поиск или создание категории",
-    "@tagSearchOrCreate": {
-        "description": "Tag search placeholder"
-    },
-    "formatDigital": "Цифровой",
-    "@formatDigital": {
-        "description": "Format: digital"
-    },
-    "settingsSectionAppearance": "Внешний вид",
-    "@settingsSectionAppearance": {
-        "description": "Appearance section header"
-    },
-    "shelfStatusLabelWantToRead": "К прочтению",
-    "@shelfStatusLabelWantToRead": {
-        "description": "To read status label"
-    },
-    "settingsSectionStorage": "Хранилище",
-    "@settingsSectionStorage": {
-        "description": "Storage section header"
-    },
-    "shelfFormSectionIsbn": "ISBN",
-    "@shelfFormSectionIsbn": {
-        "description": "Shelf form ISBN section"
-    },
-    "bookSearchNoResults": "Нет результатов для «{query}»",
-    "@bookSearchNoResults": {
-        "description": "Search no results message",
-        "placeholders": {
-            "query": {
-                "type": "String"
-            }
-        }
-    },
-    "settingsCoversFolder": "Папка обложек",
-    "@settingsCoversFolder": {
-        "description": "Covers folder label"
-    },
-    "sectionRating": "Рейтинг",
-    "@sectionRating": {
-        "description": "Rating header"
-    },
-    "fieldYear": "Год публикации",
-    "@fieldYear": {
-        "description": "Year field name"
-    },
-    "bookDetailFieldAdded": "Добавлено",
-    "@bookDetailFieldAdded": {
-        "description": "Date added label"
-    },
-    "shelfNewTooltip": "Новая полка",
-    "@shelfNewTooltip": {
-        "description": "New shelf tooltip"
-    },
-    "settingsThemeLight": "Светлая",
-    "@settingsThemeLight": {
-        "description": "Light theme option"
-    },
-    "coverSearch": "Поиск",
-    "@coverSearch": {
-        "description": "Cover search button"
-    },
-    "tagColorLabel": "Цвет",
-    "@tagColorLabel": {
-        "description": "Category color field label"
-    },
-    "settingsLanguageSystem": "Система (автоматически)",
-    "@settingsLanguageSystem": {
-        "description": "Language option: system"
-    },
-    "settingsDefaultDir": "Каталог по умолчанию",
-    "@settingsDefaultDir": {
-        "description": "Default directory label"
-    },
-    "fieldTotalPages": "Всего страниц",
-    "@fieldTotalPages": {
-        "description": "Total pages field"
-    },
-    "shelfFormHintTitle": "Поиск по названию",
-    "@shelfFormHintTitle": {
-        "description": "Shelf form title hint"
-    },
-    "filterImprintLabel": "Издательская марка",
-    "@filterImprintLabel": {
-        "description": "Imprint filter label"
-    },
-    "bookDetailNotFound": "Книга не найдена",
-    "@bookDetailNotFound": {
-        "description": "Book not found message"
-    },
-    "filterIsbn": "ISBN",
-    "@filterIsbn": {
-        "description": "ISBN filter placeholder"
-    },
-    "settingsApiKeyStep6": "Скопируйте полученный ключ (он начинается с «AIza…») и вставьте его в поле выше.",
-    "@settingsApiKeyStep6": {
-        "description": "Step 6"
-    },
-    "statusWantToRead": "Хочу прочесть",
-    "@statusWantToRead": {
-        "description": "Status: want to read"
-    },
-    "imprintDeleteTitle": "Удалить издательскую марку",
-    "@imprintDeleteTitle": {
-        "description": "Delete imprint title"
-    },
-    "shelfFormHintCollection": "Название коллекции",
-    "@shelfFormHintCollection": {
-        "description": "Shelf form collection hint"
-    },
-    "settingsSectionSearch": "Поиск книг",
-    "@settingsSectionSearch": {
-        "description": "Search section header"
-    },
-    "settingsDbMoveTitle": "Переместить базу данных",
-    "@settingsDbMoveTitle": {
-        "description": "Move database dialog title"
-    },
-    "shelfAllBooks": "Все книги",
-    "@shelfAllBooks": {
-        "description": "All books shelf"
-    },
-    "settingsAccentColorHint": "Нажмите на цвет, чтобы применить его",
-    "@settingsAccentColorHint": {
-        "description": "Accent color hint"
-    },
-    "collectionDeleteConfirm": "Удалить «{name}»?",
-    "@collectionDeleteConfirm": {
-        "description": "Delete collection confirmation",
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "coverUrlDialogTitle": "URL-адрес обложки",
-    "@coverUrlDialogTitle": {
-        "description": "Cover URL dialog title"
-    },
-    "shelvesTitle": "Полки",
-    "@shelvesTitle": {
-        "description": "Shelves screen title"
-    },
-    "bookDetailDeleteConfirm": "Удалить \"{title}\"? Это действие нельзя отменить.",
-    "@bookDetailDeleteConfirm": {
-        "description": "Delete book confirmation",
-        "placeholders": {
-            "title": {
-                "type": "String"
-            }
-        }
-    },
-    "done": "Готово",
-    "@done": {
-        "description": "Generic close button"
-    },
-    "bookSearchRecommendedSource": "Рекомендовано Openshelf",
-    "statsAddFirstWidget": "Добавить первый виджет",
-    "searchFilterPublisherLabel": "Издательство: {publisher}",
-    "@searchFilterPublisherLabel": {
-        "placeholders": {
-            "publisher": {
-                "type": "String"
-            }
-        }
-    },
-    "shelfPaused": "На паузе",
-    "@shelfPaused": {
-        "description": "Paused shelf"
-    },
-    "settingsBatchCompressTitle": "Оптимизировать библиотеку сейчас",
-    "scanOcrHoldMessage": "Задержитесь на изображении на несколько секунд...",
-    "@scanOcrHoldMessage": {
-        "description": "Instruction to hold the camera steady for OCR"
-    },
-    "settingsLibraryColumns": "Столбцы в библиотеке",
-    "statsStreakTitle": "СЕРИЯ",
-    "statsLastAddedTitle": "ПОСЛЕДНИЕ ДОБАВЛЕНИЯ",
-    "statsOptAddedTimeSub": "График добавлений во времени",
-    "settingsImportSelectCovers": "Выбрать ZIP-файл с обложками Openshelf",
-    "scanBarcodePermission": "Разрешить камеру для сканирования кодов",
-    "@scanBarcodePermission": {
-        "description": "Camera permission missing message"
-    },
-    "statsOptYearsTitle": "Год публикации",
-    "statsReadingNowTitle": "ЧИТАЮ СЕЙЧАС",
-    "bookSearchServerGoogleBooks": "Google Books",
-    "settingsBatchCompressSub": "Сжимает все существующие неоптимизированные обложки",
-    "statsCategoriesTitle": "КАТЕГОРИИ",
-    "searchTabImprint": "Издательская марка",
-    "@searchTabImprint": {
-        "description": "Search panel: Imprint tab"
-    },
-    "statsOptReadYearTitle": "Прочитанные по годам",
-    "dataManagementImport": "Импортировать книги",
-    "statsPagesTitle": "СТРАНИЦЫ",
-    "searchFilterCategory": "Cat.: {value}",
-    "@searchFilterCategory": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "statsAddedNoData": "Нет данных",
-    "statsAddedTitle": "ДОБАВЛЕННЫЕ КНИГИ",
-    "statsStreakSub": "дней подряд",
-    "statsPeriodThisMonth": "Прочитанные в этом месяце",
-    "scanModeIsbn": "Номер ISBN",
-    "@scanModeIsbn": {
-        "description": "Label for scanner mode: ISBN number / text"
-    },
-    "statsOptCollectionsSub": "Книги по коллекциям",
-    "bookDuplicateContent": "В вашей библиотеке уже есть книга с ISBN {isbn}.",
-    "@bookDuplicateContent": {
-        "description": "Duplicate book warning content",
-        "placeholders": {
-            "isbn": {
-                "type": "String"
-            }
-        }
-    },
-    "tagNoneSubtitle": "Категории помогают находить книги и создавать ментальную карту вашей библиотеки",
-    "@tagNoneSubtitle": {
-        "description": "Empty categories state subtitle"
-    },
-    "onboardingProgressTitle": "Следите за своим прогрессом",
-    "dataManagementOpenShelf": "OpenShelf",
-    "openSettings": "Открыть настройки",
-    "@openSettings": {
-        "description": "Button to open system settings"
-    },
-    "statsOptCategoriesTitle": "Категории",
-    "permissionRequired": "Требуется разрешение",
-    "@permissionRequired": {
-        "description": "Title for permanently denied permission dialog"
-    },
-    "statsGoalTargetShelf": "Целевая полка",
-    "statsReadingTitle": "ЧТЕНИЕ",
-    "statsOptAddedTimeTitle": "Добавленные книги",
-    "collectionNoneSubtitle": "Создавайте коллекции и организуйте свои книги",
-    "@collectionNoneSubtitle": {
-        "description": "Empty collections state subtitle"
-    },
-    "statsOptCollectionsTitle": "Коллекции",
-    "managementCategoryCount": "Количество книг",
-    "@managementCategoryCount": {
-        "description": "Number of books in a category"
-    },
-    "bookSearchServerInventaire": "Inventaire.io",
-    "bookSearchServerAnnasArchive": "Anna's Archive",
-    "bookSearchServerOpenLibrary": "Открыть библиотеку",
-    "statsGoalFromLabel": "С",
-    "settingsDevClearDbSub": "Инструмент разработчика: очистить базу данных",
-    "statsGoalUnitPages": "стр.",
-    "searchTabCategory": "Категория",
-    "@searchTabCategory": {
-        "description": "Search panel: Category tab"
-    },
-    "statsGoalTargetLabel": "Числовая цель",
-    "settingsApplyIcon": "Применить изменение значка",
-    "statsYearsTitle": "ГОДЫ ПУБЛИКАЦИИ",
-    "statsReadingNone": "Нет книг в чтении",
-    "statsOptLastAddedSub": "Недавно добавленные",
-    "loading": "Загрузка...",
-    "@loading": {
-        "description": "Generic loading message"
-    },
-    "settingsCompressImagesTitle": "Автоматически сжимать обложки",
-    "statsGoalRemaining": "Осталось {count}",
-    "@statsGoalRemaining": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "statsGoalEdit": "Редактировать цель",
-    "settingsExportCsv": "Экспортировать библиотеку",
-    "@settingsExportCsv": {
-        "description": "Export title"
-    },
-    "searchSaveAsShelf": "Сохранить как полку",
-    "settingsImportBookshelfHint": "Импортировать книги из CSV-файла",
-    "@settingsImportBookshelfHint": {
-        "description": "Import hint"
-    },
-    "searchFilterStatus": "Статус: {value}",
-    "@searchFilterStatus": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "statsGoalTitle": "ЦЕЛИ",
-    "onboardingProgressSub": "Цели чтения и подробная статистика",
-    "storagePermissionExplanation": "Чтобы выбрать обложку, необходимо предоставить доступ к хранилищу. Это можно сделать в настройках приложения.",
-    "@storagePermissionExplanation": {
-        "description": "Explanation for permanently denied storage permission"
-    },
-    "onboardingOrganizeTitle": "Организуйте свой мир",
-    "statsGoalNameLabel": "Название (например: Цель 2026)",
-    "onboardingWelcomeTitle": "Добро пожаловать в Openshelf",
-    "statsAvgPagesSub": "страниц на книгу",
-    "bookSearchProvidersNotice": "Результаты: {providers}.",
-    "@bookSearchProvidersNotice": {
-        "description": "Notice of providers that contributed to the search",
-        "placeholders": {
-            "providers": {
-                "type": "String"
-            }
-        }
-    },
-    "settingsAutoNoCoverSub": "Автоматически создаёт полку, если отсутствуют обложки",
-    "statsOptPagesSub": "Всего прочитано страниц",
-    "imprintBookCount": "{count} книг",
-    "@imprintBookCount": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "statsGoalTypeBooks": "Прочитанные книги",
-    "libraryAddFirstBook": "Добавьте первую книгу",
-    "@libraryAddFirstBook": {
-        "description": "Text for the action button in the empty library state"
-    },
-    "dataManagementExport": "Экспортировать книги",
-    "importRestoreCoversPrompt": "У вас также есть ZIP-файл с обложками для восстановления?",
-    "@importRestoreCoversPrompt": {
-        "description": "Import covers prompt"
-    },
-    "statsCollectionsTitle": "КОЛЛЕКЦИИ",
-    "settingsExportCsvHint": "Экспортировать все книги в CSV-файл",
-    "@settingsExportCsvHint": {
-        "description": "Export hint"
-    },
-    "scanIsbnTextSubtitle": "Наведите на напечатанный номер",
-    "@scanIsbnTextSubtitle": {
-        "description": "Subtitle for scanning ISBN as text"
-    },
-    "statsOptCurrentTitle": "Текущая книга",
-    "statsOptYearsSub": "Историческая гистограмма",
-    "fieldTranslator": "Переводчик",
-    "@fieldTranslator": {
-        "description": "Translator field label"
-    },
-    "statsOptCurrentSub": "Текущий прогресс чтения",
-    "statsGoalFullTitle": "ЦЕЛИ ЧТЕНИЯ",
-    "devDeleteAllBooks": "УДАЛИТЬ ВСЕ КНИГИ (DEV)",
-    "@devDeleteAllBooks": {
-        "description": "Developer option to clear database"
-    },
-    "statsOptCategoriesSub": "Распределение по жанрам",
-    "statsAddWidgetTitle": "Добавить виджет",
-    "fieldDescription": "Описание",
-    "@fieldDescription": {
-        "description": "Description field label"
-    },
-    "settingsAllFilesAccess": "All Files Access",
-    "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
-    "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.",
-    "settingsAutoPruneTagsTitle": "Очистка пустых категорий",
-    "settingsAutoPruneTagsSub": "Автоматически удалять категории, которые не используются ни в одной книге",
-    "settingsExcludedPruneTagsTitle": "Исключенные категории",
-    "settingsExcludedPruneTagsSub": "{count, plural, =0{Нет исключенных категорий} =1{1 категория защищена} other{{count} категорий защищено}}",
-    "@settingsExcludedPruneTagsSub": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "settingsPruneWarningTitle": "Обнаружены пустые категории",
-    "settingsPruneWarningContent": "Активация этой опции удалит следующие категории, так как они не используются ни в одной книге. Продолжить?",
-    "settingsAutomationTitle": "Автоматизация",
-    "removeFromCollection": "Удалить из коллекции",
-    "removeFromImprint": "Удалить из импринта",
-    "removeFromCategory": "Удалить из категории",
-    "imageProcessError": "Не удалось обработать изображение",
-    "@imageProcessError": {
-        "description": "Error when image processing fails"
-    },
-    "imageProcessing": "Обработка изображения...",
-    "@imageProcessing": {
-        "description": "Текст, отображаемый в диалоге во время обработки изображения"
-    },
-    "imagePreparing": "Подготовка изображения...",
-    "@imagePreparing": {
-        "description": "Text shown in dialog while preparing image for cropper"
-    },
-    "imageOptimizing": "Оптимизация изображения...",
-    "@imageOptimizing": {
-        "description": "Text shown in dialog while compressing image"
-    },
-    "bookDetailNewReadingSections": "Разделы",
-    "ownershipStatusBought": "Куплено",
-    "@ownershipStatusBought": {
-        "description": "Tenencia: comprado"
-    },
-    "exportSaveSuccess": "Резервная копия сохранена в {path}",
-    "@exportSaveSuccess": {
-        "placeholders": {
-            "path": {
-                "type": "String"
-            }
-        }
-    },
-    "bookDetailNewReadingWholeBook": "Вся книга",
-    "ownershipStatusSold": "Продано",
-    "@ownershipStatusSold": {
-        "description": "Tenencia: vendido"
-    },
-    "ownershipHistoryTitle": "ИСТОРИЯ ВЛАДЕНИЯ",
-    "@ownershipHistoryTitle": {
-        "description": "Título de la sección de historial de propiedad"
-    },
-    "bookDetailDuplicateTitle": "Дубликат книги",
-    "@bookDetailDuplicateTitle": {
-        "description": "Título del diálogo de duplicar libro"
-    },
-    "exportProgressMedia": "Подготовка медиафайлов...",
-    "bookDetailStartNewReadingTitle": "Новое чтение",
-    "fieldCopies": "Копии",
-    "@fieldCopies": {
-        "description": "Nombre del campo copias"
-    },
-    "scanIsbnText": "Сканируйте ISBN номер",
-    "@scanIsbnText": {
-        "description": "Opción de escanear ISBN mediante texto"
-    },
-    "bookDetailNewReadingReadCount": "Чтение {count}x",
-    "ownershipEventDate": "Дата",
-    "@ownershipEventDate": {
-        "description": "Fecha del evento de propiedad"
-    },
-    "fieldOriginalLanguage": "Язык оригинала",
-    "@fieldOriginalLanguage": {
-        "description": "Nombre del campo idioma original"
-    },
-    "exportProgressData": "Экспорт данных...",
-    "shelfEmptySubtitle": "Организуйте чтение как хочется",
-    "@shelfEmptySubtitle": {
-        "description": "Subtítulo del estado vacío de estanterías"
-    },
-    "errorGeneric": "Ошибка: {error}",
-    "@errorGeneric": {
-        "description": "Mensaje genérico de error con parámetro",
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "fieldTotalBooks": "Всего книг",
-    "@fieldTotalBooks": {
-        "description": "Nombre del campo de libros totales"
-    },
-    "ownershipEventPerson": "Лицо / Кто",
-    "@ownershipEventPerson": {
-        "description": "Persona en evento de propiedad"
-    },
-    "bookDetailNewReadingSelectSections": "Выберите раздел для перечитывания",
-    "errorPrefix": "Ошибка: {message}",
-    "@errorPrefix": {
-        "description": "Prefijo genérico de error",
-        "placeholders": {
-            "message": {
-                "type": "String"
-            }
-        }
-    },
-    "duplicate": "Дубликат",
-    "@duplicate": {
-        "description": "Acción genérica de duplicar"
-    },
-    "fieldLanguage": "Язык",
-    "@fieldLanguage": {
-        "description": "Nombre del campo idioma"
-    },
-    "ownershipEventNotes": "Заметки",
-    "@ownershipEventNotes": {
-        "description": "Notas para el evento de propiedad"
-    },
-    "scanIsbnSelect": "Выберите ISBN",
-    "@scanIsbnSelect": {
-        "description": "Instrucción para tocar un ISBN detectado"
-    },
-    "shelvesAddFirstShelf": "Создать полку",
-    "@shelvesAddFirstShelf": {
-        "description": "Texto del botón de acción en el estado vacío de las estanterías"
-    },
-    "loadingImport": "Импорт книг, подождите...",
-    "@loadingImport": {
-        "description": "Mensaje de carga durante la importación"
-    },
-    "bookDetailNewReadingSectionsCount": "{count, plural, =1{1 section} other{{count} sections}}",
-    "@bookDetailNewReadingSectionsCount": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "fieldSubtitle": "Подзаголовок",
-    "@fieldSubtitle": {
-        "description": "Nombre del campo subtítulo"
-    },
-    "exportProgressCompress": "Сжатие резервной копии...",
-    "exportProgressFinalize": "Открытие меню...",
-    "bookDetailStartNewReadingPrompt": "Хотите начать новое чтение?",
-    "fieldOwnershipStatus": "Статус владения",
-    "@fieldOwnershipStatus": {
-        "description": "Etiqueta del campo de estado de propiedad"
-    },
-    "ownershipLogEmpty": "Событий, связанных с владением, не зафиксировано.",
-    "@ownershipLogEmpty": {
-        "description": "Mensaje de registro de propiedad vacío"
-    },
-    "booksReadProgress": "{readCount} / {totalCount} книги читаю",
-    "@booksReadProgress": {
-        "description": "Etiqueta de progreso de libros leídos",
-        "placeholders": {
-            "readCount": {
-                "type": "int"
-            },
-            "totalCount": {
-                "type": "int"
-            }
-        }
-    },
-    "scanModeBarcode": "Баркод",
-    "@scanModeBarcode": {
-        "description": "Etiqueta del modo escáner: código de barras"
-    },
-    "ownershipStatusOther": "Другое",
-    "@ownershipStatusOther": {
-        "description": "Tenencia: otro"
-    },
-    "statusPaused": "На паузе",
-    "@statusPaused": {
-        "description": "Estado: pausado"
-    },
-    "bookDetailReadNumber": "Чтение {number}",
-    "@bookDetailReadNumber": {
-        "placeholders": {
-            "number": {
-                "type": "int"
-            }
-        }
-    },
-    "collectionNameLabel": "Название коллекции",
-    "@collectionNameLabel": {
-        "description": "Label del campo nombre de colección"
-    },
-    "ownershipStatusGifted": "Подарено",
-    "@ownershipStatusGifted": {
-        "description": "Tenencia: regalado"
-    },
-    "loadingExport": "Экспорт книг, подождите...",
-    "@loadingExport": {
-        "description": "Mensaje de carga durante la exportación"
-    },
-    "fieldReads": "Чтение",
-    "@fieldReads": {
-        "description": "Nombre del campo lecturas"
-    },
-    "ownershipStatusReturned": "Возвращено",
-    "@ownershipStatusReturned": {
-        "description": "Tenencia: devuelto"
-    },
-    "bookDetailDuplicateConfirm": "Хотите создать точную копию \"{title}\"?",
-    "@bookDetailDuplicateConfirm": {
-        "description": "Confirmación de duplicar libro",
-        "placeholders": {
-            "title": {
-                "type": "String"
-            }
-        }
-    },
-    "bookDetailReadOngoing": "текущий",
-    "bookDetailStartNewReadingButton": "Начало нового чтения",
-    "bookDetailDeleteReadPrompt": "Удалить последнюю текущую сессию чтения? Данные этой сессии будут потеряны.",
-    "ownershipStatusBorrowed": "Взял почитать",
-    "@ownershipStatusBorrowed": {
-        "description": "Tenencia: prestado"
-    },
-    "bookDetailReadNumberLabel": "Номер прочтения",
-    "saveToDevice": "Сохранить на устройстве",
-    "@saveToDevice": {
-        "description": "Acción de guardar en el dispositivo"
-    },
-    "bookDetailNewReadingWholeBookDescription": "Полное перечитывание будет записано с сегодняшнего дня.",
-    "shelfBooksEmptyHint": "Здесь появятся книги по выбранным фильтрам.",
-    "@shelfBooksEmptyHint": {
-        "description": "Sugerencia para estantería vacía"
-    },
-    "selectAll": "Выберите все",
-    "bookDetailReadDeleteConfirm": "Удалить текущую историю ?",
-    "share": "Поделиться",
-    "@share": {
-        "description": "Acción de compartir"
-    },
-    "fieldOriginalTitle": "Оригинальное название",
-    "@fieldOriginalTitle": {
-        "description": "Nombre del campo título original"
-    },
-    "bookDetailReadEditDialogTitle": "Редактирование чтения {number}",
-    "fieldIsTranslation": "Это перевод?",
-    "@fieldIsTranslation": {
-        "description": "Interruptor para campos de traducción"
-    },
-    "bookDetailReadHistoryTitle": "ИСТОРИЯ ЧТЕНИЯ",
-    "paginationEndPhysical": "Конец (физический)",
-    "searchFieldIsbn": "ISBN",
-    "searchOpNotEquals": "≠",
-    "paginationStartPhysical": "Начало (физическое)",
-    "paginationAdvancedButton": "Расширенная",
-    "searchOpLessThan": "<",
-    "searchModeBoolean": "Булева",
-    "searchModeBasic": "Базовая",
-    "searchAddCondition": "Добавить условие",
-    "paginationPhysicalTotalNote": "Примечание: общее количество страниц относится к физическим страницам книги (общее количество листов).",
-    "paginationChooseColor": "Выбрать цвет",
-    "searchFieldPublisher": "Издательство",
-    "statsOptStatusSub": "Книги по статусу",
-    "statsReadByYearTitle": "ПРОЧИТАННЫЕ КНИГИ ПО ГОДАМ",
-    "dataManagementExportHintJson": "Экспортировать в JSON {source}",
-    "statsOptStreakTitle": "Серия",
-    "settingsDevDbCleared": "База данных очищена",
-    "paginationMarkersLabels": "ЗАКЛАДКИ / МЕТКИ",
-    "searchFieldNotes": "Заметки",
-    "settingsImportBookshelf": "Импортировать из Bookshelf",
-    "@settingsImportBookshelf": {
-        "description": "Opción de importar desde Bookshelf"
-    },
-    "searchFilterTranslatorLabel": "Переводчик: {translator}",
-    "@searchFilterTranslatorLabel": {
-        "placeholders": {
-            "translator": {
-                "type": "String"
-            }
-        }
-    },
-    "paginationAddMarker": "Добавить закладку",
-    "exportTitle": "Экспортировать библиотеку",
-    "@exportTitle": {
-        "description": "Título del diálogo de exportación"
-    },
-    "searchFilterCollection": "Col.: {value}",
-    "@searchFilterCollection": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "paginationVisualPageHint": "Например: xiv или 501",
-    "dataManagementExportHint": "Экспортировать в CSV {source}",
-    "@dataManagementExportHint": {
-        "placeholders": {
-            "source": {
-                "type": "String"
-            }
-        }
-    },
-    "paginationCorrectErrors": "ИСПРАВЬТЕ СЛЕДУЮЩИЕ ОШИБКИ:",
-    "statsEmptySubtitle": "Добавьте виджеты, чтобы видеть свои читательские привычки, цели и личные рекорды.",
-    "@statsEmptySubtitle": {
-        "description": "Subtítulo del estado vacío de estadísticas"
-    },
-    "onboardingWelcomeSub": "Ваша личная библиотека в новом представлении",
-    "searchFilterAuthorLabel": "Автор: {author}",
-    "@searchFilterAuthorLabel": {
-        "placeholders": {
-            "author": {
-                "type": "String"
-            }
-        }
-    },
-    "bookDuplicateTitle": "Дубликат книги",
-    "@bookDuplicateTitle": {
-        "description": "Título del aviso de libro duplicado"
-    },
-    "searchClearAll": "Очистить всё",
-    "@searchClearAll": {
-        "description": "Botón para limpiar todos los filtros de búsqueda"
-    },
-    "statsOptReadYearSub": "График чтения по годам",
-    "dataManagementRestoreBackupHint": "Восстановить из CSV/ZIP OpenShelf",
-    "paginationMarkerLabel": "Метка закладки",
-    "statsGoalTypePages": "Прочитанные страницы",
-    "dataManagementRestoreBackup": "Восстановить резервную копию",
-    "devDeleteConfirmContent": "Это навсегда удалит ВСЕ книги и категории. Только для тестирования. Продолжить?",
-    "@devDeleteConfirmContent": {
-        "description": "Contenido de confirmación de borrado dev"
-    },
-    "searchOpIs": "равно",
-    "no": "Нет",
-    "@no": {
-        "description": "Botón No"
-    },
-    "settingsCompressImagesSub": "Уменьшает размер изображений при сохранении или импорте",
-    "imprintsAddFirst": "Добавить издательскую марку",
-    "@imprintsAddFirst": {
-        "description": "Texto del botón de acción en el estado vacío de los sellos"
-    },
-    "searchFieldOriginalLanguage": "Оригинальный язык",
-    "paginationType": "Тип:",
-    "statsGoalUnitBooks": "книг",
-    "statsPeriodLast3Months": "Последние 3 месяца",
-    "statsDailyReadingTitle": "ЕЖЕДНЕВНОЕ ЧТЕНИЕ",
-    "dataManagementImportHint": "Импортировать из CSV {source}",
-    "@dataManagementImportHint": {
-        "placeholders": {
-            "source": {
-                "type": "String"
-            }
-        }
-    },
-    "devDeleteConfirmTitle": "Очистить библиотеку?",
-    "@devDeleteConfirmTitle": {
-        "description": "Título de confirmación de borrado dev"
-    },
-    "searchFieldPages": "Страницы",
-    "paginationSaveProgress": "Сохранить прогресс",
-    "searchFilterIsbnLabel": "ISBN: {isbn}",
-    "@searchFilterIsbnLabel": {
-        "placeholders": {
-            "isbn": {
-                "type": "String"
-            }
-        }
-    },
-    "sortTitle": "Сортировать",
-    "statsOptAvgCompletionTitle": "Время чтения",
-    "settingsImportSelectBackup": "Выбрать резервную копию Openshelf",
-    "statsGoalNew": "Новая цель",
-    "noCoverShelfTitle": "Книги без обложки",
-    "paginationVisualPage": "Визуальная страница",
-    "settingsAutoNoCoverTitle": "Полка без обложек",
-    "paginationAddBlock": "Добавить блок",
-    "paginationAllPagesAssignedNote": "Примечание: вы уже распределили все доступные страницы.",
-    "paginationEquivalentPhysical": "Соответствует физическим страницам: {start} — {end}",
-    "@paginationEquivalentPhysical": {
-        "placeholders": {
-            "start": {
-                "type": "int"
-            },
-            "end": {
-                "type": "int"
-            }
-        }
-    },
-    "statsOptLastAddedTitle": "Последние добавления",
-    "searchOpNotIncludes": "не включает",
-    "exportCoversPrompt": "Включить изображения обложек в резервную копию? (Рядом с CSV будет создан ZIP-файл)",
-    "@exportCoversPrompt": {
-        "description": "Pregunta sobre portadas en exportación"
-    },
-    "searchOpStartsWith": "начинается с",
-    "statsPagesSub": "прочитанных страниц",
-    "searchOpIncludesAll": "включает все",
-    "statsOptAvgPagesTitle": "Средний объём",
-    "paginationBlocksSegments": "БЛОКИ / СЕГМЕНТЫ",
-    "statsGoalDelete": "Удалить",
-    "statsPeriodLast3Years": "Последние 3 года",
-    "onboardingAddSub": "Сканируйте штрихкоды или ищите в облаке",
-    "searchFieldImprint": "Издательская марка",
-    "settingsFullBackup": "Восстановить библиотеку",
-    "@settingsFullBackup": {
-        "description": "Título de restauración"
-    },
-    "statsOptAvgPagesSub": "Среднее количество страниц на книгу",
-    "searchFieldTitle": "Название",
-    "settingsSectionData": "Управление данными",
-    "@settingsSectionData": {
-        "description": "Encabezado de sección de datos"
-    },
-    "paginationMarkerDefaultName": "Закладка",
-    "paginationNoSegmentsDefined": "Сегменты не определены. По умолчанию используется диапазон 1–N.",
-    "paginationStartVisual": "Начало (визуальное)",
-    "paginationOffset": "Смещение",
-    "settingsLanguageEnglish": "Английский",
-    "@settingsLanguageEnglish": {
-        "description": "Opción de idioma: inglés"
-    },
-    "shelfShowInLibrary": "Показать в библиотеке",
-    "yes": "Да",
-    "@yes": {
-        "description": "Botón Sí"
-    },
-    "statsOptPagesTitle": "Всего страниц",
-    "settingsDynamicIconSub": "Измените значок на главном экране в соответствии с выбранным цветом (приложение будет перезапущено)",
-    "paginationEndVisual": "Конец (визуальное)",
-    "searchFilterLanguageLabel": "Язык: {language}",
-    "@searchFilterLanguageLabel": {
-        "placeholders": {
-            "language": {
-                "type": "String"
-            }
-        }
-    },
-    "dataManagementImportHintJson": "Импортировать из JSON {source}",
-    "addedToLibrary": "Добавлено в библиотеку",
-    "@addedToLibrary": {
-        "description": "Mensaje de éxito al añadir libro"
-    },
-    "onboardingNext": "Далее",
-    "searchFieldYear": "Год",
-    "importPartial": "Частичный импорт: добавлено {added}, пропущено {skipped}.",
-    "@importPartial": {
-        "placeholders": {
-            "added": {
-                "type": "int"
-            },
-            "skipped": {
-                "type": "int"
-            }
-        }
-    },
-    "statsStatusTitle": "СТАТУСЫ",
-    "tabMore": "ещё",
-    "settingsLanguagePortugueseBR": "Португальский (Бразилия)",
-    "@settingsLanguagePortugueseBR": {
-        "description": "Opción de idioma: portugués brasileño"
-    },
-    "importSuccess": "Импорт завершён: добавлено книг: {count}.",
-    "@importSuccess": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "statsGoalTypeLabel": "Тип",
-    "dataManagementCreateBackupHint": "Полный экспорт с возможностью включить обложки",
-    "statsPeriodThisYear": "Прочитанные в этом году",
-    "paginationSegmentStartGreater": "Сегмент {index}: начало не может быть больше конца.",
-    "statsAvgCompletionValue": "{days} дн.",
-    "@statsAvgCompletionValue": {
-        "placeholders": {
-            "days": {
-                "type": "String"
-            }
-        }
-    },
-    "paginationArabic": "Арабские",
-    "paginationCurrentPageShort": "Стр.",
-    "statsAvgPagesTitle": "СРЕДНЕЕ КОЛИЧЕСТВО СТРАНИЦ",
-    "errorDuplicateIsbn": "Уже в библиотеке",
-    "@errorDuplicateIsbn": {
-        "description": "Error cuando el ISBN ya existe"
-    },
-    "searchFieldNoCover": "Без обложки",
-    "settingsLibraryColumnsSub": "Настройте количество книг в строке в режиме сетки",
-    "searchTabCollection": "Коллекция",
-    "@searchTabCollection": {
-        "description": "Panel de búsqueda: pestaña Colección"
-    },
-    "settingsLanguageSpanish": "Испанский",
-    "@settingsLanguageSpanish": {
-        "description": "Opción de idioma: español"
-    },
-    "paginationVisualMode": "Визуальный режим",
-    "settingsFullBackupHint": "Восстановить книги из резервной копии CSV",
-    "@settingsFullBackupHint": {
-        "description": "Pista de restauración"
-    },
-    "settingsLanguagePortuguese": "Португальский (Португалия)",
-    "@settingsLanguagePortuguese": {
-        "description": "Opción de idioma: portugués"
-    },
-    "searchFilterSubtitleLabel": "Подзаголовок: {subtitle}",
-    "@searchFilterSubtitleLabel": {
-        "placeholders": {
-            "subtitle": {
-                "type": "String"
-            }
-        }
-    },
-    "bookSearchRecommended": "РЕКОМЕНДОВАНО OPENSHELF",
-    "@bookSearchRecommended": {
-        "description": "Etiqueta para el resultado recomendado"
-    },
-    "statsOptGoalSub": "Книги, полки или коллекции",
-    "onboardingStart": "Начать сейчас",
-    "managementCategoryCloudCurve": "Алгоритмическая кривая (книги)",
-    "searchFieldHasNotes": "Есть заметки",
-    "searchModeAdvanced": "Расширенная",
-    "statsGoalToLabel": "По",
-    "statsOptReadListTitle": "Список прочитанных",
-    "searchOpEquals": "=",
-    "searchFieldAuthor": "Автор",
-    "statsOptStreakSub": "Дней чтения подряд",
-    "searchOpIsNot": "не равно",
-    "paginationRoman": "Римские",
-    "searchFieldOriginalTitle": "Оригинальное название",
-    "categoriesAddFirst": "Новая категория",
-    "@categoriesAddFirst": {
-        "description": "Texto del botón de acción en el estado vacío de las categorías"
-    },
-    "settingsLanguageItalian": "Итальянский",
-    "@settingsLanguageItalian": {
-        "description": "Opción de idioma: italiano"
-    },
-    "statsOptAvgCompletionSub": "Среднее время на прочтение книги",
-    "importRestoreCoversTitle": "Восстановить обложки",
-    "@importRestoreCoversTitle": {
-        "description": "Título de restauración de portadas"
-    },
-    "settingsLanguageFrench": "Французский",
-    "@settingsLanguageFrench": {
-        "description": "Opción de idioma: francés"
-    },
-    "statsGoalCompleted": "Готово!",
-    "statsOptGoalTitle": "Цель чтения",
-    "paginationSegmentExceedsTotal": "Сегмент {index}: значения превышают общее количество страниц ({total}).",
-    "@paginationSegmentExceedsTotal": {
-        "placeholders": {
-            "index": {
-                "type": "int"
-            },
-            "total": {
-                "type": "int"
-            }
-        }
-    },
-    "searchTabStatus": "Статус",
-    "@searchTabStatus": {
-        "description": "Panel de búsqueda: pestaña Estado"
-    },
-    "settingsDynamicIcon": "Динамический значок приложения",
-    "unknownAuthor": "Неизвестно",
-    "collectionsAddFirst": "Новая коллекция",
-    "@collectionsAddFirst": {
-        "description": "Texto del botón de acción en el estado vacío de las colecciones"
-    },
-    "dataManagementBookshelf": "Bookshelf",
-    "imprintNoneSubtitle": "Группируйте книги по издательствам или их издательским маркам",
-    "@imprintNoneSubtitle": {
-        "description": "Subtítulo del estado vacío de sellos"
-    },
-    "onboardingAddTitle": "Добавляйте мгновенно",
-    "searchActiveFilters": "{count, plural, =1{1 активный фильтр} other{{count} активный фильтр}}",
-    "@searchActiveFilters": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "searchFilterImprint": "Издательская марка: {value}",
-    "@searchFilterImprint": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "dataManagementLibraryThing": "LibraryThing",
-    "searchFieldCategory": "Категория",
-    "statsOptStatusTitle": "Статусы чтения",
-    "searchFieldStatus": "Статус",
-    "onboardingOrganizeSub": "Создавайте умные полки и тематические коллекции",
-    "paginationPagesRemainingWarning": "Внимание: осталось {count} нераспределённых физических страниц.",
-    "@paginationPagesRemainingWarning": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "dataManagementCreateBackup": "Создать резервную копию",
-    "dataManagementGoodreads": "Goodreads",
-    "statsOptReadListSub": "Книги, прочитанные за период",
-    "paginationProgress": "{current} / {total}",
-    "@paginationProgress": {
-        "placeholders": {
-            "current": {
-                "type": "String"
-            },
-            "total": {
-                "type": "String"
-            }
-        }
-    },
-    "settingsBatchCompressSuccess": "Оптимизировано обложек: {count}.",
-    "@settingsBatchCompressSuccess": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "searchOpBetween": "между",
-    "cameraPermissionExplanation": "Чтобы сделать фото, необходимо предоставить доступ к камере. Это можно сделать в настройках приложения.",
-    "@cameraPermissionExplanation": {
-        "description": "Explicación del permiso de cámara denegado permanentemente"
-    },
-    "paginationMarkersAndIndices": "Разделы и закладки",
-    "shelfStatusLabelPaused": "Приостановленные",
-    "@shelfStatusLabelPaused": {
-        "description": "Etiqueta de estado: pausados en subtítulo de estantería"
-    },
-    "paginationLabelOptional": "Метка (необязательно)",
-    "settingsLanguageCatalan": "Каталанский",
-    "@settingsLanguageCatalan": {
-        "description": "Opción de idioma: catalán"
-    },
-    "paginationAllPagesAssigned": "Все страницы уже распределены.",
-    "statsOptDailyReadingTitle": "Ежедневное чтение",
-    "searchFieldCollection": "Коллекция",
-    "searchOpIncludes": "включает",
-    "paginationSegmentsDefaultName": "Блок",
-    "paginationAdjustsAutomatically": "Корректируется автоматически",
-    "paginationSectionLabel": "Раздел {index}",
-    "@paginationSectionLabel": {
-        "placeholders": {
-            "index": {
-                "type": "int"
-            }
-        }
-    },
-    "searchOpGreaterThan": ">",
-    "searchFieldLanguage": "Язык",
-    "searchPreview": "Предпросмотр",
-    "paginationAdvancedConfig": "Расширенные настройки",
-    "searchOpExactly": "точно равно",
-    "paginationSegmentRequired": "Сегмент {index}: все поля страниц обязательны для заполнения.",
-    "searchOpContains": "содержит",
-    "paginationSegmentOverlap": "Сегмент {index1} пересекается с сегментом {index2}",
-    "@paginationSegmentOverlap": {
-        "placeholders": {
-            "index1": {
-                "type": "String"
-            },
-            "index2": {
-                "type": "String"
-            }
-        }
-    },
-    "paginationPhysicalLabel": "Физическая: {page}",
-    "statsOptDailyReadingSub": "Прочитанные страницы в день"
+  "@@locale": "ru",
+  "shelfWantToRead": "К прочтению",
+  "@shelfWantToRead": {
+    "description": "To read shelf"
+  },
+  "fieldReadingProgress": "Прогресс чтения",
+  "@fieldReadingProgress": {
+    "description": "Reading progress field"
+  },
+  "imprintSearch": "Найти издательскую марку",
+  "@imprintSearch": {
+    "description": "Imprint search placeholder"
+  },
+  "statsTitle": "Статистика",
+  "@statsTitle": {
+    "description": "Stats screen title"
+  },
+  "bookFormEditTitle": "Редактировать книгу",
+  "@bookFormEditTitle": {
+    "description": "Edit book form title"
+  },
+  "settingsApiKeySaved": "Ключ сохранён",
+  "@settingsApiKeySaved": {
+    "description": "Key saved confirmation"
+  },
+  "statsPlaceholder": "Здесь появится ваша статистика",
+  "@statsPlaceholder": {
+    "description": "Stats placeholder"
+  },
+  "tabDetails": "Информация",
+  "@tabDetails": {
+    "description": "Details tab label"
+  },
+  "tagNewDialogTitle": "Новая категория",
+  "@tagNewDialogTitle": {
+    "description": "New category title"
+  },
+  "shelfAbandoned": "Брошено",
+  "@shelfAbandoned": {
+    "description": "Abandoned shelf"
+  },
+  "coverPickPhoto": "Фото",
+  "@coverPickPhoto": {
+    "description": "Photo pick button"
+  },
+  "save": "Сохранить",
+  "@save": {
+    "description": "Generic save button"
+  },
+  "pageSuffix": "{count} страниц.",
+  "@pageSuffix": {
+    "description": "Page count with suffix",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "imprintUrlHint": "https://ejemplo.com/sello.jpg",
+  "@imprintUrlHint": {
+    "description": "Imprint URL placeholder"
+  },
+  "settingsApiKeyHide": "Скрыть",
+  "@settingsApiKeyHide": {
+    "description": "Hide key tooltip"
+  },
+  "formatRustic": "Мягкий переплёт",
+  "@formatRustic": {
+    "description": "Format: rustic"
+  },
+  "collectionNone": "Коллекций пока нет",
+  "@collectionNone": {
+    "description": "Empty collections state"
+  },
+  "managementCategories": "Категории",
+  "@managementCategories": {
+    "description": "Management: categories"
+  },
+  "coverPickerNoResults": "Обложки для этой книги не найдены.",
+  "@coverPickerNoResults": {
+    "description": "No covers found message"
+  },
+  "shelfFormSectionPublisher": "Издатель",
+  "@shelfFormSectionPublisher": {
+    "description": "Shelf form publisher section"
+  },
+  "bookDetailNotesTitle": "Личная заметка",
+  "@bookDetailNotesTitle": {
+    "description": "Personal notes section title"
+  },
+  "settingsSearchServerHint": "Используется для поиска книг по ISBN или названию",
+  "@settingsSearchServerHint": {
+    "description": "Search server hint"
+  },
+  "collectionDeleteTitle": "Удалить коллекцию",
+  "@collectionDeleteTitle": {
+    "description": "Delete collection title"
+  },
+  "bookDetailFieldFormat": "Формат",
+  "@bookDetailFieldFormat": {
+    "description": "Format field label"
+  },
+  "fieldAuthor": "Автор",
+  "@fieldAuthor": {
+    "description": "Author field name"
+  },
+  "shelvesSectionManagement": "Управление",
+  "@shelvesSectionManagement": {
+    "description": "Management section header"
+  },
+  "shelfStatusLabelReading": "Читаю",
+  "@shelfStatusLabelReading": {
+    "description": "Reading status label"
+  },
+  "shelfFormSectionStatus": "Статус чтения",
+  "@shelfFormSectionStatus": {
+    "description": "Shelf form status section"
+  },
+  "imprintAddImageHint": "Нажмите, чтобы добавить изображение",
+  "@imprintAddImageHint": {
+    "description": "Add imprint image hint"
+  },
+  "shelfFormEdit": "Редактировать полку",
+  "@shelfFormEdit": {
+    "description": "Edit shelf form title"
+  },
+  "fieldNotes": "Заметки",
+  "@fieldNotes": {
+    "description": "Notes field label"
+  },
+  "shelfFormHintIsbn": "ISBN",
+  "@shelfFormHintIsbn": {
+    "description": "Shelf form ISBN hint"
+  },
+  "imprintNew": "Новая издательская марка",
+  "@imprintNew": {
+    "description": "New imprint button"
+  },
+  "tagNoCategories": "Категории пока не созданы",
+  "@tagNoCategories": {
+    "description": "No categories message"
+  },
+  "shelfFormStatusAny": "Любой",
+  "@shelfFormStatusAny": {
+    "description": "Shelf form any status"
+  },
+  "bookDetailFieldStarted": "Начало чтения",
+  "@bookDetailFieldStarted": {
+    "description": "Date started label"
+  },
+  "sectionCategories": "Категории",
+  "@sectionCategories": {
+    "description": "Categories header"
+  },
+  "shelfEmpty": "У вас нет созданных полок",
+  "@shelfEmpty": {
+    "description": "Empty custom shelves state"
+  },
+  "settingsApiKeyStep5": "Необязательно, но рекомендуется: ограничьте ключ только для Books API.",
+  "@settingsApiKeyStep5": {
+    "description": "Step 5"
+  },
+  "statusAbandoned": "Брошено",
+  "@statusAbandoned": {
+    "description": "Status: abandoned"
+  },
+  "create": "Создать",
+  "@create": {
+    "description": "Generic create button"
+  },
+  "filterCollection": "Коллекция",
+  "@filterCollection": {
+    "description": "Collection filter placeholder"
+  },
+  "imprintEditDialogTitle": "Редактировать издательскую марку",
+  "@imprintEditDialogTitle": {
+    "description": "Edit imprint title"
+  },
+  "imprintNoImprints": "Издательские марки не созданы",
+  "@imprintNoImprints": {
+    "description": "Shelf form no imprints message"
+  },
+  "bookSearchErrorRateLimit": "Google Books ограничил количество запросов.\nПодождите немного и попробуйте снова.",
+  "@bookSearchErrorRateLimit": {
+    "description": "Error: rate limit"
+  },
+  "shelvesSectionMine": "Полки",
+  "@shelvesSectionMine": {
+    "description": "Custom shelves section header"
+  },
+  "filterAuthor": "Автор",
+  "@filterAuthor": {
+    "description": "Author filter placeholder"
+  },
+  "cropImprintTitle": "Обрезать издательскую марку",
+  "@cropImprintTitle": {
+    "description": "Title for imprint cropping screen"
+  },
+  "settingsAccentColor": "Акцентный цвет",
+  "@settingsAccentColor": {
+    "description": "Accent color label"
+  },
+  "addBook": "Добавьте книгу",
+  "@addBook": {
+    "description": "Add book FAB label"
+  },
+  "tagNameLabel": "Название",
+  "@tagNameLabel": {
+    "description": "Category name field label"
+  },
+  "imprintNameLabel": "Название издательской марки",
+  "@imprintNameLabel": {
+    "description": "Imprint name field label"
+  },
+  "bookDetailFieldPages": "СТРАНИЦЫ",
+  "@bookDetailFieldPages": {
+    "description": "Pages field label"
+  },
+  "formatLeatherbound": "Кожаный переплет",
+  "@formatLeatherbound": {
+    "description": "Format: leatherbound"
+  },
+  "settingsDbMoveConfirm": "Переместить и перезапустить",
+  "@settingsDbMoveConfirm": {
+    "description": "Move database confirmation"
+  },
+  "settingsApiKeySave": "Сохранить ключ",
+  "@settingsApiKeySave": {
+    "description": "Save key button"
+  },
+  "edit": "Редактировать",
+  "@edit": {
+    "description": "Generic edit button"
+  },
+  "requiredField": "Обязательное поле",
+  "@requiredField": {
+    "description": "Required field validation message"
+  },
+  "libraryNoResultsHint": "Попробуйте другие фильтры",
+  "@libraryNoResultsHint": {
+    "description": "Hint when no search results"
+  },
+  "scanBarcodeSubtitle": "Направьте камеру на ISBN",
+  "@scanBarcodeSubtitle": {
+    "description": "Scan barcode option subtitle"
+  },
+  "coverDownloadError": "Невозможно загрузить изображение",
+  "@coverDownloadError": {
+    "description": "Download error message"
+  },
+  "bookDetailFieldImprintSection": "ИЗДАТЕЛЬ",
+  "@bookDetailFieldImprintSection": {
+    "description": "Imprint section label"
+  },
+  "bookFormNewTitle": "Новая книга",
+  "@bookFormNewTitle": {
+    "description": "New book form title"
+  },
+  "cropCoverTitle": "Обрезать обложку",
+  "@cropCoverTitle": {
+    "description": "Title for cover cropping screen"
+  },
+  "libraryNoResults": "Нет результатов",
+  "@libraryNoResults": {
+    "description": "No search results"
+  },
+  "tabMain": "Главная",
+  "@tabMain": {
+    "description": "Main tab label"
+  },
+  "shelfFormHintAuthor": "Имя автора",
+  "@shelfFormHintAuthor": {
+    "description": "Shelf form author hint"
+  },
+  "shelfFormSectionAuthor": "Автор",
+  "@shelfFormSectionAuthor": {
+    "description": "Shelf form author section"
+  },
+  "addBookModalTitle": "Добавьте книгу",
+  "@addBookModalTitle": {
+    "description": "Add book modal title"
+  },
+  "sectionFormat": "Формат",
+  "@sectionFormat": {
+    "description": "Format header"
+  },
+  "libraryTitle": "Библиотека",
+  "@libraryTitle": {
+    "description": "Library screen title"
+  },
+  "sectionReadingStatus": "Прогресс чтения",
+  "@sectionReadingStatus": {
+    "description": "Reading status header"
+  },
+  "addBookModalSubtitle": "Выберите, как вы хотите добавить свою книгу",
+  "@addBookModalSubtitle": {
+    "description": "Add book modal subtitle"
+  },
+  "shelfReading": "Чтение",
+  "@shelfReading": {
+    "description": "Reading shelf"
+  },
+  "settingsDbMoveContent": "Для перемещения базы данных требуется перезапустить приложение. Данные будут скопированы в новый каталог. Продолжить?",
+  "@settingsDbMoveContent": {
+    "description": "Move database dialog content"
+  },
+  "coverPickUrl": "URL",
+  "@coverPickUrl": {
+    "description": "URL pick button"
+  },
+  "imprintDeleteConfirm": "Удалить «{name}»?",
+  "@imprintDeleteConfirm": {
+    "description": "Delete imprint confirmation",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addManuallySubtitle": "Заполните данные самостоятельно",
+  "@addManuallySubtitle": {
+    "description": "Add manually option subtitle"
+  },
+  "bookSearchPrompt": "Поиск по названию, автору или ISBN",
+  "@bookSearchPrompt": {
+    "description": "Initial search prompt"
+  },
+  "scanBatchSubtitle": "Сканировать несколько книг подряд",
+  "@scanBatchSubtitle": {
+    "description": "Batch scan option subtitle"
+  },
+  "bookDetailDeleteTitle": "Удалите книгу",
+  "@bookDetailDeleteTitle": {
+    "description": "Delete book dialog title"
+  },
+  "formatHardcover": "Твердая обложка",
+  "@formatHardcover": {
+    "description": "Format: hardcover"
+  },
+  "shelfRead": "Читаю",
+  "@shelfRead": {
+    "description": "Read shelf"
+  },
+  "settingsApiKeyHint": "AIza...",
+  "@settingsApiKeyHint": {
+    "description": "API key placeholder"
+  },
+  "searchBook": "Поиск книг",
+  "@searchBook": {
+    "description": "Search book online option"
+  },
+  "settingsApiKeyTitle": "Ключ API Google Books",
+  "@settingsApiKeyTitle": {
+    "description": "API key card title"
+  },
+  "pagesLabel": "страницы",
+  "@pagesLabel": {
+    "description": "Generic pages label"
+  },
+  "settingsApiKeyStep2": "Создайте новый проект (название не имеет значения).",
+  "@settingsApiKeyStep2": {
+    "description": "Step 2"
+  },
+  "searchHint": "Поиск по заголовку...",
+  "@searchHint": {
+    "description": "Library search placeholder"
+  },
+  "criticalStartError": "Ошибка запуска приложения: {error}",
+  "@criticalStartError": {
+    "description": "Critical app startup error",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldCurrentPage": "Текущая страница",
+  "@fieldCurrentPage": {
+    "description": "Current page field"
+  },
+  "shelfFormSectionImprint": "Издательская марка",
+  "@shelfFormSectionImprint": {
+    "description": "Shelf form imprint section"
+  },
+  "navStats": "Статистика",
+  "@navStats": {
+    "description": "Nav tab: stats"
+  },
+  "delete": "Удалить",
+  "@delete": {
+    "description": "Generic delete button"
+  },
+  "bookDetailFieldFinished": "Окончание чтения",
+  "@bookDetailFieldFinished": {
+    "description": "Date finished label"
+  },
+  "pageProgressShort": "{current} / {total}",
+  "@pageProgressShort": {
+    "description": "Short reading progress",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDatabase": "База данных",
+  "@settingsDatabase": {
+    "description": "Database label"
+  },
+  "bookDetailFieldRating": "РЕЙТИНГ",
+  "@bookDetailFieldRating": {
+    "description": "Rating field label"
+  },
+  "statusReading": "Чтение",
+  "@statusReading": {
+    "description": "Status: reading"
+  },
+  "sectionImprint": "Издательская марка",
+  "@sectionImprint": {
+    "description": "Imprint header"
+  },
+  "appTitle": "Openshelf",
+  "@appTitle": {
+    "description": "Application name"
+  },
+  "url": "URL",
+  "@url": {
+    "description": "Enter URL button"
+  },
+  "navLibrary": "Библиотека",
+  "@navLibrary": {
+    "description": "Nav tab: library"
+  },
+  "shelfFormSectionCollection": "Коллекции",
+  "@shelfFormSectionCollection": {
+    "description": "Shelf form collection section"
+  },
+  "settingsApiKeyMissing": "Без ключа Google Books будет использовать Open Library в качестве альтернативы.",
+  "@settingsApiKeyMissing": {
+    "description": "Key missing message"
+  },
+  "tagNew": "Новая категория",
+  "@tagNew": {
+    "description": "New category button"
+  },
+  "fieldCollection": "Коллекция/серия",
+  "@fieldCollection": {
+    "description": "Collection field label"
+  },
+  "retry": "Повторить",
+  "@retry": {
+    "description": "Retry button"
+  },
+  "shelfFormNew": "Новая полка",
+  "@shelfFormNew": {
+    "description": "New shelf form title"
+  },
+  "settingsLanguage": "Язык",
+  "@settingsLanguage": {
+    "description": "Language selector label"
+  },
+  "settingsApiKeyInstructionsTitle": "Как получить ключ Google Books",
+  "@settingsApiKeyInstructionsTitle": {
+    "description": "Instructions title"
+  },
+  "shelfStatusBooksEmpty": "Здесь нет книг",
+  "@shelfStatusBooksEmpty": {
+    "description": "Empty status books state"
+  },
+  "pageProgress": "{current} / {total} стр. · {percent}%",
+  "@pageProgress": {
+    "description": "Reading progress pages",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "shelfFormSectionCategories": "Категории",
+  "@shelfFormSectionCategories": {
+    "description": "Shelf form categories section"
+  },
+  "coverPickerNetworkError": "Не удалось подключиться. Проверьте соединение.",
+  "@coverPickerNetworkError": {
+    "description": "Cover search network error"
+  },
+  "shelfStatusLabelRead": "Прочитанные",
+  "@shelfStatusLabelRead": {
+    "description": "Read status label"
+  },
+  "bookDetailPagePickerTitle": "Текущая страница",
+  "@bookDetailPagePickerTitle": {
+    "description": "Page picker title"
+  },
+  "settingsApiKeyShow": "Показать",
+  "@settingsApiKeyShow": {
+    "description": "Show key tooltip"
+  },
+  "photo": "Фото",
+  "@photo": {
+    "description": "Take photo button"
+  },
+  "settingsThemeMode": "Тема",
+  "@settingsThemeMode": {
+    "description": "Theme mode label"
+  },
+  "fieldCollectionNumber": "Количество в коллекциях",
+  "@fieldCollectionNumber": {
+    "description": "Number in collection field"
+  },
+  "navShelves": "Полки",
+  "@navShelves": {
+    "description": "Nav tab: shelves"
+  },
+  "download": "Скачать",
+  "@download": {
+    "description": "Download button"
+  },
+  "imprintUrlDialogTitle": "URL изображения",
+  "@imprintUrlDialogTitle": {
+    "description": "Imprint URL title"
+  },
+  "shelfFormNameLabel": "Название полки",
+  "@shelfFormNameLabel": {
+    "description": "Shelf name field label"
+  },
+  "bookSearchErrorNetwork": "Не удалось подключиться ни к одному серверу.\nПроверьте соединение и попробуйте снова.",
+  "@bookSearchErrorNetwork": {
+    "description": "Search network error"
+  },
+  "filterPublisher": "Издатель",
+  "@filterPublisher": {
+    "description": "Publisher filter placeholder"
+  },
+  "fieldIsbn": "ISBN",
+  "@fieldIsbn": {
+    "description": "ISBN field label"
+  },
+  "settingsThemeSystem": "Системная",
+  "@settingsThemeSystem": {
+    "description": "System theme option"
+  },
+  "shelfOptionEdit": "Редактирование полки",
+  "@shelfOptionEdit": {
+    "description": "Edit shelf option"
+  },
+  "settingsApiKeyStep3": "Перейдите в «API и сервисы» → «Библиотека», найдите «Books API» и включите её.",
+  "@settingsApiKeyStep3": {
+    "description": "Step 3"
+  },
+  "tagDeleteConfirm": "Удалить «{name}»?",
+  "@tagDeleteConfirm": {
+    "description": "Delete category confirmation",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldStatusChip": "Метка статуса",
+  "@fieldStatusChip": {
+    "description": "Status chip field"
+  },
+  "settingsButton": "Настройки",
+  "@settingsButton": {
+    "description": "Settings button label"
+  },
+  "shelfBooksEmpty": "Нет книг в этой полке",
+  "@shelfBooksEmpty": {
+    "description": "Empty shelf books state"
+  },
+  "settingsApiKeyClear": "Удалить ключ",
+  "@settingsApiKeyClear": {
+    "description": "Clear key tooltip"
+  },
+  "imprintNone": "Издательских марок пока нет",
+  "@imprintNone": {
+    "description": "Empty imprints state"
+  },
+  "scanBatch": "Сканировать несколько",
+  "@scanBatch": {
+    "description": "Batch scan option"
+  },
+  "imprintNewDialogTitle": "Новая издательская марка",
+  "@imprintNewDialogTitle": {
+    "description": "New imprint title"
+  },
+  "settingsApiKeyStep4": "Перейдите в «API и сервисы» → «Учетные данные» → «Создать учетные данные» → «Ключ API».",
+  "@settingsApiKeyStep4": {
+    "description": "Step 4"
+  },
+  "bookSearchErrorNoApiKey": "Для Google Books требуется ключ API.\nНастройте его в «Настройки» → «Поиск книг».",
+  "@bookSearchErrorNoApiKey": {
+    "description": "Error: no API key"
+  },
+  "tagCreateHint": "Введите текст и нажмите ввод, чтобы добавить или создать",
+  "@tagCreateHint": {
+    "description": "Tag create hint"
+  },
+  "addManually": "Добавить вручную",
+  "@addManually": {
+    "description": "Add book manually option"
+  },
+  "shelfFormHintPublisher": "Название идателя",
+  "@shelfFormHintPublisher": {
+    "description": "Shelf form publisher hint"
+  },
+  "libraryEmpty": "Ваша библиотека пуста",
+  "@libraryEmpty": {
+    "description": "Empty library state"
+  },
+  "shelvesSectionByStatus": "По статусу",
+  "@shelvesSectionByStatus": {
+    "description": "Status section header"
+  },
+  "scanBarcode": "Сканировать штрихкод",
+  "@scanBarcode": {
+    "description": "Scan barcode option"
+  },
+  "fieldTitle": "Название книги",
+  "@fieldTitle": {
+    "description": "Title field label"
+  },
+  "cancel": "Отмена",
+  "@cancel": {
+    "description": "Generic cancel button"
+  },
+  "imprintChangeImageHint": "Нажмите, чтобы изменить изображение",
+  "@imprintChangeImageHint": {
+    "description": "Change imprint image hint"
+  },
+  "searchBookSubtitle": "Поиск по имени, автору или ISBN",
+  "@searchBookSubtitle": {
+    "description": "Search book option subtitle"
+  },
+  "shelfOptionDelete": "Удалить",
+  "@shelfOptionDelete": {
+    "description": "Delete shelf option"
+  },
+  "bookDetailNotesHint": "Напишите свои заметки здесь...",
+  "@bookDetailNotesHint": {
+    "description": "Notes field placeholder"
+  },
+  "settingsApiKeyNote": "Ключ бесплатный и позволяет выполнять до 1 000 поисковых запросов в день. Ключ хранится только на этом устройстве.",
+  "@settingsApiKeyNote": {
+    "description": "API key information note"
+  },
+  "formatOther": "Другой",
+  "@formatOther": {
+    "description": "Format: other"
+  },
+  "settingsThemeDark": "Тёмная",
+  "@settingsThemeDark": {
+    "description": "Dark theme option"
+  },
+  "sectionBasicInfo": "Базовая информация",
+  "@sectionBasicInfo": {
+    "description": "Basic info header"
+  },
+  "settingsSearchServer": "Сервер",
+  "@settingsSearchServer": {
+    "description": "Search server label"
+  },
+  "managementImprints": "Издательские марки",
+  "@managementImprints": {
+    "description": "Management: imprints"
+  },
+  "statusRead": "Читаю",
+  "@statusRead": {
+    "description": "Status: read"
+  },
+  "displaySettings": "Показать в библиотеке",
+  "@displaySettings": {
+    "description": "Display settings title"
+  },
+  "coverPickerIsbnLabel": "ISBN {isbn}",
+  "@coverPickerIsbnLabel": {
+    "description": "Sheet subtitle with ISBN",
+    "placeholders": {
+      "isbn": {
+        "type": "String"
+      }
+    }
+  },
+  "managementCollections": "Коллекции",
+  "@managementCollections": {
+    "description": "Management: collections"
+  },
+  "shelfStatusLabelAbandoned": "Заброшенные",
+  "@shelfStatusLabelAbandoned": {
+    "description": "Abandoned status label"
+  },
+  "coverPickerTitle": "Обложки",
+  "@coverPickerTitle": {
+    "description": "Cover picker sheet title"
+  },
+  "coverPickerProgress": "{loaded} / {total}",
+  "@coverPickerProgress": {
+    "description": "Cover load progress",
+    "placeholders": {
+      "loaded": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "displaySettingsDragHint": "Перетащите для изменения порядка",
+  "@displaySettingsDragHint": {
+    "description": "Reorder hint"
+  },
+  "settingsApiKeyConfigured": "Ключ настроен. Google Books доступен.",
+  "@settingsApiKeyConfigured": {
+    "description": "Key configured message"
+  },
+  "bookSearchHint": "Название, автор или ISBN...",
+  "@bookSearchHint": {
+    "description": "Book search field hint"
+  },
+  "settingsApiKeyStep1": "Откройте console.cloud.google.com и войдите в свой аккаунт Google.",
+  "@settingsApiKeyStep1": {
+    "description": "Step 1"
+  },
+  "fieldTags": "Метки",
+  "@fieldTags": {
+    "description": "Tags field name"
+  },
+  "tagDeleteTitle": "Удалить категорию",
+  "@tagDeleteTitle": {
+    "description": "Delete category title"
+  },
+  "settingsApiKeyHowTo": "Как получить ключ",
+  "@settingsApiKeyHowTo": {
+    "description": "How to get key button"
+  },
+  "settingsTitle": "Настройки",
+  "@settingsTitle": {
+    "description": "Settings screen title"
+  },
+  "formatPaperback": "Мягкая обложка",
+  "@formatPaperback": {
+    "description": "Format: paperback"
+  },
+  "shelfFormSectionTitle": "Название",
+  "@shelfFormSectionTitle": {
+    "description": "Shelf form title section"
+  },
+  "bookDetailNotesEmpty": "Нажмите, чтобы добавить заметки...",
+  "@bookDetailNotesEmpty": {
+    "description": "Notes empty message"
+  },
+  "filterTagsLabel": "Категории",
+  "@filterTagsLabel": {
+    "description": "Categories filter label"
+  },
+  "tagNone": "Категорий пока нет",
+  "@tagNone": {
+    "description": "Empty categories state"
+  },
+  "bookDetailFieldPersonalNotes": "ПЕРСОНАЛЬНЫЕ ЗАМЕТКИ",
+  "@bookDetailFieldPersonalNotes": {
+    "description": "Notes section label"
+  },
+  "bookDetailFieldCategories": "КАТЕГОРИИ",
+  "@bookDetailFieldCategories": {
+    "description": "Categories field label"
+  },
+  "fieldPublisher": "Издатель",
+  "@fieldPublisher": {
+    "description": "Publisher field name"
+  },
+  "fieldRating": "Рейтинг",
+  "@fieldRating": {
+    "description": "Rating field name"
+  },
+  "coverUrlHint": "https://ejemplo.com/portada.jpg",
+  "@coverUrlHint": {
+    "description": "Cover URL placeholder"
+  },
+  "libraryEmptyHint": "Какой будет ваша первая книга?",
+  "@libraryEmptyHint": {
+    "description": "Hint when library is empty"
+  },
+  "tagSearchOrCreate": "Поиск или создание категории",
+  "@tagSearchOrCreate": {
+    "description": "Tag search placeholder"
+  },
+  "formatDigital": "Цифровой",
+  "@formatDigital": {
+    "description": "Format: digital"
+  },
+  "settingsSectionAppearance": "Внешний вид",
+  "@settingsSectionAppearance": {
+    "description": "Appearance section header"
+  },
+  "shelfStatusLabelWantToRead": "К прочтению",
+  "@shelfStatusLabelWantToRead": {
+    "description": "To read status label"
+  },
+  "settingsSectionStorage": "Хранилище",
+  "@settingsSectionStorage": {
+    "description": "Storage section header"
+  },
+  "shelfFormSectionIsbn": "ISBN",
+  "@shelfFormSectionIsbn": {
+    "description": "Shelf form ISBN section"
+  },
+  "bookSearchNoResults": "Нет результатов для «{query}»",
+  "@bookSearchNoResults": {
+    "description": "Search no results message",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCoversFolder": "Папка обложек",
+  "@settingsCoversFolder": {
+    "description": "Covers folder label"
+  },
+  "sectionRating": "Рейтинг",
+  "@sectionRating": {
+    "description": "Rating header"
+  },
+  "fieldYear": "Год публикации",
+  "@fieldYear": {
+    "description": "Year field name"
+  },
+  "bookDetailFieldAdded": "Добавлено",
+  "@bookDetailFieldAdded": {
+    "description": "Date added label"
+  },
+  "shelfNewTooltip": "Новая полка",
+  "@shelfNewTooltip": {
+    "description": "New shelf tooltip"
+  },
+  "settingsThemeLight": "Светлая",
+  "@settingsThemeLight": {
+    "description": "Light theme option"
+  },
+  "coverSearch": "Поиск",
+  "@coverSearch": {
+    "description": "Cover search button"
+  },
+  "tagColorLabel": "Цвет",
+  "@tagColorLabel": {
+    "description": "Category color field label"
+  },
+  "settingsLanguageSystem": "Система (автоматически)",
+  "@settingsLanguageSystem": {
+    "description": "Language option: system"
+  },
+  "settingsDefaultDir": "Каталог по умолчанию",
+  "@settingsDefaultDir": {
+    "description": "Default directory label"
+  },
+  "fieldTotalPages": "Всего страниц",
+  "@fieldTotalPages": {
+    "description": "Total pages field"
+  },
+  "shelfFormHintTitle": "Поиск по названию",
+  "@shelfFormHintTitle": {
+    "description": "Shelf form title hint"
+  },
+  "filterImprintLabel": "Издательская марка",
+  "@filterImprintLabel": {
+    "description": "Imprint filter label"
+  },
+  "bookDetailNotFound": "Книга не найдена",
+  "@bookDetailNotFound": {
+    "description": "Book not found message"
+  },
+  "filterIsbn": "ISBN",
+  "@filterIsbn": {
+    "description": "ISBN filter placeholder"
+  },
+  "settingsApiKeyStep6": "Скопируйте полученный ключ (он начинается с «AIza…») и вставьте его в поле выше.",
+  "@settingsApiKeyStep6": {
+    "description": "Step 6"
+  },
+  "statusWantToRead": "Хочу прочесть",
+  "@statusWantToRead": {
+    "description": "Status: want to read"
+  },
+  "imprintDeleteTitle": "Удалить издательскую марку",
+  "@imprintDeleteTitle": {
+    "description": "Delete imprint title"
+  },
+  "shelfFormHintCollection": "Название коллекции",
+  "@shelfFormHintCollection": {
+    "description": "Shelf form collection hint"
+  },
+  "settingsSectionSearch": "Поиск книг",
+  "@settingsSectionSearch": {
+    "description": "Search section header"
+  },
+  "settingsDbMoveTitle": "Переместить базу данных",
+  "@settingsDbMoveTitle": {
+    "description": "Move database dialog title"
+  },
+  "shelfAllBooks": "Все книги",
+  "@shelfAllBooks": {
+    "description": "All books shelf"
+  },
+  "settingsAccentColorHint": "Нажмите на цвет, чтобы применить его",
+  "@settingsAccentColorHint": {
+    "description": "Accent color hint"
+  },
+  "collectionDeleteConfirm": "Удалить «{name}»?",
+  "@collectionDeleteConfirm": {
+    "description": "Delete collection confirmation",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coverUrlDialogTitle": "URL-адрес обложки",
+  "@coverUrlDialogTitle": {
+    "description": "Cover URL dialog title"
+  },
+  "shelvesTitle": "Полки",
+  "@shelvesTitle": {
+    "description": "Shelves screen title"
+  },
+  "bookDetailDeleteConfirm": "Удалить \"{title}\"? Это действие нельзя отменить.",
+  "@bookDetailDeleteConfirm": {
+    "description": "Delete book confirmation",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "done": "Готово",
+  "@done": {
+    "description": "Generic close button"
+  },
+  "bookSearchRecommendedSource": "Рекомендовано Openshelf",
+  "statsAddFirstWidget": "Добавить первый виджет",
+  "searchFilterPublisherLabel": "Издательство: {publisher}",
+  "@searchFilterPublisherLabel": {
+    "placeholders": {
+      "publisher": {
+        "type": "String"
+      }
+    }
+  },
+  "shelfPaused": "На паузе",
+  "@shelfPaused": {
+    "description": "Paused shelf"
+  },
+  "settingsBatchCompressTitle": "Оптимизировать библиотеку сейчас",
+  "scanOcrHoldMessage": "Задержитесь на изображении на несколько секунд...",
+  "@scanOcrHoldMessage": {
+    "description": "Instruction to hold the camera steady for OCR"
+  },
+  "settingsLibraryColumns": "Столбцы в библиотеке",
+  "statsStreakTitle": "СЕРИЯ",
+  "statsLastAddedTitle": "ПОСЛЕДНИЕ ДОБАВЛЕНИЯ",
+  "statsOptAddedTimeSub": "График добавлений во времени",
+  "settingsImportSelectCovers": "Выбрать ZIP-файл с обложками Openshelf",
+  "scanBarcodePermission": "Разрешить камеру для сканирования кодов",
+  "@scanBarcodePermission": {
+    "description": "Camera permission missing message"
+  },
+  "statsOptYearsTitle": "Год публикации",
+  "statsReadingNowTitle": "ЧИТАЮ СЕЙЧАС",
+  "bookSearchServerGoogleBooks": "Google Books",
+  "settingsBatchCompressSub": "Сжимает все существующие неоптимизированные обложки",
+  "statsCategoriesTitle": "КАТЕГОРИИ",
+  "searchTabImprint": "Издательская марка",
+  "@searchTabImprint": {
+    "description": "Search panel: Imprint tab"
+  },
+  "statsOptReadYearTitle": "Прочитанные по годам",
+  "dataManagementImport": "Импортировать книги",
+  "statsPagesTitle": "СТРАНИЦЫ",
+  "searchFilterCategory": "Cat.: {value}",
+  "@searchFilterCategory": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "statsAddedNoData": "Нет данных",
+  "statsAddedTitle": "ДОБАВЛЕННЫЕ КНИГИ",
+  "statsStreakSub": "дней подряд",
+  "statsPeriodThisMonth": "Прочитанные в этом месяце",
+  "scanModeIsbn": "Номер ISBN",
+  "@scanModeIsbn": {
+    "description": "Label for scanner mode: ISBN number / text"
+  },
+  "statsOptCollectionsSub": "Книги по коллекциям",
+  "bookDuplicateContent": "В вашей библиотеке уже есть книга с ISBN {isbn}.",
+  "@bookDuplicateContent": {
+    "description": "Duplicate book warning content",
+    "placeholders": {
+      "isbn": {
+        "type": "String"
+      }
+    }
+  },
+  "tagNoneSubtitle": "Категории помогают находить книги и создавать ментальную карту вашей библиотеки",
+  "@tagNoneSubtitle": {
+    "description": "Empty categories state subtitle"
+  },
+  "onboardingProgressTitle": "Следите за своим прогрессом",
+  "dataManagementOpenShelf": "OpenShelf",
+  "openSettings": "Открыть настройки",
+  "@openSettings": {
+    "description": "Button to open system settings"
+  },
+  "statsOptCategoriesTitle": "Категории",
+  "permissionRequired": "Требуется разрешение",
+  "@permissionRequired": {
+    "description": "Title for permanently denied permission dialog"
+  },
+  "statsGoalTargetShelf": "Целевая полка",
+  "statsReadingTitle": "ЧТЕНИЕ",
+  "statsOptAddedTimeTitle": "Добавленные книги",
+  "collectionNoneSubtitle": "Создавайте коллекции и организуйте свои книги",
+  "@collectionNoneSubtitle": {
+    "description": "Empty collections state subtitle"
+  },
+  "statsOptCollectionsTitle": "Коллекции",
+  "managementCategoryCount": "Количество книг",
+  "@managementCategoryCount": {
+    "description": "Number of books in a category"
+  },
+  "bookSearchServerInventaire": "Inventaire.io",
+  "bookSearchServerAnnasArchive": "Anna's Archive",
+  "bookSearchServerOpenLibrary": "Открыть библиотеку",
+  "statsGoalFromLabel": "С",
+  "settingsDevClearDbSub": "Инструмент разработчика: очистить базу данных",
+  "statsGoalUnitPages": "стр.",
+  "searchTabCategory": "Категория",
+  "@searchTabCategory": {
+    "description": "Search panel: Category tab"
+  },
+  "statsGoalTargetLabel": "Числовая цель",
+  "settingsApplyIcon": "Применить изменение значка",
+  "statsYearsTitle": "ГОДЫ ПУБЛИКАЦИИ",
+  "statsReadingNone": "Нет книг в чтении",
+  "statsOptLastAddedSub": "Недавно добавленные",
+  "loading": "Загрузка...",
+  "@loading": {
+    "description": "Generic loading message"
+  },
+  "settingsCompressImagesTitle": "Автоматически сжимать обложки",
+  "statsGoalRemaining": "Осталось {count}",
+  "@statsGoalRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsGoalEdit": "Редактировать цель",
+  "settingsExportCsv": "Экспортировать библиотеку",
+  "@settingsExportCsv": {
+    "description": "Export title"
+  },
+  "searchSaveAsShelf": "Сохранить как полку",
+  "settingsImportBookshelfHint": "Импортировать книги из CSV-файла",
+  "@settingsImportBookshelfHint": {
+    "description": "Import hint"
+  },
+  "searchFilterStatus": "Статус: {value}",
+  "@searchFilterStatus": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "statsGoalTitle": "ЦЕЛИ",
+  "onboardingProgressSub": "Цели чтения и подробная статистика",
+  "storagePermissionExplanation": "Чтобы выбрать обложку, необходимо предоставить доступ к хранилищу. Это можно сделать в настройках приложения.",
+  "@storagePermissionExplanation": {
+    "description": "Explanation for permanently denied storage permission"
+  },
+  "onboardingOrganizeTitle": "Организуйте свой мир",
+  "statsGoalNameLabel": "Название (например: Цель 2026)",
+  "onboardingWelcomeTitle": "Добро пожаловать в Openshelf",
+  "statsAvgPagesSub": "страниц на книгу",
+  "bookSearchProvidersNotice": "Результаты: {providers}.",
+  "@bookSearchProvidersNotice": {
+    "description": "Notice of providers that contributed to the search",
+    "placeholders": {
+      "providers": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAutoNoCoverSub": "Автоматически создаёт полку, если отсутствуют обложки",
+  "statsOptPagesSub": "Всего прочитано страниц",
+  "imprintBookCount": "{count} книг",
+  "@imprintBookCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsGoalTypeBooks": "Прочитанные книги",
+  "libraryAddFirstBook": "Добавьте первую книгу",
+  "@libraryAddFirstBook": {
+    "description": "Text for the action button in the empty library state"
+  },
+  "dataManagementExport": "Экспортировать книги",
+  "importRestoreCoversPrompt": "У вас также есть ZIP-файл с обложками для восстановления?",
+  "@importRestoreCoversPrompt": {
+    "description": "Import covers prompt"
+  },
+  "statsCollectionsTitle": "КОЛЛЕКЦИИ",
+  "settingsExportCsvHint": "Экспортировать все книги в CSV-файл",
+  "@settingsExportCsvHint": {
+    "description": "Export hint"
+  },
+  "scanIsbnTextSubtitle": "Наведите на напечатанный номер",
+  "@scanIsbnTextSubtitle": {
+    "description": "Subtitle for scanning ISBN as text"
+  },
+  "statsOptCurrentTitle": "Текущая книга",
+  "statsOptYearsSub": "Историческая гистограмма",
+  "fieldTranslator": "Переводчик",
+  "@fieldTranslator": {
+    "description": "Translator field label"
+  },
+  "statsOptCurrentSub": "Текущий прогресс чтения",
+  "statsGoalFullTitle": "ЦЕЛИ ЧТЕНИЯ",
+  "devDeleteAllBooks": "УДАЛИТЬ ВСЕ КНИГИ (DEV)",
+  "@devDeleteAllBooks": {
+    "description": "Developer option to clear database"
+  },
+  "statsOptCategoriesSub": "Распределение по жанрам",
+  "statsAddWidgetTitle": "Добавить виджет",
+  "fieldDescription": "Описание",
+  "@fieldDescription": {
+    "description": "Description field label"
+  },
+  "settingsAllFilesAccess": "All Files Access",
+  "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
+  "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.",
+  "settingsAutoPruneTagsTitle": "Очистка пустых категорий",
+  "settingsAutoPruneTagsSub": "Автоматически удалять категории, которые не используются ни в одной книге",
+  "settingsExcludedPruneTagsTitle": "Исключенные категории",
+  "settingsExcludedPruneTagsSub": "{count, plural, =0{Нет исключенных категорий} =1{1 категория защищена} other{{count} категорий защищено}}",
+  "@settingsExcludedPruneTagsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPruneWarningTitle": "Обнаружены пустые категории",
+  "settingsPruneWarningContent": "Активация этой опции удалит следующие категории, так как они не используются ни в одной книге. Продолжить?",
+  "settingsAutomationTitle": "Автоматизация",
+  "removeFromCollection": "Удалить из коллекции",
+  "removeFromImprint": "Удалить из импринта",
+  "removeFromCategory": "Удалить из категории",
+  "imageProcessError": "Не удалось обработать изображение",
+  "@imageProcessError": {
+    "description": "Error when image processing fails"
+  },
+  "imageProcessing": "Обработка изображения...",
+  "@imageProcessing": {
+    "description": "Текст, отображаемый в диалоге во время обработки изображения"
+  },
+  "imagePreparing": "Подготовка изображения...",
+  "@imagePreparing": {
+    "description": "Text shown in dialog while preparing image for cropper"
+  },
+  "imageOptimizing": "Оптимизация изображения...",
+  "@imageOptimizing": {
+    "description": "Text shown in dialog while compressing image"
+  },
+  "bookDetailNewReadingSections": "Разделы",
+  "ownershipStatusBought": "Куплено",
+  "@ownershipStatusBought": {
+    "description": "Tenencia: comprado"
+  },
+  "exportSaveSuccess": "Резервная копия сохранена в {path}",
+  "@exportSaveSuccess": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "bookDetailNewReadingWholeBook": "Вся книга",
+  "ownershipStatusSold": "Продано",
+  "@ownershipStatusSold": {
+    "description": "Tenencia: vendido"
+  },
+  "ownershipHistoryTitle": "ИСТОРИЯ ВЛАДЕНИЯ",
+  "@ownershipHistoryTitle": {
+    "description": "Título de la sección de historial de propiedad"
+  },
+  "bookDetailDuplicateTitle": "Дубликат книги",
+  "@bookDetailDuplicateTitle": {
+    "description": "Título del diálogo de duplicar libro"
+  },
+  "exportProgressMedia": "Подготовка медиафайлов...",
+  "bookDetailStartNewReadingTitle": "Новое чтение",
+  "fieldCopies": "Копии",
+  "@fieldCopies": {
+    "description": "Nombre del campo copias"
+  },
+  "scanIsbnText": "Сканируйте ISBN номер",
+  "@scanIsbnText": {
+    "description": "Opción de escanear ISBN mediante texto"
+  },
+  "bookDetailNewReadingReadCount": "Чтение {count}x",
+  "ownershipEventDate": "Дата",
+  "@ownershipEventDate": {
+    "description": "Fecha del evento de propiedad"
+  },
+  "fieldOriginalLanguage": "Язык оригинала",
+  "@fieldOriginalLanguage": {
+    "description": "Nombre del campo idioma original"
+  },
+  "exportProgressData": "Экспорт данных...",
+  "shelfEmptySubtitle": "Организуйте чтение как хочется",
+  "@shelfEmptySubtitle": {
+    "description": "Subtítulo del estado vacío de estanterías"
+  },
+  "errorGeneric": "Ошибка: {error}",
+  "@errorGeneric": {
+    "description": "Mensaje genérico de error con parámetro",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldTotalBooks": "Всего книг",
+  "@fieldTotalBooks": {
+    "description": "Nombre del campo de libros totales"
+  },
+  "ownershipEventPerson": "Лицо / Кто",
+  "@ownershipEventPerson": {
+    "description": "Persona en evento de propiedad"
+  },
+  "bookDetailNewReadingSelectSections": "Выберите раздел для перечитывания",
+  "errorPrefix": "Ошибка: {message}",
+  "@errorPrefix": {
+    "description": "Prefijo genérico de error",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "duplicate": "Дубликат",
+  "@duplicate": {
+    "description": "Acción genérica de duplicar"
+  },
+  "fieldLanguage": "Язык",
+  "@fieldLanguage": {
+    "description": "Nombre del campo idioma"
+  },
+  "ownershipEventNotes": "Заметки",
+  "@ownershipEventNotes": {
+    "description": "Notas para el evento de propiedad"
+  },
+  "scanIsbnSelect": "Выберите ISBN",
+  "@scanIsbnSelect": {
+    "description": "Instrucción para tocar un ISBN detectado"
+  },
+  "shelvesAddFirstShelf": "Создать полку",
+  "@shelvesAddFirstShelf": {
+    "description": "Texto del botón de acción en el estado vacío de las estanterías"
+  },
+  "loadingImport": "Импорт книг, подождите...",
+  "@loadingImport": {
+    "description": "Mensaje de carga durante la importación"
+  },
+  "bookDetailNewReadingSectionsCount": "{count, plural, =1{1 section} other{{count} sections}}",
+  "@bookDetailNewReadingSectionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fieldSubtitle": "Подзаголовок",
+  "@fieldSubtitle": {
+    "description": "Nombre del campo subtítulo"
+  },
+  "exportProgressCompress": "Сжатие резервной копии...",
+  "exportProgressFinalize": "Открытие меню...",
+  "bookDetailStartNewReadingPrompt": "Хотите начать новое чтение?",
+  "fieldOwnershipStatus": "Статус владения",
+  "@fieldOwnershipStatus": {
+    "description": "Etiqueta del campo de estado de propiedad"
+  },
+  "ownershipLogEmpty": "Событий, связанных с владением, не зафиксировано.",
+  "@ownershipLogEmpty": {
+    "description": "Mensaje de registro de propiedad vacío"
+  },
+  "booksReadProgress": "{readCount} / {totalCount} книги читаю",
+  "@booksReadProgress": {
+    "description": "Etiqueta de progreso de libros leídos",
+    "placeholders": {
+      "readCount": {
+        "type": "int"
+      },
+      "totalCount": {
+        "type": "int"
+      }
+    }
+  },
+  "scanModeBarcode": "Баркод",
+  "@scanModeBarcode": {
+    "description": "Etiqueta del modo escáner: código de barras"
+  },
+  "ownershipStatusOther": "Другое",
+  "@ownershipStatusOther": {
+    "description": "Tenencia: otro"
+  },
+  "statusPaused": "На паузе",
+  "@statusPaused": {
+    "description": "Estado: pausado"
+  },
+  "bookDetailReadNumber": "Чтение {number}",
+  "@bookDetailReadNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "collectionNameLabel": "Название коллекции",
+  "@collectionNameLabel": {
+    "description": "Label del campo nombre de colección"
+  },
+  "ownershipStatusGifted": "Подарено",
+  "@ownershipStatusGifted": {
+    "description": "Tenencia: regalado"
+  },
+  "loadingExport": "Экспорт книг, подождите...",
+  "@loadingExport": {
+    "description": "Mensaje de carga durante la exportación"
+  },
+  "fieldReads": "Чтение",
+  "@fieldReads": {
+    "description": "Nombre del campo lecturas"
+  },
+  "ownershipStatusReturned": "Возвращено",
+  "@ownershipStatusReturned": {
+    "description": "Tenencia: devuelto"
+  },
+  "bookDetailDuplicateConfirm": "Хотите создать точную копию \"{title}\"?",
+  "@bookDetailDuplicateConfirm": {
+    "description": "Confirmación de duplicar libro",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "bookDetailReadOngoing": "текущий",
+  "bookDetailStartNewReadingButton": "Начало нового чтения",
+  "bookDetailDeleteReadPrompt": "Удалить последнюю текущую сессию чтения? Данные этой сессии будут потеряны.",
+  "ownershipStatusBorrowed": "Взял почитать",
+  "@ownershipStatusBorrowed": {
+    "description": "Tenencia: prestado"
+  },
+  "bookDetailReadNumberLabel": "Номер прочтения",
+  "saveToDevice": "Сохранить на устройстве",
+  "@saveToDevice": {
+    "description": "Acción de guardar en el dispositivo"
+  },
+  "bookDetailNewReadingWholeBookDescription": "Полное перечитывание будет записано с сегодняшнего дня.",
+  "shelfBooksEmptyHint": "Здесь появятся книги по выбранным фильтрам.",
+  "@shelfBooksEmptyHint": {
+    "description": "Sugerencia para estantería vacía"
+  },
+  "selectAll": "Выберите все",
+  "bookDetailReadDeleteConfirm": "Удалить текущую историю ?",
+  "share": "Поделиться",
+  "@share": {
+    "description": "Acción de compartir"
+  },
+  "fieldOriginalTitle": "Оригинальное название",
+  "@fieldOriginalTitle": {
+    "description": "Nombre del campo título original"
+  },
+  "bookDetailReadEditDialogTitle": "Редактирование чтения {number}",
+  "fieldIsTranslation": "Это перевод?",
+  "@fieldIsTranslation": {
+    "description": "Interruptor para campos de traducción"
+  },
+  "bookDetailReadHistoryTitle": "ИСТОРИЯ ЧТЕНИЯ",
+  "paginationEndPhysical": "Конец (физический)",
+  "searchFieldIsbn": "ISBN",
+  "searchOpNotEquals": "≠",
+  "paginationStartPhysical": "Начало (физическое)",
+  "paginationAdvancedButton": "Расширенная",
+  "searchOpLessThan": "<",
+  "searchModeBoolean": "Булева",
+  "searchModeBasic": "Базовая",
+  "searchAddCondition": "Добавить условие",
+  "paginationPhysicalTotalNote": "Примечание: общее количество страниц относится к физическим страницам книги (общее количество листов).",
+  "paginationChooseColor": "Выбрать цвет",
+  "searchFieldPublisher": "Издательство",
+  "statsOptStatusSub": "Книги по статусу",
+  "statsReadByYearTitle": "ПРОЧИТАННЫЕ КНИГИ ПО ГОДАМ",
+  "dataManagementExportHintJson": "Экспортировать в JSON {source}",
+  "statsOptStreakTitle": "Серия",
+  "settingsDevDbCleared": "База данных очищена",
+  "paginationMarkersLabels": "ЗАКЛАДКИ / МЕТКИ",
+  "searchFieldNotes": "Заметки",
+  "settingsImportBookshelf": "Импортировать из Bookshelf",
+  "@settingsImportBookshelf": {
+    "description": "Opción de importar desde Bookshelf"
+  },
+  "searchFilterTranslatorLabel": "Переводчик: {translator}",
+  "@searchFilterTranslatorLabel": {
+    "placeholders": {
+      "translator": {
+        "type": "String"
+      }
+    }
+  },
+  "paginationAddMarker": "Добавить закладку",
+  "exportTitle": "Экспортировать библиотеку",
+  "@exportTitle": {
+    "description": "Título del diálogo de exportación"
+  },
+  "searchFilterCollection": "Col.: {value}",
+  "@searchFilterCollection": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "paginationVisualPageHint": "Например: xiv или 501",
+  "dataManagementExportHint": "Экспортировать в CSV {source}",
+  "@dataManagementExportHint": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "paginationCorrectErrors": "ИСПРАВЬТЕ СЛЕДУЮЩИЕ ОШИБКИ:",
+  "statsEmptySubtitle": "Добавьте виджеты, чтобы видеть свои читательские привычки, цели и личные рекорды.",
+  "@statsEmptySubtitle": {
+    "description": "Subtítulo del estado vacío de estadísticas"
+  },
+  "onboardingWelcomeSub": "Ваша личная библиотека в новом представлении",
+  "searchFilterAuthorLabel": "Автор: {author}",
+  "@searchFilterAuthorLabel": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "bookDuplicateTitle": "Дубликат книги",
+  "@bookDuplicateTitle": {
+    "description": "Título del aviso de libro duplicado"
+  },
+  "searchClearAll": "Очистить всё",
+  "@searchClearAll": {
+    "description": "Botón para limpiar todos los filtros de búsqueda"
+  },
+  "statsOptReadYearSub": "График чтения по годам",
+  "dataManagementRestoreBackupHint": "Восстановить из CSV/ZIP OpenShelf",
+  "paginationMarkerLabel": "Метка закладки",
+  "statsGoalTypePages": "Прочитанные страницы",
+  "dataManagementRestoreBackup": "Восстановить резервную копию",
+  "devDeleteConfirmContent": "Это навсегда удалит ВСЕ книги и категории. Только для тестирования. Продолжить?",
+  "@devDeleteConfirmContent": {
+    "description": "Contenido de confirmación de borrado dev"
+  },
+  "searchOpIs": "равно",
+  "no": "Нет",
+  "@no": {
+    "description": "Botón No"
+  },
+  "settingsCompressImagesSub": "Уменьшает размер изображений при сохранении или импорте",
+  "imprintsAddFirst": "Добавить издательскую марку",
+  "@imprintsAddFirst": {
+    "description": "Texto del botón de acción en el estado vacío de los sellos"
+  },
+  "searchFieldOriginalLanguage": "Оригинальный язык",
+  "paginationType": "Тип:",
+  "statsGoalUnitBooks": "книг",
+  "statsPeriodLast3Months": "Последние 3 месяца",
+  "statsDailyReadingTitle": "ЕЖЕДНЕВНОЕ ЧТЕНИЕ",
+  "dataManagementImportHint": "Импортировать из CSV {source}",
+  "@dataManagementImportHint": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "devDeleteConfirmTitle": "Очистить библиотеку?",
+  "@devDeleteConfirmTitle": {
+    "description": "Título de confirmación de borrado dev"
+  },
+  "searchFieldPages": "Страницы",
+  "paginationSaveProgress": "Сохранить прогресс",
+  "searchFilterIsbnLabel": "ISBN: {isbn}",
+  "@searchFilterIsbnLabel": {
+    "placeholders": {
+      "isbn": {
+        "type": "String"
+      }
+    }
+  },
+  "sortTitle": "Сортировать",
+  "statsOptAvgCompletionTitle": "Время чтения",
+  "settingsImportSelectBackup": "Выбрать резервную копию Openshelf",
+  "statsGoalNew": "Новая цель",
+  "noCoverShelfTitle": "Книги без обложки",
+  "paginationVisualPage": "Визуальная страница",
+  "settingsAutoNoCoverTitle": "Полка без обложек",
+  "paginationAddBlock": "Добавить блок",
+  "paginationAllPagesAssignedNote": "Примечание: вы уже распределили все доступные страницы.",
+  "paginationEquivalentPhysical": "Соответствует физическим страницам: {start} — {end}",
+  "@paginationEquivalentPhysical": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "statsOptLastAddedTitle": "Последние добавления",
+  "searchOpNotIncludes": "не включает",
+  "exportCoversPrompt": "Включить изображения обложек в резервную копию? (Рядом с CSV будет создан ZIP-файл)",
+  "@exportCoversPrompt": {
+    "description": "Pregunta sobre portadas en exportación"
+  },
+  "searchOpStartsWith": "начинается с",
+  "statsPagesSub": "прочитанных страниц",
+  "searchOpIncludesAll": "включает все",
+  "statsOptAvgPagesTitle": "Средний объём",
+  "paginationBlocksSegments": "БЛОКИ / СЕГМЕНТЫ",
+  "statsGoalDelete": "Удалить",
+  "statsPeriodLast3Years": "Последние 3 года",
+  "onboardingAddSub": "Сканируйте штрихкоды или ищите в облаке",
+  "searchFieldImprint": "Издательская марка",
+  "settingsFullBackup": "Восстановить библиотеку",
+  "@settingsFullBackup": {
+    "description": "Título de restauración"
+  },
+  "statsOptAvgPagesSub": "Среднее количество страниц на книгу",
+  "searchFieldTitle": "Название",
+  "settingsSectionData": "Управление данными",
+  "@settingsSectionData": {
+    "description": "Encabezado de sección de datos"
+  },
+  "paginationMarkerDefaultName": "Закладка",
+  "paginationNoSegmentsDefined": "Сегменты не определены. По умолчанию используется диапазон 1–N.",
+  "paginationStartVisual": "Начало (визуальное)",
+  "paginationOffset": "Смещение",
+  "settingsLanguageEnglish": "Английский",
+  "@settingsLanguageEnglish": {
+    "description": "Opción de idioma: inglés"
+  },
+  "shelfShowInLibrary": "Показать в библиотеке",
+  "yes": "Да",
+  "@yes": {
+    "description": "Botón Sí"
+  },
+  "statsOptPagesTitle": "Всего страниц",
+  "settingsDynamicIconSub": "Измените значок на главном экране в соответствии с выбранным цветом (приложение будет перезапущено)",
+  "paginationEndVisual": "Конец (визуальное)",
+  "searchFilterLanguageLabel": "Язык: {language}",
+  "@searchFilterLanguageLabel": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "dataManagementImportHintJson": "Импортировать из JSON {source}",
+  "addedToLibrary": "Добавлено в библиотеку",
+  "@addedToLibrary": {
+    "description": "Mensaje de éxito al añadir libro"
+  },
+  "onboardingNext": "Далее",
+  "searchFieldYear": "Год",
+  "importPartial": "Частичный импорт: добавлено {added}, пропущено {skipped}.",
+  "@importPartial": {
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "statsStatusTitle": "СТАТУСЫ",
+  "tabMore": "ещё",
+  "settingsLanguagePortugueseBR": "Португальский (Бразилия)",
+  "@settingsLanguagePortugueseBR": {
+    "description": "Opción de idioma: portugués brasileño"
+  },
+  "importSuccess": "Импорт завершён: добавлено книг: {count}.",
+  "@importSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsGoalTypeLabel": "Тип",
+  "dataManagementCreateBackupHint": "Полный экспорт с возможностью включить обложки",
+  "statsPeriodThisYear": "Прочитанные в этом году",
+  "paginationSegmentStartGreater": "Сегмент {index}: начало не может быть больше конца.",
+  "statsAvgCompletionValue": "{days} дн.",
+  "@statsAvgCompletionValue": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "paginationArabic": "Арабские",
+  "paginationCurrentPageShort": "Стр.",
+  "statsAvgPagesTitle": "СРЕДНЕЕ КОЛИЧЕСТВО СТРАНИЦ",
+  "errorDuplicateIsbn": "Уже в библиотеке",
+  "@errorDuplicateIsbn": {
+    "description": "Error cuando el ISBN ya existe"
+  },
+  "searchFieldNoCover": "Без обложки",
+  "settingsLibraryColumnsSub": "Настройте количество книг в строке в режиме сетки",
+  "searchTabCollection": "Коллекция",
+  "@searchTabCollection": {
+    "description": "Panel de búsqueda: pestaña Colección"
+  },
+  "settingsLanguageSpanish": "Испанский",
+  "@settingsLanguageSpanish": {
+    "description": "Opción de idioma: español"
+  },
+  "paginationVisualMode": "Визуальный режим",
+  "settingsFullBackupHint": "Восстановить книги из резервной копии CSV",
+  "@settingsFullBackupHint": {
+    "description": "Pista de restauración"
+  },
+  "settingsLanguagePortuguese": "Португальский (Португалия)",
+  "@settingsLanguagePortuguese": {
+    "description": "Opción de idioma: portugués"
+  },
+  "searchFilterSubtitleLabel": "Подзаголовок: {subtitle}",
+  "@searchFilterSubtitleLabel": {
+    "placeholders": {
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "bookSearchRecommended": "РЕКОМЕНДОВАНО OPENSHELF",
+  "@bookSearchRecommended": {
+    "description": "Etiqueta para el resultado recomendado"
+  },
+  "statsOptGoalSub": "Книги, полки или коллекции",
+  "onboardingStart": "Начать сейчас",
+  "managementCategoryCloudCurve": "Алгоритмическая кривая (книги)",
+  "searchFieldHasNotes": "Есть заметки",
+  "searchModeAdvanced": "Расширенная",
+  "statsGoalToLabel": "По",
+  "statsOptReadListTitle": "Список прочитанных",
+  "searchOpEquals": "=",
+  "searchFieldAuthor": "Автор",
+  "statsOptStreakSub": "Дней чтения подряд",
+  "searchOpIsNot": "не равно",
+  "paginationRoman": "Римские",
+  "searchFieldOriginalTitle": "Оригинальное название",
+  "categoriesAddFirst": "Новая категория",
+  "@categoriesAddFirst": {
+    "description": "Texto del botón de acción en el estado vacío de las categorías"
+  },
+  "settingsLanguageItalian": "Итальянский",
+  "@settingsLanguageItalian": {
+    "description": "Opción de idioma: italiano"
+  },
+  "statsOptAvgCompletionSub": "Среднее время на прочтение книги",
+  "importRestoreCoversTitle": "Восстановить обложки",
+  "@importRestoreCoversTitle": {
+    "description": "Título de restauración de portadas"
+  },
+  "settingsLanguageFrench": "Французский",
+  "@settingsLanguageFrench": {
+    "description": "Opción de idioma: francés"
+  },
+  "statsGoalCompleted": "Готово!",
+  "statsOptGoalTitle": "Цель чтения",
+  "paginationSegmentExceedsTotal": "Сегмент {index}: значения превышают общее количество страниц ({total}).",
+  "@paginationSegmentExceedsTotal": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "searchTabStatus": "Статус",
+  "@searchTabStatus": {
+    "description": "Panel de búsqueda: pestaña Estado"
+  },
+  "settingsDynamicIcon": "Динамический значок приложения",
+  "unknownAuthor": "Неизвестно",
+  "collectionsAddFirst": "Новая коллекция",
+  "@collectionsAddFirst": {
+    "description": "Texto del botón de acción en el estado vacío de las colecciones"
+  },
+  "dataManagementBookshelf": "Bookshelf",
+  "imprintNoneSubtitle": "Группируйте книги по издательствам или их издательским маркам",
+  "@imprintNoneSubtitle": {
+    "description": "Subtítulo del estado vacío de sellos"
+  },
+  "onboardingAddTitle": "Добавляйте мгновенно",
+  "searchActiveFilters": "{count, plural, =1{1 активный фильтр} other{{count} активный фильтр}}",
+  "@searchActiveFilters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchFilterImprint": "Издательская марка: {value}",
+  "@searchFilterImprint": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dataManagementLibraryThing": "LibraryThing",
+  "searchFieldCategory": "Категория",
+  "statsOptStatusTitle": "Статусы чтения",
+  "searchFieldStatus": "Статус",
+  "onboardingOrganizeSub": "Создавайте умные полки и тематические коллекции",
+  "paginationPagesRemainingWarning": "Внимание: осталось {count} нераспределённых физических страниц.",
+  "@paginationPagesRemainingWarning": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dataManagementCreateBackup": "Создать резервную копию",
+  "dataManagementGoodreads": "Goodreads",
+  "statsOptReadListSub": "Книги, прочитанные за период",
+  "paginationProgress": "{current} / {total}",
+  "@paginationProgress": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsBatchCompressSuccess": "Оптимизировано обложек: {count}.",
+  "@settingsBatchCompressSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchOpBetween": "между",
+  "cameraPermissionExplanation": "Чтобы сделать фото, необходимо предоставить доступ к камере. Это можно сделать в настройках приложения.",
+  "@cameraPermissionExplanation": {
+    "description": "Explicación del permiso de cámara denegado permanentemente"
+  },
+  "paginationMarkersAndIndices": "Разделы и закладки",
+  "shelfStatusLabelPaused": "Приостановленные",
+  "@shelfStatusLabelPaused": {
+    "description": "Etiqueta de estado: pausados en subtítulo de estantería"
+  },
+  "paginationLabelOptional": "Метка (необязательно)",
+  "settingsLanguageCatalan": "Каталанский",
+  "@settingsLanguageCatalan": {
+    "description": "Opción de idioma: catalán"
+  },
+  "paginationAllPagesAssigned": "Все страницы уже распределены.",
+  "statsOptDailyReadingTitle": "Ежедневное чтение",
+  "searchFieldCollection": "Коллекция",
+  "searchOpIncludes": "включает",
+  "paginationSegmentsDefaultName": "Блок",
+  "paginationAdjustsAutomatically": "Корректируется автоматически",
+  "paginationSectionLabel": "Раздел {index}",
+  "@paginationSectionLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "searchOpGreaterThan": ">",
+  "searchFieldLanguage": "Язык",
+  "searchPreview": "Предпросмотр",
+  "paginationAdvancedConfig": "Расширенные настройки",
+  "searchOpExactly": "точно равно",
+  "paginationSegmentRequired": "Сегмент {index}: все поля страниц обязательны для заполнения.",
+  "searchOpContains": "содержит",
+  "paginationSegmentOverlap": "Сегмент {index1} пересекается с сегментом {index2}",
+  "@paginationSegmentOverlap": {
+    "placeholders": {
+      "index1": {
+        "type": "String"
+      },
+      "index2": {
+        "type": "String"
+      }
+    }
+  },
+  "paginationPhysicalLabel": "Физическая: {page}",
+  "statsOptDailyReadingSub": "Прочитанные страницы в день",
+  "workEditionsEmpty": "Не удалось загрузить дополнительные издания.",
+  "workEditionsUseGeneral": "Использовать общие метаданные",
+  "workEditionsCount": "{count} изд.",
+  "@workEditionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

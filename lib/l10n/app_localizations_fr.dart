@@ -890,19 +890,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsLanguageEnglish => 'Anglais';
 
   @override
-  String get settingsLanguageFrench => 'Francés';
+  String get settingsLanguageFrench => '';
 
   @override
-  String get settingsLanguageItalian => 'Italiano';
+  String get settingsLanguageItalian => '';
 
   @override
-  String get settingsLanguageCatalan => 'Catalán';
+  String get settingsLanguageCatalan => '';
 
   @override
-  String get settingsLanguagePortuguese => 'Portugués (Portugal)';
+  String get settingsLanguagePortuguese => '';
 
   @override
-  String get settingsLanguagePortugueseBR => 'Portugués (Brasil)';
+  String get settingsLanguagePortugueseBR => '';
 
   @override
   String get settingsThemeMode => 'Mode du thème';
@@ -1360,12 +1360,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String searchFilterSubtitleLabel(String subtitle) {
-    return 'Subtítulo: $subtitle';
+    return '';
   }
 
   @override
   String searchFilterTranslatorLabel(String translator) {
-    return 'Traductor: $translator';
+    return '';
   }
 
   @override
@@ -1721,106 +1721,106 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get searchModeBasic => 'Básica';
+  String get searchModeBasic => '';
 
   @override
-  String get searchModeAdvanced => 'Avanzada';
+  String get searchModeAdvanced => '';
 
   @override
-  String get searchModeBoolean => 'Booleana';
+  String get searchModeBoolean => '';
 
   @override
-  String get searchAddCondition => 'Añadir condición';
+  String get searchAddCondition => '';
 
   @override
-  String get searchPreview => 'Vista previa';
+  String get searchPreview => '';
 
   @override
-  String get searchFieldTitle => 'Título';
+  String get searchFieldTitle => '';
 
   @override
-  String get searchFieldAuthor => 'Autor';
+  String get searchFieldAuthor => '';
 
   @override
-  String get searchFieldPublisher => 'Editorial';
+  String get searchFieldPublisher => '';
 
   @override
-  String get searchFieldIsbn => 'ISBN';
+  String get searchFieldIsbn => '';
 
   @override
-  String get searchFieldLanguage => 'Idioma';
+  String get searchFieldLanguage => '';
 
   @override
-  String get searchFieldOriginalTitle => 'Título original';
+  String get searchFieldOriginalTitle => '';
 
   @override
-  String get searchFieldOriginalLanguage => 'Idioma original';
+  String get searchFieldOriginalLanguage => '';
 
   @override
-  String get searchFieldYear => 'Año';
+  String get searchFieldYear => '';
 
   @override
-  String get searchFieldPages => 'Páginas';
+  String get searchFieldPages => '';
 
   @override
-  String get searchFieldStatus => 'Estado';
+  String get searchFieldStatus => '';
 
   @override
-  String get searchFieldCategory => 'Categoría';
+  String get searchFieldCategory => '';
 
   @override
-  String get searchFieldImprint => 'Sello';
+  String get searchFieldImprint => '';
 
   @override
-  String get searchFieldCollection => 'Colección';
+  String get searchFieldCollection => '';
 
   @override
-  String get searchFieldNoCover => 'Sin portada';
+  String get searchFieldNoCover => '';
 
   @override
-  String get searchFieldNotes => 'Notas';
+  String get searchFieldNotes => '';
 
   @override
-  String get searchFieldHasNotes => 'Tiene notas';
+  String get searchFieldHasNotes => '';
 
   @override
-  String get searchOpContains => 'contiene';
+  String get searchOpContains => '';
 
   @override
-  String get searchOpExactly => 'es exactamente';
+  String get searchOpExactly => '';
 
   @override
-  String get searchOpStartsWith => 'empieza por';
+  String get searchOpStartsWith => '';
 
   @override
-  String get searchOpIncludes => 'incluye';
+  String get searchOpIncludes => '';
 
   @override
-  String get searchOpNotIncludes => 'no incluye';
+  String get searchOpNotIncludes => '';
 
   @override
-  String get searchOpIncludesAll => 'incluye todos';
+  String get searchOpIncludesAll => '';
 
   @override
-  String get searchOpEquals => '=';
+  String get searchOpEquals => '';
 
   @override
-  String get searchOpNotEquals => '≠';
+  String get searchOpNotEquals => '';
 
   @override
-  String get searchOpGreaterThan => '>';
+  String get searchOpGreaterThan => '';
 
   @override
-  String get searchOpLessThan => '<';
+  String get searchOpLessThan => '';
 
   @override
-  String get searchOpBetween => 'entre';
+  String get searchOpBetween => '';
 
   @override
-  String get searchOpIs => 'es';
+  String get searchOpIs => '';
 
   @override
-  String get searchOpIsNot => 'no es';
+  String get searchOpIsNot => '';
 
   @override
   String get paginationCurrentPageShort => 'P.';
@@ -1891,4 +1891,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get removeFromCategory => 'Retirer de la catégorie';
+
+  @override
+  String get workEditionsEmpty =>
+      'Impossible de charger les éditions supplémentaires.';
+
+  @override
+  String get workEditionsUseGeneral => 'Utiliser les métadonnées générales';
+
+  @override
+  String workEditionsCount(int count) {
+    return '$count éd.';
+  }
 }

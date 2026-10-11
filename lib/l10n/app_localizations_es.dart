@@ -1883,4 +1883,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get removeFromCategory => 'Eliminar de la categoría';
+
+  @override
+  String get workEditionsEmpty =>
+      'No se pudieron cargar ediciones adicionales.';
+
+  @override
+  String get workEditionsUseGeneral => 'Usar metadatos generales';
+
+  @override
+  String workEditionsCount(int count) {
+    return '$count ed.';
+  }
 }

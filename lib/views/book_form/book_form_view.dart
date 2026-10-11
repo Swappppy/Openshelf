@@ -85,7 +85,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         text: b?.totalPages?.toString() ?? pre?.pageCount?.toString() ?? '');
     _currentPageCtrl = TextEditingController(text: '0');
     _notesCtrl = TextEditingController(text: b?.notes ?? '');
-    _descriptionCtrl = TextEditingController(text: b?.description ?? '');
+    _descriptionCtrl = TextEditingController(text: b?.description ?? pre?.description ?? '');
     _publishYearCtrl = TextEditingController(
         text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
     _copiesCtrl = TextEditingController(text: b?.copies.toString() ?? '1');
@@ -110,8 +110,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       }
       
       _loadInitialData(b.id);
-    } else if (pre?.coverUrl != null) {
-      _prefillCoverFromUrl(pre!.coverUrl!);
+    } else if (pre != null) {
+      _format = pre.format;
+      _isTranslation = (pre.translator != null && pre.translator!.isNotEmpty) ||
+          (pre.originalTitle != null && pre.originalTitle!.isNotEmpty) ||
+          (pre.originalLanguage != null && pre.originalLanguage!.isNotEmpty);
+      if (pre.coverUrl != null) {
+        _prefillCoverFromUrl(pre.coverUrl!);
+      }
     }
     
     _currentPageCtrl.addListener(_updateStatusFromPages);

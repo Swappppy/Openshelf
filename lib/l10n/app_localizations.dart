@@ -3508,6 +3508,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Eliminar de la categoría'**
   String get removeFromCategory;
+
+  /// No description provided for @workEditionsEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar ediciones adicionales.'**
+  String get workEditionsEmpty;
+
+  /// No description provided for @workEditionsUseGeneral.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar metadatos generales'**
+  String get workEditionsUseGeneral;
+
+  /// Etiqueta para el número de ediciones en los resultados de búsqueda
+  ///
+  /// In es, this message translates to:
+  /// **'{count} ed.'**
+  String workEditionsCount(int count);
 }
 
 class _AppLocalizationsDelegate

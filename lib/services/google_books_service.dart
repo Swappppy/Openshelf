@@ -2,10 +2,33 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/book_search_result.dart';
+import 'book_search_service.dart';
 
 /// Integration for the Google Books API.
 class GoogleBooksService {
   static const _baseUrl = 'https://www.googleapis.com/books/v1/volumes';
+
+  /// Searches for books using structured query parameters.
+  static Future<List<BookSearchResult>> searchStructured(
+    BookSearchQuery query, {
+    String? apiKey,
+    String? preferredLanguage,
+  }) async {
+    if (query.hasIsbn) {
+      final res = await getByIsbn(query.isbn!, apiKey: apiKey, preferredLanguage: preferredLanguage);
+      if (res != null) return [res];
+    }
+
+    final rawQ = query.rawQuery ?? [query.title, query.author, query.publisher].whereType<String>().join(' ');
+    return search(
+      rawQ,
+      apiKey: apiKey,
+      preferredLanguage: preferredLanguage,
+      title: query.title,
+      author: query.author,
+      publisher: query.publisher,
+    );
+  }
 
   /// Searches for books using a general query with field-specific restrictions.
   static Future<List<BookSearchResult>> search(
@@ -21,16 +44,18 @@ class GoogleBooksService {
       final List<String> parts = [];
       if (title != null && title.isNotEmpty) {
         parts.add('intitle:"$title"');
-      } else {
+      } else if (query.isNotEmpty) {
         parts.add(Uri.encodeComponent(query));
       }
-      
+
       if (author != null && author.isNotEmpty) parts.add('inauthor:"$author"');
       if (publisher != null && publisher.isNotEmpty) parts.add('inpublisher:"$publisher"');
 
+      if (parts.isEmpty) return [];
+
       final q = parts.join('+');
       var url = '$_baseUrl?q=$q&maxResults=40';
-      
+
       if (apiKey != null && apiKey.isNotEmpty) {
         url += '&key=$apiKey';
       }
@@ -38,11 +63,11 @@ class GoogleBooksService {
         final lang = preferredLanguage.length > 2 ? preferredLanguage.substring(0, 2) : preferredLanguage;
         url += '&langRestrict=$lang';
       }
-      
+
       debugPrint('Google Books: Searching $url');
       final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
       debugPrint('Google Books: HTTP ${response.statusCode}');
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final items = data['items'] as List?;
@@ -68,7 +93,7 @@ class GoogleBooksService {
       if (apiKey != null && apiKey.isNotEmpty) {
         url += '&key=$apiKey';
       }
-      
+
       debugPrint('Google Books: ISBN Lookup $url');
       final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
       debugPrint('Google Books: HTTP ${response.statusCode}');
