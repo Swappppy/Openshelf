@@ -54,7 +54,34 @@ class OpenLibraryService {
         final docs = data['docs'] as List?;
         if (docs == null) return [];
 
-        return docs.map((doc) => _parseDoc(doc)).toList();
+        final rawResults = docs.map((doc) => _parseDoc(doc, preferredLanguage: preferredLanguage)).toList();
+
+        final resolved = await Future.wait(rawResults.map((res) async {
+          if (res.openLibraryWorkKey != null && (res.editionCount ?? 0) > 1) {
+            try {
+              final editions = await getEditionsByWork(
+                res.openLibraryWorkKey!,
+                preferredLanguage: preferredLanguage,
+                baseAuthors: res.authors,
+                client: httpClient,
+              );
+              if (editions.isNotEmpty) {
+                final topEdition = editions.first;
+                return topEdition.copyWith(
+                  openLibraryWorkKey: res.openLibraryWorkKey,
+                  editionCount: res.editionCount,
+                  description: topEdition.description ?? res.description,
+                  pageCount: topEdition.pageCount ?? res.pageCount,
+                );
+              }
+            } catch (e) {
+              debugPrint('Error resolving Open Library work edition: $e');
+            }
+          }
+          return res;
+        }));
+
+        return resolved;
       } else {
         debugPrint('Open Library Search Error: HTTP ${response.statusCode}');
       }
@@ -103,7 +130,16 @@ class OpenLibraryService {
     http.Client? client,
   }) async {
     try {
-      final cleanKey = workKey.startsWith('/works/') ? workKey : '/works/$workKey';
+      String cleanKey = workKey.trim();
+      if (cleanKey.contains('/works/')) {
+        cleanKey = cleanKey.substring(cleanKey.indexOf('/works/'));
+      } else if (!cleanKey.startsWith('/works/')) {
+        cleanKey = '/works/${cleanKey.replaceAll(RegExp(r'^/+'), '')}';
+      }
+      if (cleanKey.endsWith('/')) {
+        cleanKey = cleanKey.substring(0, cleanKey.length - 1);
+      }
+
       final httpClient = client ?? http.Client();
 
       final workUri = Uri.https(_host, '$cleanKey.json');
@@ -333,7 +369,7 @@ class OpenLibraryService {
     return null;
   }
 
-  static BookSearchResult _parseDoc(dynamic doc) {
+  static BookSearchResult _parseDoc(dynamic doc, {String? preferredLanguage}) {
     final coverId = doc['cover_i'];
     final coverUrl = coverId != null ? 'https://covers.openlibrary.org/b/id/$coverId-L.jpg' : null;
 
@@ -345,12 +381,28 @@ class OpenLibraryService {
     final format = _parseBookFormat(physicalFormatRaw);
     final subjects = (doc['subject'] as List?)?.take(5).cast<String>().toList() ?? [];
 
+    final languagesRaw = doc['language'] as List?;
+    String? language;
+    if (languagesRaw?.isNotEmpty == true) {
+      final prefPrefix = preferredLanguage?.toLowerCase().substring(0, 2);
+      for (final langItem in languagesRaw!) {
+        final code = _openLibraryLangToCode(langItem?.toString());
+        if (code != null) {
+          language ??= code;
+          if (prefPrefix != null && code.startsWith(prefPrefix)) {
+            language = code;
+            break;
+          }
+        }
+      }
+    }
+
     return BookSearchResult(
       title: doc['title'] ?? 'Unknown Title',
       subtitle: doc['subtitle'],
       authors: (doc['author_name'] as List?)?.cast<String>() ?? ['Unknown Author'],
       isbn: (doc['isbn'] as List?)?.first,
-      language: (doc['language'] as List?)?.first,
+      language: language,
       publisher: (doc['publisher'] as List?)?.first,
       coverUrl: coverUrl,
       publishYear: doc['first_publish_year'],

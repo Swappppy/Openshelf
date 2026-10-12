@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collection/collection.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../models/book_search_result.dart';
+import '../../services/book_search_service.dart';
 import '../../services/inventaire_service.dart';
 import '../../services/open_library_service.dart';
 import '../book_form/book_form_view.dart';
@@ -28,6 +30,18 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
     _fetchEditions();
   }
 
+  String _getPreferredLanguage() {
+    final settings = ref.read(appSettingsProvider);
+    if (settings.locale?.languageCode != null) {
+      return settings.locale!.languageCode;
+    }
+    try {
+      return Localizations.localeOf(context).languageCode;
+    } catch (_) {
+      return WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    }
+  }
+
   Future<void> _fetchEditions() async {
     setState(() {
       _loading = true;
@@ -35,8 +49,7 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
     });
 
     try {
-      final settings = ref.read(appSettingsProvider);
-      final preferredLanguage = settings.locale?.languageCode ?? Localizations.localeOf(context).languageCode;
+      final preferredLanguage = _getPreferredLanguage();
 
       List<BookSearchResult> results = [];
 
@@ -51,6 +64,23 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
           widget.workResult.inventaireWorkUri!,
           preferredLanguage: preferredLanguage,
         );
+      } else {
+        final searchResults = await OpenLibraryService.searchStructured(
+          BookSearchQuery(
+            title: widget.workResult.title,
+            author: widget.workResult.authors.isNotEmpty ? widget.workResult.authors.first : null,
+            isbn: widget.workResult.isbn,
+          ),
+          preferredLanguage: preferredLanguage,
+        );
+        final workKey = searchResults.firstWhereOrNull((r) => r.openLibraryWorkKey != null)?.openLibraryWorkKey;
+        if (workKey != null) {
+          results = await OpenLibraryService.getEditionsByWork(
+            workKey,
+            preferredLanguage: preferredLanguage,
+            baseAuthors: widget.workResult.authors,
+          );
+        }
       }
 
       if (mounted) {
