@@ -17,9 +17,15 @@ class BookSearchResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final hasMultipleEditions = (result.editionCount != null && result.editionCount! > 1) ||
-        result.openLibraryWorkKey != null ||
-        result.inventaireWorkUri != null;
+
+    final hasOpenLibraryWork = result.openLibraryWorkKey != null;
+    final hasInventaireWork = result.inventaireWorkUri != null;
+    final isGoogleBooks = result.source == 'Google Books';
+
+    final showEditionsChip = (result.editionCount != null && result.editionCount! > 1) ||
+        hasOpenLibraryWork ||
+        hasInventaireWork ||
+        isGoogleBooks;
 
     return InkWell(
       onTap: () => onTap(result),
@@ -92,7 +98,7 @@ class BookSearchResultTile extends StatelessWidget {
             const SizedBox(width: 8),
 
             // Trailing Action: Top-Right Edition Chip or Standard Chevron
-            if (hasMultipleEditions && result.editionCount != null && result.editionCount! > 1)
+            if (showEditionsChip)
               Container(
                 margin: const EdgeInsets.only(top: 2),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -107,7 +113,9 @@ class BookSearchResultTile extends StatelessWidget {
                     Icon(Icons.auto_stories, size: 13, color: colorScheme.onPrimaryContainer),
                     const SizedBox(width: 4),
                     Text(
-                      context.l10n.workEditionsCount(result.editionCount!),
+                      result.editionCount != null && result.editionCount! > 1
+                          ? context.l10n.workEditionsCount(result.editionCount!)
+                          : 'Ver ediciones',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.bold,

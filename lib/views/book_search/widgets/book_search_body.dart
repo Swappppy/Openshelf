@@ -29,9 +29,14 @@ class BookSearchBody extends ConsumerWidget {
   }
 
   void _handleResultTap(BuildContext context, BookSearchResult result) {
+    final hasOpenLibraryWork = result.openLibraryWorkKey != null;
+    final hasInventaireWork = result.inventaireWorkUri != null;
+    final isGoogleBooks = result.source == 'Google Books';
+
     final hasMultipleEditions = (result.editionCount != null && result.editionCount! > 1) ||
-        result.openLibraryWorkKey != null ||
-        result.inventaireWorkUri != null;
+        hasOpenLibraryWork ||
+        hasInventaireWork ||
+        isGoogleBooks;
 
     if (hasMultipleEditions) {
       Navigator.push(
