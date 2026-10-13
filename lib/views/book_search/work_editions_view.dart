@@ -55,25 +55,25 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
 
       List<BookSearchResult> results = [];
 
-      // Fetch editions strictly and exclusively from the provider associated with the work
       if (widget.workResult.openLibraryWorkKey != null) {
         results = await OpenLibraryService.getEditionsByWork(
           widget.workResult.openLibraryWorkKey!,
           preferredLanguage: preferredLanguage,
           baseAuthors: widget.workResult.authors,
         );
-      } if (widget.workResult.inventaireWorkUri != null) {
+      } else if (widget.workResult.inventaireWorkUri != null) {
         results = await InventaireService.getEditionsByWork(
           widget.workResult.inventaireWorkUri!,
           preferredLanguage: preferredLanguage,
+          baseAuthors: widget.workResult.authors,
         );
-      } if (widget.workResult.source == 'Google Books') {
+      } else if (widget.workResult.source == 'Google Books') {
         results = await GoogleBooksService.getEditionsByWork(
           widget.workResult,
           apiKey: settings.googleBooksApiKey,
           preferredLanguage: preferredLanguage,
         );
-      } if (widget.workResult.source == 'Open Library') {
+      } else if (widget.workResult.source == 'Open Library') {
         final searchResults = await OpenLibraryService.searchStructured(
           BookSearchQuery(
             title: widget.workResult.title,

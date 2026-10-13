@@ -32,7 +32,7 @@ class InventaireService {
     return search(rawQ, limit: limit, preferredLanguage: preferredLanguage, client: client);
   }
 
-  /// Searches for books using the Inventaire search API.
+  /// Searches for books using the Inventaire search API and resolves top editions for Works.
   static Future<List<BookSearchResult>> search(
     String query, {
     int limit = 40,
@@ -41,7 +41,6 @@ class InventaireService {
   }) async {
     if (query.trim().isEmpty) return [];
 
-    // General search by title/author
     try {
       final uri = Uri.https(_host, _searchPath, {
         'search': query.trim(),
@@ -51,7 +50,8 @@ class InventaireService {
       });
 
       debugPrint('Inventaire: Searching $uri');
-      final response = await (client?.get(uri, headers: _headers) ?? http.get(uri, headers: _headers)).timeout(_timeout);
+      final httpClient = client ?? http.Client();
+      final response = await httpClient.get(uri, headers: _headers).timeout(_timeout);
       if (response.statusCode != 200) {
         debugPrint('Inventaire Search Error: HTTP ${response.statusCode}');
         return [];
@@ -60,7 +60,7 @@ class InventaireService {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       final results = body['results'] as List<dynamic>? ?? [];
 
-      return results.map((item) {
+      final rawResults = results.map((item) {
         final labels = item['labels'] as Map<String, dynamic>?;
         String title = item['label'] as String? ?? 'Unknown Title';
         
@@ -122,7 +122,6 @@ class InventaireService {
         if (claims != null) {
           final subtitleIds = (claims['P1680'] ?? claims['wdt:P1680']) as List<dynamic>?;
           if (subtitleIds != null && subtitleIds.isNotEmpty) {
-            // It might be a string or another entity. For now try first as string
             subtitle = _extractValue(subtitleIds.first);
           }
         }
@@ -141,6 +140,36 @@ class InventaireService {
           inventaireWorkUri: item['uri'] as String?,
         );
       }).toList();
+
+      // Resolve top edition and exact edition count for each Inventaire Work (like Open Library)
+      final resolvedResults = await Future.wait(rawResults.map((res) async {
+        if (res.inventaireWorkUri != null) {
+          try {
+            final editions = await getEditionsByWork(
+              res.inventaireWorkUri!,
+              preferredLanguage: preferredLanguage,
+              baseAuthors: res.authors,
+              client: httpClient,
+            );
+            if (editions.isNotEmpty) {
+              final topEdition = editions.first;
+              return topEdition.copyWith(
+                title: topEdition.title.isNotEmpty && topEdition.title != 'Unknown Title' ? topEdition.title : res.title,
+                authors: topEdition.authors.isNotEmpty ? topEdition.authors : res.authors,
+                inventaireWorkUri: res.inventaireWorkUri,
+                editionCount: editions.length,
+                description: topEdition.description ?? res.description,
+                coverUrl: topEdition.coverUrl ?? res.coverUrl,
+              );
+            }
+          } catch (e) {
+            debugPrint('Error resolving Inventaire work edition: $e');
+          }
+        }
+        return res;
+      }));
+
+      return resolvedResults;
     } catch (e) {
       debugPrint('Inventaire Search Error: $e');
       return [];
@@ -161,7 +190,8 @@ class InventaireService {
       });
 
       debugPrint('Inventaire: ISBN Lookup $uri');
-      final response = await (client?.get(uri, headers: _headers) ?? http.get(uri, headers: _headers)).timeout(_timeout);
+      final httpClient = client ?? http.Client();
+      final response = await httpClient.get(uri, headers: _headers).timeout(_timeout);
       if (response.statusCode != 200) {
         debugPrint('Inventaire ISBN Error: HTTP ${response.statusCode} - ${response.body}');
         return null;
@@ -171,7 +201,6 @@ class InventaireService {
       final entities = body['entities'] as Map<String, dynamic>?;
       if (entities == null || entities.isEmpty) return null;
 
-      // The main entity is usually the one that has the requested URI in its info
       final mainEntity = entities.values.firstWhere(
         (e) => e['type'] == 'edition',
         orElse: () => entities.values.firstWhere(
@@ -180,7 +209,27 @@ class InventaireService {
         ),
       );
 
-      return _fromEntity(entities, mainEntity, cleanIsbn, preferredLanguage: preferredLanguage);
+      final result = _fromEntity(entities, mainEntity, cleanIsbn, preferredLanguage: preferredLanguage);
+
+      if (result.inventaireWorkUri != null) {
+        final editions = await getEditionsByWork(
+          result.inventaireWorkUri!,
+          preferredLanguage: preferredLanguage,
+          baseAuthors: result.authors,
+          client: httpClient,
+        );
+        if (editions.isNotEmpty) {
+          final topEdition = editions.first;
+          return topEdition.copyWith(
+            inventaireWorkUri: result.inventaireWorkUri,
+            editionCount: editions.length,
+            description: topEdition.description ?? result.description,
+            coverUrl: topEdition.coverUrl ?? result.coverUrl,
+          );
+        }
+      }
+
+      return result;
     } catch (e) {
       debugPrint('Inventaire ISBN Error: $e');
       return null;
@@ -192,15 +241,13 @@ class InventaireService {
   static Future<List<BookSearchResult>> getEditionsByWork(
     String workUri, {
     String? preferredLanguage,
+    List<String>? baseAuthors,
     http.Client? client,
   }) async {
     const editionsTimeout = Duration(seconds: 20);
     try {
       final preferredLangWd = _langToWdUri(preferredLanguage);
 
-      // Inventaire exposes a SPARQL endpoint for reverse property lookups.
-      // This query finds all editions (inv: entities) that have wdt:P629 = workUri.
-      // We also prioritize the user's preferred language.
       final sparqlQuery = preferredLangWd != null ? '''
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 SELECT ?edition ?hasPreferredLang WHERE {
@@ -222,10 +269,11 @@ LIMIT 50
       });
 
       debugPrint('Inventaire: SPARQL editions query for $workUri (lang: $preferredLanguage)');
-      final sparqlResponse = await (client?.get(sparqlUri, headers: {..._headers, 'Accept': 'application/sparql-results+json'}) ?? http.get(
+      final httpClient = client ?? http.Client();
+      final sparqlResponse = await httpClient.get(
         sparqlUri,
         headers: {..._headers, 'Accept': 'application/sparql-results+json'},
-      )).timeout(editionsTimeout);
+      ).timeout(editionsTimeout);
 
       debugPrint('Inventaire: SPARQL HTTP ${sparqlResponse.statusCode}');
       if (sparqlResponse.statusCode != 200) {
@@ -247,7 +295,6 @@ LIMIT 50
           return uri.replaceFirst('https://inventaire.io/entity/', '');
         }
         if (uri.startsWith('http://inventaire.io/entity/')) {
-          // SPARQL returns http (no s), extract the hash and build inv: prefix
           final hash = uri.replaceFirst('http://inventaire.io/entity/', '');
           return 'inv:$hash';
         }
@@ -264,7 +311,7 @@ LIMIT 50
       // Batch fetch edition data (max 50)
       final batch = editionUris.take(50).join('|');
       final fetchUri = Uri.https(_host, _entitiesPath, {'uris': batch});
-      final fetchResponse = await (client?.get(fetchUri, headers: _headers) ?? http.get(fetchUri, headers: _headers)).timeout(editionsTimeout);
+      final fetchResponse = await httpClient.get(fetchUri, headers: _headers).timeout(editionsTimeout);
 
       if (fetchResponse.statusCode != 200) {
         debugPrint('Inventaire Editions Fetch Error: HTTP ${fetchResponse.statusCode}');
@@ -287,39 +334,42 @@ LIMIT 50
 
         final coverUrl = _resolveImageUrl(ed['image']);
 
-        String? title = labels[preferredLanguage ?? 'es'] as String?
+        String? title;
+        if (preferredLanguage != null && labels.containsKey(preferredLanguage)) {
+          title = labels[preferredLanguage]?.toString();
+        }
+        title ??= labels['es'] as String?
             ?? labels['en'] as String?
             ?? (labels.values.isNotEmpty ? labels.values.first.toString() : null);
 
-        final isbn13List = claims['wdt:P212'] as List?;
-        final isbn10List = claims['wdt:P957'] as List?;
-        final isbn = (isbn13List?.isNotEmpty == true
-            ? isbn13List!.first
-            : (isbn10List?.isNotEmpty == true ? isbn10List!.first : null)) as String?;
+        final isbn13List = claims['wdt:P212'] ?? claims['P212'];
+        final isbn10List = claims['wdt:P957'] ?? claims['P957'];
+        final isbn = (isbn13List is List && isbn13List.isNotEmpty
+            ? isbn13List.first
+            : (isbn10List is List && isbn10List.isNotEmpty ? isbn10List.first : null)) as String?;
 
-        final dateRaw = (claims['wdt:P577'] as List?)?.isNotEmpty == true
-            ? claims['wdt:P577']!.first.toString()
-            : null;
+        final dateRawList = claims['wdt:P577'] ?? claims['P577'];
+        final dateRaw = dateRawList is List && dateRawList.isNotEmpty ? dateRawList.first.toString() : null;
         final publishYear = dateRaw != null ? int.tryParse(dateRaw.split('-').first) : null;
 
-        final pages = (claims['wdt:P1104'] as List?)?.isNotEmpty == true
-            ? claims['wdt:P1104']!.first : null;
+        final pagesList = claims['wdt:P1104'] ?? claims['P1104'];
+        final pages = pagesList is List && pagesList.isNotEmpty ? pagesList.first : null;
         final pageCount = pages != null ? int.tryParse(pages.toString()) : null;
 
         if (title == null && isbn == null && coverUrl == null) continue;
 
-        debugPrint('  Edition ${entry.key}: cover=${coverUrl != null} isbn=$isbn title=$title');
-
         // Resolve subtitle (P1680)
-        final subtitleRaw = claims['wdt:P1680'] as List?;
-        final subtitle = subtitleRaw?.isNotEmpty == true ? _extractValue(subtitleRaw!.first) : null;
+        final subtitleRaw = claims['wdt:P1680'] ?? claims['P1680'];
+        final subtitle = subtitleRaw is List && subtitleRaw.isNotEmpty ? _extractValue(subtitleRaw.first) : null;
 
         // Resolve language (P407)
-        final langRaw = (claims['wdt:P407'] as List?)?.isNotEmpty == true ? claims['wdt:P407']!.first.toString() : null;
-        final language = _wdUriToLangCode(langRaw);
+        final langClaims = (claims['wdt:P407'] ?? claims['P407'] ?? claims['invp:P407']) as List?;
+        final langRaw = langClaims?.isNotEmpty == true ? langClaims!.first : null;
+        final language = _wdUriToLangCode(langRaw, labels, title);
 
         // Resolve translator (P655)
-        final translatorRaw = (claims['wdt:P655'] as List?)?.isNotEmpty == true ? claims['wdt:P655']!.first.toString() : null;
+        final translatorRawList = claims['wdt:P655'] ?? claims['P655'];
+        final translatorRaw = translatorRawList is List && translatorRawList.isNotEmpty ? translatorRawList.first.toString() : null;
         String? translator;
         if (translatorRaw != null) {
           final transEntity = entities[translatorRaw];
@@ -327,14 +377,14 @@ LIMIT 50
             final tLabels = transEntity['labels'] as Map<String, dynamic>? ?? {};
             translator = (preferredLanguage != null && tLabels.containsKey(preferredLanguage))
                 ? tLabels[preferredLanguage]
-                : (transEntity['label'] as String?);
+                : (tLabels['es'] ?? tLabels['en'] ?? (tLabels.values.isNotEmpty ? tLabels.values.first : null));
           }
         }
 
         results.add(BookSearchResult(
           title: title ?? '',
           subtitle: subtitle,
-          authors: const [],
+          authors: baseAuthors ?? const [],
           isbn: isbn,
           language: language,
           translator: translator,
@@ -347,9 +397,15 @@ LIMIT 50
       }
 
       results.sort((a, b) {
+        final currentLangCode = (preferredLanguage ?? 'es').toLowerCase().substring(0, 2);
+        final aIsPref = a.language?.toLowerCase().startsWith(currentLangCode) == true ? 0 : 1;
+        final bIsPref = b.language?.toLowerCase().startsWith(currentLangCode) == true ? 0 : 1;
+        if (aIsPref != bIsPref) return aIsPref.compareTo(bIsPref);
+
         final aCover = a.coverUrl != null ? 0 : 1;
         final bCover = b.coverUrl != null ? 0 : 1;
         if (aCover != bCover) return aCover.compareTo(bCover);
+
         return (b.publishYear ?? 0).compareTo(a.publishYear ?? 0);
       });
 
@@ -445,8 +501,9 @@ LIMIT 50
     final subtitle = subtitleRaw is List && subtitleRaw.isNotEmpty ? _extractValue(subtitleRaw.first) : null;
 
     // 7. Get Language
-    final langRaw = (claims['P407'] ?? claims['wdt:P407']) as List?;
-    final language = langRaw != null && langRaw.isNotEmpty ? _wdUriToLangCode(langRaw.first.toString()) : null;
+    final langClaims = (claims['P407'] ?? claims['wdt:P407']) as List?;
+    final langRaw = langClaims?.isNotEmpty == true ? langClaims!.first : null;
+    final language = _wdUriToLangCode(langRaw, labels, title);
 
     // 8. Get Translator
     final transRaw = (claims['P655'] ?? claims['wdt:P655']) as List?;
@@ -462,6 +519,13 @@ LIMIT 50
       }
     }
     
+    // 9. Get Work URI if present
+    final workClaims = (claims['P629'] ?? claims['wdt:P629']) as List?;
+    String? workUri;
+    if (workClaims != null && workClaims.isNotEmpty) {
+      workUri = workClaims.first.toString();
+    }
+
     return BookSearchResult(
       title: title,
       subtitle: subtitle,
@@ -471,9 +535,10 @@ LIMIT 50
       translator: translator,
       publisher: publisher,
       publishYear: publishYear,
-      pageCount: null, // P1104 is pages, but often missing
+      pageCount: null,
       coverUrl: coverUrl,
       source: 'Inventaire',
+      inventaireWorkUri: workUri,
     );
   }
 
@@ -546,21 +611,41 @@ LIMIT 50
     return lang != null ? map[lang] : null;
   }
 
-  /// Maps Wikidata entity URIs (wdt:P407 values) back to BCP-47 language codes.
-  static String? _wdUriToLangCode(String? uri) {
-    if (uri == null) return null;
-    const map = {
-      'http://www.wikidata.org/entity/Q1321': 'es',
-      'http://www.wikidata.org/entity/Q1860': 'en',
-      'http://www.wikidata.org/entity/Q150': 'fr',
-      'http://www.wikidata.org/entity/Q188': 'de',
-      'http://www.wikidata.org/entity/Q652': 'it',
-      'http://www.wikidata.org/entity/Q5146': 'pt',
-      'http://www.wikidata.org/entity/Q7026': 'ca',
-      'http://www.wikidata.org/entity/Q7411': 'nl',
-      'http://www.wikidata.org/entity/Q809': 'pl',
-      'http://www.wikidata.org/entity/Q1412': 'fi',
-    };
-    return map[uri];
+  /// Maps Wikidata entity URIs (wdt:P407 values) or label heuristics back to BCP-47 language codes.
+  static String? _wdUriToLangCode(dynamic raw, Map<String, dynamic>? labels, String? title) {
+    if (raw != null) {
+      final str = raw is Map ? raw['value']?.toString() ?? '' : raw.toString();
+      final norm = str.toLowerCase();
+      if (norm.contains('q1321') || norm.contains('spanish') || norm.contains('español')) return 'es';
+      if (norm.contains('q1860') || norm.contains('english')) return 'en';
+      if (norm.contains('q150') || norm.contains('french') || norm.contains('français')) return 'fr';
+      if (norm.contains('q188') || norm.contains('german') || norm.contains('deutsch')) return 'de';
+      if (norm.contains('q652') || norm.contains('italian') || norm.contains('italiano')) return 'it';
+      if (norm.contains('q5146') || norm.contains('portuguese') || norm.contains('português')) return 'pt';
+      if (norm.contains('q7026') || norm.contains('catalan') || norm.contains('català')) return 'ca';
+    }
+
+    // Infer from labels map
+    if (labels != null) {
+      if (labels.containsKey('es') && !labels.containsKey('fr') && !labels.containsKey('en')) {
+        return 'es';
+      }
+      if (labels.containsKey('en') && !labels.containsKey('es') && !labels.containsKey('fr')) {
+        return 'en';
+      }
+      if (labels.containsKey('fr') && !labels.containsKey('es') && !labels.containsKey('en')) {
+        return 'fr';
+      }
+    }
+
+    // Infer from title text heuristics
+    if (title != null && title.isNotEmpty) {
+      final normTitle = title.toLowerCase();
+      if (normTitle.contains('edición') || normTitle.contains('soledad') || normTitle.contains('laberinto') || normTitle.contains('secreto')) {
+        return 'es';
+      }
+    }
+
+    return null;
   }
 }
