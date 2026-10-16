@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
 import '../models/app_settings.dart';
@@ -16,7 +17,7 @@ export 'cover_search_service.dart';
 class BookSearchService {
   /// FASE A: Deterministic eligibility gatekeeper.
   /// Hard boolean rules (no points, no score blending).
-  /// Returns false if candidate fails hard title, author, or ISBN guards.
+  /// Returns false if candidate fails hard title, author, ISBN, or publisher guards.
   static bool isEligible(BookSearchResult candidate, BookSearchQuery query) {
     // 1. ISBN Guard
     if (query.hasIsbn) {
@@ -46,7 +47,37 @@ class BookSearchService {
       }
     }
 
+    // 4. Publisher Guard / Pruning
+    if (query.publisher != null && query.publisher!.trim().isNotEmpty) {
+      if (!matchesPublisher(candidate.publisher, query.publisher!)) {
+        return false;
+      }
+    }
+
     return true;
+  }
+
+  /// Checks if candidate publisher matches target publisher query.
+  static bool matchesPublisher(String? candidatePublisher, String targetPublisher) {
+    final cleanTarget = targetPublisher.trim().toLowerCase();
+    if (cleanTarget.isEmpty) return true;
+    if (candidatePublisher == null || candidatePublisher.trim().isEmpty) {
+      return false; // Unknown or missing publisher fails match when target publisher is explicitly specified
+    }
+    final cleanCand = candidatePublisher.trim().toLowerCase();
+
+    if (cleanCand.contains(cleanTarget) || cleanTarget.contains(cleanCand)) {
+      return true;
+    }
+
+    final targetWords = cleanTarget.split(RegExp(r'[^\w]')).where((w) => w.length > 2).toList();
+    if (targetWords.isEmpty) return true;
+
+    for (final word in targetWords) {
+      if (cleanCand.contains(word)) return true;
+    }
+
+    return false;
   }
 
   static bool _matchTitle(String candTitle, String targetTitle, String? subtitle) {
@@ -157,29 +188,50 @@ class BookSearchService {
         norm.contains('authorhouse');
   }
 
-  /// Queries specified providers using a structured query object.
-  static Future<List<BookSearchResult>> searchAllStructured(
+  /// Streams progressive search results as each server completes its query.
+  static Stream<List<BookSearchResult>> searchAllStructuredStream(
     BookSearchQuery query, {
     required List<BookSearchServer> servers,
     String? googleApiKey,
     String? preferredLanguage,
-  }) async {
-    if (query.isEmpty) return [];
+  }) async* {
+    if (query.isEmpty) return;
 
-    final List<BookSearchResult> rawResults = [];
+    final List<BookSearchResult> accumulatedRaw = [];
+    final controller = StreamController<List<BookSearchResult>>();
+    int remaining = servers.length;
 
-    // 1. Fetch raw candidates from all selected servers
-    for (final server in servers) {
-      try {
-        debugPrint('BookSearchService: Querying ${server.name}...');
-        final serverResults = await _performServerSearch(
-            server, query, googleApiKey, preferredLanguage);
-        rawResults.addAll(serverResults);
-      } catch (e) {
-        debugPrint('BookSearchService: Error from ${server.name}: $e');
-      }
+    if (remaining == 0) {
+      yield [];
+      return;
     }
 
+    for (final server in servers) {
+      _performServerSearch(server, query, googleApiKey, preferredLanguage).then((serverResults) {
+        accumulatedRaw.addAll(serverResults);
+        final processed = _processCandidates(accumulatedRaw, query, preferredLanguage);
+        if (!controller.isClosed) {
+          controller.add(processed);
+        }
+      }).catchError((e) {
+        debugPrint('BookSearchService Stream: Error from ${server.name}: $e');
+      }).whenComplete(() {
+        remaining--;
+        if (remaining == 0 && !controller.isClosed) {
+          controller.close();
+        }
+      });
+    }
+
+    yield* controller.stream;
+  }
+
+  /// Helper to process accumulated raw results into scored, deduplicated, and merged results.
+  static List<BookSearchResult> _processCandidates(
+    List<BookSearchResult> rawResults,
+    BookSearchQuery query,
+    String? preferredLanguage,
+  ) {
     if (rawResults.isEmpty) return [];
 
     // Attach search ISBN if candidate missing it
@@ -190,11 +242,11 @@ class BookSearchService {
       return res;
     }).toList();
 
-    // 2. FASE A: Hard eligibility filter
+    // 1. FASE A: Hard eligibility & publisher pruning filter
     final eligible = enrichedRaw.where((r) => isEligible(r, query)).toList();
     if (eligible.isEmpty) return [];
 
-    // 3. FASE B: Score eligible candidates
+    // 2. FASE B: Score eligible candidates
     final scored = eligible.map((r) {
       final score = calculateRankScore(r, query, preferredLanguage: preferredLanguage);
       return MapEntry(r, score);
@@ -202,7 +254,7 @@ class BookSearchService {
 
     scored.sort((a, b) => b.value.compareTo(a.value));
 
-    // 4. DEDUPLICATION EN UNA SOLA PASADA (Single-pass grouping by arePeers)
+    // 3. DEDUPLICATION EN UNA SOLA PASADA (Single-pass grouping by arePeers)
     final groups = <List<BookSearchResult>>[];
     for (final item in scored.map((e) => e.key)) {
       bool added = false;
@@ -218,8 +270,7 @@ class BookSearchService {
       }
     }
 
-    // 5. Synthesis: Merge each peer group into a synthesized winner.
-    // For each peer group, sort candidates by rank score so the canonical/original work is primary.
+    // 4. Synthesis: Merge each peer group into a synthesized winner.
     final finalResults = <BookSearchResult>[];
     for (final group in groups) {
       group.sort((a, b) => calculateRankScore(b, query, preferredLanguage: preferredLanguage)
@@ -243,6 +294,27 @@ class BookSearchService {
     }
 
     return finalResults;
+  }
+
+  /// Queries specified providers using a structured query object (blocking until all done).
+  static Future<List<BookSearchResult>> searchAllStructured(
+    BookSearchQuery query, {
+    required List<BookSearchServer> servers,
+    String? googleApiKey,
+    String? preferredLanguage,
+  }) async {
+    final stream = searchAllStructuredStream(
+      query,
+      servers: servers,
+      googleApiKey: googleApiKey,
+      preferredLanguage: preferredLanguage,
+    );
+
+    List<BookSearchResult> lastResults = [];
+    await for (final results in stream) {
+      lastResults = results;
+    }
+    return lastResults;
   }
 
   /// Queries specified providers using a simple query string.

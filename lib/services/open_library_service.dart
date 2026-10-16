@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:collection/collection.dart';
 import '../models/book_search_result.dart';
 import '../services/database.dart';
 import 'book_search_service.dart';
@@ -65,11 +66,36 @@ class OpenLibraryService {
                 baseAuthors: res.authors,
                 client: httpClient,
               );
-              if (editions.isNotEmpty) {
-                final topEdition = editions.first;
+
+              var filteredEditions = editions;
+              final bool hasPublisherFilter = query.publisher != null && query.publisher!.trim().isNotEmpty;
+
+              if (hasPublisherFilter) {
+                filteredEditions = editions
+                    .where((ed) => BookSearchService.matchesPublisher(ed.publisher, query.publisher!))
+                    .toList();
+              }
+
+              if (filteredEditions.isNotEmpty) {
+                // If query is by ISBN, locate the exact edition matching the requested ISBN
+                BookSearchResult topEdition = filteredEditions.first;
+                if (query.hasIsbn) {
+                  final targetIsbnClean = query.isbn!.replaceAll(RegExp(r'[^0-9X]'), '');
+                  final exactMatch = filteredEditions.firstWhereOrNull((e) =>
+                    e.isbn != null && e.isbn!.replaceAll(RegExp(r'[^0-9X]'), '') == targetIsbnClean
+                  );
+                  if (exactMatch != null) {
+                    topEdition = exactMatch;
+                  }
+                }
+
+                final int realEditionCount = hasPublisherFilter
+                    ? filteredEditions.length
+                    : (res.editionCount ?? editions.length);
+
                 return topEdition.copyWith(
                   openLibraryWorkKey: res.openLibraryWorkKey,
-                  editionCount: res.editionCount,
+                  editionCount: realEditionCount,
                   description: topEdition.description ?? res.description,
                   pageCount: topEdition.pageCount ?? res.pageCount,
                 );
@@ -100,25 +126,7 @@ class OpenLibraryService {
   static Future<BookSearchResult?> getByIsbn(String isbn, {String? preferredLanguage, http.Client? client}) async {
     final results = await searchStructured(BookSearchQuery(isbn: isbn), preferredLanguage: preferredLanguage, client: client);
     if (results.isEmpty) return null;
-    final res = results.first;
-
-    if (res.openLibraryWorkKey != null && (res.editionCount ?? 1) >= 1) {
-      final editions = await getEditionsByWork(
-        res.openLibraryWorkKey!,
-        preferredLanguage: preferredLanguage,
-        baseAuthors: res.authors,
-        client: client,
-      );
-      if (editions.isNotEmpty) {
-        final topEdition = editions.first;
-        return topEdition.copyWith(
-          description: topEdition.description ?? res.description,
-          pageCount: topEdition.pageCount ?? res.pageCount,
-          editionCount: res.editionCount,
-        );
-      }
-    }
-    return res;
+    return results.first;
   }
 
   /// Fetches editions for a given Open Library work key (e.g. "/works/OL46241W" or "OL46241W").

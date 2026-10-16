@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/l10n_extension.dart';
@@ -26,6 +27,8 @@ class BookSearchController extends ChangeNotifier {
   String? _error;
   bool _searched = false;
 
+  StreamSubscription<List<BookSearchResult>>? _streamSubscription;
+
   BookSearchController(this.ref) {
     titleController.addListener(notifyListeners);
     authorController.addListener(notifyListeners);
@@ -45,6 +48,7 @@ class BookSearchController extends ChangeNotifier {
       isbnController.text.trim().isNotEmpty;
 
   void clearAll() {
+    _streamSubscription?.cancel();
     titleController.clear();
     authorController.clear();
     publisherController.clear();
@@ -52,6 +56,7 @@ class BookSearchController extends ChangeNotifier {
     _results = [];
     _searched = false;
     _error = null;
+    _loading = false;
     notifyListeners();
   }
 
@@ -63,6 +68,8 @@ class BookSearchController extends ChangeNotifier {
 
   Future<void> search(BuildContext context, {String? networkErrorMsg}) async {
     if (!hasAnyInput) return;
+
+    _streamSubscription?.cancel();
 
     final defaultError = networkErrorMsg ?? context.l10n.bookSearchErrorNetwork;
     final prefLang = ref.read(appSettingsProvider).locale?.languageCode ??
@@ -76,6 +83,7 @@ class BookSearchController extends ChangeNotifier {
     _loading = true;
     _error = null;
     _searched = true;
+    _results = [];
     notifyListeners();
 
     try {
@@ -93,18 +101,34 @@ class BookSearchController extends ChangeNotifier {
         isbn: isbn.isNotEmpty ? isbn : null,
       );
 
-      final searchResults = await BookSearchService.searchAllStructured(
+      final stream = BookSearchService.searchAllStructuredStream(
         searchQuery,
         servers: settings.searchServers,
         googleApiKey: settings.googleBooksApiKey,
         preferredLanguage: prefLang,
       );
 
-      _results = searchResults;
-      _loading = false;
-      notifyListeners();
+      _streamSubscription = stream.listen(
+        (partialResults) {
+          _results = partialResults;
+          notifyListeners();
+        },
+        onError: (e) {
+          if (_results.isEmpty) {
+            _error = defaultError;
+          }
+          _loading = false;
+          notifyListeners();
+        },
+        onDone: () {
+          _loading = false;
+          notifyListeners();
+        },
+      );
     } catch (e) {
-      _error = defaultError;
+      if (_results.isEmpty) {
+        _error = defaultError;
+      }
       _loading = false;
       notifyListeners();
     }
@@ -112,6 +136,7 @@ class BookSearchController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _streamSubscription?.cancel();
     titleController.removeListener(notifyListeners);
     authorController.removeListener(notifyListeners);
     publisherController.removeListener(notifyListeners);

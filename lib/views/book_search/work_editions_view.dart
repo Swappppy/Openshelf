@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collection/collection.dart';
 import '../../controllers/app_settings_controller.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../models/book_search_result.dart';
-import '../../services/book_search_service.dart';
 import '../../services/google_books_service.dart';
 import '../../services/inventaire_service.dart';
 import '../../services/open_library_service.dart';
@@ -55,7 +53,26 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
 
       List<BookSearchResult> results = [];
 
-      if (widget.workResult.openLibraryWorkKey != null) {
+      // 1. Primary: Fetch editions strictly from the provider matching workResult.source
+      if (widget.workResult.source == 'Inventaire' && widget.workResult.inventaireWorkUri != null) {
+        results = await InventaireService.getEditionsByWork(
+          widget.workResult.inventaireWorkUri!,
+          preferredLanguage: preferredLanguage,
+          baseAuthors: widget.workResult.authors,
+        );
+      } else if (widget.workResult.source == 'Open Library' && widget.workResult.openLibraryWorkKey != null) {
+        results = await OpenLibraryService.getEditionsByWork(
+          widget.workResult.openLibraryWorkKey!,
+          preferredLanguage: preferredLanguage,
+          baseAuthors: widget.workResult.authors,
+        );
+      } else if (widget.workResult.source == 'Google Books') {
+        results = await GoogleBooksService.getEditionsByWork(
+          widget.workResult,
+          apiKey: settings.googleBooksApiKey,
+          preferredLanguage: preferredLanguage,
+        );
+      } else if (widget.workResult.openLibraryWorkKey != null) {
         results = await OpenLibraryService.getEditionsByWork(
           widget.workResult.openLibraryWorkKey!,
           preferredLanguage: preferredLanguage,
@@ -67,28 +84,30 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
           preferredLanguage: preferredLanguage,
           baseAuthors: widget.workResult.authors,
         );
-      } else if (widget.workResult.source == 'Google Books') {
-        results = await GoogleBooksService.getEditionsByWork(
-          widget.workResult,
-          apiKey: settings.googleBooksApiKey,
-          preferredLanguage: preferredLanguage,
-        );
-      } else if (widget.workResult.source == 'Open Library') {
-        final searchResults = await OpenLibraryService.searchStructured(
-          BookSearchQuery(
-            title: widget.workResult.title,
-            author: widget.workResult.authors.isNotEmpty ? widget.workResult.authors.first : null,
-            isbn: widget.workResult.isbn,
-          ),
-          preferredLanguage: preferredLanguage,
-        );
-        final workKey = searchResults.firstWhereOrNull((r) => r.openLibraryWorkKey != null)?.openLibraryWorkKey;
-        if (workKey != null) {
-          results = await OpenLibraryService.getEditionsByWork(
-            workKey,
+      }
+
+      // 2. Secondary: If primary provider returned fewer editions than expected, check alternate work keys
+      final expectedCount = widget.workResult.editionCount ?? 1;
+      if (results.length < expectedCount) {
+        if (widget.workResult.inventaireWorkUri != null && widget.workResult.source != 'Inventaire') {
+          final invResults = await InventaireService.getEditionsByWork(
+            widget.workResult.inventaireWorkUri!,
             preferredLanguage: preferredLanguage,
             baseAuthors: widget.workResult.authors,
           );
+          if (invResults.length > results.length) {
+            results = invResults;
+          }
+        }
+        if (results.length < expectedCount && widget.workResult.openLibraryWorkKey != null && widget.workResult.source != 'Open Library') {
+          final olResults = await OpenLibraryService.getEditionsByWork(
+            widget.workResult.openLibraryWorkKey!,
+            preferredLanguage: preferredLanguage,
+            baseAuthors: widget.workResult.authors,
+          );
+          if (olResults.length > results.length) {
+            results = olResults;
+          }
         }
       }
 

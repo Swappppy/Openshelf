@@ -29,14 +29,10 @@ class BookSearchBody extends ConsumerWidget {
   }
 
   void _handleResultTap(BuildContext context, BookSearchResult result) {
-    final hasOpenLibraryWork = result.openLibraryWorkKey != null;
-    final hasInventaireWork = result.inventaireWorkUri != null;
-    final isGoogleBooks = result.source == 'Google Books';
-
-    final hasMultipleEditions = (result.editionCount != null && result.editionCount! > 1) ||
-        hasOpenLibraryWork ||
-        hasInventaireWork ||
-        isGoogleBooks;
+    final hasWorkKey = result.openLibraryWorkKey != null || result.inventaireWorkUri != null;
+    final hasMultipleEditions = result.editionCount != null
+        ? result.editionCount! > 1
+        : hasWorkKey;
 
     if (hasMultipleEditions) {
       Navigator.push(
@@ -85,11 +81,11 @@ class BookSearchBody extends ConsumerWidget {
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
-        if (controller.loading) {
+        if (controller.loading && controller.results.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (controller.error != null) {
+        if (controller.error != null && controller.results.isEmpty) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -213,12 +209,24 @@ class BookSearchBody extends ConsumerWidget {
           );
         }
 
-        return ListView.builder(
-          itemCount: controller.results.length,
-          itemBuilder: (context, index) => BookSearchResultTile(
-            result: controller.results[index],
-            onTap: (result) => _handleResultTap(context, result),
-          ),
+        return Column(
+          children: [
+            if (controller.loading)
+              LinearProgressIndicator(
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                color: colorScheme.primary,
+                minHeight: 3,
+              ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: controller.results.length,
+                itemBuilder: (context, index) => BookSearchResultTile(
+                  result: controller.results[index],
+                  onTap: (result) => _handleResultTap(context, result),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

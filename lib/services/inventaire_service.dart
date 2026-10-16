@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:collection/collection.dart';
 import '../models/book_search_result.dart';
 import 'book_search_service.dart';
 
@@ -29,7 +30,13 @@ class InventaireService {
 
     final rawQ = query.rawQuery ?? [query.title, query.author, query.publisher].whereType<String>().join(' ');
     if (rawQ.trim().isEmpty) return [];
-    return search(rawQ, limit: limit, preferredLanguage: preferredLanguage, client: client);
+    return search(
+      rawQ,
+      limit: limit,
+      preferredLanguage: preferredLanguage,
+      targetPublisher: query.publisher,
+      client: client,
+    );
   }
 
   /// Searches for books using the Inventaire search API and resolves top editions for Works.
@@ -37,6 +44,7 @@ class InventaireService {
     String query, {
     int limit = 40,
     String? preferredLanguage,
+    String? targetPublisher,
     http.Client? client,
   }) async {
     if (query.trim().isEmpty) return [];
@@ -126,6 +134,9 @@ class InventaireService {
           }
         }
 
+        final rawUri = item['uri'] as String?;
+        final workUri = rawUri != null ? 'wd:${_cleanWorkWdId(rawUri)}' : null;
+
         return BookSearchResult(
           title: title,
           subtitle: subtitle,
@@ -137,7 +148,7 @@ class InventaireService {
           coverUrl: coverUrl,
           description: item['description'] as String?,
           source: 'Inventaire',
-          inventaireWorkUri: item['uri'] as String?,
+          inventaireWorkUri: workUri,
         );
       }).toList();
 
@@ -151,15 +162,24 @@ class InventaireService {
               baseAuthors: res.authors,
               client: httpClient,
             );
-            if (editions.isNotEmpty) {
-              final topEdition = editions.first;
+
+            var filteredEditions = editions;
+            if (targetPublisher != null && targetPublisher.trim().isNotEmpty) {
+              filteredEditions = editions
+                  .where((ed) => BookSearchService.matchesPublisher(ed.publisher, targetPublisher))
+                  .toList();
+            }
+
+            if (filteredEditions.isNotEmpty) {
+              final topEdition = filteredEditions.first;
               return topEdition.copyWith(
                 title: topEdition.title.isNotEmpty && topEdition.title != 'Unknown Title' ? topEdition.title : res.title,
                 authors: topEdition.authors.isNotEmpty ? topEdition.authors : res.authors,
                 inventaireWorkUri: res.inventaireWorkUri,
-                editionCount: editions.length,
+                editionCount: filteredEditions.length,
                 description: topEdition.description ?? res.description,
                 coverUrl: topEdition.coverUrl ?? res.coverUrl,
+                publisher: topEdition.publisher ?? res.publisher,
               );
             }
           } catch (e) {
@@ -219,12 +239,17 @@ class InventaireService {
           client: httpClient,
         );
         if (editions.isNotEmpty) {
-          final topEdition = editions.first;
-          return topEdition.copyWith(
+          final exactMatch = editions.firstWhereOrNull((e) =>
+            e.isbn != null && e.isbn!.replaceAll(RegExp(r'[^0-9X]'), '') == cleanIsbn
+          );
+          final targetEdition = exactMatch ?? result;
+
+          return targetEdition.copyWith(
+            isbn: cleanIsbn,
             inventaireWorkUri: result.inventaireWorkUri,
             editionCount: editions.length,
-            description: topEdition.description ?? result.description,
-            coverUrl: topEdition.coverUrl ?? result.coverUrl,
+            description: targetEdition.description ?? result.description,
+            coverUrl: targetEdition.coverUrl ?? result.coverUrl,
           );
         }
       }
@@ -246,12 +271,13 @@ class InventaireService {
   }) async {
     const editionsTimeout = Duration(seconds: 20);
     try {
+      final cleanWdId = _cleanWorkWdId(workUri);
       final preferredLangWd = _langToWdUri(preferredLanguage);
 
       final sparqlQuery = preferredLangWd != null ? '''
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 SELECT ?edition ?hasPreferredLang WHERE {
-  ?edition wdt:P629 <http://www.wikidata.org/entity/${workUri.replaceFirst('wd:', '')}> .
+  ?edition wdt:P629 <http://www.wikidata.org/entity/$cleanWdId> .
   BIND(EXISTS { ?edition wdt:P407 <$preferredLangWd> } AS ?hasPreferredLang)
 }
 ORDER BY DESC(?hasPreferredLang)
@@ -259,7 +285,7 @@ LIMIT 50
 ''' : '''
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 SELECT ?edition WHERE {
-  ?edition wdt:P629 <http://www.wikidata.org/entity/${workUri.replaceFirst('wd:', '')}> .
+  ?edition wdt:P629 <http://www.wikidata.org/entity/$cleanWdId> .
 }
 LIMIT 50
 ''';
@@ -268,7 +294,7 @@ LIMIT 50
         'query': sparqlQuery,
       });
 
-      debugPrint('Inventaire: SPARQL editions query for $workUri (lang: $preferredLanguage)');
+      debugPrint('Inventaire: SPARQL editions query for $workUri (clean: $cleanWdId, lang: $preferredLanguage)');
       final httpClient = client ?? http.Client();
       final sparqlResponse = await httpClient.get(
         sparqlUri,
@@ -334,13 +360,18 @@ LIMIT 50
 
         final coverUrl = _resolveImageUrl(ed['image']);
 
-        String? title;
-        if (preferredLanguage != null && labels.containsKey(preferredLanguage)) {
-          title = labels[preferredLanguage]?.toString();
+        // Resolve Title (P1476 - Title of Work/Edition in Wikidata)
+        final titleClaims = (claims['wdt:P1476'] ?? claims['P1476'] ?? claims['invp:P1476']) as List?;
+        String? title = titleClaims?.isNotEmpty == true ? _extractValue(titleClaims!.first) : null;
+
+        if (title == null || title.isEmpty) {
+          if (preferredLanguage != null && labels.containsKey(preferredLanguage)) {
+            title = labels[preferredLanguage]?.toString();
+          }
+          title ??= labels['es'] as String?
+              ?? labels['en'] as String?
+              ?? (labels.values.isNotEmpty ? labels.values.first.toString() : null);
         }
-        title ??= labels['es'] as String?
-            ?? labels['en'] as String?
-            ?? (labels.values.isNotEmpty ? labels.values.first.toString() : null);
 
         final isbn13List = claims['wdt:P212'] ?? claims['P212'];
         final isbn10List = claims['wdt:P957'] ?? claims['P957'];
@@ -356,8 +387,6 @@ LIMIT 50
         final pages = pagesList is List && pagesList.isNotEmpty ? pagesList.first : null;
         final pageCount = pages != null ? int.tryParse(pages.toString()) : null;
 
-        if (title == null && isbn == null && coverUrl == null) continue;
-
         // Resolve subtitle (P1680)
         final subtitleRaw = claims['wdt:P1680'] ?? claims['P1680'];
         final subtitle = subtitleRaw is List && subtitleRaw.isNotEmpty ? _extractValue(subtitleRaw.first) : null;
@@ -366,6 +395,19 @@ LIMIT 50
         final langClaims = (claims['wdt:P407'] ?? claims['P407'] ?? claims['invp:P407']) as List?;
         final langRaw = langClaims?.isNotEmpty == true ? langClaims!.first : null;
         final language = _wdUriToLangCode(langRaw, labels, title);
+
+        // Resolve publisher (P123)
+        String? publisher;
+        final publisherIds = claims['wdt:P123'] ?? claims['P123'];
+        if (publisherIds is List && publisherIds.isNotEmpty) {
+          final pubEntity = entities[publisherIds.first.toString()];
+          if (pubEntity != null) {
+            final pLabels = pubEntity['labels'] as Map<String, dynamic>? ?? {};
+            publisher = (preferredLanguage != null && pLabels.containsKey(preferredLanguage))
+                ? pLabels[preferredLanguage]?.toString()
+                : (pLabels['es'] ?? pLabels['en'] ?? (pLabels.values.isNotEmpty ? pLabels.values.first?.toString() : null));
+          }
+        }
 
         // Resolve translator (P655)
         final translatorRawList = claims['wdt:P655'] ?? claims['P655'];
@@ -382,17 +424,18 @@ LIMIT 50
         }
 
         results.add(BookSearchResult(
-          title: title ?? '',
+          title: title ?? 'Unknown Title',
           subtitle: subtitle,
           authors: baseAuthors ?? const [],
           isbn: isbn,
           language: language,
           translator: translator,
+          publisher: publisher,
           coverUrl: coverUrl,
           publishYear: publishYear,
           pageCount: pageCount,
           source: 'Inventaire',
-          inventaireWorkUri: workUri,
+          inventaireWorkUri: 'wd:$cleanWdId',
         ));
       }
 
@@ -417,16 +460,31 @@ LIMIT 50
     }
   }
 
+  static String _cleanWorkWdId(String workUri) {
+    var cleaned = workUri.trim();
+    if (cleaned.contains('/entity/')) {
+      cleaned = cleaned.substring(cleaned.lastIndexOf('/entity/') + 8);
+    }
+    if (cleaned.contains('/')) {
+      cleaned = cleaned.split('/').last;
+    }
+    return cleaned.replaceFirst('wd:', '').replaceAll('<', '').replaceAll('>', '').trim();
+  }
+
   static BookSearchResult _fromEntity(Map<String, dynamic> allEntities, Map<String, dynamic> entity, String? isbn, {String? preferredLanguage}) {
     final claims = entity['claims'] as Map<String, dynamic>? ?? {};
     
-    // 1. Get Title (Prioritize preferred language)
+    // 1. Get Title (Prioritize P1476 and preferred language)
+    final titleClaims = (claims['wdt:P1476'] ?? claims['P1476'] ?? claims['invp:P1476']) as List?;
+    String? title = titleClaims?.isNotEmpty == true ? _extractValue(titleClaims!.first) : null;
+
     final labels = entity['labels'] as Map<String, dynamic>? ?? {};
-    String title = 'Unknown Title';
-    if (preferredLanguage != null && labels.containsKey(preferredLanguage)) {
-      title = labels[preferredLanguage];
-    } else {
-      title = labels['es'] ?? labels['en'] ?? (labels.values.isNotEmpty ? labels.values.first : 'Unknown Title');
+    if (title == null || title.isEmpty) {
+      if (preferredLanguage != null && labels.containsKey(preferredLanguage)) {
+        title = labels[preferredLanguage];
+      } else {
+        title = labels['es'] ?? labels['en'] ?? (labels.values.isNotEmpty ? labels.values.first : 'Unknown Title');
+      }
     }
 
     // 2. Get Author(s)
@@ -523,11 +581,12 @@ LIMIT 50
     final workClaims = (claims['P629'] ?? claims['wdt:P629']) as List?;
     String? workUri;
     if (workClaims != null && workClaims.isNotEmpty) {
-      workUri = workClaims.first.toString();
+      final rawUri = workClaims.first.toString();
+      workUri = 'wd:${_cleanWorkWdId(rawUri)}';
     }
 
     return BookSearchResult(
-      title: title,
+      title: title ?? 'Unknown Title',
       subtitle: subtitle,
       authors: authors,
       isbn: isbn,

@@ -71,6 +71,32 @@ void main() {
 
       expect(BookSearchService.isEligible(res, query), true);
     });
+
+    test('isEligible prunes candidates with mismatched or missing publishers when publisher is specified', () {
+      final resTarget = BookSearchResult(
+        title: 'Yo, robot',
+        authors: ['Isaac Asimov'],
+        publisher: 'Edhasa',
+        source: 'Provider',
+      );
+      final resMismatched = BookSearchResult(
+        title: 'Yo, robot',
+        authors: ['Isaac Asimov'],
+        publisher: 'Debolsillo',
+        source: 'Provider',
+      );
+      final resNullPublisher = BookSearchResult(
+        title: 'Yo, robot',
+        authors: ['Isaac Asimov'],
+        publisher: null,
+        source: 'Provider',
+      );
+      final query = BookSearchQuery(title: 'Yo, robot', publisher: 'Edhasa');
+
+      expect(BookSearchService.isEligible(resTarget, query), true);
+      expect(BookSearchService.isEligible(resMismatched, query), false);
+      expect(BookSearchService.isEligible(resNullPublisher, query), false);
+    });
   });
 
   group('BookSearchService Phase B: Ranking (calculateRankScore)', () {

@@ -18,14 +18,10 @@ class BookSearchResultTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    final hasOpenLibraryWork = result.openLibraryWorkKey != null;
-    final hasInventaireWork = result.inventaireWorkUri != null;
-    final isGoogleBooks = result.source == 'Google Books';
-
-    final showEditionsChip = (result.editionCount != null && result.editionCount! > 1) ||
-        hasOpenLibraryWork ||
-        hasInventaireWork ||
-        isGoogleBooks;
+    final hasWorkKey = result.openLibraryWorkKey != null || result.inventaireWorkUri != null;
+    final showEditionsChip = result.editionCount != null
+        ? result.editionCount! > 1
+        : hasWorkKey;
 
     return InkWell(
       onTap: () => onTap(result),
