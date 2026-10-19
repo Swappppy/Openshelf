@@ -17,14 +17,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.5.0"
-  annas_archive_client:
-    dependency: "direct main"
-    description:
-      name: annas_archive_client
-      sha256: b94243e2b556e4e989271f8553a414b0beb4743c5799c25fd3e394b67bc744f0
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.0"
   archive:
     dependency: "direct main"
     description:
@@ -233,14 +225,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
-  csslib:
-    dependency: transitive
-    description:
-      name: csslib
-      sha256: "09bad715f418841f976c77db72d5398dc1253c21fb9c0c7f0b0b985860b2d58e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   csv:
     dependency: "direct main"
     description:
@@ -477,14 +461,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
-  html:
-    dependency: transitive
-    description:
-      name: html
-      sha256: "43b67b8f43321ab066817dfac5619596c98bb1b61624e77203bb4351785f9699"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.15.7"
   http:
     dependency: "direct main"
     description:
@@ -1009,18 +985,18 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "1e12aafe408aa50da80edfd679a2a6bf63ba7ab37c7fa98286da459a757b3399"
+      sha256: b90caa27669d5f3ef9918d55343b44000f088ee9d4685ed822310848004c793e
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.28"
+    version: "2.5.0"
   shared_preferences_foundation:
     dependency: transitive
     description:
       name: shared_preferences_foundation
-      sha256: "2ec3934efa51e46117f23031cc141b8fc878e8525b94ec1ea4f7f586cf1b47ea"
+      sha256: c2c02dd59bd7b3bb6bfb77aa7ad4a7886b24ee40e95dcaea754b83274b567ff5
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.7"
+    version: "2.6.0"
   shared_preferences_linux:
     dependency: transitive
     description:
@@ -1057,10 +1033,10 @@ packages:
     dependency: transitive
     description:
       name: shelf
-      sha256: e7dd780a7ffb623c57850b33f43309312fc863fb6aa3d276a754bb299839ef12
+      sha256: e75e9cf311d7fd712048038cc17c25199c38536c20330d53e7db058b543d5a48
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.2"
+    version: "1.4.3"
   shelf_web_socket:
     dependency: transitive
     description:

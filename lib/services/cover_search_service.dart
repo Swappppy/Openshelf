@@ -7,7 +7,6 @@ import '../models/book_search_result.dart';
 import 'google_books_service.dart';
 import 'open_library_service.dart';
 import 'inventaire_service.dart';
-import 'annas_archive_service.dart';
 
 /// Specialized service for finding alternative cover images for a book.
 class CoverSearchService {
@@ -24,7 +23,6 @@ class CoverSearchService {
       BookSearchServer.googleBooks,
       BookSearchServer.openLibrary,
       BookSearchServer.inventaire,
-      BookSearchServer.annasArchive,
     ],
   }) {
     bool isCancelled = false;
@@ -73,12 +71,6 @@ class CoverSearchService {
                     addCandidate(res.coverUrl!, 'Inventaire');
                   }
                   break;
-                case BookSearchServer.annasArchive:
-                  final res = await AnnasArchiveService.getByIsbn(isbn);
-                  if (res?.coverUrl != null && _isRelevant(res!.title, title ?? '')) {
-                    addCandidate(res.coverUrl!, 'Anna\'s Archive');
-                  }
-                  break;
               }
             } catch (e) {
               debugPrint('CoverSearch: ISBN Error from ${server.name}: $e');
@@ -111,9 +103,6 @@ class CoverSearchService {
                   break;
                 case BookSearchServer.inventaire:
                   results = await InventaireService.search(query, preferredLanguage: preferredLanguage);
-                  break;
-                case BookSearchServer.annasArchive:
-                  results = await AnnasArchiveService.search(query);
                   break;
               }
               for (final res in results) {
@@ -157,9 +146,6 @@ class CoverSearchService {
                   break;
                 case BookSearchServer.inventaire:
                   results = await InventaireService.search(query, preferredLanguage: preferredLanguage);
-                  break;
-                case BookSearchServer.annasArchive:
-                  results = await AnnasArchiveService.search(query);
                   break;
               }
               for (final res in results) {

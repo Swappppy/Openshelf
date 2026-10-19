@@ -101,7 +101,6 @@ class AppSettingsController extends Notifier<AppSettings> {
         BookSearchServer.googleBooks,
         BookSearchServer.openLibrary,
         BookSearchServer.inventaire,
-        BookSearchServer.annasArchive,
       ],
       disabledSearchServers: disabledServers ?? const [],
       googleBooksApiKey: googleApiKey,

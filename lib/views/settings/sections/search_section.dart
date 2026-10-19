@@ -121,8 +121,6 @@ class _SearchServerHelper {
         return 'Google Books';
       case BookSearchServer.inventaire:
         return 'Inventaire.io';
-      case BookSearchServer.annasArchive:
-        return 'Anna\'s Archive';
     }
   }
 
@@ -134,8 +132,6 @@ class _SearchServerHelper {
         return 'books.googleapis.com';
       case BookSearchServer.inventaire:
         return 'inventaire.io';
-      case BookSearchServer.annasArchive:
-        return 'annas-archive.org';
     }
   }
 }

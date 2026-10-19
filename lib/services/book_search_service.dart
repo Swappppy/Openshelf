@@ -8,7 +8,6 @@ import '../services/database.dart';
 import 'google_books_service.dart';
 import 'open_library_service.dart';
 import 'inventaire_service.dart';
-import 'annas_archive_service.dart';
 
 export '../models/book_search_query.dart';
 export 'cover_search_service.dart';
@@ -401,8 +400,6 @@ class BookSearchService {
         );
       case BookSearchServer.inventaire:
         return await InventaireService.searchStructured(query, preferredLanguage: preferredLanguage);
-      case BookSearchServer.annasArchive:
-        return await AnnasArchiveService.searchStructured(query);
     }
   }
 

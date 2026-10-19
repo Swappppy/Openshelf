@@ -4,7 +4,6 @@ enum BookSearchServer {
   openLibrary,
   googleBooks,
   inventaire,
-  annasArchive,
 }
 
 /// Global application settings persisted in shared preferences.
@@ -36,7 +35,6 @@ class AppSettings {
       BookSearchServer.googleBooks,
       BookSearchServer.openLibrary,
       BookSearchServer.inventaire,
-      BookSearchServer.annasArchive,
     ],
     this.disabledSearchServers = const [],
     this.googleBooksApiKey,

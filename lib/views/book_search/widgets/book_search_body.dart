@@ -23,8 +23,6 @@ class BookSearchBody extends ConsumerWidget {
         return context.l10n.bookSearchServerOpenLibrary;
       case BookSearchServer.inventaire:
         return context.l10n.bookSearchServerInventaire;
-      case BookSearchServer.annasArchive:
-        return context.l10n.bookSearchServerAnnasArchive;
     }
   }
 
