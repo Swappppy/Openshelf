@@ -83,74 +83,66 @@ class BookSearchBody extends ConsumerWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (controller.error != null && controller.results.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.cloud_off_outlined, size: 64, color: colorScheme.outline),
-                  const SizedBox(height: 16),
-                  Text(
-                    controller.error!,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.outline,
-                        ),
-                  ),
-                  const SizedBox(height: 24),
-                  FilledButton.tonal(
-                    onPressed: () => controller.search(context, networkErrorMsg: context.l10n.bookSearchErrorNetwork),
-                    child: Text(context.l10n.retry),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
+        Widget content;
 
-        if (!controller.searched) {
+        if (controller.error != null && controller.results.isEmpty) {
+          content = Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off_outlined, size: 64, color: colorScheme.outline),
+              const SizedBox(height: 16),
+              Text(
+                controller.error!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.outline,
+                    ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.tonal(
+                onPressed: () => controller.search(context, networkErrorMsg: context.l10n.bookSearchErrorNetwork),
+                child: Text(context.l10n.retry),
+              ),
+            ],
+          );
+        } else if (!controller.searched) {
           final activeServers = ref.watch(appSettingsProvider.select((s) => s.searchServers));
 
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.search, size: 64, color: colorScheme.outline),
-                const SizedBox(height: 12),
-                Text(
-                  context.l10n.bookSearchPrompt,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.outline,
-                      ),
-                ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: activeServers
-                      .map((s) => Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.public, size: 13, color: colorScheme.outline),
-                              const SizedBox(width: 4),
-                              Text(
-                                _serverLabel(s, context),
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: colorScheme.outline,
-                                    ),
-                              ),
-                            ],
-                          ))
-                      .toList(),
-                ),
-              ],
-            ),
+          content = Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.search, size: 64, color: colorScheme.outline),
+              const SizedBox(height: 12),
+              Text(
+                context.l10n.bookSearchPrompt,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.outline,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                alignment: WrapAlignment.center,
+                children: activeServers
+                    .map((s) => Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.public, size: 13, color: colorScheme.outline),
+                            const SizedBox(width: 4),
+                            Text(
+                              _serverLabel(s, context),
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: colorScheme.outline,
+                                  ),
+                            ),
+                          ],
+                        ))
+                    .toList(),
+              ),
+            ],
           );
-        }
-
-        if (controller.results.isEmpty) {
+        } else if (controller.results.isEmpty) {
           final isbnInput = controller.isbnController.text.trim().replaceAll(RegExp(r'[^0-9X]'), '');
           final isIsbn = (isbnInput.length == 10 || isbnInput.length == 13) &&
               RegExp(r'^[0-9]+X?$').hasMatch(isbnInput);
@@ -162,69 +154,82 @@ class BookSearchBody extends ConsumerWidget {
             controller.isbnController.text.trim(),
           ].where((s) => s.isNotEmpty).join(' - ');
 
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.search_off, size: 64, color: colorScheme.outline),
-                const SizedBox(height: 12),
-                Text(
-                  context.l10n.bookSearchNoResults(displayQuery),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.outline,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                if (isIsbn || controller.hasAnyInput) ...[
-                  const SizedBox(height: 24),
-                  FilledButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BookFormView(
-                            prefill: BookSearchResult(
-                              title: controller.titleController.text.trim(),
-                              authors: controller.authorController.text.trim().isNotEmpty
-                                  ? [controller.authorController.text.trim()]
-                                  : [],
-                              isbn: isbnInput.isNotEmpty ? isbnInput : null,
-                              publisher: controller.publisherController.text.trim().isNotEmpty
-                                  ? controller.publisherController.text.trim()
-                                  : null,
-                              source: 'Manual entry',
-                            ),
+          content = Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.search_off, size: 64, color: colorScheme.outline),
+              const SizedBox(height: 12),
+              Text(
+                context.l10n.bookSearchNoResults(displayQuery),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.outline,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              if (isIsbn || controller.hasAnyInput) ...[
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BookFormView(
+                          prefill: BookSearchResult(
+                            title: controller.titleController.text.trim(),
+                            authors: controller.authorController.text.trim().isNotEmpty
+                                ? [controller.authorController.text.trim()]
+                                : [],
+                            isbn: isbnInput.isNotEmpty ? isbnInput : null,
+                            publisher: controller.publisherController.text.trim().isNotEmpty
+                                ? controller.publisherController.text.trim()
+                                : null,
+                            source: 'Manual entry',
                           ),
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.add),
-                    label: Text(context.l10n.addManually),
-                  ),
-                ],
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: Text(context.l10n.addManually),
+                ),
               ],
-            ),
+            ],
+          );
+        } else {
+          return Column(
+            children: [
+              if (controller.loading)
+                LinearProgressIndicator(
+                  backgroundColor: colorScheme.surfaceContainerHighest,
+                  color: colorScheme.primary,
+                  minHeight: 3,
+                ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: controller.results.length,
+                  itemBuilder: (context, index) => BookSearchResultTile(
+                    result: controller.results[index],
+                    onTap: (result) => _handleResultTap(context, result),
+                  ),
+                ),
+              ),
+            ],
           );
         }
 
-        return Column(
-          children: [
-            if (controller.loading)
-              LinearProgressIndicator(
-                backgroundColor: colorScheme.surfaceContainerHighest,
-                color: colorScheme.primary,
-                minHeight: 3,
-              ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: controller.results.length,
-                itemBuilder: (context, index) => BookSearchResultTile(
-                  result: controller.results[index],
-                  onTap: (result) => _handleResultTap(context, result),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
+                child: Center(child: content),
               ),
-            ),
-          ],
+            );
+          },
         );
       },
     );

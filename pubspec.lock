@@ -933,14 +933,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
-  reorderable_staggered_grid_view:
-    dependency: "direct main"
-    description:
-      name: reorderable_staggered_grid_view
-      sha256: aa39f46066b6856007e518060d37e348e872d4639e293c8bd21894efea867653
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.1"
   riverpod:
     dependency: transitive
     description:
@@ -1066,6 +1058,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.2"
+  span_grid:
+    dependency: "direct main"
+    description:
+      name: span_grid
+      sha256: d23975dcba3add375ee1d22f81563415522a2bd457e329bc1afc06078355ed5d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   sqlcipher_flutter_libs:
     dependency: transitive
     description:
@@ -1106,14 +1106,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.2"
-  staggered_grid_view:
-    dependency: transitive
-    description:
-      name: staggered_grid_view
-      sha256: f8f5d5a6ca4bb07778fcbe556969ba79a16893fd97813260045a9c76a5ab9136
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1"
   state_notifier:
     dependency: transitive
     description:

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reorderable_staggered_grid_view/reorderable_staggered_grid_view.dart';
+import 'package:span_grid/span_grid.dart';
 import 'package:collection/collection.dart';
 import '../../controllers/stats_controller.dart';
 import '../../controllers/fab_visibility_controller.dart';
@@ -32,11 +32,7 @@ class StatsView extends ConsumerStatefulWidget {
 class _StatsViewState extends ConsumerState<StatsView> {
   bool _isEditing = false;
   List<StatWidgetConfig> _localConfigs = [];
-  final Map<int, GlobalKey> _animationKeys = {};
   bool _initialized = false;
-
-  GlobalKey _animationKey(int id) =>
-      _animationKeys.putIfAbsent(id, () => GlobalKey());
 
   @override
   void initState() {
@@ -68,7 +64,6 @@ class _StatsViewState extends ConsumerState<StatsView> {
   void _handleRemove(int id) {
     setState(() {
       _localConfigs.removeWhere((c) => c.id == id);
-      _animationKeys.remove(id);
     });
     ref.read(statsControllerProvider.notifier).removeWidget(id);
   }
@@ -133,11 +128,6 @@ class _StatsViewState extends ConsumerState<StatsView> {
   }
 
   Widget _buildGrid() {
-    // Generate a key based on sizes but independent of order.
-    // This allows smooth reordering but forces a rebuild when resizing.
-    final sizesKey = _localConfigs.map((c) => "${c.id}:${c.size}").toList()..sort();
-    final gridKey = ValueKey(sizesKey.join(','));
-
     final gridItems = _localConfigs.map((c) {
       final size = StatWidgetSize.values
           .firstWhereOrNull((e) => e.name == c.size) ??
@@ -151,11 +141,11 @@ class _StatsViewState extends ConsumerState<StatsView> {
         case StatWidgetSize.s2x2: cross = 2; main = 2; break;
       }
 
-      return ReorderableStaggeredGridViewItem<StatWidgetConfig>(
-        data: c,
-        animationKey: _animationKey(c.id),
-        crossAxisCellCount: cross,
-        mainAxisCellCount: main,
+      return SpanGridChild(
+        id: c.id,
+        crossSpan: cross,
+        mainSpan: main,
+        draggable: _isEditing,
         child: _StatTile(
           config: c,
           isEditing: _isEditing,
@@ -170,29 +160,39 @@ class _StatsViewState extends ConsumerState<StatsView> {
         ref.read(fabVisibilityProvider.notifier).handleScrollNotification(notification);
         return false;
       },
-      child: ReorderableStaggeredGridView(
-        key: gridKey,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        enable: _isEditing,
-        isLongPressDraggable: true,
-        onDragStarted: () {
-          HapticFeedback.mediumImpact();
-        },
-        onAcceptWithDetails: (details, index) {
-          final dragged = details.data as StatWidgetConfig;
-          setState(() {
-            final oldIdx = _localConfigs.indexWhere((c) => c.id == dragged.id);
-            if (oldIdx != -1) {
-              final item = _localConfigs.removeAt(oldIdx);
-              _localConfigs.insert(index.clamp(0, _localConfigs.length), item);
-            }
-          });
-          ref.read(statsControllerProvider.notifier).reorderWidgets(_localConfigs);
-        },
-        items: gridItems,
+      child: SingleChildScrollView(
+        child: SpanGrid(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          children: gridItems,
+          crossAxisCount: 2,
+          spacing: 12,
+          dragStartBehavior: _isEditing
+              ? SpanGridDragStartBehavior.delayed
+              : SpanGridDragStartBehavior.disabled,
+          feedbackBuilder: (context, item, child, dragging) {
+            return AnimatedScale(
+              scale: dragging ? 1.04 : 1.0,
+              duration: const Duration(milliseconds: 150),
+              child: Material(
+                color: Colors.transparent,
+                elevation: dragging ? 8 : 0,
+                borderRadius: BorderRadius.circular(20),
+                child: child,
+              ),
+            );
+          },
+          onOrderChanged: (newIds) {
+            setState(() {
+              final configMap = {for (final c in _localConfigs) c.id: c};
+              _localConfigs = [
+                for (final id in newIds) ?configMap[id],
+              ];
+            });
+          },
+          onReorder: (oldIndex, newIndex) {
+            ref.read(statsControllerProvider.notifier).reorderWidgets(_localConfigs);
+          },
+        ),
       ),
     );
   }
