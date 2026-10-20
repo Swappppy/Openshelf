@@ -1,955 +1,963 @@
 {
-  "shelfWantToRead": "",
-  "fieldReadingProgress": "",
-  "imprintSearch": "",
-  "statsTitle": "",
-  "bookFormEditTitle": "",
-  "settingsApiKeySaved": "",
-  "statsPlaceholder": "",
-  "tabDetails": "",
-  "tagNewDialogTitle": "",
-  "shelfAbandoned": "",
-  "coverPickPhoto": "",
-  "save": "",
-  "pageSuffix": "",
-  "@pageSuffix": {
-    "description": "Número de páginas con sufijo",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
+    "shelfWantToRead": "",
+    "fieldReadingProgress": "",
+    "imprintSearch": "",
+    "statsTitle": "",
+    "bookFormEditTitle": "",
+    "settingsApiKeySaved": "",
+    "statsPlaceholder": "",
+    "tabDetails": "",
+    "tagNewDialogTitle": "",
+    "shelfAbandoned": "",
+    "coverPickPhoto": "",
+    "save": "",
+    "pageSuffix": "",
+    "@pageSuffix": {
+        "description": "Número de páginas con sufijo",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "imprintUrlHint": "",
+    "settingsApiKeyHide": "",
+    "formatRustic": "",
+    "collectionNone": "",
+    "managementCategories": "",
+    "coverPickerNoResults": "",
+    "shelfFormSectionPublisher": "",
+    "bookDetailNotesTitle": "",
+    "settingsSearchServerHint": "",
+    "collectionDeleteTitle": "",
+    "bookDetailFieldFormat": "",
+    "fieldAuthor": "",
+    "shelvesSectionManagement": "",
+    "shelfStatusLabelReading": "",
+    "shelfFormSectionStatus": "",
+    "imprintAddImageHint": "",
+    "shelfFormEdit": "",
+    "fieldNotes": "",
+    "shelfFormHintIsbn": "",
+    "imprintNew": "",
+    "tagNoCategories": "",
+    "shelfFormStatusAny": "",
+    "bookDetailFieldStarted": "",
+    "sectionCategories": "",
+    "shelfEmpty": "",
+    "settingsApiKeyStep5": "",
+    "statusAbandoned": "",
+    "create": "",
+    "filterCollection": "",
+    "imprintEditDialogTitle": "",
+    "imprintNoImprints": "",
+    "bookSearchErrorRateLimit": "",
+    "shelvesSectionMine": "",
+    "filterAuthor": "",
+    "cropImprintTitle": "",
+    "settingsAccentColor": "",
+    "addBook": "",
+    "tagNameLabel": "",
+    "imprintNameLabel": "",
+    "bookDetailFieldPages": "",
+    "formatLeatherbound": "",
+    "settingsDbMoveConfirm": "",
+    "settingsApiKeySave": "",
+    "edit": "",
+    "requiredField": "",
+    "libraryNoResultsHint": "",
+    "scanBarcodeSubtitle": "",
+    "coverDownloadError": "",
+    "bookDetailFieldImprintSection": "",
+    "bookFormNewTitle": "",
+    "cropCoverTitle": "",
+    "libraryNoResults": "",
+    "tabMain": "",
+    "shelfFormHintAuthor": "",
+    "shelfFormSectionAuthor": "",
+    "addBookModalTitle": "",
+    "sectionFormat": "",
+    "libraryTitle": "",
+    "sectionReadingStatus": "",
+    "addBookModalSubtitle": "",
+    "shelfReading": "",
+    "settingsDbMoveContent": "",
+    "coverPickUrl": "",
+    "imprintDeleteConfirm": "",
+    "@imprintDeleteConfirm": {
+        "description": "Confirmación de eliminar sello",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "addManuallySubtitle": "",
+    "bookSearchPrompt": "",
+    "scanBatchSubtitle": "",
+    "bookDetailDeleteTitle": "",
+    "formatHardcover": "",
+    "shelfRead": "",
+    "settingsApiKeyHint": "",
+    "searchBook": "",
+    "settingsApiKeyTitle": "",
+    "pagesLabel": "",
+    "settingsApiKeyStep2": "",
+    "searchHint": "",
+    "criticalStartError": "",
+    "@criticalStartError": {
+        "description": "Error crítico al arrancar la app",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "fieldCurrentPage": "",
+    "shelfFormSectionImprint": "",
+    "navStats": "",
+    "delete": "",
+    "errorPrefix": "",
+    "@errorPrefix": {
+        "description": "Prefijo genérico de error",
+        "placeholders": {
+            "message": {
+                "type": "String"
+            }
+        }
+    },
+    "bookDetailFieldFinished": "",
+    "pageProgressShort": "",
+    "@pageProgressShort": {
+        "description": "Progreso de lectura corto",
+        "placeholders": {
+            "current": {
+                "type": "String"
+            },
+            "total": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsDatabase": "",
+    "bookDetailFieldRating": "",
+    "statusReading": "",
+    "sectionImprint": "",
+    "appTitle": "",
+    "url": "",
+    "navLibrary": "",
+    "shelfFormSectionCollection": "",
+    "settingsApiKeyMissing": "",
+    "tagNew": "",
+    "fieldCollection": "",
+    "retry": "",
+    "shelfFormNew": "",
+    "settingsLanguage": "",
+    "settingsApiKeyInstructionsTitle": "",
+    "shelfStatusBooksEmpty": "",
+    "pageProgress": "",
+    "@pageProgress": {
+        "description": "Progreso de lectura en formato páginas",
+        "placeholders": {
+            "current": {
+                "type": "String"
+            },
+            "total": {
+                "type": "String"
+            },
+            "percent": {
+                "type": "String"
+            }
+        }
+    },
+    "shelfFormSectionCategories": "",
+    "coverPickerNetworkError": "",
+    "shelfStatusLabelRead": "",
+    "bookDetailPagePickerTitle": "",
+    "settingsApiKeyShow": "",
+    "photo": "",
+    "settingsThemeMode": "",
+    "fieldCollectionNumber": "",
+    "navShelves": "",
+    "download": "",
+    "imprintUrlDialogTitle": "",
+    "shelfFormNameLabel": "",
+    "bookSearchErrorNetwork": "",
+    "filterPublisher": "",
+    "fieldIsbn": "",
+    "settingsThemeSystem": "",
+    "shelfOptionEdit": "",
+    "settingsApiKeyStep3": "",
+    "tagDeleteConfirm": "",
+    "@tagDeleteConfirm": {
+        "description": "Confirmación de eliminar categoría",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "fieldStatusChip": "",
+    "settingsButton": "",
+    "shelfBooksEmpty": "",
+    "settingsApiKeyClear": "",
+    "imprintNone": "",
+    "scanBatch": "",
+    "imprintNewDialogTitle": "",
+    "settingsApiKeyStep4": "",
+    "bookSearchErrorNoApiKey": "",
+    "tagCreateHint": "",
+    "addManually": "",
+    "shelfFormHintPublisher": "",
+    "libraryEmpty": "",
+    "shelvesSectionByStatus": "",
+    "scanBarcode": "",
+    "fieldTitle": "",
+    "cancel": "",
+    "imprintChangeImageHint": "",
+    "searchBookSubtitle": "",
+    "shelfOptionDelete": "",
+    "bookDetailNotesHint": "",
+    "settingsApiKeyNote": "",
+    "formatOther": "",
+    "settingsThemeDark": "",
+    "sectionBasicInfo": "",
+    "settingsSearchServer": "",
+    "managementImprints": "",
+    "statusRead": "",
+    "displaySettings": "",
+    "coverPickerIsbnLabel": "",
+    "@coverPickerIsbnLabel": {
+        "description": "Subtítulo del sheet con ISBN",
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "managementCollections": "",
+    "shelfStatusLabelAbandoned": "",
+    "coverPickerTitle": "",
+    "coverPickerProgress": "",
+    "@coverPickerProgress": {
+        "description": "Progreso de carga de portadas",
+        "placeholders": {
+            "loaded": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "displaySettingsDragHint": "",
+    "settingsApiKeyConfigured": "",
+    "bookSearchHint": "",
+    "settingsApiKeyStep1": "",
+    "fieldTags": "",
+    "tagDeleteTitle": "",
+    "settingsApiKeyHowTo": "",
+    "settingsTitle": "",
+    "formatPaperback": "",
+    "shelfFormSectionTitle": "",
+    "bookDetailNotesEmpty": "",
+    "filterTagsLabel": "",
+    "tagNone": "",
+    "bookDetailFieldPersonalNotes": "",
+    "bookDetailFieldCategories": "",
+    "fieldPublisher": "",
+    "fieldRating": "",
+    "coverUrlHint": "",
+    "libraryEmptyHint": "",
+    "tagSearchOrCreate": "",
+    "formatDigital": "",
+    "settingsSectionAppearance": "",
+    "shelfStatusLabelWantToRead": "",
+    "settingsSectionStorage": "",
+    "shelfFormSectionIsbn": "",
+    "bookSearchNoResults": "",
+    "@bookSearchNoResults": {
+        "description": "Mensaje de sin resultados en búsqueda",
+        "placeholders": {
+            "query": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsCoversFolder": "",
+    "sectionRating": "",
+    "fieldYear": "",
+    "bookDetailFieldAdded": "",
+    "shelfNewTooltip": "",
+    "settingsThemeLight": "",
+    "coverSearch": "",
+    "tagColorLabel": "",
+    "settingsLanguageSystem": "",
+    "settingsDefaultDir": "",
+    "fieldTotalPages": "",
+    "shelfFormHintTitle": "",
+    "filterImprintLabel": "",
+    "bookDetailNotFound": "",
+    "filterIsbn": "",
+    "settingsApiKeyStep6": "",
+    "statusWantToRead": "",
+    "imprintDeleteTitle": "",
+    "shelfFormHintCollection": "",
+    "settingsSectionSearch": "",
+    "settingsDbMoveTitle": "",
+    "shelfAllBooks": "",
+    "settingsAccentColorHint": "",
+    "collectionDeleteConfirm": "",
+    "@collectionDeleteConfirm": {
+        "description": "Confirmación de eliminar colección",
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "coverUrlDialogTitle": "",
+    "shelvesTitle": "",
+    "bookDetailDeleteConfirm": "",
+    "@bookDetailDeleteConfirm": {
+        "description": "Confirmación de eliminar libro",
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "done": "",
+    "bookSearchRecommendedSource": "",
+    "statsAddFirstWidget": "",
+    "searchFilterPublisherLabel": "",
+    "@searchFilterPublisherLabel": {
+        "placeholders": {
+            "publisher": {
+                "type": "String"
+            }
+        }
+    },
+    "shelfPaused": "",
+    "settingsBatchCompressTitle": "",
+    "scanOcrHoldMessage": "",
+    "settingsLibraryColumns": "",
+    "statsStreakTitle": "",
+    "statsLastAddedTitle": "",
+    "statsOptAddedTimeSub": "",
+    "settingsImportSelectCovers": "",
+    "scanBarcodePermission": "",
+    "statsOptYearsTitle": "",
+    "statsReadingNowTitle": "",
+    "bookSearchServerGoogleBooks": "",
+    "settingsBatchCompressSub": "",
+    "statsCategoriesTitle": "",
+    "searchTabImprint": "",
+    "statsOptReadYearTitle": "",
+    "dataManagementImport": "",
+    "statsPagesTitle": "",
+    "searchFilterCategory": "",
+    "@searchFilterCategory": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "statsAddedNoData": "",
+    "statsAddedTitle": "",
+    "statsStreakSub": "",
+    "statsPeriodThisMonth": "",
+    "scanModeIsbn": "",
+    "statsOptCollectionsSub": "",
+    "bookDuplicateContent": "",
+    "@bookDuplicateContent": {
+        "description": "Contenido del aviso de libro duplicado",
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "tagNoneSubtitle": "",
+    "onboardingProgressTitle": "",
+    "dataManagementOpenShelf": "",
+    "openSettings": "",
+    "statsOptCategoriesTitle": "",
+    "permissionRequired": "",
+    "statsGoalTargetShelf": "",
+    "statsReadingTitle": "",
+    "statsOptAddedTimeTitle": "",
+    "collectionNoneSubtitle": "",
+    "statsOptCollectionsTitle": "",
+    "managementCategoryCount": "",
+    "@managementCategoryCount": {
+        "description": "Número de libros en una categoría",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "bookSearchServerInventaire": "",
+    "bookSearchServerAnnasArchive": "Anna's Archive",
+    "bookSearchServerOpenLibrary": "",
+    "statsGoalFromLabel": "",
+    "settingsDevClearDbSub": "",
+    "statsGoalUnitPages": "",
+    "searchTabCategory": "",
+    "statsGoalTargetLabel": "",
+    "settingsApplyIcon": "",
+    "statsYearsTitle": "",
+    "statsReadingNone": "",
+    "statsOptLastAddedSub": "",
+    "loading": "",
+    "settingsCompressImagesTitle": "",
+    "statsGoalRemaining": "",
+    "@statsGoalRemaining": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statsGoalEdit": "",
+    "settingsExportCsv": "",
+    "searchSaveAsShelf": "",
+    "settingsImportBookshelfHint": "",
+    "searchFilterStatus": "",
+    "@searchFilterStatus": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "statsGoalTitle": "",
+    "onboardingProgressSub": "",
+    "storagePermissionExplanation": "",
+    "onboardingOrganizeTitle": "",
+    "statsGoalNameLabel": "",
+    "onboardingWelcomeTitle": "",
+    "statsAvgPagesSub": "",
+    "bookSearchProvidersNotice": "",
+    "@bookSearchProvidersNotice": {
+        "description": "Aviso de proveedores que contribuyeron a la búsqueda",
+        "placeholders": {
+            "providers": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsAutoNoCoverSub": "",
+    "statsOptPagesSub": "",
+    "imprintBookCount": "",
+    "@imprintBookCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "statsGoalTypeBooks": "",
+    "libraryAddFirstBook": "",
+    "dataManagementExport": "",
+    "importRestoreCoversPrompt": "",
+    "statsCollectionsTitle": "",
+    "settingsExportCsvHint": "",
+    "scanIsbnTextSubtitle": "",
+    "statsOptCurrentTitle": "",
+    "statsOptYearsSub": "",
+    "fieldTranslator": "",
+    "statsOptCurrentSub": "",
+    "statsGoalFullTitle": "",
+    "devDeleteAllBooks": "",
+    "statsOptCategoriesSub": "",
+    "statsAddWidgetTitle": "",
+    "fieldDescription": "",
+    "settingsAllFilesAccess": "All Files Access",
+    "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
+    "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.",
+    "settingsAutoPruneTagsTitle": "未使用のカテゴリを削除",
+    "settingsAutoPruneTagsSub": "どの本にも使用されていないカテゴリを自動的に削除します",
+    "settingsExcludedPruneTagsTitle": "除外されたカテゴリ",
+    "settingsExcludedPruneTagsSub": "{count, plural, =0{除外されたカテゴリはありません} =1{1つのカテゴリが保護されています} other{{count}つのカテゴリが保護されています}}",
+    "@settingsExcludedPruneTagsSub": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "settingsPruneWarningTitle": "未使用のカテゴリが見つかりました",
+    "settingsPruneWarningContent": "このオプションを有効にすると、どの本にも使用されていない以下のカテゴリが削除されます。続行しますか？",
+    "settingsAutomationTitle": "自動化",
+    "removeFromCollection": "コレクションから削除",
+    "removeFromImprint": "インプリントから削除",
+    "removeFromCategory": "カテゴリから削除",
+    "imageProcessError": "",
+    "imageProcessing": "画像を処理中...",
+    "imagePreparing": "画像を準備中...",
+    "imageOptimizing": "画像を最適化中...",
+    "paginationEndPhysical": "",
+    "searchFieldIsbn": "",
+    "searchOpNotEquals": "",
+    "bookDetailNewReadingSections": "",
+    "ownershipStatusBought": "",
+    "paginationStartPhysical": "",
+    "paginationAdvancedButton": "",
+    "searchOpLessThan": "",
+    "exportSaveSuccess": "",
+    "@exportSaveSuccess": {
+        "placeholders": {
+            "path": {
+                "type": "String"
+            }
+        }
+    },
+    "searchModeBoolean": "",
+    "searchModeBasic": "",
+    "searchAddCondition": "",
+    "bookDetailNewReadingWholeBook": "",
+    "paginationPhysicalTotalNote": "",
+    "ownershipStatusSold": "",
+    "ownershipHistoryTitle": "",
+    "paginationChooseColor": "",
+    "searchFieldPublisher": "",
+    "statsOptStatusSub": "",
+    "statsReadByYearTitle": "",
+    "dataManagementExportHintJson": "",
+    "statsOptStreakTitle": "",
+    "settingsDevDbCleared": "",
+    "paginationMarkersLabels": "",
+    "searchFieldNotes": "",
+    "settingsImportBookshelf": "",
+    "searchFilterTranslatorLabel": "",
+    "@searchFilterTranslatorLabel": {
+        "placeholders": {
+            "translator": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationAddMarker": "",
+    "exportTitle": "",
+    "searchFilterCollection": "",
+    "@searchFilterCollection": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationVisualPageHint": "",
+    "dataManagementExportHint": "",
+    "@dataManagementExportHint": {
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "paginationCorrectErrors": "",
+    "statsEmptySubtitle": "",
+    "onboardingWelcomeSub": "",
+    "searchFilterAuthorLabel": "",
+    "@searchFilterAuthorLabel": {
+        "placeholders": {
+            "author": {
+                "type": "String"
+            }
+        }
+    },
+    "bookDuplicateTitle": "",
+    "searchClearAll": "",
+    "statsOptReadYearSub": "",
+    "dataManagementRestoreBackupHint": "",
+    "paginationMarkerLabel": "",
+    "statsGoalTypePages": "",
+    "dataManagementRestoreBackup": "",
+    "devDeleteConfirmContent": "",
+    "searchOpIs": "",
+    "no": "",
+    "settingsCompressImagesSub": "",
+    "imprintsAddFirst": "",
+    "searchFieldOriginalLanguage": "",
+    "paginationType": "",
+    "statsGoalUnitBooks": "",
+    "statsPeriodLast3Months": "",
+    "statsDailyReadingTitle": "",
+    "dataManagementImportHint": "",
+    "@dataManagementImportHint": {
+        "placeholders": {
+            "source": {
+                "type": "String"
+            }
+        }
+    },
+    "devDeleteConfirmTitle": "",
+    "searchFieldPages": "",
+    "paginationSaveProgress": "",
+    "searchFilterIsbnLabel": "",
+    "@searchFilterIsbnLabel": {
+        "placeholders": {
+            "isbn": {
+                "type": "String"
+            }
+        }
+    },
+    "sortTitle": "",
+    "statsOptAvgCompletionTitle": "",
+    "bookDetailDuplicateTitle": "",
+    "settingsImportSelectBackup": "",
+    "exportProgressMedia": "",
+    "statsGoalNew": "",
+    "bookDetailStartNewReadingTitle": "",
+    "noCoverShelfTitle": "",
+    "fieldCopies": "",
+    "scanIsbnText": "",
+    "paginationVisualPage": "",
+    "bookDetailNewReadingReadCount": "",
+    "settingsAutoNoCoverTitle": "",
+    "paginationAddBlock": "",
+    "paginationAllPagesAssignedNote": "",
+    "ownershipEventDate": "",
+    "paginationEquivalentPhysical": "",
+    "@paginationEquivalentPhysical": {
+        "placeholders": {
+            "start": {
+                "type": "int"
+            },
+            "end": {
+                "type": "int"
+            }
+        }
+    },
+    "statsOptLastAddedTitle": "",
+    "searchOpNotIncludes": "",
+    "exportCoversPrompt": "",
+    "searchOpStartsWith": "",
+    "statsPagesSub": "",
+    "searchOpIncludesAll": "",
+    "statsOptAvgPagesTitle": "",
+    "paginationBlocksSegments": "",
+    "statsGoalDelete": "",
+    "statsPeriodLast3Years": "",
+    "onboardingAddSub": "",
+    "searchFieldImprint": "",
+    "fieldOriginalLanguage": "",
+    "settingsFullBackup": "",
+    "exportProgressData": "",
+    "statsOptAvgPagesSub": "",
+    "searchFieldTitle": "",
+    "settingsSectionData": "",
+    "paginationMarkerDefaultName": "",
+    "shelfEmptySubtitle": "",
+    "paginationNoSegmentsDefined": "",
+    "paginationStartVisual": "",
+    "paginationOffset": "",
+    "settingsLanguageEnglish": "",
+    "shelfShowInLibrary": "",
+    "yes": "",
+    "statsOptPagesTitle": "",
+    "settingsDynamicIconSub": "",
+    "errorGeneric": "",
+    "@errorGeneric": {
+        "description": "Mensaje genérico de error con parámetro",
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "fieldTotalBooks": "",
+    "paginationEndVisual": "",
+    "searchFilterLanguageLabel": "",
+    "@searchFilterLanguageLabel": {
+        "placeholders": {
+            "language": {
+                "type": "String"
+            }
+        }
+    },
+    "ownershipEventPerson": "",
+    "bookDetailNewReadingSelectSections": "",
+    "dataManagementImportHintJson": "",
+    "addedToLibrary": "",
+    "onboardingNext": "",
+    "searchFieldYear": "",
+    "duplicate": "",
+    "importPartial": "",
+    "@importPartial": {
+        "placeholders": {
+            "added": {
+                "type": "int"
+            },
+            "skipped": {
+                "type": "int"
+            }
+        }
+    },
+    "fieldLanguage": "",
+    "ownershipEventNotes": "",
+    "statsStatusTitle": "",
+    "tabMore": "",
+    "settingsLanguagePortugueseBR": "",
+    "importSuccess": "",
+    "@importSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "scanIsbnSelect": "",
+    "statsGoalTypeLabel": "",
+    "shelvesAddFirstShelf": "",
+    "dataManagementCreateBackupHint": "",
+    "statsPeriodThisYear": "",
+    "loadingImport": "",
+    "paginationSegmentStartGreater": "",
+    "statsAvgCompletionValue": "",
+    "@statsAvgCompletionValue": {
+        "placeholders": {
+            "days": {
+                "type": "int"
+            }
+        }
+    },
+    "bookDetailNewReadingSectionsCount": "",
+    "@bookDetailNewReadingSectionsCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "fieldSubtitle": "",
+    "paginationArabic": "",
+    "paginationCurrentPageShort": "",
+    "exportProgressCompress": "",
+    "statsAvgPagesTitle": "",
+    "exportProgressFinalize": "",
+    "errorDuplicateIsbn": "",
+    "bookDetailStartNewReadingPrompt": "",
+    "searchFieldNoCover": "",
+    "settingsLibraryColumnsSub": "",
+    "searchTabCollection": "",
+    "fieldOwnershipStatus": "",
+    "settingsLanguageSpanish": "",
+    "paginationVisualMode": "",
+    "ownershipLogEmpty": "",
+    "settingsFullBackupHint": "",
+    "settingsLanguagePortuguese": "",
+    "searchFilterSubtitleLabel": "",
+    "@searchFilterSubtitleLabel": {
+        "placeholders": {
+            "subtitle": {
+                "type": "String"
+            }
+        }
+    },
+    "bookSearchRecommended": "",
+    "statsOptGoalSub": "",
+    "booksReadProgress": "",
+    "@booksReadProgress": {
+        "description": "Etiqueta de progreso de libros leídos",
+        "placeholders": {
+            "readCount": {
+                "type": "int"
+            },
+            "totalCount": {
+                "type": "int"
+            }
+        }
+    },
+    "onboardingStart": "",
+    "managementCategoryCloudCurve": "",
+    "searchFieldHasNotes": "",
+    "searchModeAdvanced": "",
+    "statsGoalToLabel": "",
+    "statsOptReadListTitle": "",
+    "searchOpEquals": "",
+    "searchFieldAuthor": "",
+    "statsOptStreakSub": "",
+    "searchOpIsNot": "",
+    "paginationRoman": "",
+    "searchFieldOriginalTitle": "",
+    "categoriesAddFirst": "",
+    "settingsLanguageItalian": "",
+    "statsOptAvgCompletionSub": "",
+    "importRestoreCoversTitle": "",
+    "settingsLanguageFrench": "",
+    "statsGoalCompleted": "",
+    "scanModeBarcode": "",
+    "ownershipStatusOther": "",
+    "statsOptGoalTitle": "",
+    "statusPaused": "",
+    "paginationSegmentExceedsTotal": "",
+    "@paginationSegmentExceedsTotal": {
+        "placeholders": {
+            "index": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "bookDetailReadNumber": "",
+    "@bookDetailReadNumber": {
+        "placeholders": {
+            "number": {
+                "type": "int"
+            }
+        }
+    },
+    "searchTabStatus": "",
+    "settingsDynamicIcon": "",
+    "collectionNameLabel": "",
+    "ownershipStatusGifted": "",
+    "unknownAuthor": "",
+    "collectionsAddFirst": "",
+    "dataManagementBookshelf": "",
+    "imprintNoneSubtitle": "",
+    "onboardingAddTitle": "",
+    "loadingExport": "",
+    "searchActiveFilters": "",
+    "@searchActiveFilters": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "searchFilterImprint": "",
+    "@searchFilterImprint": {
+        "placeholders": {
+            "value": {
+                "type": "String"
+            }
+        }
+    },
+    "fieldReads": "",
+    "dataManagementLibraryThing": "",
+    "searchFieldCategory": "",
+    "statsOptStatusTitle": "",
+    "ownershipStatusReturned": "",
+    "searchFieldStatus": "",
+    "bookDetailDuplicateConfirm": "",
+    "@bookDetailDuplicateConfirm": {
+        "description": "Confirmación de duplicar libro",
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "onboardingOrganizeSub": "",
+    "bookDetailReadOngoing": "",
+    "paginationPagesRemainingWarning": "",
+    "@paginationPagesRemainingWarning": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "dataManagementCreateBackup": "",
+    "dataManagementGoodreads": "",
+    "statsOptReadListSub": "",
+    "paginationProgress": "",
+    "@paginationProgress": {
+        "placeholders": {
+            "current": {
+                "type": "String"
+            },
+            "total": {
+                "type": "String"
+            }
+        }
+    },
+    "settingsBatchCompressSuccess": "",
+    "@settingsBatchCompressSuccess": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "searchOpBetween": "",
+    "cameraPermissionExplanation": "",
+    "bookDetailStartNewReadingButton": "",
+    "paginationMarkersAndIndices": "",
+    "shelfStatusLabelPaused": "",
+    "bookDetailDeleteReadPrompt": "",
+    "paginationLabelOptional": "",
+    "settingsLanguageCatalan": "",
+    "ownershipStatusBorrowed": "",
+    "paginationAllPagesAssigned": "",
+    "bookDetailReadNumberLabel": "",
+    "saveToDevice": "",
+    "statsOptDailyReadingTitle": "",
+    "searchFieldCollection": "",
+    "searchOpIncludes": "",
+    "paginationSegmentsDefaultName": "",
+    "paginationAdjustsAutomatically": "",
+    "paginationSectionLabel": "",
+    "@paginationSectionLabel": {
+        "placeholders": {
+            "index": {
+                "type": "int"
+            }
+        }
+    },
+    "searchOpGreaterThan": "",
+    "searchFieldLanguage": "",
+    "searchPreview": "",
+    "paginationAdvancedConfig": "",
+    "searchOpExactly": "",
+    "bookDetailNewReadingWholeBookDescription": "",
+    "shelfBooksEmptyHint": "",
+    "selectAll": "",
+    "paginationSegmentRequired": "",
+    "searchOpContains": "",
+    "bookDetailReadDeleteConfirm": "",
+    "share": "",
+    "fieldOriginalTitle": "",
+    "bookDetailReadEditDialogTitle": "",
+    "paginationSegmentOverlap": "",
+    "@paginationSegmentOverlap": {
+        "placeholders": {
+            "index1": {
+                "type": "String"
+            },
+            "index2": {
+                "type": "String"
+            }
+        }
+    },
+    "fieldIsTranslation": "",
+    "bookDetailReadHistoryTitle": "",
+    "paginationPhysicalLabel": "",
+    "statsOptDailyReadingSub": "",
+    "workEditionsEmpty": "追加の版を読み込めませんでした。",
+    "workEditionsUseGeneral": "一般的なメタデータを使用",
+    "workEditionsCount": "{count} 版",
+    "@workEditionsCount": {
+        "description": "Etiqueta para el número de ediciones en los resultados de búsqueda",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "settingsLanguageGerman": "",
+    "@settingsLanguageGerman": {
+        "description": "Opción de idioma: alemán"
+    },
+    "settingsLanguageRussian": "",
+    "@settingsLanguageRussian": {
+        "description": "Opción de idioma: ruso"
     }
-  },
-  "imprintUrlHint": "",
-  "settingsApiKeyHide": "",
-  "formatRustic": "",
-  "collectionNone": "",
-  "managementCategories": "",
-  "coverPickerNoResults": "",
-  "shelfFormSectionPublisher": "",
-  "bookDetailNotesTitle": "",
-  "settingsSearchServerHint": "",
-  "collectionDeleteTitle": "",
-  "bookDetailFieldFormat": "",
-  "fieldAuthor": "",
-  "shelvesSectionManagement": "",
-  "shelfStatusLabelReading": "",
-  "shelfFormSectionStatus": "",
-  "imprintAddImageHint": "",
-  "shelfFormEdit": "",
-  "fieldNotes": "",
-  "shelfFormHintIsbn": "",
-  "imprintNew": "",
-  "tagNoCategories": "",
-  "shelfFormStatusAny": "",
-  "bookDetailFieldStarted": "",
-  "sectionCategories": "",
-  "shelfEmpty": "",
-  "settingsApiKeyStep5": "",
-  "statusAbandoned": "",
-  "create": "",
-  "filterCollection": "",
-  "imprintEditDialogTitle": "",
-  "imprintNoImprints": "",
-  "bookSearchErrorRateLimit": "",
-  "shelvesSectionMine": "",
-  "filterAuthor": "",
-  "cropImprintTitle": "",
-  "settingsAccentColor": "",
-  "addBook": "",
-  "tagNameLabel": "",
-  "imprintNameLabel": "",
-  "bookDetailFieldPages": "",
-  "formatLeatherbound": "",
-  "settingsDbMoveConfirm": "",
-  "settingsApiKeySave": "",
-  "edit": "",
-  "requiredField": "",
-  "libraryNoResultsHint": "",
-  "scanBarcodeSubtitle": "",
-  "coverDownloadError": "",
-  "bookDetailFieldImprintSection": "",
-  "bookFormNewTitle": "",
-  "cropCoverTitle": "",
-  "libraryNoResults": "",
-  "tabMain": "",
-  "shelfFormHintAuthor": "",
-  "shelfFormSectionAuthor": "",
-  "addBookModalTitle": "",
-  "sectionFormat": "",
-  "libraryTitle": "",
-  "sectionReadingStatus": "",
-  "addBookModalSubtitle": "",
-  "shelfReading": "",
-  "settingsDbMoveContent": "",
-  "coverPickUrl": "",
-  "imprintDeleteConfirm": "",
-  "@imprintDeleteConfirm": {
-    "description": "Confirmación de eliminar sello",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "addManuallySubtitle": "",
-  "bookSearchPrompt": "",
-  "scanBatchSubtitle": "",
-  "bookDetailDeleteTitle": "",
-  "formatHardcover": "",
-  "shelfRead": "",
-  "settingsApiKeyHint": "",
-  "searchBook": "",
-  "settingsApiKeyTitle": "",
-  "pagesLabel": "",
-  "settingsApiKeyStep2": "",
-  "searchHint": "",
-  "criticalStartError": "",
-  "@criticalStartError": {
-    "description": "Error crítico al arrancar la app",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "fieldCurrentPage": "",
-  "shelfFormSectionImprint": "",
-  "navStats": "",
-  "delete": "",
-  "errorPrefix": "",
-  "@errorPrefix": {
-    "description": "Prefijo genérico de error",
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
-  "bookDetailFieldFinished": "",
-  "pageProgressShort": "",
-  "@pageProgressShort": {
-    "description": "Progreso de lectura corto",
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "total": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsDatabase": "",
-  "bookDetailFieldRating": "",
-  "statusReading": "",
-  "sectionImprint": "",
-  "appTitle": "",
-  "url": "",
-  "navLibrary": "",
-  "shelfFormSectionCollection": "",
-  "settingsApiKeyMissing": "",
-  "tagNew": "",
-  "fieldCollection": "",
-  "retry": "",
-  "shelfFormNew": "",
-  "settingsLanguage": "",
-  "settingsApiKeyInstructionsTitle": "",
-  "shelfStatusBooksEmpty": "",
-  "pageProgress": "",
-  "@pageProgress": {
-    "description": "Progreso de lectura en formato páginas",
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "total": {
-        "type": "String"
-      },
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "shelfFormSectionCategories": "",
-  "coverPickerNetworkError": "",
-  "shelfStatusLabelRead": "",
-  "bookDetailPagePickerTitle": "",
-  "settingsApiKeyShow": "",
-  "photo": "",
-  "settingsThemeMode": "",
-  "fieldCollectionNumber": "",
-  "navShelves": "",
-  "download": "",
-  "imprintUrlDialogTitle": "",
-  "shelfFormNameLabel": "",
-  "bookSearchErrorNetwork": "",
-  "filterPublisher": "",
-  "fieldIsbn": "",
-  "settingsThemeSystem": "",
-  "shelfOptionEdit": "",
-  "settingsApiKeyStep3": "",
-  "tagDeleteConfirm": "",
-  "@tagDeleteConfirm": {
-    "description": "Confirmación de eliminar categoría",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "fieldStatusChip": "",
-  "settingsButton": "",
-  "shelfBooksEmpty": "",
-  "settingsApiKeyClear": "",
-  "imprintNone": "",
-  "scanBatch": "",
-  "imprintNewDialogTitle": "",
-  "settingsApiKeyStep4": "",
-  "bookSearchErrorNoApiKey": "",
-  "tagCreateHint": "",
-  "addManually": "",
-  "shelfFormHintPublisher": "",
-  "libraryEmpty": "",
-  "shelvesSectionByStatus": "",
-  "scanBarcode": "",
-  "fieldTitle": "",
-  "cancel": "",
-  "imprintChangeImageHint": "",
-  "searchBookSubtitle": "",
-  "shelfOptionDelete": "",
-  "bookDetailNotesHint": "",
-  "settingsApiKeyNote": "",
-  "formatOther": "",
-  "settingsThemeDark": "",
-  "sectionBasicInfo": "",
-  "settingsSearchServer": "",
-  "managementImprints": "",
-  "statusRead": "",
-  "displaySettings": "",
-  "coverPickerIsbnLabel": "",
-  "@coverPickerIsbnLabel": {
-    "description": "Subtítulo del sheet con ISBN",
-    "placeholders": {
-      "isbn": {
-        "type": "String"
-      }
-    }
-  },
-  "managementCollections": "",
-  "shelfStatusLabelAbandoned": "",
-  "coverPickerTitle": "",
-  "coverPickerProgress": "",
-  "@coverPickerProgress": {
-    "description": "Progreso de carga de portadas",
-    "placeholders": {
-      "loaded": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "displaySettingsDragHint": "",
-  "settingsApiKeyConfigured": "",
-  "bookSearchHint": "",
-  "settingsApiKeyStep1": "",
-  "fieldTags": "",
-  "tagDeleteTitle": "",
-  "settingsApiKeyHowTo": "",
-  "settingsTitle": "",
-  "formatPaperback": "",
-  "shelfFormSectionTitle": "",
-  "bookDetailNotesEmpty": "",
-  "filterTagsLabel": "",
-  "tagNone": "",
-  "bookDetailFieldPersonalNotes": "",
-  "bookDetailFieldCategories": "",
-  "fieldPublisher": "",
-  "fieldRating": "",
-  "coverUrlHint": "",
-  "libraryEmptyHint": "",
-  "tagSearchOrCreate": "",
-  "formatDigital": "",
-  "settingsSectionAppearance": "",
-  "shelfStatusLabelWantToRead": "",
-  "settingsSectionStorage": "",
-  "shelfFormSectionIsbn": "",
-  "bookSearchNoResults": "",
-  "@bookSearchNoResults": {
-    "description": "Mensaje de sin resultados en búsqueda",
-    "placeholders": {
-      "query": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsCoversFolder": "",
-  "sectionRating": "",
-  "fieldYear": "",
-  "bookDetailFieldAdded": "",
-  "shelfNewTooltip": "",
-  "settingsThemeLight": "",
-  "coverSearch": "",
-  "tagColorLabel": "",
-  "settingsLanguageSystem": "",
-  "settingsDefaultDir": "",
-  "fieldTotalPages": "",
-  "shelfFormHintTitle": "",
-  "filterImprintLabel": "",
-  "bookDetailNotFound": "",
-  "filterIsbn": "",
-  "settingsApiKeyStep6": "",
-  "statusWantToRead": "",
-  "imprintDeleteTitle": "",
-  "shelfFormHintCollection": "",
-  "settingsSectionSearch": "",
-  "settingsDbMoveTitle": "",
-  "shelfAllBooks": "",
-  "settingsAccentColorHint": "",
-  "collectionDeleteConfirm": "",
-  "@collectionDeleteConfirm": {
-    "description": "Confirmación de eliminar colección",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "coverUrlDialogTitle": "",
-  "shelvesTitle": "",
-  "bookDetailDeleteConfirm": "",
-  "@bookDetailDeleteConfirm": {
-    "description": "Confirmación de eliminar libro",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "done": "",
-  "bookSearchRecommendedSource": "",
-  "statsAddFirstWidget": "",
-  "searchFilterPublisherLabel": "",
-  "@searchFilterPublisherLabel": {
-    "placeholders": {
-      "publisher": {
-        "type": "String"
-      }
-    }
-  },
-  "shelfPaused": "",
-  "settingsBatchCompressTitle": "",
-  "scanOcrHoldMessage": "",
-  "settingsLibraryColumns": "",
-  "statsStreakTitle": "",
-  "statsLastAddedTitle": "",
-  "statsOptAddedTimeSub": "",
-  "settingsImportSelectCovers": "",
-  "scanBarcodePermission": "",
-  "statsOptYearsTitle": "",
-  "statsReadingNowTitle": "",
-  "bookSearchServerGoogleBooks": "",
-  "settingsBatchCompressSub": "",
-  "statsCategoriesTitle": "",
-  "searchTabImprint": "",
-  "statsOptReadYearTitle": "",
-  "dataManagementImport": "",
-  "statsPagesTitle": "",
-  "searchFilterCategory": "",
-  "@searchFilterCategory": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "statsAddedNoData": "",
-  "statsAddedTitle": "",
-  "statsStreakSub": "",
-  "statsPeriodThisMonth": "",
-  "scanModeIsbn": "",
-  "statsOptCollectionsSub": "",
-  "bookDuplicateContent": "",
-  "@bookDuplicateContent": {
-    "description": "Contenido del aviso de libro duplicado",
-    "placeholders": {
-      "isbn": {
-        "type": "String"
-      }
-    }
-  },
-  "tagNoneSubtitle": "",
-  "onboardingProgressTitle": "",
-  "dataManagementOpenShelf": "",
-  "openSettings": "",
-  "statsOptCategoriesTitle": "",
-  "permissionRequired": "",
-  "statsGoalTargetShelf": "",
-  "statsReadingTitle": "",
-  "statsOptAddedTimeTitle": "",
-  "collectionNoneSubtitle": "",
-  "statsOptCollectionsTitle": "",
-  "managementCategoryCount": "",
-  "@managementCategoryCount": {
-    "description": "Número de libros en una categoría",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "bookSearchServerInventaire": "",
-  "bookSearchServerAnnasArchive": "Anna's Archive",
-  "bookSearchServerOpenLibrary": "",
-  "statsGoalFromLabel": "",
-  "settingsDevClearDbSub": "",
-  "statsGoalUnitPages": "",
-  "searchTabCategory": "",
-  "statsGoalTargetLabel": "",
-  "settingsApplyIcon": "",
-  "statsYearsTitle": "",
-  "statsReadingNone": "",
-  "statsOptLastAddedSub": "",
-  "loading": "",
-  "settingsCompressImagesTitle": "",
-  "statsGoalRemaining": "",
-  "@statsGoalRemaining": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "statsGoalEdit": "",
-  "settingsExportCsv": "",
-  "searchSaveAsShelf": "",
-  "settingsImportBookshelfHint": "",
-  "searchFilterStatus": "",
-  "@searchFilterStatus": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "statsGoalTitle": "",
-  "onboardingProgressSub": "",
-  "storagePermissionExplanation": "",
-  "onboardingOrganizeTitle": "",
-  "statsGoalNameLabel": "",
-  "onboardingWelcomeTitle": "",
-  "statsAvgPagesSub": "",
-  "bookSearchProvidersNotice": "",
-  "@bookSearchProvidersNotice": {
-    "description": "Aviso de proveedores que contribuyeron a la búsqueda",
-    "placeholders": {
-      "providers": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsAutoNoCoverSub": "",
-  "statsOptPagesSub": "",
-  "imprintBookCount": "",
-  "@imprintBookCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "statsGoalTypeBooks": "",
-  "libraryAddFirstBook": "",
-  "dataManagementExport": "",
-  "importRestoreCoversPrompt": "",
-  "statsCollectionsTitle": "",
-  "settingsExportCsvHint": "",
-  "scanIsbnTextSubtitle": "",
-  "statsOptCurrentTitle": "",
-  "statsOptYearsSub": "",
-  "fieldTranslator": "",
-  "statsOptCurrentSub": "",
-  "statsGoalFullTitle": "",
-  "devDeleteAllBooks": "",
-  "statsOptCategoriesSub": "",
-  "statsAddWidgetTitle": "",
-  "fieldDescription": "",
-  "settingsAllFilesAccess": "All Files Access",
-  "settingsAllFilesAccessSub": "Required to move database to external folders (Android 11+)",
-  "settingsAllFilesAccessInfo": "This permission allows Openshelf to manage files outside its private directory. It is required to move the database to a custom folder.",
-  "settingsAutoPruneTagsTitle": "未使用のカテゴリを削除",
-  "settingsAutoPruneTagsSub": "どの本にも使用されていないカテゴリを自動的に削除します",
-  "settingsExcludedPruneTagsTitle": "除外されたカテゴリ",
-  "settingsExcludedPruneTagsSub": "{count, plural, =0{除外されたカテゴリはありません} =1{1つのカテゴリが保護されています} other{{count}つのカテゴリが保護されています}}",
-  "@settingsExcludedPruneTagsSub": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsPruneWarningTitle": "未使用のカテゴリが見つかりました",
-  "settingsPruneWarningContent": "このオプションを有効にすると、どの本にも使用されていない以下のカテゴリが削除されます。続行しますか？",
-  "settingsAutomationTitle": "自動化",
-  "removeFromCollection": "コレクションから削除",
-  "removeFromImprint": "インプリントから削除",
-  "removeFromCategory": "カテゴリから削除",
-  "imageProcessError": "",
-  "imageProcessing": "画像を処理中...",
-  "imagePreparing": "画像を準備中...",
-  "imageOptimizing": "画像を最適化中...",
-  "paginationEndPhysical": "",
-  "searchFieldIsbn": "",
-  "searchOpNotEquals": "",
-  "bookDetailNewReadingSections": "",
-  "ownershipStatusBought": "",
-  "paginationStartPhysical": "",
-  "paginationAdvancedButton": "",
-  "searchOpLessThan": "",
-  "exportSaveSuccess": "",
-  "@exportSaveSuccess": {
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
-  "searchModeBoolean": "",
-  "searchModeBasic": "",
-  "searchAddCondition": "",
-  "bookDetailNewReadingWholeBook": "",
-  "paginationPhysicalTotalNote": "",
-  "ownershipStatusSold": "",
-  "ownershipHistoryTitle": "",
-  "paginationChooseColor": "",
-  "searchFieldPublisher": "",
-  "statsOptStatusSub": "",
-  "statsReadByYearTitle": "",
-  "dataManagementExportHintJson": "",
-  "statsOptStreakTitle": "",
-  "settingsDevDbCleared": "",
-  "paginationMarkersLabels": "",
-  "searchFieldNotes": "",
-  "settingsImportBookshelf": "",
-  "searchFilterTranslatorLabel": "",
-  "@searchFilterTranslatorLabel": {
-    "placeholders": {
-      "translator": {
-        "type": "String"
-      }
-    }
-  },
-  "paginationAddMarker": "",
-  "exportTitle": "",
-  "searchFilterCollection": "",
-  "@searchFilterCollection": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "paginationVisualPageHint": "",
-  "dataManagementExportHint": "",
-  "@dataManagementExportHint": {
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "paginationCorrectErrors": "",
-  "statsEmptySubtitle": "",
-  "onboardingWelcomeSub": "",
-  "searchFilterAuthorLabel": "",
-  "@searchFilterAuthorLabel": {
-    "placeholders": {
-      "author": {
-        "type": "String"
-      }
-    }
-  },
-  "bookDuplicateTitle": "",
-  "searchClearAll": "",
-  "statsOptReadYearSub": "",
-  "dataManagementRestoreBackupHint": "",
-  "paginationMarkerLabel": "",
-  "statsGoalTypePages": "",
-  "dataManagementRestoreBackup": "",
-  "devDeleteConfirmContent": "",
-  "searchOpIs": "",
-  "no": "",
-  "settingsCompressImagesSub": "",
-  "imprintsAddFirst": "",
-  "searchFieldOriginalLanguage": "",
-  "paginationType": "",
-  "statsGoalUnitBooks": "",
-  "statsPeriodLast3Months": "",
-  "statsDailyReadingTitle": "",
-  "dataManagementImportHint": "",
-  "@dataManagementImportHint": {
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "devDeleteConfirmTitle": "",
-  "searchFieldPages": "",
-  "paginationSaveProgress": "",
-  "searchFilterIsbnLabel": "",
-  "@searchFilterIsbnLabel": {
-    "placeholders": {
-      "isbn": {
-        "type": "String"
-      }
-    }
-  },
-  "sortTitle": "",
-  "statsOptAvgCompletionTitle": "",
-  "bookDetailDuplicateTitle": "",
-  "settingsImportSelectBackup": "",
-  "exportProgressMedia": "",
-  "statsGoalNew": "",
-  "bookDetailStartNewReadingTitle": "",
-  "noCoverShelfTitle": "",
-  "fieldCopies": "",
-  "scanIsbnText": "",
-  "paginationVisualPage": "",
-  "bookDetailNewReadingReadCount": "",
-  "settingsAutoNoCoverTitle": "",
-  "paginationAddBlock": "",
-  "paginationAllPagesAssignedNote": "",
-  "ownershipEventDate": "",
-  "paginationEquivalentPhysical": "",
-  "@paginationEquivalentPhysical": {
-    "placeholders": {
-      "start": {
-        "type": "int"
-      },
-      "end": {
-        "type": "int"
-      }
-    }
-  },
-  "statsOptLastAddedTitle": "",
-  "searchOpNotIncludes": "",
-  "exportCoversPrompt": "",
-  "searchOpStartsWith": "",
-  "statsPagesSub": "",
-  "searchOpIncludesAll": "",
-  "statsOptAvgPagesTitle": "",
-  "paginationBlocksSegments": "",
-  "statsGoalDelete": "",
-  "statsPeriodLast3Years": "",
-  "onboardingAddSub": "",
-  "searchFieldImprint": "",
-  "fieldOriginalLanguage": "",
-  "settingsFullBackup": "",
-  "exportProgressData": "",
-  "statsOptAvgPagesSub": "",
-  "searchFieldTitle": "",
-  "settingsSectionData": "",
-  "paginationMarkerDefaultName": "",
-  "shelfEmptySubtitle": "",
-  "paginationNoSegmentsDefined": "",
-  "paginationStartVisual": "",
-  "paginationOffset": "",
-  "settingsLanguageEnglish": "",
-  "shelfShowInLibrary": "",
-  "yes": "",
-  "statsOptPagesTitle": "",
-  "settingsDynamicIconSub": "",
-  "errorGeneric": "",
-  "@errorGeneric": {
-    "description": "Mensaje genérico de error con parámetro",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "fieldTotalBooks": "",
-  "paginationEndVisual": "",
-  "searchFilterLanguageLabel": "",
-  "@searchFilterLanguageLabel": {
-    "placeholders": {
-      "language": {
-        "type": "String"
-      }
-    }
-  },
-  "ownershipEventPerson": "",
-  "bookDetailNewReadingSelectSections": "",
-  "dataManagementImportHintJson": "",
-  "addedToLibrary": "",
-  "onboardingNext": "",
-  "searchFieldYear": "",
-  "duplicate": "",
-  "importPartial": "",
-  "@importPartial": {
-    "placeholders": {
-      "added": {
-        "type": "int"
-      },
-      "skipped": {
-        "type": "int"
-      }
-    }
-  },
-  "fieldLanguage": "",
-  "ownershipEventNotes": "",
-  "statsStatusTitle": "",
-  "tabMore": "",
-  "settingsLanguagePortugueseBR": "",
-  "importSuccess": "",
-  "@importSuccess": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "scanIsbnSelect": "",
-  "statsGoalTypeLabel": "",
-  "shelvesAddFirstShelf": "",
-  "dataManagementCreateBackupHint": "",
-  "statsPeriodThisYear": "",
-  "loadingImport": "",
-  "paginationSegmentStartGreater": "",
-  "statsAvgCompletionValue": "",
-  "@statsAvgCompletionValue": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "bookDetailNewReadingSectionsCount": "",
-  "@bookDetailNewReadingSectionsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "fieldSubtitle": "",
-  "paginationArabic": "",
-  "paginationCurrentPageShort": "",
-  "exportProgressCompress": "",
-  "statsAvgPagesTitle": "",
-  "exportProgressFinalize": "",
-  "errorDuplicateIsbn": "",
-  "bookDetailStartNewReadingPrompt": "",
-  "searchFieldNoCover": "",
-  "settingsLibraryColumnsSub": "",
-  "searchTabCollection": "",
-  "fieldOwnershipStatus": "",
-  "settingsLanguageSpanish": "",
-  "paginationVisualMode": "",
-  "ownershipLogEmpty": "",
-  "settingsFullBackupHint": "",
-  "settingsLanguagePortuguese": "",
-  "searchFilterSubtitleLabel": "",
-  "@searchFilterSubtitleLabel": {
-    "placeholders": {
-      "subtitle": {
-        "type": "String"
-      }
-    }
-  },
-  "bookSearchRecommended": "",
-  "statsOptGoalSub": "",
-  "booksReadProgress": "",
-  "@booksReadProgress": {
-    "description": "Etiqueta de progreso de libros leídos",
-    "placeholders": {
-      "readCount": {
-        "type": "int"
-      },
-      "totalCount": {
-        "type": "int"
-      }
-    }
-  },
-  "onboardingStart": "",
-  "managementCategoryCloudCurve": "",
-  "searchFieldHasNotes": "",
-  "searchModeAdvanced": "",
-  "statsGoalToLabel": "",
-  "statsOptReadListTitle": "",
-  "searchOpEquals": "",
-  "searchFieldAuthor": "",
-  "statsOptStreakSub": "",
-  "searchOpIsNot": "",
-  "paginationRoman": "",
-  "searchFieldOriginalTitle": "",
-  "categoriesAddFirst": "",
-  "settingsLanguageItalian": "",
-  "statsOptAvgCompletionSub": "",
-  "importRestoreCoversTitle": "",
-  "settingsLanguageFrench": "",
-  "statsGoalCompleted": "",
-  "scanModeBarcode": "",
-  "ownershipStatusOther": "",
-  "statsOptGoalTitle": "",
-  "statusPaused": "",
-  "paginationSegmentExceedsTotal": "",
-  "@paginationSegmentExceedsTotal": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "bookDetailReadNumber": "",
-  "@bookDetailReadNumber": {
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "searchTabStatus": "",
-  "settingsDynamicIcon": "",
-  "collectionNameLabel": "",
-  "ownershipStatusGifted": "",
-  "unknownAuthor": "",
-  "collectionsAddFirst": "",
-  "dataManagementBookshelf": "",
-  "imprintNoneSubtitle": "",
-  "onboardingAddTitle": "",
-  "loadingExport": "",
-  "searchActiveFilters": "",
-  "@searchActiveFilters": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "searchFilterImprint": "",
-  "@searchFilterImprint": {
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "fieldReads": "",
-  "dataManagementLibraryThing": "",
-  "searchFieldCategory": "",
-  "statsOptStatusTitle": "",
-  "ownershipStatusReturned": "",
-  "searchFieldStatus": "",
-  "bookDetailDuplicateConfirm": "",
-  "@bookDetailDuplicateConfirm": {
-    "description": "Confirmación de duplicar libro",
-    "placeholders": {
-      "title": {
-        "type": "String"
-      }
-    }
-  },
-  "onboardingOrganizeSub": "",
-  "bookDetailReadOngoing": "",
-  "paginationPagesRemainingWarning": "",
-  "@paginationPagesRemainingWarning": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "dataManagementCreateBackup": "",
-  "dataManagementGoodreads": "",
-  "statsOptReadListSub": "",
-  "paginationProgress": "",
-  "@paginationProgress": {
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "total": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsBatchCompressSuccess": "",
-  "@settingsBatchCompressSuccess": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "searchOpBetween": "",
-  "cameraPermissionExplanation": "",
-  "bookDetailStartNewReadingButton": "",
-  "paginationMarkersAndIndices": "",
-  "shelfStatusLabelPaused": "",
-  "bookDetailDeleteReadPrompt": "",
-  "paginationLabelOptional": "",
-  "settingsLanguageCatalan": "",
-  "ownershipStatusBorrowed": "",
-  "paginationAllPagesAssigned": "",
-  "bookDetailReadNumberLabel": "",
-  "saveToDevice": "",
-  "statsOptDailyReadingTitle": "",
-  "searchFieldCollection": "",
-  "searchOpIncludes": "",
-  "paginationSegmentsDefaultName": "",
-  "paginationAdjustsAutomatically": "",
-  "paginationSectionLabel": "",
-  "@paginationSectionLabel": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      }
-    }
-  },
-  "searchOpGreaterThan": "",
-  "searchFieldLanguage": "",
-  "searchPreview": "",
-  "paginationAdvancedConfig": "",
-  "searchOpExactly": "",
-  "bookDetailNewReadingWholeBookDescription": "",
-  "shelfBooksEmptyHint": "",
-  "selectAll": "",
-  "paginationSegmentRequired": "",
-  "searchOpContains": "",
-  "bookDetailReadDeleteConfirm": "",
-  "share": "",
-  "fieldOriginalTitle": "",
-  "bookDetailReadEditDialogTitle": "",
-  "paginationSegmentOverlap": "",
-  "@paginationSegmentOverlap": {
-    "placeholders": {
-      "index1": {
-        "type": "String"
-      },
-      "index2": {
-        "type": "String"
-      }
-    }
-  },
-  "fieldIsTranslation": "",
-  "bookDetailReadHistoryTitle": "",
-  "paginationPhysicalLabel": "",
-  "statsOptDailyReadingSub": "",
-  "workEditionsEmpty": "追加の版を読み込めませんでした。",
-  "workEditionsUseGeneral": "一般的なメタデータを使用",
-  "workEditionsCount": "{count} 版",
-  "@workEditionsCount": {
-    "description": "Etiqueta para el número de ediciones en los resultados de búsqueda",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  }
 }
