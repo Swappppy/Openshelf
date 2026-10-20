@@ -30,6 +30,11 @@
 # Prevent shrinking of barcode_scan2 internal classes if needed
 -keep class de.mintware.barcode_scan.** { *; }
 
+# Ignore missing optional Play Core and Play Services dependencies referenced by Flutter engine
+-dontwarn com.google.android.play.core.**
+-dontwarn com.google.android.gms.**
+
+
 
 
 
