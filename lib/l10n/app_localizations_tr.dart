@@ -879,7 +879,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsLanguagePortugueseBR => '';
 
   @override
-  String get settingsLanguageRussian => 'Ruso';
+  String get settingsLanguageRussian => '';
 
   @override
   String get settingsThemeMode => '';
@@ -1836,5 +1836,5 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get settingsLanguageGerman => 'Alemán';
+  String get settingsLanguageGerman => '';
 }
