@@ -1,12 +1,8 @@
 {
-  "@@locale": "pt_BR",
   "appTitle": "Openshelf",
-  "@appTitle": {
-    "description": "Application name"
-  },
   "errorPrefix": "Erro: {message}",
   "@errorPrefix": {
-    "description": "Generic error prefix",
+    "description": "Prefijo genérico de error",
     "placeholders": {
       "message": {
         "type": "String"
@@ -15,7 +11,7 @@
   },
   "errorGeneric": "Erro: {error}",
   "@errorGeneric": {
-    "description": "Generic error message with parameter",
+    "description": "Mensaje genérico de error con parámetro",
     "placeholders": {
       "error": {
         "type": "String"
@@ -24,7 +20,7 @@
   },
   "criticalStartError": "Erro ao iniciar o aplicativo: {error}",
   "@criticalStartError": {
-    "description": "Critical app startup error",
+    "description": "Error crítico al arrancar la app",
     "placeholders": {
       "error": {
         "type": "String"
@@ -32,109 +28,31 @@
     }
   },
   "navLibrary": "Biblioteca",
-  "@navLibrary": {
-    "description": "Nav tab: library"
-  },
   "navShelves": "Estantes",
-  "@navShelves": {
-    "description": "Nav tab: shelves"
-  },
   "navStats": "Estatísticas",
-  "@navStats": {
-    "description": "Nav tab: stats"
-  },
   "libraryTitle": "Biblioteca",
-  "@libraryTitle": {
-    "description": "Library screen title"
-  },
   "libraryEmpty": "Sua biblioteca está vazia",
-  "@libraryEmpty": {
-    "description": "Empty library state"
-  },
   "libraryEmptyHint": "Qual vai ser seu primeiro livro?",
-  "@libraryEmptyHint": {
-    "description": "Hint when library is empty"
-  },
   "libraryAddFirstBook": "Adicionar primeiro livro",
-  "@libraryAddFirstBook": {
-    "description": "Text for the action button in the empty library state"
-  },
   "libraryNoResults": "Sem resultados",
-  "@libraryNoResults": {
-    "description": "No search results"
-  },
   "libraryNoResultsHint": "Teste com outros filtros",
-  "@libraryNoResultsHint": {
-    "description": "Hint when no search results"
-  },
   "addBook": "Adicionar livro",
-  "@addBook": {
-    "description": "Add book FAB label"
-  },
   "displaySettings": "Mostrar na biblioteca",
-  "@displaySettings": {
-    "description": "Display settings title"
-  },
   "displaySettingsDragHint": "Arrastar para reordenar",
-  "@displaySettingsDragHint": {
-    "description": "Reorder hint"
-  },
   "settingsButton": "Configurações",
-  "@settingsButton": {
-    "description": "Settings button label"
-  },
   "fieldAuthor": "Autor",
-  "@fieldAuthor": {
-    "description": "Author field name"
-  },
   "fieldPublisher": "Editora",
-  "@fieldPublisher": {
-    "description": "Publisher field name"
-  },
   "fieldYear": "Ano de publicação",
-  "@fieldYear": {
-    "description": "Year field name"
-  },
   "fieldRating": "Avaliação",
-  "@fieldRating": {
-    "description": "Rating field name"
-  },
   "fieldTags": "Etiquetas",
-  "@fieldTags": {
-    "description": "Tags field name"
-  },
   "fieldReadingProgress": "Progresso de leitura",
-  "@fieldReadingProgress": {
-    "description": "Reading progress field"
-  },
   "fieldStatusChip": "Marcador de status",
-  "@fieldStatusChip": {
-    "description": "Status chip field"
-  },
   "searchHint": "Buscar por título...",
-  "@searchHint": {
-    "description": "Library search placeholder"
-  },
   "filterAuthor": "Autor",
-  "@filterAuthor": {
-    "description": "Author filter placeholder"
-  },
   "filterIsbn": "ISBN",
-  "@filterIsbn": {
-    "description": "ISBN filter placeholder"
-  },
   "filterPublisher": "Editora",
-  "@filterPublisher": {
-    "description": "Publisher filter placeholder"
-  },
   "filterCollection": "Coleção",
-  "@filterCollection": {
-    "description": "Collection filter placeholder"
-  },
   "filterImprintLabel": "Selo editorial",
-  "@filterImprintLabel": {
-    "description": "Imprint filter label"
-  },
   "imprintBookCount": "{count} livros",
   "@imprintBookCount": {
     "placeholders": {
@@ -144,25 +62,10 @@
     }
   },
   "filterTagsLabel": "Categorias",
-  "@filterTagsLabel": {
-    "description": "Categories filter label"
-  },
   "done": "Feito",
-  "@done": {
-    "description": "Generic close button"
-  },
   "loading": "Carregando...",
-  "@loading": {
-    "description": "Generic loading message"
-  },
   "loadingImport": "Importando os livros, espere um pouco...",
-  "@loadingImport": {
-    "description": "Loading message during import"
-  },
   "loadingExport": "Exportando os livros, espere um pouco...",
-  "@loadingExport": {
-    "description": "Loading message during export"
-  },
   "exportProgressData": "Exportando dados...",
   "exportProgressMedia": "Preparando os arquivos multimídia...",
   "exportProgressCompress": "Exportando cópia de segurança...",
@@ -176,392 +79,104 @@
     }
   },
   "cancel": "Cancelar",
-  "@cancel": {
-    "description": "Generic cancel button"
-  },
   "save": "Salvar",
-  "@save": {
-    "description": "Generic save button"
-  },
   "delete": "Apagar",
-  "@delete": {
-    "description": "Generic delete button"
-  },
   "create": "Criar",
-  "@create": {
-    "description": "Generic create button"
-  },
   "edit": "Editar",
-  "@edit": {
-    "description": "Generic edit button"
-  },
   "duplicate": "Duplicar",
-  "@duplicate": {
-    "description": "Generic duplicate action"
-  },
   "photo": "Foto",
-  "@photo": {
-    "description": "Take photo button"
-  },
   "url": "URL",
-  "@url": {
-    "description": "Enter URL button"
-  },
   "download": "Baixar",
-  "@download": {
-    "description": "Download button"
-  },
   "retry": "Tentar novamente",
-  "@retry": {
-    "description": "Retry button"
-  },
   "share": "Compartilhar",
-  "@share": {
-    "description": "Share action"
-  },
   "saveToDevice": "Salvar no dispositivo",
-  "@saveToDevice": {
-    "description": "Save to device action"
-  },
   "addBookModalTitle": "Adicionar livro",
-  "@addBookModalTitle": {
-    "description": "Add book modal title"
-  },
   "addBookModalSubtitle": "Como você quer adicionar seu livro",
-  "@addBookModalSubtitle": {
-    "description": "Add book modal subtitle"
-  },
   "addManually": "Adicionar manualmente",
-  "@addManually": {
-    "description": "Add book manually option"
-  },
   "addManuallySubtitle": "Preencha os dados manualmente",
-  "@addManuallySubtitle": {
-    "description": "Add manually option subtitle"
-  },
   "searchBook": "Buscar livro",
-  "@searchBook": {
-    "description": "Search book online option"
-  },
   "searchBookSubtitle": "Por título, autor ou ISBN",
-  "@searchBookSubtitle": {
-    "description": "Search book option subtitle"
-  },
   "scanBarcode": "Escanear o código de barras",
-  "@scanBarcode": {
-    "description": "Scan barcode option"
-  },
   "scanBarcodeSubtitle": "Escanear código de barras",
-  "@scanBarcodeSubtitle": {
-    "description": "Scan barcode option subtitle"
-  },
   "scanIsbnText": "Escanear o número ISBN",
-  "@scanIsbnText": {
-    "description": "Option to scan ISBN as text"
-  },
   "scanIsbnTextSubtitle": "Aponte o número impresso",
-  "@scanIsbnTextSubtitle": {
-    "description": "Subtitle for scanning ISBN as text"
-  },
   "scanIsbnSelect": "Toque em um ISBN para selecioná-lo",
-  "@scanIsbnSelect": {
-    "description": "Instruction to tap a detected ISBN"
-  },
   "scanOcrHoldMessage": "Deixe o celular parado por alguns segundos...",
-  "@scanOcrHoldMessage": {
-    "description": "Instruction to hold the camera steady for OCR"
-  },
   "scanBarcodePermission": "Requer permissão da câmera para escanear códigos",
-  "@scanBarcodePermission": {
-    "description": "Camera permission missing message"
-  },
   "scanBatch": "Escanear em lote",
-  "@scanBatch": {
-    "description": "Batch scan option"
-  },
   "scanBatchSubtitle": "Escanear vários livros seguidos",
-  "@scanBatchSubtitle": {
-    "description": "Batch scan option subtitle"
-  },
   "scanModeBarcode": "Código de barras",
-  "@scanModeBarcode": {
-    "description": "Label for scanner mode: barcode"
-  },
   "scanModeIsbn": "Número ISBN",
-  "@scanModeIsbn": {
-    "description": "Label for scanner mode: ISBN number / text"
-  },
   "bookFormNewTitle": "Novo livro",
-  "@bookFormNewTitle": {
-    "description": "New book form title"
-  },
   "bookFormEditTitle": "Editar livro",
-  "@bookFormEditTitle": {
-    "description": "Edit book form title"
-  },
   "tabMain": "Início",
-  "@tabMain": {
-    "description": "Main tab label"
-  },
   "tabDetails": "Detalhes",
-  "@tabDetails": {
-    "description": "Details tab label"
-  },
   "fieldTitle": "Título",
-  "@fieldTitle": {
-    "description": "Title field label"
-  },
   "fieldSubtitle": "Subtítulo",
-  "@fieldSubtitle": {
-    "description": "Subtitle field label"
-  },
   "fieldDescription": "Sinopse",
-  "@fieldDescription": {
-    "description": "Description field label"
-  },
   "fieldIsbn": "ISBN",
-  "@fieldIsbn": {
-    "description": "ISBN field label"
-  },
   "fieldLanguage": "Idioma",
-  "@fieldLanguage": {
-    "description": "Language field label"
-  },
   "fieldIsTranslation": "É uma tradução?",
-  "@fieldIsTranslation": {
-    "description": "Toggle for translation fields"
-  },
   "fieldOriginalTitle": "Título original",
-  "@fieldOriginalTitle": {
-    "description": "Original title field label"
-  },
   "fieldOriginalLanguage": "Idioma original",
-  "@fieldOriginalLanguage": {
-    "description": "Original language field label"
-  },
   "fieldTranslator": "Tradução",
-  "@fieldTranslator": {
-    "description": "Translator field label"
-  },
   "fieldReads": "Leituras",
-  "@fieldReads": {
-    "description": "Name of the reads field"
-  },
   "fieldCopies": "Cópias",
-  "@fieldCopies": {
-    "description": "Name of the copies field"
-  },
   "fieldTotalPages": "Total de páginas",
-  "@fieldTotalPages": {
-    "description": "Total pages field"
-  },
   "fieldTotalBooks": "Total de livros",
-  "@fieldTotalBooks": {
-    "description": "Total books field"
-  },
   "fieldCurrentPage": "Página atual",
-  "@fieldCurrentPage": {
-    "description": "Current page field"
-  },
   "fieldNotes": "Notas",
-  "@fieldNotes": {
-    "description": "Notes field label"
-  },
   "fieldCollection": "Coleção / Série",
-  "@fieldCollection": {
-    "description": "Collection field label"
-  },
   "fieldCollectionNumber": "Número da coleção",
-  "@fieldCollectionNumber": {
-    "description": "Number in collection field"
-  },
   "sectionBasicInfo": "Informação básica",
-  "@sectionBasicInfo": {
-    "description": "Basic info header"
-  },
   "sectionCategories": "Categorias",
-  "@sectionCategories": {
-    "description": "Categories header"
-  },
   "sectionReadingStatus": "Progresso de leitura",
-  "@sectionReadingStatus": {
-    "description": "Reading status header"
-  },
   "sectionFormat": "Formato",
-  "@sectionFormat": {
-    "description": "Format header"
-  },
   "sectionRating": "Avaliação",
-  "@sectionRating": {
-    "description": "Rating header"
-  },
   "sectionImprint": "Selo editorial",
-  "@sectionImprint": {
-    "description": "Imprint header"
-  },
   "coverPickPhoto": "Tirar foto",
-  "@coverPickPhoto": {
-    "description": "Photo pick button"
-  },
   "coverPickUrl": "URL",
-  "@coverPickUrl": {
-    "description": "URL pick button"
-  },
   "coverSearch": "Buscar",
-  "@coverSearch": {
-    "description": "Cover search button"
-  },
   "coverUrlDialogTitle": "URL da capa",
-  "@coverUrlDialogTitle": {
-    "description": "Cover URL dialog title"
-  },
   "coverUrlHint": "https://exemplo.com/capa.jpg",
-  "@coverUrlHint": {
-    "description": "Cover URL placeholder"
-  },
   "coverDownloadError": "Não deu para baixar a imagem",
-  "@coverDownloadError": {
-    "description": "Download error message"
-  },
   "imageProcessError": "Não foi possível processar a imagem",
-  "@imageProcessError": {
-    "description": "Error when image processing fails"
-  },
   "imageProcessing": "Processando imagem...",
-  "@imageProcessing": {
-    "description": "Texto exibido no diálogo durante o processamento da imagem"
-  },
   "imagePreparing": "Preparando imagem...",
-  "@imagePreparing": {
-    "description": "Text shown in dialog while preparing image for cropper"
-  },
   "imageOptimizing": "Otimizando imagem...",
-  "@imageOptimizing": {
-    "description": "Text shown in dialog while compressing image"
-  },
   "cropCoverTitle": "Cortar a imagem",
-  "@cropCoverTitle": {
-    "description": "Title for cover cropping screen"
-  },
   "cropImprintTitle": "Cortar selo",
-  "@cropImprintTitle": {
-    "description": "Title for imprint cropping screen"
-  },
   "tagSearchOrCreate": "Procurar ou criar etiqueta",
-  "@tagSearchOrCreate": {
-    "description": "Tag search placeholder"
-  },
   "tagCreateHint": "Escreva e aperte Enter para adicionar ou criar",
-  "@tagCreateHint": {
-    "description": "Tag create hint"
-  },
   "tagNoCategories": "Não há categorias criadas",
-  "@tagNoCategories": {
-    "description": "No categories message"
-  },
   "imprintSearch": "Buscar selo editorial",
-  "@imprintSearch": {
-    "description": "Imprint search placeholder"
-  },
   "requiredField": "Campo obrigatório",
-  "@requiredField": {
-    "description": "Required field validation message"
-  },
   "statusWantToRead": "Quero ler",
-  "@statusWantToRead": {
-    "description": "Status: want to read"
-  },
   "statusReading": "Lendo",
-  "@statusReading": {
-    "description": "Status: reading"
-  },
   "statusRead": "Lido",
-  "@statusRead": {
-    "description": "Status: read"
-  },
   "statusAbandoned": "Abandonado",
-  "@statusAbandoned": {
-    "description": "Status: abandoned"
-  },
   "statusPaused": "Pausado",
-  "@statusPaused": {
-    "description": "Status: paused"
-  },
   "ownershipStatusBought": "Comprado",
-  "@ownershipStatusBought": {
-    "description": "Ownership: bought"
-  },
   "ownershipStatusGifted": "Ganhado",
-  "@ownershipStatusGifted": {
-    "description": "Ownership: gifted"
-  },
   "ownershipStatusBorrowed": "Emprestado",
-  "@ownershipStatusBorrowed": {
-    "description": "Ownership: borrowed"
-  },
   "ownershipStatusReturned": "Devolvido",
-  "@ownershipStatusReturned": {
-    "description": "Ownership: returned"
-  },
   "ownershipStatusSold": "Vendido",
-  "@ownershipStatusSold": {
-    "description": "Ownership: sold"
-  },
   "ownershipStatusOther": "Outro",
-  "@ownershipStatusOther": {
-    "description": "Ownership: other"
-  },
   "formatPaperback": "Brochura",
-  "@formatPaperback": {
-    "description": "Format: paperback"
-  },
   "formatHardcover": "Capa dura",
-  "@formatHardcover": {
-    "description": "Format: hardcover"
-  },
   "formatLeatherbound": "Couro",
-  "@formatLeatherbound": {
-    "description": "Format: leatherbound"
-  },
   "formatRustic": "Rústica",
-  "@formatRustic": {
-    "description": "Format: rustic"
-  },
   "formatDigital": "Digital",
-  "@formatDigital": {
-    "description": "Format: digital"
-  },
   "formatOther": "Outros",
-  "@formatOther": {
-    "description": "Format: other"
-  },
   "bookDetailNotFound": "Livro não encontrado",
-  "@bookDetailNotFound": {
-    "description": "Book not found message"
-  },
   "bookDetailPagePickerTitle": "Página atual",
-  "@bookDetailPagePickerTitle": {
-    "description": "Page picker title"
-  },
   "bookDetailNotesTitle": "Notas pessoais",
-  "@bookDetailNotesTitle": {
-    "description": "Personal notes section title"
-  },
   "bookDetailNotesHint": "Escreva suas notas aqui...",
-  "@bookDetailNotesHint": {
-    "description": "Notes field placeholder"
-  },
   "bookDetailNotesEmpty": "Toque para adicionar notas...",
-  "@bookDetailNotesEmpty": {
-    "description": "Notes empty message"
-  },
   "bookDetailDeleteTitle": "Apagar livro",
-  "@bookDetailDeleteTitle": {
-    "description": "Delete book dialog title"
-  },
   "bookDetailDeleteConfirm": "Eliminar \"{title}\"? Esta ação não pode ser desfeita.",
   "@bookDetailDeleteConfirm": {
-    "description": "Delete book confirmation",
+    "description": "Confirmación de eliminar libro",
     "placeholders": {
       "title": {
         "type": "String"
@@ -569,12 +184,9 @@
     }
   },
   "bookDetailDuplicateTitle": "Duplicar livro",
-  "@bookDetailDuplicateTitle": {
-    "description": "Duplicate book dialog title"
-  },
   "bookDetailDuplicateConfirm": "Quer criar uma cópia exata de \"{title}\"?",
   "@bookDetailDuplicateConfirm": {
-    "description": "Duplicate book confirmation",
+    "description": "Confirmación de duplicar libro",
     "placeholders": {
       "title": {
         "type": "String"
@@ -613,68 +225,23 @@
   "bookDetailReadDeleteConfirm": "Excluir esta entrada do histórico?",
   "bookDetailReadNumberLabel": "Número da leitura",
   "bookDetailFieldPages": "Páginas",
-  "@bookDetailFieldPages": {
-    "description": "Pages field label"
-  },
   "bookDetailFieldCategories": "Categorias",
-  "@bookDetailFieldCategories": {
-    "description": "Categories field label"
-  },
   "bookDetailFieldFormat": "Formato",
-  "@bookDetailFieldFormat": {
-    "description": "Format field label"
-  },
   "bookDetailFieldRating": "Avaliação",
-  "@bookDetailFieldRating": {
-    "description": "Rating field label"
-  },
   "bookDetailFieldImprintSection": "SELO EDITORIAL",
-  "@bookDetailFieldImprintSection": {
-    "description": "Imprint section label"
-  },
   "bookDetailFieldPersonalNotes": "Notas pessoais",
-  "@bookDetailFieldPersonalNotes": {
-    "description": "Notes section label"
-  },
   "bookDetailFieldAdded": "Adicionado",
-  "@bookDetailFieldAdded": {
-    "description": "Date added label"
-  },
   "bookDetailFieldStarted": "Iniciar leitura",
-  "@bookDetailFieldStarted": {
-    "description": "Date started label"
-  },
   "bookDetailFieldFinished": "Fim da leitura",
-  "@bookDetailFieldFinished": {
-    "description": "Date finished label"
-  },
   "fieldOwnershipStatus": "Estado de propriedade",
-  "@fieldOwnershipStatus": {
-    "description": "Ownership status field label"
-  },
   "ownershipHistoryTitle": "HISTÓRICO DE PROPRIEDADE",
-  "@ownershipHistoryTitle": {
-    "description": "Ownership history section title"
-  },
   "ownershipLogEmpty": "Não há eventos de propriedade registrados.",
-  "@ownershipLogEmpty": {
-    "description": "Empty ownership log message"
-  },
   "ownershipEventPerson": "Pessoa / Quem",
-  "@ownershipEventPerson": {
-    "description": "Person in ownership event"
-  },
   "ownershipEventDate": "Data",
-  "@ownershipEventDate": {
-    "description": "Date of ownership event"
-  },
   "ownershipEventNotes": "Notas",
-  "@ownershipEventNotes": {
-    "description": "Notes for ownership event"
-  },
   "pageProgress": "{current} / {total} págs · {percent}%",
   "@pageProgress": {
-    "description": "Reading progress pages",
+    "description": "Progreso de lectura en formato páginas",
     "placeholders": {
       "current": {
         "type": "String"
@@ -689,7 +256,7 @@
   },
   "pageProgressShort": "{current} / {total}",
   "@pageProgressShort": {
-    "description": "Short reading progress",
+    "description": "Progreso de lectura corto",
     "placeholders": {
       "current": {
         "type": "String"
@@ -701,7 +268,7 @@
   },
   "pageSuffix": "{count} págs.",
   "@pageSuffix": {
-    "description": "Page count with suffix",
+    "description": "Número de páginas con sufijo",
     "placeholders": {
       "count": {
         "type": "int"
@@ -709,40 +276,16 @@
     }
   },
   "pagesLabel": "páginas",
-  "@pagesLabel": {
-    "description": "Generic pages label"
-  },
   "shelvesTitle": "Estantes",
-  "@shelvesTitle": {
-    "description": "Shelves screen title"
-  },
   "shelvesSectionByStatus": "Por estado",
-  "@shelvesSectionByStatus": {
-    "description": "Status section header"
-  },
   "shelvesSectionMine": "Estantes",
-  "@shelvesSectionMine": {
-    "description": "Custom shelves section header"
-  },
   "shelvesSectionManagement": "Gerenciamento",
-  "@shelvesSectionManagement": {
-    "description": "Management section header"
-  },
   "shelfAllBooks": "Todos os livros",
-  "@shelfAllBooks": {
-    "description": "All books shelf"
-  },
   "shelfReading": "Lendo",
-  "@shelfReading": {
-    "description": "Reading shelf"
-  },
   "shelfRead": "Lidos",
-  "@shelfRead": {
-    "description": "Read shelf"
-  },
   "booksReadProgress": "{readCount} / {totalCount} livros lidos",
   "@booksReadProgress": {
-    "description": "Progress label for read books",
+    "description": "Etiqueta de progreso de libros leídos",
     "placeholders": {
       "readCount": {
         "type": "int"
@@ -753,197 +296,64 @@
     }
   },
   "shelfWantToRead": "Quero ler",
-  "@shelfWantToRead": {
-    "description": "To read shelf"
-  },
   "shelfAbandoned": "Abandonados",
-  "@shelfAbandoned": {
-    "description": "Abandoned shelf"
-  },
   "shelfPaused": "Pausados",
-  "@shelfPaused": {
-    "description": "Paused shelf"
-  },
   "shelfNewTooltip": "Nova estante",
-  "@shelfNewTooltip": {
-    "description": "New shelf tooltip"
-  },
   "shelfEmpty": "Você não tem estantes personalizadas",
-  "@shelfEmpty": {
-    "description": "Empty custom shelves state"
-  },
   "shelfEmptySubtitle": "Organize suas leituras como quiser",
-  "@shelfEmptySubtitle": {
-    "description": "Empty shelves state subtitle"
-  },
   "shelvesAddFirstShelf": "Criar estante",
-  "@shelvesAddFirstShelf": {
-    "description": "Action button text for empty shelves state"
-  },
   "shelfBooksEmpty": "Sem livros nesta estante",
-  "@shelfBooksEmpty": {
-    "description": "Empty shelf books state"
-  },
   "shelfBooksEmptyHint": "Os livros que correspondem aos seus critérios aparecerão aqui.",
-  "@shelfBooksEmptyHint": {
-    "description": "Hint for empty shelf"
-  },
   "shelfStatusBooksEmpty": "Não há livros aqui",
-  "@shelfStatusBooksEmpty": {
-    "description": "Empty status books state"
-  },
   "shelfFormNew": "Nova estante",
-  "@shelfFormNew": {
-    "description": "New shelf form title"
-  },
   "shelfFormEdit": "Editar estante",
-  "@shelfFormEdit": {
-    "description": "Edit shelf form title"
-  },
   "shelfFormNameLabel": "Nome da estante",
-  "@shelfFormNameLabel": {
-    "description": "Shelf name field label"
-  },
   "collectionNameLabel": "Nome da coleção",
-  "@collectionNameLabel": {
-    "description": "Collection name field label"
-  },
   "shelfFormSectionStatus": "Estado de leitura",
-  "@shelfFormSectionStatus": {
-    "description": "Shelf form status section"
-  },
   "shelfFormSectionTitle": "Título",
-  "@shelfFormSectionTitle": {
-    "description": "Shelf form title section"
-  },
   "shelfFormSectionAuthor": "Autor",
-  "@shelfFormSectionAuthor": {
-    "description": "Shelf form author section"
-  },
   "shelfFormSectionPublisher": "Editora",
-  "@shelfFormSectionPublisher": {
-    "description": "Shelf form publisher section"
-  },
   "shelfFormSectionIsbn": "ISBN",
-  "@shelfFormSectionIsbn": {
-    "description": "Shelf form ISBN section"
-  },
   "shelfFormSectionCollection": "Coleção",
-  "@shelfFormSectionCollection": {
-    "description": "Shelf form collection section"
-  },
   "shelfFormSectionCategories": "Categorias",
-  "@shelfFormSectionCategories": {
-    "description": "Shelf form categories section"
-  },
   "shelfFormSectionImprint": "Selo editorial",
-  "@shelfFormSectionImprint": {
-    "description": "Shelf form imprint section"
-  },
   "shelfFormHintTitle": "Buscar no título",
-  "@shelfFormHintTitle": {
-    "description": "Shelf form title hint"
-  },
   "shelfFormHintAuthor": "Nome do autor",
-  "@shelfFormHintAuthor": {
-    "description": "Shelf form author hint"
-  },
   "shelfFormHintPublisher": "Nome da editora",
-  "@shelfFormHintPublisher": {
-    "description": "Shelf form publisher hint"
-  },
   "shelfFormHintIsbn": "ISBN",
-  "@shelfFormHintIsbn": {
-    "description": "Shelf form ISBN hint"
-  },
   "shelfFormHintCollection": "Nome da coleção",
-  "@shelfFormHintCollection": {
-    "description": "Shelf form collection hint"
-  },
   "shelfFormStatusAny": "Qualquer um",
-  "@shelfFormStatusAny": {
-    "description": "Shelf form any status"
-  },
   "shelfOptionEdit": "Editar estante",
-  "@shelfOptionEdit": {
-    "description": "Edit shelf option"
-  },
   "shelfOptionDelete": "Excluir",
-  "@shelfOptionDelete": {
-    "description": "Delete shelf option"
-  },
   "shelfStatusLabelReading": "Lendo",
-  "@shelfStatusLabelReading": {
-    "description": "Reading status label"
-  },
   "shelfStatusLabelRead": "Lidos",
-  "@shelfStatusLabelRead": {
-    "description": "Read status label"
-  },
   "shelfStatusLabelWantToRead": "Quero ler",
-  "@shelfStatusLabelWantToRead": {
-    "description": "To read status label"
-  },
   "shelfStatusLabelAbandoned": "Abandonados",
-  "@shelfStatusLabelAbandoned": {
-    "description": "Abandoned status label"
-  },
   "shelfStatusLabelPaused": "Pausados",
-  "@shelfStatusLabelPaused": {
-    "description": "Paused status label"
-  },
   "managementCategories": "Categorias",
-  "@managementCategories": {
-    "description": "Management: categories"
-  },
   "managementCategoryCount": "Nº de livros",
   "@managementCategoryCount": {
-    "description": "Number of books in a category"
+    "description": "Número de libros en una categoría",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "managementImprints": "Selos",
-  "@managementImprints": {
-    "description": "Management: imprints"
-  },
   "managementCollections": "Coleções",
-  "@managementCollections": {
-    "description": "Management: collections"
-  },
   "managementCategoryCloudCurve": "Curva algorítmica (Libros)",
   "tagNone": "Não há categorias ainda",
-  "@tagNone": {
-    "description": "Empty categories state"
-  },
   "tagNoneSubtitle": "As categorias ajudam você a encontrar livros e a construir um mapa mental da sua biblioteca",
-  "@tagNoneSubtitle": {
-    "description": "Empty categories state subtitle"
-  },
   "categoriesAddFirst": "Nova categoria",
-  "@categoriesAddFirst": {
-    "description": "Action button text for empty categories state"
-  },
   "tagNew": "Nova categoria",
-  "@tagNew": {
-    "description": "New category button"
-  },
   "tagNewDialogTitle": "Nova categoria",
-  "@tagNewDialogTitle": {
-    "description": "New category title"
-  },
   "tagNameLabel": "Nome",
-  "@tagNameLabel": {
-    "description": "Category name field label"
-  },
   "tagColorLabel": "Cor",
-  "@tagColorLabel": {
-    "description": "Category color field label"
-  },
   "tagDeleteTitle": "Excluir categoria",
-  "@tagDeleteTitle": {
-    "description": "Delete category title"
-  },
   "tagDeleteConfirm": "Excluir \"{name}\"?",
   "@tagDeleteConfirm": {
-    "description": "Delete category confirmation",
+    "description": "Confirmación de eliminar categoría",
     "placeholders": {
       "name": {
         "type": "String"
@@ -951,56 +361,20 @@
     }
   },
   "imprintNone": "Não há selos ainda",
-  "@imprintNone": {
-    "description": "Empty imprints state"
-  },
   "imprintNoneSubtitle": "Agrupe seus livros por editoras ou seus selos",
-  "@imprintNoneSubtitle": {
-    "description": "Empty imprints state subtitle"
-  },
   "imprintsAddFirst": "Adicionar selo",
-  "@imprintsAddFirst": {
-    "description": "Action button text for empty imprints state"
-  },
   "imprintNew": "Novo selo",
-  "@imprintNew": {
-    "description": "New imprint button"
-  },
   "imprintNewDialogTitle": "Novo selo editorial",
-  "@imprintNewDialogTitle": {
-    "description": "New imprint title"
-  },
   "imprintEditDialogTitle": "Editar selo",
-  "@imprintEditDialogTitle": {
-    "description": "Edit imprint title"
-  },
   "imprintNameLabel": "Nome do selo",
-  "@imprintNameLabel": {
-    "description": "Imprint name field label"
-  },
   "imprintAddImageHint": "Pressione para adicionar imagem",
-  "@imprintAddImageHint": {
-    "description": "Add imprint image hint"
-  },
   "imprintChangeImageHint": "Pressione para mudar imagem",
-  "@imprintChangeImageHint": {
-    "description": "Change imprint image hint"
-  },
   "imprintUrlDialogTitle": "URL da imagem",
-  "@imprintUrlDialogTitle": {
-    "description": "Imprint URL title"
-  },
   "imprintUrlHint": "https://exemplo.com/selo.jpg",
-  "@imprintUrlHint": {
-    "description": "Imprint URL placeholder"
-  },
   "imprintDeleteTitle": "Excluir selo",
-  "@imprintDeleteTitle": {
-    "description": "Delete imprint title"
-  },
   "imprintDeleteConfirm": "Excluir \"{name}\"?",
   "@imprintDeleteConfirm": {
-    "description": "Delete imprint confirmation",
+    "description": "Confirmación de eliminar sello",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1008,28 +382,13 @@
     }
   },
   "imprintNoImprints": "Não há selos criados",
-  "@imprintNoImprints": {
-    "description": "Shelf form no imprints message"
-  },
   "collectionNone": "Não há coleções ainda",
-  "@collectionNone": {
-    "description": "Empty collections state"
-  },
   "collectionNoneSubtitle": "Crie coleções e organize seus livros",
-  "@collectionNoneSubtitle": {
-    "description": "Empty collections state subtitle"
-  },
   "collectionsAddFirst": "Nova coleção",
-  "@collectionsAddFirst": {
-    "description": "Action button text for empty collections state"
-  },
   "collectionDeleteTitle": "Excluir coleção",
-  "@collectionDeleteTitle": {
-    "description": "Delete collection title"
-  },
   "collectionDeleteConfirm": "Excluir \"{name}\"?",
   "@collectionDeleteConfirm": {
-    "description": "Delete collection confirmation",
+    "description": "Confirmación de eliminar colección",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1052,101 +411,29 @@
   "settingsLibraryColumns": "Colunas na biblioteca",
   "settingsLibraryColumnsSub": "Ajusta o número de livros por linha na visualização de grade",
   "settingsTitle": "Configurações",
-  "@settingsTitle": {
-    "description": "Settings screen title"
-  },
   "settingsSectionAppearance": "Aparência",
-  "@settingsSectionAppearance": {
-    "description": "Appearance section header"
-  },
   "settingsLanguage": "Idioma",
-  "@settingsLanguage": {
-    "description": "Language selector label"
-  },
   "settingsLanguageSystem": "Sistema (automático)",
-  "@settingsLanguageSystem": {
-    "description": "Language option: system"
-  },
   "settingsLanguageSpanish": "Espanhol",
-  "@settingsLanguageSpanish": {
-    "description": "Language option: spanish"
-  },
   "settingsLanguageEnglish": "Inglês",
-  "@settingsLanguageEnglish": {
-    "description": "Language option: english"
-  },
   "settingsLanguageRussian": "Russo",
-  "@settingsLanguageRussian": {
-    "description": "Language option: russian"
-  },
   "settingsThemeMode": "Modo de tema",
-  "@settingsThemeMode": {
-    "description": "Theme mode label"
-  },
   "settingsThemeLight": "Claro",
-  "@settingsThemeLight": {
-    "description": "Light theme option"
-  },
   "settingsThemeSystem": "Sistema",
-  "@settingsThemeSystem": {
-    "description": "System theme option"
-  },
   "settingsThemeDark": "Escuro",
-  "@settingsThemeDark": {
-    "description": "Dark theme option"
-  },
   "settingsAccentColor": "Cor de destaque",
-  "@settingsAccentColor": {
-    "description": "Accent color label"
-  },
   "settingsAccentColorHint": "Toque em uma cor para aplicá-la",
-  "@settingsAccentColorHint": {
-    "description": "Accent color hint"
-  },
   "settingsSectionStorage": "Armazenamento",
-  "@settingsSectionStorage": {
-    "description": "Storage section header"
-  },
   "settingsCoversFolder": "Pasta de capas",
-  "@settingsCoversFolder": {
-    "description": "Covers folder label"
-  },
   "settingsDatabase": "Banco de dados",
-  "@settingsDatabase": {
-    "description": "Database label"
-  },
   "settingsDefaultDir": "Diretório padrão",
-  "@settingsDefaultDir": {
-    "description": "Default directory label"
-  },
   "settingsDbMoveTitle": "Mover banco de dados",
-  "@settingsDbMoveTitle": {
-    "description": "Move database dialog title"
-  },
   "settingsDbMoveContent": "Mover o banco de dados requer reiniciar o app. Os datos serão copiados para o novo diretório. Continuar?",
-  "@settingsDbMoveContent": {
-    "description": "Move database dialog content"
-  },
   "settingsDbMoveConfirm": "Mover e reiniciar",
-  "@settingsDbMoveConfirm": {
-    "description": "Move database confirmation"
-  },
   "settingsSectionSearch": "Busca de livros",
-  "@settingsSectionSearch": {
-    "description": "Search section header"
-  },
   "settingsSearchServer": "Servidor",
-  "@settingsSearchServer": {
-    "description": "Search server label"
-  },
   "settingsSearchServerHint": "Será usado para buscar livros por ISBN ou título",
-  "@settingsSearchServerHint": {
-    "description": "Search server hint"
-  },
   "settingsSectionData": "Gerenciamento de dados",
-  "@settingsSectionData": {
-    "description": "Data management section header"
-  },
   "dataManagementOpenShelf": "OpenShelf",
   "dataManagementBookshelf": "Bookshelf",
   "dataManagementGoodreads": "Goodreads",
@@ -1176,29 +463,11 @@
   "dataManagementCreateBackup": "Criar cópia de segurança",
   "dataManagementCreateBackupHint": "Exportación completa con opción de capas",
   "settingsImportBookshelf": "Importar do Bookshelf",
-  "@settingsImportBookshelf": {
-    "description": "Import from Bookshelf option"
-  },
   "settingsImportBookshelfHint": "Importar livros de um arquivo CSV",
-  "@settingsImportBookshelfHint": {
-    "description": "Import hint"
-  },
   "settingsExportCsv": "Exportar biblioteca",
-  "@settingsExportCsv": {
-    "description": "Export title"
-  },
   "settingsExportCsvHint": "Exportar todos os livros para um arquivo CSV",
-  "@settingsExportCsvHint": {
-    "description": "Export hint"
-  },
   "settingsFullBackup": "Restaurar biblioteca",
-  "@settingsFullBackup": {
-    "description": "Restore title"
-  },
   "settingsFullBackupHint": "Restaurar livros de uma cópia de segurança CSV",
-  "@settingsFullBackupHint": {
-    "description": "Restore hint"
-  },
   "settingsAllFilesAccess": "Acesso a todos os arquivos",
   "settingsAllFilesAccessSub": "Necessário para mover o banco de dados para pastas externas (Android 11+)",
   "settingsAllFilesAccessInfo": "Esta permissão permite que o Openshelf gerencie arquivos fora de seu diretório privado. É necessário para mover o banco de dados para uma pasta personalizada.",
@@ -1218,45 +487,18 @@
     }
   },
   "exportTitle": "Exportar biblioteca",
-  "@exportTitle": {
-    "description": "Export dialog title"
-  },
   "exportCoversPrompt": "Você quer incluir as imagens das capas na cópia de segurança? (Um arquivo ZIP será criado junto ao CSV)",
-  "@exportCoversPrompt": {
-    "description": "Export covers prompt"
-  },
   "importRestoreCoversTitle": "Restaurar capas",
-  "@importRestoreCoversTitle": {
-    "description": "Import covers title"
-  },
   "importRestoreCoversPrompt": "Você também tem um arquivo ZIP com as capas para restaurar?",
-  "@importRestoreCoversPrompt": {
-    "description": "Import covers prompt"
-  },
   "yes": "Sim",
-  "@yes": {
-    "description": "Yes button"
-  },
   "no": "Não",
-  "@no": {
-    "description": "No button"
-  },
   "devDeleteAllBooks": "APAGAR TODOS OS LIVROS (DEV)",
-  "@devDeleteAllBooks": {
-    "description": "Developer option to clear database"
-  },
   "settingsDevClearDbSub": "Herramienta de desenvolvedor: limpar banco de dados",
   "settingsDevDbCleared": "Banco de dados limpo",
   "settingsImportSelectBackup": "Selecionar cópia de segurança do Openshelf",
   "settingsImportSelectCovers": "Selecionar ZIP de capas do Openshelf",
   "devDeleteConfirmTitle": "Esvaziar Biblioteca?",
-  "@devDeleteConfirmTitle": {
-    "description": "Dev delete confirmation title"
-  },
   "devDeleteConfirmContent": "Isso excluirá permanentemente TODOS os livros e categorias. Apenas para testes. Continuar?",
-  "@devDeleteConfirmContent": {
-    "description": "Dev delete confirmation content"
-  },
   "importSuccess": "Importação concluída: {count} livros adicionados.",
   "@importSuccess": {
     "placeholders": {
@@ -1277,88 +519,28 @@
     }
   },
   "settingsApiKeyTitle": "Google Books API key",
-  "@settingsApiKeyTitle": {
-    "description": "API key card title"
-  },
   "settingsApiKeyConfigured": "Chave configurada. Google Books está disponível.",
-  "@settingsApiKeyConfigured": {
-    "description": "Key configured message"
-  },
   "settingsApiKeyMissing": "Sem chave, Google Books usará Open Library como alternativa.",
-  "@settingsApiKeyMissing": {
-    "description": "Key missing message"
-  },
   "settingsApiKeyHint": "AIza...",
-  "@settingsApiKeyHint": {
-    "description": "API key placeholder"
-  },
   "settingsApiKeyShow": "Mostrar",
-  "@settingsApiKeyShow": {
-    "description": "Show key tooltip"
-  },
   "settingsApiKeyHide": "Ocultar",
-  "@settingsApiKeyHide": {
-    "description": "Hide key tooltip"
-  },
   "settingsApiKeySave": "Salvar chave",
-  "@settingsApiKeySave": {
-    "description": "Save key button"
-  },
   "settingsApiKeySaved": "Chave salva",
-  "@settingsApiKeySaved": {
-    "description": "Key saved confirmation"
-  },
   "settingsApiKeyClear": "Apagar chave",
-  "@settingsApiKeyClear": {
-    "description": "Clear key tooltip"
-  },
   "settingsApiKeyHowTo": "Como obter",
-  "@settingsApiKeyHowTo": {
-    "description": "How to get key button"
-  },
   "settingsApiKeyInstructionsTitle": "Como obter uma chave do Google Books",
-  "@settingsApiKeyInstructionsTitle": {
-    "description": "Instructions title"
-  },
   "settingsApiKeyStep1": "Abra console.cloud.google.com e faça login com sua conta do Google.",
-  "@settingsApiKeyStep1": {
-    "description": "Step 1"
-  },
   "settingsApiKeyStep2": "Crie um projeto novo (o nome não importa).",
-  "@settingsApiKeyStep2": {
-    "description": "Step 2"
-  },
   "settingsApiKeyStep3": "Vá em APIs e serviços → Biblioteca, procure por \"Books API\" e ative-a.",
-  "@settingsApiKeyStep3": {
-    "description": "Step 3"
-  },
   "settingsApiKeyStep4": "Vá em APIs e serviços → Credenciais → Criar credenciais → Chave de API.",
-  "@settingsApiKeyStep4": {
-    "description": "Step 4"
-  },
   "settingsApiKeyStep5": "Opcional mas recomendado: restrinja a chave apenas à Books API.",
-  "@settingsApiKeyStep5": {
-    "description": "Step 5"
-  },
   "settingsApiKeyStep6": "Copie a chave resultante (começa com \"AIza…\") e cole no campo acima.",
-  "@settingsApiKeyStep6": {
-    "description": "Step 6"
-  },
   "settingsApiKeyNote": "A chave é gratuita e permite até 1.000 buscas diárias. Não é compartilhada com ninguém: é salva apenas neste dispositivo.",
-  "@settingsApiKeyNote": {
-    "description": "API key information note"
-  },
   "bookSearchHint": "Título, autor ou ISBN...",
-  "@bookSearchHint": {
-    "description": "Book search field hint"
-  },
   "bookSearchPrompt": "Busque por título, autor ou ISBN",
-  "@bookSearchPrompt": {
-    "description": "Initial search prompt"
-  },
   "bookSearchNoResults": "Sem resultados para \"{query}\"",
   "@bookSearchNoResults": {
-    "description": "Search no results message",
+    "description": "Mensaje de sin resultados en búsqueda",
     "placeholders": {
       "query": {
         "type": "String"
@@ -1367,7 +549,7 @@
   },
   "bookSearchProvidersNotice": "Resultados de: {providers}.",
   "@bookSearchProvidersNotice": {
-    "description": "Notice of providers that contributed to the search",
+    "description": "Aviso de proveedores que contribuyeron a la búsqueda",
     "placeholders": {
       "providers": {
         "type": "String"
@@ -1375,30 +557,15 @@
     }
   },
   "bookSearchRecommended": "RECOMENDADO PELO OPENSHELF",
-  "@bookSearchRecommended": {
-    "description": "Label for recommended result"
-  },
   "bookSearchRecommendedSource": "Recomendado pelo Openshelf",
   "bookSearchServerOpenLibrary": "Open Library",
   "bookSearchServerGoogleBooks": "Google Books",
   "bookSearchServerInventaire": "Inventaire.io",
   "bookSearchServerAnnasArchive": "Anna's Archive",
   "searchTabStatus": "Estado",
-  "@searchTabStatus": {
-    "description": "Search panel: Status tab"
-  },
   "searchTabImprint": "Selo",
-  "@searchTabImprint": {
-    "description": "Search panel: Imprint tab"
-  },
   "searchTabCategory": "Categoria",
-  "@searchTabCategory": {
-    "description": "Search panel: Category tab"
-  },
   "searchTabCollection": "Coleção",
-  "@searchTabCollection": {
-    "description": "Search panel: Collection tab"
-  },
   "searchFilterStatus": "Estado: {value}",
   "@searchFilterStatus": {
     "placeholders": {
@@ -1442,24 +609,12 @@
   "searchSaveAsShelf": "Salvar como estante",
   "shelfShowInLibrary": "Mostrar na biblioteca",
   "searchClearAll": "Limpar tudo",
-  "@searchClearAll": {
-    "description": "Button to clear all search filters"
-  },
   "addedToLibrary": "Adicionado à biblioteca",
-  "@addedToLibrary": {
-    "description": "Success message when book is added"
-  },
   "errorDuplicateIsbn": "Já está na biblioteca",
-  "@errorDuplicateIsbn": {
-    "description": "Error when book ISBN already exists"
-  },
   "bookDuplicateTitle": "Livro duplicado",
-  "@bookDuplicateTitle": {
-    "description": "Duplicate book warning title"
-  },
   "bookDuplicateContent": "Você já tem um libro com o ISBN {isbn} na sua biblioteca.",
   "@bookDuplicateContent": {
-    "description": "Duplicate book warning content",
+    "description": "Contenido del aviso de libro duplicado",
     "placeholders": {
       "isbn": {
         "type": "String"
@@ -1467,24 +622,12 @@
     }
   },
   "bookSearchErrorNoApiKey": "Google Books requer uma chave de API.\nConfigure-a em Configurações → Busca de livros.",
-  "@bookSearchErrorNoApiKey": {
-    "description": "Error: no API key"
-  },
   "bookSearchErrorRateLimit": "Google Books limitou as requisições.\nEspere um momento e tente novamente.",
-  "@bookSearchErrorRateLimit": {
-    "description": "Error: rate limit"
-  },
   "bookSearchErrorNetwork": "Não foi possível conectar a nenhum servidor.\nVerifique sua conexão e tente novamente.",
-  "@bookSearchErrorNetwork": {
-    "description": "Search network error"
-  },
   "coverPickerTitle": "Capas",
-  "@coverPickerTitle": {
-    "description": "Cover picker sheet title"
-  },
   "coverPickerIsbnLabel": "ISBN {isbn}",
   "@coverPickerIsbnLabel": {
-    "description": "Sheet subtitle with ISBN",
+    "description": "Subtítulo del sheet con ISBN",
     "placeholders": {
       "isbn": {
         "type": "String"
@@ -1492,16 +635,10 @@
     }
   },
   "coverPickerNoResults": "Não foram encontradas capas para este livro.",
-  "@coverPickerNoResults": {
-    "description": "No covers found message"
-  },
   "coverPickerNetworkError": "Não foi possível conectar. Verifique sua conexão.",
-  "@coverPickerNetworkError": {
-    "description": "Cover search network error"
-  },
   "coverPickerProgress": "{loaded} / {total}",
   "@coverPickerProgress": {
-    "description": "Cover load progress",
+    "description": "Progreso de carga de portadas",
     "placeholders": {
       "loaded": {
         "type": "int"
@@ -1512,17 +649,8 @@
     }
   },
   "statsTitle": "Estatísticas",
-  "@statsTitle": {
-    "description": "Stats screen title"
-  },
   "statsPlaceholder": "Suas estatísticas aparecerão aqui",
-  "@statsPlaceholder": {
-    "description": "Stats placeholder"
-  },
   "statsEmptySubtitle": "Adicione widgets para ver seus hábitos de leitura, metas e recordes pessoais.",
-  "@statsEmptySubtitle": {
-    "description": "Empty stats state subtitle"
-  },
   "statsAddFirstWidget": "Adicionar primeiro widget",
   "statsAddWidgetTitle": "Adicionar widget",
   "statsGoalTargetShelf": "Estante objetivo",
@@ -1633,7 +761,7 @@
   "@statsAvgCompletionValue": {
     "placeholders": {
       "days": {
-        "type": "String"
+        "type": "int"
       }
     }
   },
@@ -1644,13 +772,7 @@
   "tabMore": "mais",
   "sortTitle": "Ordenar",
   "openSettings": "Abrir configurações",
-  "@openSettings": {
-    "description": "Button to open system settings"
-  },
   "permissionRequired": "Permissão necessária",
-  "@permissionRequired": {
-    "description": "Title for permanently denied permission dialog"
-  },
   "paginationMarkersAndIndices": "Seções e marcadores",
   "paginationSaveProgress": "Salvar Progresso",
   "paginationAllPagesAssigned": "Todas as páginas já foram atribuídas.",
@@ -1747,13 +869,7 @@
   "paginationAdvancedButton": "Avançada",
   "unknownAuthor": "Desconhecido",
   "storagePermissionExplanation": "Para selecionar uma capa você precisa conceder acesso ao armazenamento. Você pode fazer isso nas configurações do aplicativo.",
-  "@storagePermissionExplanation": {
-    "description": "Explanation for permanently denied storage permission"
-  },
   "cameraPermissionExplanation": "Para tirar uma foto você precisa conceder acesso à câmera. Você pode fazer isso nas configurações do aplicativo.",
-  "@cameraPermissionExplanation": {
-    "description": "Explanation for permanently denied camera permission"
-  },
   "settingsAutoPruneTagsTitle": "Limpar categorias órfãs",
   "settingsAutoPruneTagsSub": "Excluir automaticamente as categorias que não são usadas em nenhum livro",
   "settingsExcludedPruneTagsTitle": "Categorias excluídas",
@@ -1771,15 +887,15 @@
   "removeFromCollection": "Remover da coleção",
   "removeFromImprint": "Remover do selo",
   "removeFromCategory": "Remover da categoria",
-  "searchFieldIsbn": "",
-  "searchOpNotEquals": "",
-  "searchOpLessThan": "",
-  "searchModeBoolean": "",
-  "searchModeBasic": "",
-  "searchAddCondition": "",
-  "searchFieldPublisher": "",
-  "searchFieldNotes": "",
-  "searchFilterTranslatorLabel": "",
+  "searchFieldIsbn": "ISBN",
+  "searchOpNotEquals": "≠",
+  "searchOpLessThan": "<",
+  "searchModeBoolean": "Booleana",
+  "searchModeBasic": "Básica",
+  "searchAddCondition": "Adicionar condição",
+  "searchFieldPublisher": "Editora",
+  "searchFieldNotes": "Notas",
+  "searchFilterTranslatorLabel": "Tradutor: {translator}",
   "@searchFilterTranslatorLabel": {
     "placeholders": {
       "translator": {
@@ -1787,25 +903,19 @@
       }
     }
   },
-  "searchOpIs": "",
-  "searchFieldOriginalLanguage": "",
-  "searchFieldPages": "",
-  "searchOpNotIncludes": "",
-  "searchOpStartsWith": "",
-  "searchOpIncludesAll": "",
-  "searchFieldImprint": "",
-  "searchFieldTitle": "",
-  "searchFieldYear": "",
-  "settingsLanguagePortugueseBR": "",
-  "@settingsLanguagePortugueseBR": {
-    "description": "Opción de idioma: portugués brasileño"
-  },
-  "searchFieldNoCover": "",
-  "settingsLanguagePortuguese": "",
-  "@settingsLanguagePortuguese": {
-    "description": "Opción de idioma: portugués"
-  },
-  "searchFilterSubtitleLabel": "",
+  "searchOpIs": "é",
+  "searchFieldOriginalLanguage": "Idioma original",
+  "searchFieldPages": "Páginas",
+  "searchOpNotIncludes": "não inclui",
+  "searchOpStartsWith": "começa com",
+  "searchOpIncludesAll": "inclui todos",
+  "searchFieldImprint": "Selo",
+  "searchFieldTitle": "Título",
+  "searchFieldYear": "Ano",
+  "settingsLanguagePortugueseBR": "Português (Brasil)",
+  "searchFieldNoCover": "Sem capa",
+  "settingsLanguagePortuguese": "Português (Portugal)",
+  "searchFilterSubtitleLabel": "Subtítulo: {subtitle}",
   "@searchFilterSubtitleLabel": {
     "placeholders": {
       "subtitle": {
@@ -1813,42 +923,35 @@
       }
     }
   },
-  "searchFieldHasNotes": "",
-  "searchModeAdvanced": "",
-  "searchOpEquals": "",
-  "searchFieldAuthor": "",
-  "searchOpIsNot": "",
-  "searchFieldOriginalTitle": "",
-  "settingsLanguageItalian": "",
-  "@settingsLanguageItalian": {
-    "description": "Opción de idioma: italiano"
-  },
-  "settingsLanguageFrench": "",
-  "@settingsLanguageFrench": {
-    "description": "Opción de idioma: francés"
-  },
-  "searchFieldCategory": "",
-  "searchFieldStatus": "",
-  "searchOpBetween": "",
-  "settingsLanguageCatalan": "",
-  "@settingsLanguageCatalan": {
-    "description": "Opción de idioma: catalán"
-  },
-  "searchFieldCollection": "",
-  "searchOpIncludes": "",
-  "searchOpGreaterThan": "",
-  "searchFieldLanguage": "",
-  "searchPreview": "",
-  "searchOpExactly": "",
-  "searchOpContains": "",
+  "searchFieldHasNotes": "Tem notas",
+  "searchModeAdvanced": "Avançada",
+  "searchOpEquals": "=",
+  "searchFieldAuthor": "Autor",
+  "searchOpIsNot": "não é",
+  "searchFieldOriginalTitle": "Título original",
+  "settingsLanguageItalian": "Italiano",
+  "settingsLanguageFrench": "Francês",
+  "searchFieldCategory": "Categoria",
+  "searchFieldStatus": "Status",
+  "searchOpBetween": "entre",
+  "settingsLanguageCatalan": "Catalão",
+  "searchFieldCollection": "Coleção",
+  "searchOpIncludes": "inclui",
+  "searchOpGreaterThan": ">",
+  "searchFieldLanguage": "Idioma",
+  "searchPreview": "Pré-visualização",
+  "searchOpExactly": "é exatamente",
+  "searchOpContains": "contém",
   "workEditionsEmpty": "Não foi possível carregar edições adicionais.",
   "workEditionsUseGeneral": "Usar metadados gerais",
   "workEditionsCount": "{count} ed.",
   "@workEditionsCount": {
+    "description": "Etiqueta para el número de ediciones en los resultados de búsqueda",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
-  }
+  },
+  "settingsLanguageGerman": "Alemão"
 }

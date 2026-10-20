@@ -1560,7 +1560,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statsOptDailyReadingSub => 'Прочитанные страницы в день';
 
   @override
-  String statsAvgCompletionValue(String days) {
+  String statsAvgCompletionValue(int days) {
     return '$days дн.';
   }
 
@@ -1894,4 +1894,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String workEditionsCount(int count) {
     return '$count изд.';
   }
+
+  @override
+  String get settingsLanguageGerman => 'Немецкий';
 }

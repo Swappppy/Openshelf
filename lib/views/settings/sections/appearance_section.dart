@@ -63,6 +63,10 @@ class AppearanceSection extends ConsumerWidget {
                       child: Text(context.l10n.settingsLanguageEnglish),
                     ),
                     DropdownMenuItem(
+                      value: 'de',
+                      child: Text(context.l10n.settingsLanguageGerman),
+                    ),
+                    DropdownMenuItem(
                       value: 'fr',
                       child: Text(context.l10n.settingsLanguageFrench),
                     ),

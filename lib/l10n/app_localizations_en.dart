@@ -881,19 +881,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageEnglish => 'English';
 
   @override
-  String get settingsLanguageFrench => '';
+  String get settingsLanguageFrench => 'French';
 
   @override
-  String get settingsLanguageItalian => '';
+  String get settingsLanguageItalian => 'Italian';
 
   @override
-  String get settingsLanguageCatalan => '';
+  String get settingsLanguageCatalan => 'Catalan';
 
   @override
-  String get settingsLanguagePortuguese => '';
+  String get settingsLanguagePortuguese => 'Portuguese (Portugal)';
 
   @override
-  String get settingsLanguagePortugueseBR => '';
+  String get settingsLanguagePortugueseBR => 'Portuguese (Brazil)';
 
   @override
   String get settingsLanguageRussian => 'Russian';
@@ -1551,7 +1551,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsOptDailyReadingSub => 'Pages read per day';
 
   @override
-  String statsAvgCompletionValue(String days) {
+  String statsAvgCompletionValue(int days) {
     return '$days days';
   }
 
@@ -1764,7 +1764,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchFieldNotes => 'Notes';
 
   @override
-  String get searchFieldHasNotes => '';
+  String get searchFieldHasNotes => 'Has notes';
 
   @override
   String get searchOpContains => 'contains';
@@ -1885,4 +1885,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String workEditionsCount(int count) {
     return '$count ed.';
   }
+
+  @override
+  String get settingsLanguageGerman => 'German';
 }

@@ -1669,7 +1669,7 @@
   "@statsAvgCompletionValue": {
     "placeholders": {
       "days": {
-        "type": "String"
+        "type": "int"
       }
     }
   },
@@ -1851,5 +1851,9 @@
         "type": "int"
       }
     }
+  },
+  "settingsLanguageGerman": "Alemán",
+  "@settingsLanguageGerman": {
+    "description": "Opción de idioma: alemán"
   }
 }

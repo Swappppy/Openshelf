@@ -1505,7 +1505,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get statsOptDailyReadingSub => '';
 
   @override
-  String statsAvgCompletionValue(String days) {
+  String statsAvgCompletionValue(int days) {
     return '';
   }
 
@@ -1834,4 +1834,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String workEditionsCount(int count) {
     return '$count baskı';
   }
+
+  @override
+  String get settingsLanguageGerman => 'Alemán';
 }

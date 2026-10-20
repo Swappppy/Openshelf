@@ -57,7 +57,7 @@ class AvgCompletionTimeTile extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      context.l10n.statsAvgCompletionValue(avg.toString()).split(' ').last.toUpperCase(),
+                      context.l10n.statsAvgCompletionValue(avg).split(' ').last.toUpperCase(),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Colors.grey,
                         letterSpacing: 1.2,

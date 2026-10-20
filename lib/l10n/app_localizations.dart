@@ -2943,7 +2943,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'{days} días'**
-  String statsAvgCompletionValue(String days);
+  String statsAvgCompletionValue(int days);
 
   /// No description provided for @statsPeriodThisMonth.
   ///
@@ -3532,6 +3532,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{count} ed.'**
   String workEditionsCount(int count);
+
+  /// Opción de idioma: alemán
+  ///
+  /// In es, this message translates to:
+  /// **'Alemán'**
+  String get settingsLanguageGerman;
 }
 
 class _AppLocalizationsDelegate

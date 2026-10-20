@@ -1505,7 +1505,7 @@ class AppLocalizationsEt extends AppLocalizations {
   String get statsOptDailyReadingSub => '';
 
   @override
-  String statsAvgCompletionValue(String days) {
+  String statsAvgCompletionValue(int days) {
     return '';
   }
 
@@ -1833,4 +1833,7 @@ class AppLocalizationsEt extends AppLocalizations {
   String workEditionsCount(int count) {
     return '$count trükk';
   }
+
+  @override
+  String get settingsLanguageGerman => 'Alemán';
 }
