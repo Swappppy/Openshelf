@@ -88,7 +88,9 @@ configurations.all {
     exclude(group = "com.android.support", module = "support-core-ui")
     exclude(group = "com.google.android.gms", module = "play-services-mlkit-barcode-scanning")
     exclude(group = "com.google.mlkit", module = "barcode-scanning")
+    exclude(group = "com.google.android.play")
     exclude(group = "androidx.camera", module = "camera-mlkit-vision")
+
     
     resolutionStrategy {
         // Removed forced versions to allow ucrop to use newer APIs (like ProtectionLayout)

@@ -28,6 +28,7 @@ subprojects {
         exclude(group = "com.google.mlkit")
         exclude(group = "com.google.android.datatransport")
         exclude(group = "com.google.firebase")
+        exclude(group = "com.google.android.play")
         exclude(group = "androidx.camera", module = "camera-mlkit-vision")
     }
 }
