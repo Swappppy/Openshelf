@@ -61,8 +61,20 @@ class BookSearchController extends ChangeNotifier {
   }
 
   void initQuery(String? initialQuery) {
-    if (initialQuery != null && initialQuery.isNotEmpty && titleController.text.isEmpty) {
-      titleController.text = initialQuery;
+    if (initialQuery == null || initialQuery.trim().isEmpty) return;
+
+    final cleanIsbn = initialQuery.replaceAll(RegExp(r'[^0-9X]'), '');
+    final isIsbn = (cleanIsbn.length == 10 || cleanIsbn.length == 13) &&
+        RegExp(r'^[0-9]+X?$').hasMatch(cleanIsbn);
+
+    if (isIsbn) {
+      if (isbnController.text.isEmpty) {
+        isbnController.text = cleanIsbn;
+      }
+    } else {
+      if (titleController.text.isEmpty) {
+        titleController.text = initialQuery;
+      }
     }
   }
 

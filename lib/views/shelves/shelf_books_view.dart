@@ -43,49 +43,52 @@ class ShelfBooksView extends ConsumerWidget {
         ),
         title: Hero(
           tag: 'shelf_title_${shelf.id}',
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  displayName,
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Consumer(builder: (context, ref, _) {
-                  return booksAsync.when(
-                    data: (books) {
-                      if (books.isEmpty) return const SizedBox.shrink();
-                      final bookIds = books.map((b) => b.id).toList();
-                      return Consumer(builder: (context, ref, _) {
-                        final topTagsAsync = ref.watch(topTagsForBooksProvider(bookIds.join(',')));
-                        return topTagsAsync.maybeWhen(
-                          data: (tags) {
-                            if (tags.isEmpty) return const SizedBox.shrink();
-                            return Text(
-                              tags.map((t) => '#$t').join(' '),
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            );
-                          },
-                          orElse: () => const SizedBox.shrink(),
-                        );
-                      });
-                    },
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, _) => const SizedBox.shrink(),
-                  );
-                }),
-              ],
+          child: Material(
+            color: Colors.transparent,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    displayName,
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Consumer(builder: (context, ref, _) {
+                    return booksAsync.when(
+                      data: (books) {
+                        if (books.isEmpty) return const SizedBox.shrink();
+                        final bookIds = books.map((b) => b.id).toList();
+                        return Consumer(builder: (context, ref, _) {
+                          final topTagsAsync = ref.watch(topTagsForBooksProvider(bookIds.join(',')));
+                          return topTagsAsync.maybeWhen(
+                            data: (tags) {
+                              if (tags.isEmpty) return const SizedBox.shrink();
+                              return Text(
+                                tags.map((t) => '#$t').join(' '),
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              );
+                            },
+                            orElse: () => const SizedBox.shrink(),
+                          );
+                        });
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, _) => const SizedBox.shrink(),
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
         ),

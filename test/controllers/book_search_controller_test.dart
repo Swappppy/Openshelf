@@ -30,4 +30,22 @@ void main() {
     controller.clearAll();
     expect(controller.hasAnyInput, false);
   });
+
+  test('initQuery sets titleController when initialQuery is text', () {
+    controller.initQuery('Dune');
+    expect(controller.titleController.text, 'Dune');
+    expect(controller.isbnController.text, isEmpty);
+  });
+
+  test('initQuery sets isbnController when initialQuery is a 13-digit ISBN', () {
+    controller.initQuery('9788413622416');
+    expect(controller.titleController.text, isEmpty);
+    expect(controller.isbnController.text, '9788413622416');
+  });
+
+  test('initQuery sets isbnController when initialQuery is a formatted 10-digit ISBN', () {
+    controller.initQuery('84-136-2241-6');
+    expect(controller.titleController.text, isEmpty);
+    expect(controller.isbnController.text, '8413622416');
+  });
 }
