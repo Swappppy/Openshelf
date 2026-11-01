@@ -24,6 +24,7 @@ class AddEntityFab extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         opacity: visible ? 1.0 : 0.0,
         child: FloatingActionButton(
+          heroTag: null,
           onPressed: () {
             HapticFeedback.lightImpact();
             if (onPressed != null) {
