@@ -231,7 +231,10 @@ class DetailsTab extends ConsumerWidget {
             ),
           );
         }),
+        // Keyed: the collection rows above change count, which would otherwise
+        // remount this selector (and dispose its Autocomplete controller).
         EntityFieldSelector(
+          key: const ValueKey('collection_selector'),
           selected: const [],
           onChanged: (list) {
             if (list.isNotEmpty) {
@@ -297,6 +300,7 @@ class DetailsTab extends ConsumerWidget {
             ),
           ),
         EntityFieldSelector(
+          key: const ValueKey('imprint_selector'),
           selected: const [],
           onChanged: (list) {
             onImprintChanged(list.firstOrNull);
