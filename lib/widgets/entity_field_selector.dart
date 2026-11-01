@@ -113,7 +113,7 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
                             type: widget.type,
                             initialName: name.isNotEmpty ? name : null,
                           );
-                          if (newTag != null) {
+                          if (newTag != null && mounted) {
                             _selectTag(newTag, controller);
                           }
                         },
@@ -144,8 +144,9 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
                       type: widget.type,
                       initialName: name.isNotEmpty ? name : null,
                     );
-                    if (newTag != null) {
-                      _selectTag(newTag, _capturedController!);
+                    final controller = _capturedController;
+                    if (newTag != null && mounted && controller != null) {
+                      _selectTag(newTag, controller);
                     }
                   }
                 },
@@ -171,8 +172,10 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
     }
     
     // Clear controller in the next frame to avoid Autocomplete setting it back to tag.name
+    // Skip if this state was unmounted meanwhile:
+    // the controller is owned by the Autocomplete and is disposed with it.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.clear();
+      if (mounted) controller.clear();
     });
   }
 
@@ -181,6 +184,7 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
     final results = await db.tagDao.searchTags(name, widget.type);
     final existing = results.where((t) => t.name.toLowerCase() == name.toLowerCase()).firstOrNull;
     
+    if (!mounted) return;
     if (existing != null) {
       _selectTag(existing, controller);
       return;
@@ -194,7 +198,7 @@ class _EntityFieldSelectorState extends ConsumerState<EntityFieldSelector> {
         type: widget.type,
         initialName: name,
       );
-      if (newTag != null) {
+      if (newTag != null && mounted) {
         _selectTag(newTag, controller);
       }
     }
