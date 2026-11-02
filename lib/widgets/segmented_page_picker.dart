@@ -136,43 +136,14 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (_segments.length > 1)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_segments.length, (index) {
-                return AnimatedBuilder(
-                  animation: _pageController,
-                  builder: (ctx, _) {
-                    double selected = 0;
-                    if (_pageController.hasClients && _pageController.page != null) {
-                      selected = (index - _pageController.page!).abs();
-                    } else if (index == _pageController.initialPage) {
-                      selected = 0;
-                    } else {
-                      selected = 1;
-                    }
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: 8 + (8 * (1 - selected.clamp(0.0, 1.0))),
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: selected < 0.5 
-                            ? Theme.of(context).colorScheme.primary 
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    );
-                  },
-                );
-              }),
-            ),
-          ),
+        _SegmentCarouselIndicators(
+          pageController: _pageController,
+          totalSegments: _segments.length,
+        ),
         
         Flexible(
           child: SizedBox(
-            height: 250,
+            height: 290,
             child: PageView.builder(
               controller: _pageController,
               itemCount: _segments.length,
@@ -201,17 +172,18 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
 
                 return Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          s.label ?? context.l10n.paginationSectionLabel(index + 1),
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        s.label ?? context.l10n.paginationSectionLabel(index + 1),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Expanded(
@@ -292,3 +264,161 @@ class _SegmentedPagePickerState extends State<SegmentedPagePicker> {
     );
   }
 }
+
+class _SegmentCarouselIndicators extends StatelessWidget {
+  final PageController pageController;
+  final int totalSegments;
+  static const int maxVisible = 7;
+
+  const _SegmentCarouselIndicators({
+    required this.pageController,
+    required this.totalSegments,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (totalSegments <= 1) return const SizedBox.shrink();
+
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return AnimatedBuilder(
+      animation: pageController,
+      builder: (context, _) {
+        double currentPage = 0;
+        if (pageController.hasClients && pageController.page != null) {
+          currentPage = pageController.page!;
+        } else {
+          currentPage = pageController.initialPage.toDouble();
+        }
+
+        final int centerIndex = currentPage.round();
+
+        int startIndex;
+        int endIndex;
+        bool showLeftEllipsis = false;
+        bool showRightEllipsis = false;
+
+        if (totalSegments <= maxVisible) {
+          startIndex = 0;
+          endIndex = totalSegments - 1;
+        } else {
+          final int half = maxVisible ~/ 2;
+          if (centerIndex <= half) {
+            startIndex = 0;
+            endIndex = maxVisible - 1;
+          } else if (centerIndex >= totalSegments - 1 - half) {
+            startIndex = totalSegments - maxVisible;
+            endIndex = totalSegments - 1;
+          } else {
+            startIndex = centerIndex - half;
+            endIndex = startIndex + maxVisible - 1;
+          }
+
+          showLeftEllipsis = startIndex > 0;
+          showRightEllipsis = endIndex < totalSegments - 1;
+        }
+
+        final int hiddenBefore = startIndex;
+        final int hiddenAfter = totalSegments - 1 - endIndex;
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (showLeftEllipsis)
+                InkWell(
+                  onTap: () {
+                    final target = (startIndex - 1).clamp(0, totalSegments - 1);
+                    pageController.animateToPage(
+                      target,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '+$hiddenBefore',
+                      style: TextStyle(
+                        color: colorScheme.outline,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+              for (int i = startIndex; i <= endIndex; i++) ...[
+                Builder(
+                  builder: (context) {
+                    final double selected = (i - currentPage).abs();
+                    final double weight = (1 - selected.clamp(0.0, 1.0));
+                    final double width = 8 + (8 * weight);
+
+                    return GestureDetector(
+                      onTap: () {
+                        pageController.animateToPage(
+                          i,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: width,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: selected < 0.5
+                              ? colorScheme.primary
+                              : colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+              if (showRightEllipsis)
+                InkWell(
+                  onTap: () {
+                    final target = (endIndex + 1).clamp(0, totalSegments - 1);
+                    pageController.animateToPage(
+                      target,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '+$hiddenAfter',
+                      style: TextStyle(
+                        color: colorScheme.outline,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+

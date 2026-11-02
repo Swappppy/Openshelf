@@ -79,7 +79,7 @@ void main() {
 
     test('ZIP import handles legacy backups with uncompressedSize mismatch due to non-ASCII chars', () async {
       final archive = Archive();
-      final nonAsciiCsv = 'title,author,notes\n' + ('Libro con caracteres especiales áéíóúñ y emojis 📚 ' * 100);
+      final nonAsciiCsv = 'title,author,notes\n${'Libro con caracteres especiales áéíóúñ y emojis 📚 ' * 100}';
       final encodedBytes = utf8.encode(nonAsciiCsv);
       // Simulate legacy bug where ArchiveFile size was set to nonAsciiCsv.length (character count) instead of encodedBytes.length
       archive.addFile(ArchiveFile('books.csv', nonAsciiCsv.length, encodedBytes));
