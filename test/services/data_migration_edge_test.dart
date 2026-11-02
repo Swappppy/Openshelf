@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
 import 'package:openshelf/services/database.dart';
@@ -74,6 +75,19 @@ void main() {
 
       final books = await db.bookDao.watchAllBooks().first;
       expect(books.first.startedAt, isNull);
+    });
+
+    test('ZIP import handles legacy backups with uncompressedSize mismatch due to non-ASCII chars', () async {
+      final archive = Archive();
+      final nonAsciiCsv = 'title,author,notes\n' + ('Libro con caracteres especiales áéíóúñ y emojis 📚 ' * 100);
+      final encodedBytes = utf8.encode(nonAsciiCsv);
+      // Simulate legacy bug where ArchiveFile size was set to nonAsciiCsv.length (character count) instead of encodedBytes.length
+      archive.addFile(ArchiveFile('books.csv', nonAsciiCsv.length, encodedBytes));
+      final zipData = ZipEncoder().encode(archive);
+      final zipFile = File(p.join(tempDir.path, 'legacy_buggy_backup.zip'))..writeAsBytesSync(zipData);
+
+      final count = await migrationService.importFromBackup(zipFile);
+      expect(count, 1);
     });
   });
 }

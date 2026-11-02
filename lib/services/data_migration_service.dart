@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:archive/archive.dart';
+import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:csv/csv.dart';
 import 'package:drift/drift.dart';
@@ -24,36 +25,54 @@ class DataMigrationService {
 
   Future<File> createBackupFile({bool includeCovers = true, void Function(String)? onProgress}) async {
     final tempDir = await getTemporaryDirectory();
-    final archive = Archive();
+    final zipFile = File(p.join(tempDir.path, 'openshelf_full_backup.zip'));
+    if (await zipFile.exists()) await zipFile.delete();
 
-    onProgress?.call('data');
-    final booksCsv = await exportBooksToCsv();
-    archive.addFile(ArchiveFile('books.csv', booksCsv.length, utf8.encode(booksCsv)));
+    final encoder = ZipFileEncoder();
+    encoder.create(zipFile.path);
 
-    final shelvesCsv = await exportShelvesToCsv();
-    archive.addFile(ArchiveFile('shelves.csv', shelvesCsv.length, utf8.encode(shelvesCsv)));
+    final backupSubDir = Directory(p.join(tempDir.path, 'backup_csv_${DateTime.now().millisecondsSinceEpoch}'))..createSync(recursive: true);
 
-    final tagsCsv = await exportTagsToCsv();
-    archive.addFile(ArchiveFile('tags.csv', tagsCsv.length, utf8.encode(tagsCsv)));
+    try {
+      onProgress?.call('data');
+      final booksCsv = await exportBooksToCsv();
+      final booksFile = File(p.join(backupSubDir.path, 'books.csv'))..writeAsStringSync(booksCsv, encoding: utf8);
+      await encoder.addFile(booksFile, 'books.csv');
 
-    final historyCsv = await exportHistoryToCsv();
-    archive.addFile(ArchiveFile('history.csv', historyCsv.length, utf8.encode(historyCsv)));
+      final shelvesCsv = await exportShelvesToCsv();
+      final shelvesFile = File(p.join(backupSubDir.path, 'shelves.csv'))..writeAsStringSync(shelvesCsv, encoding: utf8);
+      await encoder.addFile(shelvesFile, 'shelves.csv');
 
-    final logsCsv = await exportLogsToCsv();
-    archive.addFile(ArchiveFile('logs.csv', logsCsv.length, utf8.encode(logsCsv)));
+      final tagsCsv = await exportTagsToCsv();
+      final tagsFile = File(p.join(backupSubDir.path, 'tags.csv'))..writeAsStringSync(tagsCsv, encoding: utf8);
+      await encoder.addFile(tagsFile, 'tags.csv');
 
-    final goalsCsv = await exportGoalsToCsv();
-    archive.addFile(ArchiveFile('goals.csv', goalsCsv.length, utf8.encode(goalsCsv)));
+      final historyCsv = await exportHistoryToCsv();
+      final historyFile = File(p.join(backupSubDir.path, 'history.csv'))..writeAsStringSync(historyCsv, encoding: utf8);
+      await encoder.addFile(historyFile, 'history.csv');
 
-    if (includeCovers) {
-      onProgress?.call('media');
-      await _bundleMedia(archive);
+      final logsCsv = await exportLogsToCsv();
+      final logsFile = File(p.join(backupSubDir.path, 'logs.csv'))..writeAsStringSync(logsCsv, encoding: utf8);
+      await encoder.addFile(logsFile, 'logs.csv');
+
+      final goalsCsv = await exportGoalsToCsv();
+      final goalsFile = File(p.join(backupSubDir.path, 'goals.csv'))..writeAsStringSync(goalsCsv, encoding: utf8);
+      await encoder.addFile(goalsFile, 'goals.csv');
+
+      if (includeCovers) {
+        onProgress?.call('media');
+        await _bundleMediaWithEncoder(encoder);
+      }
+
+      onProgress?.call('compress');
+      await encoder.close();
+    } finally {
+      if (await backupSubDir.exists()) {
+        try { await backupSubDir.delete(recursive: true); } catch (_) {}
+      }
     }
 
-    onProgress?.call('compress');
-    final zipData = await Future.microtask(() => ZipEncoder().encode(archive));
-    final zipFile = File(p.join(tempDir.path, 'openshelf_full_backup.zip'));
-    return await zipFile.writeAsBytes(zipData);
+    return zipFile;
   }
 
   Future<String> exportBooksToCsv() async {
@@ -201,24 +220,30 @@ class DataMigrationService {
     );
   }
 
-  Future<void> _bundleMedia(Archive archive) async {
+  Future<void> _bundleMediaWithEncoder(ZipFileEncoder encoder) async {
+    final addedNames = <String>{};
     final books = await _db.bookDao.select(_db.bookDao.books).get();
     for (final b in books) {
-      if (b.coverPath != null) await _addFileToArchive(archive, b.coverPath!);
+      if (b.coverPath != null) {
+        final file = File(b.coverPath!);
+        if (await file.exists()) {
+          final name = p.basename(b.coverPath!);
+          if (addedNames.add(name)) {
+            await encoder.addFile(file, name);
+          }
+        }
+      }
     }
     final tags = await _db.tagDao.select(_db.tagDao.tags).get();
     for (final t in tags) {
-      if (t.imagePath != null) await _addFileToArchive(archive, t.imagePath!, subDir: 'imprints');
-    }
-  }
-
-  Future<void> _addFileToArchive(Archive archive, String path, {String? subDir}) async {
-    final file = File(path);
-    if (await file.exists()) {
-      final bytes = await file.readAsBytes();
-      final name = subDir != null ? p.join(subDir, p.basename(path)) : p.basename(path);
-      if (!archive.files.any((f) => f.name == name)) {
-        archive.addFile(ArchiveFile(name, bytes.length, bytes));
+      if (t.imagePath != null) {
+        final file = File(t.imagePath!);
+        if (await file.exists()) {
+          final name = p.join('imprints', p.basename(t.imagePath!));
+          if (addedNames.add(name)) {
+            await encoder.addFile(file, name);
+          }
+        }
       }
     }
   }
@@ -238,8 +263,20 @@ class DataMigrationService {
     throw Exception('Format not supported');
   }
 
+  Future<Archive> _decodeZipSafely(File zipFile) async {
+    final bytes = await zipFile.readAsBytes();
+    final decoder = ZipDecoder();
+    final archive = decoder.decodeBytes(bytes);
+    for (final header in decoder.directory.fileHeaders) {
+      if (header.file != null) {
+        header.file!.uncompressedSize = 0x7fffffffffffffff;
+      }
+    }
+    return archive;
+  }
+
   Future<int> _importFromZip(File zipFile, {bool compress = true}) async {
-    final archive = ZipDecoder().decodeBytes(await zipFile.readAsBytes());
+    final archive = await _decodeZipSafely(zipFile);
     final docDir = await getApplicationDocumentsDirectory();
     final tempDir = await getTemporaryDirectory();
 
@@ -271,34 +308,55 @@ class DataMigrationService {
           // Use a flat name for the temp file to avoid creating subdirectories in the cache
           final tempName = 'import_${p.basename(file.name)}';
           final temp = File(p.join(tempDir.path, tempName))..createSync(recursive: true)..writeAsBytesSync(data);
+          file.clear();
           
           await CoverService.compressImage(temp.path, targetFile.path);
-          temp.deleteSync();
+          if (temp.existsSync()) temp.deleteSync();
         } else {
           targetFile.writeAsBytesSync(data);
+          file.clear();
         }
       }
     }
 
     if (booksF == null) throw Exception('books.csv missing');
-    if (tagsF != null) await _importTagsCsvContent(utf8.decode(tagsF.content as List<int>), localBaseDir: docDir.path);
+    if (tagsF != null) {
+      await _importTagsCsvContent(utf8.decode(tagsF.content as List<int>), localBaseDir: docDir.path);
+      tagsF.clear();
+    }
     
     final bookIdMap = <int, int>{};
     final count = await _importBooksCsvContent(utf8.decode(booksF.content as List<int>), localBaseDir: docDir.path, bookIdMap: bookIdMap);
+    booksF.clear();
     
-    if (shelvesF != null) await _importShelvesCsvContent(utf8.decode(shelvesF.content as List<int>));
-    if (historyF != null) await _importHistoryCsvContent(utf8.decode(historyF.content as List<int>), bookIdMap);
-    if (logsF != null) await _importLogsCsvContent(utf8.decode(logsF.content as List<int>), bookIdMap);
-    if (goalsF != null) await _importGoalsCsvContent(utf8.decode(goalsF.content as List<int>));
+    if (shelvesF != null) {
+      await _importShelvesCsvContent(utf8.decode(shelvesF.content as List<int>));
+      shelvesF.clear();
+    }
+    if (historyF != null) {
+      await _importHistoryCsvContent(utf8.decode(historyF.content as List<int>), bookIdMap);
+      historyF.clear();
+    }
+    if (logsF != null) {
+      await _importLogsCsvContent(utf8.decode(logsF.content as List<int>), bookIdMap);
+      logsF.clear();
+    }
+    if (goalsF != null) {
+      await _importGoalsCsvContent(utf8.decode(goalsF.content as List<int>));
+      goalsF.clear();
+    }
     
     return count;
   }
 
   Future<int> _importLegacy(File csvFile, File zipFile) async {
-    final archive = ZipDecoder().decodeBytes(await zipFile.readAsBytes());
+    final archive = await _decodeZipSafely(zipFile);
     final docDir = await getApplicationDocumentsDirectory();
     for (final f in archive) {
-      if (f.isFile) File(p.join(docDir.path, f.name))..createSync(recursive: true)..writeAsBytesSync(f.content as List<int>);
+      if (f.isFile) {
+        File(p.join(docDir.path, f.name))..createSync(recursive: true)..writeAsBytesSync(f.content as List<int>);
+        f.clear();
+      }
     }
     return _importBooksCsv(csvFile);
   }
