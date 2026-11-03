@@ -1,10 +1,10 @@
 {
     "@@locale": "be",
-    "appTitle": "",
+    "appTitle": "Openshelf",
     "@appTitle": {
         "description": "Nombre de la aplicación"
     },
-    "errorPrefix": "",
+    "errorPrefix": "Памылка: {message}",
     "@errorPrefix": {
         "description": "Prefijo genérico de error",
         "placeholders": {
@@ -13,7 +13,7 @@
             }
         }
     },
-    "errorGeneric": "",
+    "errorGeneric": "Памылка: {error}",
     "@errorGeneric": {
         "description": "Mensaje genérico de error con parámetro",
         "placeholders": {
@@ -22,7 +22,7 @@
             }
         }
     },
-    "criticalStartError": "",
+    "criticalStartError": "Памылка падчас запуску праграмы: {error}»",
     "@criticalStartError": {
         "description": "Error crítico al arrancar la app",
         "placeholders": {
@@ -31,51 +31,51 @@
             }
         }
     },
-    "navLibrary": "",
+    "navLibrary": "Біблятэка",
     "@navLibrary": {
         "description": "Pestaña de navegación: biblioteca"
     },
-    "navShelves": "",
+    "navShelves": "Паліцы",
     "@navShelves": {
         "description": "Pestaña de navegación: estanterías"
     },
-    "navStats": "",
+    "navStats": "Статыстыка",
     "@navStats": {
         "description": "Pestaña de navegación: estadísticas"
     },
-    "libraryTitle": "",
+    "libraryTitle": "Бібліятэка",
     "@libraryTitle": {
         "description": "Título de la pantalla de biblioteca"
     },
-    "libraryEmpty": "",
+    "libraryEmpty": "Ваша бібліятэка пустая",
     "@libraryEmpty": {
         "description": "Estado vacío de la biblioteca sin filtros"
     },
-    "libraryEmptyHint": "",
+    "libraryEmptyHint": "Якая будзе ваша першая кніга?",
     "@libraryEmptyHint": {
         "description": "Pista cuando la biblioteca está vacía"
     },
-    "libraryAddFirstBook": "",
+    "libraryAddFirstBook": "Дадаць першую кнігу",
     "@libraryAddFirstBook": {
         "description": "Texto del botón de acción en el estado vacío de la biblioteca"
     },
-    "libraryNoResults": "",
+    "libraryNoResults": "Няма вынікаў",
     "@libraryNoResults": {
         "description": "Sin resultados con filtros activos"
     },
-    "libraryNoResultsHint": "",
+    "libraryNoResultsHint": "Паспрабуйце іншыя фільтры",
     "@libraryNoResultsHint": {
         "description": "Pista cuando no hay resultados con filtros"
     },
-    "addBook": "",
+    "addBook": "Дадаць кнігу",
     "@addBook": {
         "description": "Etiqueta del FAB para añadir libro"
     },
-    "displaySettings": "",
+    "displaySettings": "Паказаць у бібліятэцы",
     "@displaySettings": {
         "description": "Título del panel de preferencias de visualización"
     },
-    "displaySettingsDragHint": "",
+    "displaySettingsDragHint": "Перацягніце, каб змяніць парадак",
     "@displaySettingsDragHint": {
         "description": "Pista sobre arrastrar para reordenar campos"
     },
