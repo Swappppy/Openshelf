@@ -568,5 +568,6 @@
     "tagColorLabel": "Kategorie-Farbe",
     "ownershipStatusReturned": "Zurückgegeben",
     "dataManagementCreateBackupHint": "Sichere deine Bibliothek in einer Datei",
-    "dataManagementImport": "Daten importieren"
+    "dataManagementImport": "Daten importieren",
+  "paginationRestartFromZero": "Nummerierung im visuellen Modus bei 0 beginnen"
 }

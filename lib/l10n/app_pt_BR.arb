@@ -953,5 +953,6 @@
       }
     }
   },
-  "settingsLanguageGerman": "Alemão"
+  "settingsLanguageGerman": "Alemão",
+  "paginationRestartFromZero": "Reiniciar numeração a partir do 0 no modo visual"
 }

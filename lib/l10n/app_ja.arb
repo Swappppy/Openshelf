@@ -959,5 +959,6 @@
     "settingsLanguageRussian": "",
     "@settingsLanguageRussian": {
         "description": "Opción de idioma: ruso"
-    }
+    },
+    "paginationRestartFromZero": "ビジュアルモードで0から番号付けを再開"
 }

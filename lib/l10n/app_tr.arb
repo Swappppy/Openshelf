@@ -959,5 +959,6 @@
     "settingsLanguageRussian": "",
     "@settingsLanguageRussian": {
         "description": "Opción de idioma: ruso"
-    }
+    },
+    "paginationRestartFromZero": "Görsel modda numaralandırmayı 0'dan başlat"
 }

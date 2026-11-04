@@ -1639,6 +1639,10 @@ class AppLocalizationsRo extends AppLocalizations {
   String get paginationVisualMode => '';
 
   @override
+  String get paginationRestartFromZero =>
+      'Reîncepe numerotarea de la 0 în modul vizual';
+
+  @override
   String paginationEquivalentPhysical(int start, int end) {
     return '';
   }

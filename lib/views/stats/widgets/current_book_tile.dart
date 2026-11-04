@@ -113,9 +113,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                   final currentText = useVisual 
                       ? PaginationHelper.getVisualPage(currentPhys, book.paginationConfig)
                       : currentPhys.toString();
-                  final totalText = useVisual 
-                      ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
-                      : (book.totalPages ?? 0).toString();
+                  final totalText = (book.totalPages ?? 0).toString();
                   return Text(
                     '${(progress * 100).toInt()}% ($currentText/$totalText)',
                     style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold),
@@ -125,9 +123,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                   final currentText = useVisual 
                       ? PaginationHelper.getVisualPage(book.currentPage ?? 0, book.paginationConfig)
                       : (book.currentPage ?? 0).toString();
-                  final totalText = useVisual 
-                      ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
-                      : (book.totalPages ?? 0).toString();
+                  final totalText = (book.totalPages ?? 0).toString();
                   return Text(
                     '${(progress * 100).toInt()}% ($currentText/$totalText)',
                     style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold),
@@ -189,9 +185,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                       final currentText = useVisual 
                           ? PaginationHelper.getVisualPage(currentPhys, book.paginationConfig)
                           : currentPhys.toString();
-                      final totalText = useVisual 
-                          ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
-                          : (book.totalPages ?? 0).toString();
+                      final totalText = (book.totalPages ?? 0).toString();
 
                       return _ReadingProgressDisplay(
                         progress: progress,
@@ -204,9 +198,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                       final currentText = useVisual 
                           ? PaginationHelper.getVisualPage(book.currentPage ?? 0, book.paginationConfig)
                           : (book.currentPage ?? 0).toString();
-                      final totalText = useVisual 
-                          ? PaginationHelper.getVisualPage(book.totalPages ?? 0, book.paginationConfig)
-                          : (book.totalPages ?? 0).toString();
+                      final totalText = (book.totalPages ?? 0).toString();
 
                       return _ReadingProgressDisplay(
                         progress: progress,

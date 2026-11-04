@@ -1639,6 +1639,10 @@ class AppLocalizationsEt extends AppLocalizations {
   String get paginationVisualMode => '';
 
   @override
+  String get paginationRestartFromZero =>
+      'Alusta nummerdamist 0-st visuaalses režiimis';
+
+  @override
   String paginationEquivalentPhysical(int start, int end) {
     return '';
   }

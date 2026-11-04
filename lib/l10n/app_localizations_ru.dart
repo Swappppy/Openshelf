@@ -1697,6 +1697,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get paginationVisualMode => 'Визуальный режим';
 
   @override
+  String get paginationRestartFromZero =>
+      'Начать нумерацию с 0 в визуальном режиме';
+
+  @override
   String paginationEquivalentPhysical(int start, int end) {
     return 'Соответствует физическим страницам: $start — $end';
   }

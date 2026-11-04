@@ -1855,5 +1855,6 @@
     "settingsLanguageGerman": "",
     "@settingsLanguageGerman": {
         "description": "Opción de idioma: alemán"
-    }
+    },
+    "paginationRestartFromZero": "Пачаць нумарацыю з 0 у візуальным рэжыме"
 }

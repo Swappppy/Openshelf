@@ -186,9 +186,7 @@ class MainTab extends StatelessWidget {
                         ? PaginationHelper.getVisualPage(totalRead, book.paginationConfig)
                         : totalRead.toString();
                         
-                    final String totalText = useVisual 
-                        ? PaginationHelper.getVisualPage(totalPages, book.paginationConfig)
-                        : totalPages.toString();
+                    final String totalText = totalPages.toString();
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

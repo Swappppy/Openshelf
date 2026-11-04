@@ -1639,6 +1639,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get paginationVisualMode => '';
 
   @override
+  String get paginationRestartFromZero => 'ビジュアルモードで0から番号付けを再開';
+
+  @override
   String paginationEquivalentPhysical(int start, int end) {
     return '';
   }

@@ -1704,6 +1704,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get paginationVisualMode => 'Modo visual';
 
   @override
+  String get paginationRestartFromZero =>
+      'Reiniciar numeração a partir do 0 no modo visual';
+
+  @override
   String paginationEquivalentPhysical(int start, int end) {
     return 'Equivale a físicas: $start - $end';
   }
@@ -3601,6 +3605,10 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get paginationVisualMode => 'Modo visual';
+
+  @override
+  String get paginationRestartFromZero =>
+      'Reiniciar numeração a partir do 0 no modo visual';
 
   @override
   String paginationEquivalentPhysical(int start, int end) {

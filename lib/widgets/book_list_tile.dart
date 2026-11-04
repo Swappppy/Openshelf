@@ -356,9 +356,7 @@ class _ProgressBar extends StatelessWidget {
         ? PaginationHelper.getVisualPage(current, config)
         : current.toString();
         
-    final String totalText = useVisual 
-        ? PaginationHelper.getVisualPage(total, config)
-        : total.toString();
+    final String totalText = total.toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -847,6 +847,7 @@
   "paginationPhysicalLabel": "Physical: {page}",
   "paginationAdjustsAutomatically": "Adjusts automatically",
   "paginationVisualMode": "Visual mode",
+  "paginationRestartFromZero": "Restart numbering from 0 in visual mode",
   "paginationEquivalentPhysical": "Equivalent to physical: {start} - {end}",
   "@paginationEquivalentPhysical": {
     "placeholders": {

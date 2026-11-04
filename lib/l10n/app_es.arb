@@ -1745,6 +1745,7 @@
   "paginationPhysicalLabel": "Física: {page}",
   "paginationAdjustsAutomatically": "Se ajusta automáticamente",
   "paginationVisualMode": "Modo visual",
+  "paginationRestartFromZero": "Empezar desde 0 en modo visual",
   "paginationEquivalentPhysical": "Equivale a físicas: {start} - {end}",
   "@paginationEquivalentPhysical": {
     "placeholders": {

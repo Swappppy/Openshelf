@@ -56,6 +56,7 @@ class PaginationSegment {
   final int offset;
   final String? label;
   final String? color;
+  final bool restartNumbering;
 
   PaginationSegment({
     required this.startPhysical,
@@ -64,6 +65,7 @@ class PaginationSegment {
     this.offset = 0,
     this.label,
     this.color,
+    this.restartNumbering = false,
   });
 
   PaginationSegment copyWith({
@@ -73,6 +75,7 @@ class PaginationSegment {
     int? offset,
     String? label,
     String? color,
+    bool? restartNumbering,
     bool clearLabel = false,
     bool clearColor = false,
   }) {
@@ -83,6 +86,7 @@ class PaginationSegment {
       offset: offset ?? this.offset,
       label: clearLabel ? null : (label ?? this.label),
       color: clearColor ? null : (color ?? this.color),
+      restartNumbering: restartNumbering ?? this.restartNumbering,
     );
   }
 
@@ -93,6 +97,7 @@ class PaginationSegment {
     'offset': offset,
     'label': label,
     'color': color,
+    'restartNumbering': restartNumbering,
   };
 
   factory PaginationSegment.fromJson(Map<String, dynamic> json) {
@@ -103,6 +108,7 @@ class PaginationSegment {
       offset: json['offset'] ?? 0,
       label: json['label'],
       color: json['color'],
+      restartNumbering: json['restartNumbering'] ?? false,
     );
   }
 }

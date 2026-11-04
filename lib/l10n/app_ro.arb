@@ -959,5 +959,6 @@
     "settingsLanguageRussian": "",
     "@settingsLanguageRussian": {
         "description": "Opción de idioma: ruso"
-    }
+    },
+    "paginationRestartFromZero": "Reîncepe numerotarea de la 0 în modul vizual"
 }

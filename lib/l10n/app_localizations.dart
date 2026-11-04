@@ -3181,6 +3181,12 @@ abstract class AppLocalizations {
   /// **'Modo visual'**
   String get paginationVisualMode;
 
+  /// No description provided for @paginationRestartFromZero.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar desde 0 en modo visual'**
+  String get paginationRestartFromZero;
+
   /// No description provided for @paginationEquivalentPhysical.
   ///
   /// In es, this message translates to:

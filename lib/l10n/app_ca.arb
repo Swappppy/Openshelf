@@ -953,5 +953,6 @@
       }
     }
   },
-  "settingsLanguageGerman": "Alemany"
+  "settingsLanguageGerman": "Alemany",
+  "paginationRestartFromZero": "Començar des de 0 en mode visual"
 }

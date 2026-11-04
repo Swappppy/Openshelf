@@ -1639,6 +1639,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get paginationVisualMode => '';
 
   @override
+  String get paginationRestartFromZero =>
+      'Görsel modda numaralandırmayı 0\'dan başlat';
+
+  @override
   String paginationEquivalentPhysical(int start, int end) {
     return '';
   }

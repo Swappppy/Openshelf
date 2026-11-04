@@ -1689,6 +1689,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paginationVisualMode => 'Visual mode';
 
   @override
+  String get paginationRestartFromZero =>
+      'Restart numbering from 0 in visual mode';
+
+  @override
   String paginationEquivalentPhysical(int start, int end) {
     return 'Equivalent to physical: $start - $end';
   }

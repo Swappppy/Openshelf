@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../services/database.dart';
 import '../../utils/pagination_helper.dart';
-import '../../widgets/app_color_picker.dart';
 import '../../l10n/l10n_extension.dart';
+import 'widgets/marker_item.dart';
+import 'widgets/pagination_color_picker.dart';
+import 'widgets/segment_item.dart';
 
 class AdvancedPaginationView extends StatefulWidget {
   final PaginationConfig initialConfig;
@@ -47,11 +49,6 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
         firstAvailable = s.endPhysical + 1;
       }
     }
-
-    /* 
-       Removing the check against widget.totalPages to allow segments to define the total pages.
-       We only check if the last segment can be added based on its startPhysical.
-    */
     
     setState(() {
       _segments.add(PaginationSegment(
@@ -88,9 +85,11 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
           );
         }
 
-        // B) Recalculate offset based on mode
+        // B) Recalculate offset based on mode and restartNumbering
         int newOffset = current.offset;
-        if (i > index) {
+        if (current.restartNumbering) {
+          newOffset = 0;
+        } else if (i > 0) {
           if (_useVisual) {
             // Visual Mode: Partitioned continuity
             // Search backwards for the last segment of the same type
@@ -106,11 +105,26 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
             final prev = _segments[i - 1];
             newOffset = (prev.endPhysical - prev.startPhysical + 1) + prev.offset;
           }
+        } else {
+          newOffset = 0;
         }
         
         _segments[i] = current.copyWith(offset: newOffset);
       }
     });
+  }
+
+  void _handleToggleRestartNumbering(int index) {
+    final currentSeg = _segments[index];
+    final newRestart = !currentSeg.restartNumbering;
+
+    setState(() {
+      if (!_useVisual && newRestart) {
+        _useVisual = true;
+      }
+    });
+
+    _updateSegment(index, currentSeg.copyWith(restartNumbering: newRestart));
   }
 
   void _addMarker() {
@@ -134,10 +148,6 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       if (s.startPhysical > s.endPhysical) {
         errors.add(context.l10n.paginationSegmentStartGreater(i + 1));
       }
-      /* 
-         Removed check against widget.totalPages. 
-         The advanced config is now the source of truth for total pages.
-      */
 
       // Check for overlaps with previous segments
       for (int j = 0; j < i; j++) {
@@ -201,7 +211,7 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
           if (_segments.isEmpty)
              Text(context.l10n.paginationNoSegmentsDefined, style: const TextStyle(color: Colors.grey, fontSize: 12)),
           
-          ..._segments.asMap().entries.map((e) => _SegmentItem(
+          ..._segments.asMap().entries.map((e) => SegmentItem(
             index: e.key,
             segment: e.value,
             totalPages: widget.totalPages,
@@ -220,6 +230,7 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
             onRangeChanged: (newSeg) => _updateSegment(e.key, newSeg),
             onTypeChanged: (type) => _updateSegment(e.key, e.value.copyWith(type: type)),
             onOffsetChanged: (v) => _updateSegment(e.key, e.value.copyWith(offset: v)),
+            onToggleRestartNumbering: () => _handleToggleRestartNumbering(e.key),
           )),
           
           const SizedBox(height: 12),
@@ -287,13 +298,13 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       }
     } catch (_) {}
     
-    return _MarkerItem(
+    return MarkerItem(
       index: index,
       marker: marker,
       visualPage: visualPage,
       useVisual: _useVisual,
       segments: _segments,
-      onColorTap: () => _showGlobalColorPicker(context, marker.color, (c) => setState(() => _markers[index] = marker.copyWith(color: c, clearColor: c == null))),
+      onColorTap: () => showPaginationColorPicker(context, marker.color, (c) => setState(() => _markers[index] = marker.copyWith(color: c, clearColor: c == null))),
       onDelete: () => setState(() => _markers.removeAt(index)),
       onLabelChanged: (v) => setState(() => _markers[index] = marker.copyWith(label: v)),
       onVisualPageChanged: (v) {
@@ -304,489 +315,4 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       },
     );
   }
-}
-
-class _SegmentItem extends StatefulWidget {
-  final int index;
-  final PaginationSegment segment;
-  final int totalPages;
-  final bool useVisual;
-  final Function(String?) onColorTap;
-  final VoidCallback onDelete;
-  final ValueChanged<String> onLabelChanged;
-  final ValueChanged<PaginationSegment> onRangeChanged;
-  final ValueChanged<PageNumberingType> onTypeChanged;
-  final ValueChanged<int> onOffsetChanged;
-
-  const _SegmentItem({
-    required this.index,
-    required this.segment,
-    required this.totalPages,
-    required this.useVisual,
-    required this.onColorTap,
-    required this.onDelete,
-    required this.onLabelChanged,
-    required this.onRangeChanged,
-    required this.onTypeChanged,
-    required this.onOffsetChanged,
-  });
-
-  @override
-  State<_SegmentItem> createState() => _SegmentItemState();
-}
-
-class _SegmentItemState extends State<_SegmentItem> {
-  late TextEditingController _labelCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _labelCtrl = TextEditingController(text: widget.segment.label);
-  }
-
-  @override
-  void didUpdateWidget(_SegmentItem oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.segment.label != widget.segment.label && _labelCtrl.text != widget.segment.label) {
-      _labelCtrl.text = widget.segment.label ?? '';
-    }
-  }
-
-  @override
-  void dispose() {
-    _labelCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final segment = widget.segment;
-    final index = widget.index;
-
-    return Card(
-      key: ValueKey('segment_$index'),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _labelCtrl,
-                    decoration: InputDecoration(labelText: context.l10n.paginationLabelOptional, isDense: true),
-                    onChanged: widget.onLabelChanged,
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.circle, color: (segment.color != null && segment.color!.isNotEmpty) ? Color(int.parse('0xFF${segment.color}')) : Colors.grey[600]),
-                  onPressed: () => _showGlobalColorPicker(context, segment.color, widget.onColorTap),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: widget.onDelete,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _SegmentRangeInput(
-              index: index,
-              segment: segment,
-              useVisual: widget.useVisual,
-              onChanged: widget.onRangeChanged,
-              totalPages: widget.totalPages,
-              isFirst: index == 0,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Text(context.l10n.paginationType),
-                const SizedBox(width: 12),
-                ChoiceChip(
-                  label: Text(context.l10n.paginationArabic),
-                  selected: segment.type == PageNumberingType.arabic,
-                  onSelected: (v) => widget.onTypeChanged(PageNumberingType.arabic),
-                ),
-                const SizedBox(width: 8),
-                ChoiceChip(
-                  label: Text(context.l10n.paginationRoman),
-                  selected: segment.type == PageNumberingType.roman,
-                  onSelected: (v) => widget.onTypeChanged(PageNumberingType.roman),
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: 80,
-                  child: _OffsetField(
-                    value: segment.offset,
-                    enabled: index == 0,
-                    onChanged: widget.onOffsetChanged,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MarkerItem extends StatefulWidget {
-  final int index;
-  final PaginationMarker marker;
-  final String visualPage;
-  final bool useVisual;
-  final List<PaginationSegment> segments;
-  final VoidCallback onColorTap;
-  final VoidCallback onDelete;
-  final ValueChanged<String> onLabelChanged;
-  final ValueChanged<String> onVisualPageChanged;
-
-  const _MarkerItem({
-    required this.index,
-    required this.marker,
-    required this.visualPage,
-    required this.useVisual,
-    required this.segments,
-    required this.onColorTap,
-    required this.onDelete,
-    required this.onLabelChanged,
-    required this.onVisualPageChanged,
-  });
-
-  @override
-  State<_MarkerItem> createState() => _MarkerItemState();
-}
-
-class _MarkerItemState extends State<_MarkerItem> {
-  late TextEditingController _labelCtrl;
-  late TextEditingController _pageCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _labelCtrl = TextEditingController(text: widget.marker.label);
-    _pageCtrl = TextEditingController(text: widget.useVisual ? widget.visualPage : widget.marker.physicalPage.toString());
-  }
-
-  @override
-  void didUpdateWidget(_MarkerItem oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.marker.label != widget.marker.label && _labelCtrl.text != widget.marker.label) {
-      _labelCtrl.text = widget.marker.label;
-    }
-    
-    final expectedPageText = widget.useVisual ? widget.visualPage : widget.marker.physicalPage.toString();
-    if (_pageCtrl.text.toUpperCase() != expectedPageText.toUpperCase()) {
-      _pageCtrl.text = expectedPageText;
-    }
-  }
-
-  @override
-  void dispose() {
-    _labelCtrl.dispose();
-    _pageCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      key: ValueKey('marker_${widget.index}'),
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _labelCtrl,
-                    decoration: InputDecoration(hintText: context.l10n.paginationMarkerLabel, isDense: true, border: InputBorder.none),
-                    onChanged: widget.onLabelChanged,
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.circle, color: (widget.marker.color != null && widget.marker.color!.isNotEmpty) ? Color(int.parse('0xFF${widget.marker.color}')) : Colors.grey[600]),
-                  onPressed: widget.onColorTap,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                  onPressed: widget.onDelete,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _pageCtrl,
-                    decoration: InputDecoration(
-                      labelText: widget.useVisual ? context.l10n.paginationVisualPage : context.l10n.paginationStartPhysical, 
-                      isDense: true, 
-                      border: const OutlineInputBorder(), 
-                      hintText: context.l10n.paginationVisualPageHint
-                    ),
-                    keyboardType: TextInputType.text,
-                    onChanged: widget.onVisualPageChanged,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(context.l10n.paginationPhysicalLabel(widget.marker.physicalPage), style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                    Text(context.l10n.paginationAdjustsAutomatically, style: const TextStyle(fontSize: 8, color: Colors.grey)),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OffsetField extends StatefulWidget {
-  final int value;
-  final bool enabled;
-  final ValueChanged<int> onChanged;
-
-  const _OffsetField({required this.value, required this.onChanged, this.enabled = true});
-
-  @override
-  State<_OffsetField> createState() => _OffsetFieldState();
-}
-
-class _OffsetFieldState extends State<_OffsetField> {
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.value.toString());
-  }
-
-  @override
-  void didUpdateWidget(_OffsetField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.value != widget.value) {
-      _controller.text = widget.value.toString();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: _controller,
-      enabled: widget.enabled,
-      decoration: InputDecoration(
-        labelText: context.l10n.paginationOffset,
-        isDense: true,
-        border: const OutlineInputBorder(),
-        filled: !widget.enabled,
-      ),
-      keyboardType: TextInputType.number,
-      onChanged: (v) {
-        final n = int.tryParse(v.trim());
-        if (n != null) widget.onChanged(n);
-      },
-    );
-  }
-}
-
-class _SegmentRangeInput extends StatefulWidget {
-  final int index;
-  final PaginationSegment segment;
-  final int totalPages;
-  final bool isFirst;
-  final bool useVisual;
-  final ValueChanged<PaginationSegment> onChanged;
-
-  const _SegmentRangeInput({
-    required this.index,
-    required this.segment,
-    required this.onChanged,
-    required this.totalPages,
-    required this.isFirst,
-    required this.useVisual,
-  });
-
-  @override
-  State<_SegmentRangeInput> createState() => _SegmentRangeInputState();
-}
-
-class _SegmentRangeInputState extends State<_SegmentRangeInput> {
-  late TextEditingController _startCtrl;
-  late TextEditingController _endCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _startCtrl = TextEditingController(text: _getStartText());
-    _endCtrl = TextEditingController(text: _getEndText());
-  }
-
-  String _getStartText() {
-    if (widget.useVisual) {
-      return PaginationHelper.getVisualPageInSegment(widget.segment.startPhysical, widget.segment);
-    }
-    return widget.segment.startPhysical.toString();
-  }
-
-  String _getEndText() {
-    if (widget.useVisual) {
-      return PaginationHelper.getVisualPageInSegment(widget.segment.endPhysical, widget.segment);
-    }
-    return widget.segment.endPhysical.toString();
-  }
-
-  @override
-  void dispose() {
-    _startCtrl.dispose();
-    _endCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(_SegmentRangeInput oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    
-    final newStart = _getStartText();
-    if (_startCtrl.text.toUpperCase() != newStart.toUpperCase()) {
-      _startCtrl.text = newStart;
-    }
-    
-    final newEnd = _getEndText();
-    if (_endCtrl.text.toUpperCase() != newEnd.toUpperCase()) {
-      _endCtrl.text = newEnd;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = widget.segment;
-
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: _startCtrl,
-                enabled: widget.isFirst,
-                decoration: InputDecoration(
-                  labelText: widget.useVisual ? context.l10n.paginationStartVisual : context.l10n.paginationStartPhysical,
-                  isDense: true,
-                  border: const OutlineInputBorder(),
-                  filled: !widget.isFirst,
-                ),
-                keyboardType: widget.useVisual ? TextInputType.text : TextInputType.number,
-                onChanged: (v) {
-                  final trimmed = v.trim();
-                  int phys = 0;
-                  if (trimmed.isNotEmpty) {
-                    if (widget.useVisual) {
-                      phys = PaginationHelper.getPhysicalFromVisualInSegment(trimmed, s);
-                    } else {
-                      phys = int.tryParse(trimmed) ?? 0;
-                    }
-                  }
-                  if (phys != s.startPhysical) {
-                    widget.onChanged(s.copyWith(startPhysical: phys));
-                  }
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                controller: _endCtrl,
-                decoration: InputDecoration(
-                  labelText: widget.useVisual ? context.l10n.paginationEndVisual : context.l10n.paginationEndPhysical,
-                  isDense: true,
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: widget.useVisual ? TextInputType.text : TextInputType.number,
-                onChanged: (v) {
-                  final trimmed = v.trim();
-                  int phys = 0;
-                  if (trimmed.isNotEmpty) {
-                    if (widget.useVisual) {
-                      // Important: use current segment to resolve visual page
-                      phys = PaginationHelper.getPhysicalFromVisualInSegment(trimmed, s);
-                    } else {
-                      phys = int.tryParse(trimmed) ?? 0;
-                    }
-                  }
-                  if (phys != s.endPhysical) {
-                    widget.onChanged(s.copyWith(endPhysical: phys));
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-        if (widget.useVisual || !widget.isFirst)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (!widget.isFirst)
-                   Text(context.l10n.paginationAdjustsAutomatically, style: const TextStyle(fontSize: 8, color: Colors.grey)),
-                if (widget.useVisual)
-                  Text(
-                    context.l10n.paginationEquivalentPhysical(s.startPhysical, s.endPhysical),
-                    style: const TextStyle(fontSize: 9, color: Colors.grey),
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-void _showGlobalColorPicker(BuildContext context, String? initialColor, Function(String?) onSelected) {
-  showModalBottomSheet(
-    context: context,
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-    builder: (ctx) => Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(context.l10n.paginationChooseColor, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          const SizedBox(height: 24),
-          AppColorPicker(
-            selectedColor: (initialColor != null && initialColor.isNotEmpty) 
-                ? Color(int.parse('0xFF$initialColor')) 
-                : null,
-            allowNoColor: true,
-            onColorSelected: (color) {
-              if (color == null) {
-                onSelected(null);
-              } else {
-                final hex = color.toARGB32().toRadixString(16).substring(2).toUpperCase();
-                onSelected(hex);
-              }
-              Navigator.pop(ctx);
-            },
-          ),
-          const SizedBox(height: 24),
-        ],
-      ),
-    ),
-  );
 }

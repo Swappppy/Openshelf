@@ -953,5 +953,6 @@
       }
     }
   },
-  "settingsLanguageGerman": "Немецкий"
+  "settingsLanguageGerman": "Немецкий",
+  "paginationRestartFromZero": "Начать нумерацию с 0 в визуальном режиме"
 }

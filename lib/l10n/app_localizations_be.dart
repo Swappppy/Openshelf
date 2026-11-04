@@ -9,58 +9,58 @@ class AppLocalizationsBe extends AppLocalizations {
   AppLocalizationsBe([String locale = 'be']) : super(locale);
 
   @override
-  String get appTitle => '';
+  String get appTitle => 'Openshelf';
 
   @override
   String errorPrefix(String message) {
-    return '';
+    return 'Памылка: $message';
   }
 
   @override
   String errorGeneric(String error) {
-    return '';
+    return 'Памылка: $error';
   }
 
   @override
   String criticalStartError(String error) {
-    return '';
+    return 'Памылка падчас запуску праграмы: $error»';
   }
 
   @override
-  String get navLibrary => '';
+  String get navLibrary => 'Біблятэка';
 
   @override
-  String get navShelves => '';
+  String get navShelves => 'Паліцы';
 
   @override
-  String get navStats => '';
+  String get navStats => 'Статыстыка';
 
   @override
-  String get libraryTitle => '';
+  String get libraryTitle => 'Бібліятэка';
 
   @override
-  String get libraryEmpty => '';
+  String get libraryEmpty => 'Ваша бібліятэка пустая';
 
   @override
-  String get libraryEmptyHint => '';
+  String get libraryEmptyHint => 'Якая будзе ваша першая кніга?';
 
   @override
-  String get libraryAddFirstBook => '';
+  String get libraryAddFirstBook => 'Дадаць першую кнігу';
 
   @override
-  String get libraryNoResults => '';
+  String get libraryNoResults => 'Няма вынікаў';
 
   @override
-  String get libraryNoResultsHint => '';
+  String get libraryNoResultsHint => 'Паспрабуйце іншыя фільтры';
 
   @override
-  String get addBook => '';
+  String get addBook => 'Дадаць кнігу';
 
   @override
-  String get displaySettings => '';
+  String get displaySettings => 'Паказаць у бібліятэцы';
 
   @override
-  String get displaySettingsDragHint => '';
+  String get displaySettingsDragHint => 'Перацягніце, каб змяніць парадак';
 
   @override
   String get settingsButton => '';
@@ -1635,6 +1635,10 @@ class AppLocalizationsBe extends AppLocalizations {
 
   @override
   String get paginationVisualMode => '';
+
+  @override
+  String get paginationRestartFromZero =>
+      'Пачаць нумарацыю з 0 у візуальным рэжыме';
 
   @override
   String paginationEquivalentPhysical(int start, int end) {
