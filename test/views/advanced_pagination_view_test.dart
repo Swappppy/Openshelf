@@ -8,7 +8,7 @@ import 'package:openshelf/views/book_form/advanced_pagination_view.dart';
 void main() {
   Widget buildTestWidget({
     required PaginationConfig initialConfig,
-    required Function(PaginationConfig) onSave,
+    required void Function(PaginationConfig config, Map<int, int>? segmentProgress) onSave,
   }) {
     return MaterialApp(
       localizationsDelegates: const [
@@ -39,7 +39,7 @@ void main() {
 
     await tester.pumpWidget(buildTestWidget(
       initialConfig: initialConfig,
-      onSave: (config) => savedConfig = config,
+      onSave: (config, _) => savedConfig = config,
     ));
 
     await tester.pumpAndSettle();
@@ -84,7 +84,7 @@ void main() {
 
     await tester.pumpWidget(buildTestWidget(
       initialConfig: initialConfig,
-      onSave: (config) => savedConfig = config,
+      onSave: (config, _) => savedConfig = config,
     ));
 
     await tester.pumpAndSettle();
@@ -110,5 +110,108 @@ void main() {
     expect(savedConfig!.segments[1].restartNumbering, isFalse);
     // Offset for segment 1 (no longer restarted) should accumulate from segment 0 (100)
     expect(savedConfig!.segments[1].offset, equals(100));
+  });
+
+  testWidgets('Reordering segments preserves segment lengths and adjusts physical bounds contiguously', (WidgetTester tester) async {
+    // Segment A: 1..50 (50 pages), Segment B: 51..150 (100 pages)
+    final initialConfig = PaginationConfig(
+      segments: [
+        PaginationSegment(startPhysical: 1, endPhysical: 50, type: PageNumberingType.arabic, label: 'Segment A'),
+        PaginationSegment(startPhysical: 51, endPhysical: 150, type: PageNumberingType.arabic, label: 'Segment B'),
+      ],
+      useVisualMode: false,
+    );
+
+    PaginationConfig? savedConfig;
+
+    await tester.pumpWidget(buildTestWidget(
+      initialConfig: initialConfig,
+      onSave: (config, _) => savedConfig = config,
+    ));
+
+    await tester.pumpAndSettle();
+
+    // Find drag handle for Segment B (second segment) and drag it above Segment A
+    final dragHandles = find.byIcon(Icons.drag_handle);
+    expect(dragHandles, findsNWidgets(2));
+
+    // Drag second handle upwards
+    await tester.drag(dragHandles.at(1), const Offset(0, -200));
+    await tester.pumpAndSettle();
+
+    // Save and verify configuration
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    expect(savedConfig, isNotNull);
+    expect(savedConfig!.segments.length, equals(2));
+
+    // First segment is now Segment B (length 100): physical 1..100
+    final newSeg0 = savedConfig!.segments[0];
+    expect(newSeg0.label, equals('Segment B'));
+    expect(newSeg0.startPhysical, equals(1));
+    expect(newSeg0.endPhysical, equals(100));
+
+    // Second segment is now Segment A (length 50): physical 101..150
+    final newSeg1 = savedConfig!.segments[1];
+    expect(newSeg1.label, equals('Segment A'));
+    expect(newSeg1.startPhysical, equals(101));
+    expect(newSeg1.endPhysical, equals(150));
+  });
+
+  testWidgets('Reordering segments remaps segment progress map and preserves reading progress per segment', (WidgetTester tester) async {
+    // Segment A (index 0, 50 pages): 50 pages read (100%)
+    // Segment B (index 1, 100 pages): 50 pages read (50%)
+    final initialConfig = PaginationConfig(
+      segments: [
+        PaginationSegment(startPhysical: 1, endPhysical: 50, type: PageNumberingType.arabic, label: 'Segment A'),
+        PaginationSegment(startPhysical: 51, endPhysical: 150, type: PageNumberingType.arabic, label: 'Segment B'),
+      ],
+      useVisualMode: false,
+    );
+
+    final initialProgress = {0: 50, 1: 50};
+    PaginationConfig? savedConfig;
+    Map<int, int>? savedProgress;
+
+    await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en'), Locale('es')],
+      home: AdvancedPaginationView(
+        initialConfig: initialConfig,
+        initialSegmentProgress: initialProgress,
+        totalPages: 150,
+        onSave: (config, segProg) {
+          savedConfig = config;
+          savedProgress = segProg;
+        },
+      ),
+    ));
+
+    await tester.pumpAndSettle();
+
+    // Drag Segment B (index 1) to index 0
+    final dragHandles = find.byIcon(Icons.drag_handle);
+    await tester.drag(dragHandles.at(1), const Offset(0, -200));
+    await tester.pumpAndSettle();
+
+    // Save
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    expect(savedConfig, isNotNull);
+    expect(savedConfig!.segments[0].label, equals('Segment B'));
+    expect(savedConfig!.segments[1].label, equals('Segment A'));
+
+    // Segment B is now index 0 -> should have 50 pages read out of 100 (50%)
+    // Segment A is now index 1 -> should have 50 pages read out of 50 (100%)
+    expect(savedProgress, isNotNull);
+    expect(savedProgress![0], equals(50));
+    expect(savedProgress![1], equals(50));
   });
 }

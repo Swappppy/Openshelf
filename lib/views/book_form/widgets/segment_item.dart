@@ -73,6 +73,16 @@ class _SegmentItemState extends State<SegmentItem> {
           children: [
             Row(
               children: [
+                ReorderableDragStartListener(
+                  index: index,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Icon(
+                      Icons.drag_handle,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: TextFormField(
                     controller: _labelCtrl,

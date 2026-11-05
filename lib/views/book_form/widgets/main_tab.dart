@@ -32,7 +32,8 @@ class MainTab extends ConsumerWidget {
   final VoidCallback onPickCoverFromUrl;
   final VoidCallback onSearchCovers;
   final PaginationConfig? paginationConfig;
-  final ValueChanged<PaginationConfig> onPaginationConfigChanged;
+  final Map<int, int>? initialSegmentProgress;
+  final OnSavePaginationConfig onPaginationConfigChanged;
 
   const MainTab({
     super.key,
@@ -58,6 +59,7 @@ class MainTab extends ConsumerWidget {
     required this.onSearchCovers,
     required this.onPaginationConfigChanged,
     this.paginationConfig,
+    this.initialSegmentProgress,
   });
 
   @override
@@ -188,6 +190,7 @@ class MainTab extends ConsumerWidget {
                   MaterialPageRoute(
                     builder: (_) => AdvancedPaginationView(
                       initialConfig: paginationConfig ?? PaginationConfig(),
+                      initialSegmentProgress: initialSegmentProgress,
                       totalPages: total,
                       onSave: onPaginationConfigChanged,
                     ),

@@ -62,6 +62,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   List<(Tag, int?)> _selectedCollections = [];
   Tag? _selectedImprint;
   PaginationConfig? _paginationConfig;
+  Map<int, int>? _segmentProgress;
   bool _isInitializing = true;
 
   @override
@@ -441,6 +442,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         originalLanguage: _originalLanguageCtrl.text.trim().isEmpty ? null : _originalLanguageCtrl.text.trim(),
         copies: int.tryParse(_copiesCtrl.text) ?? 1,
         paginationConfig: _paginationConfig,
+        segmentProgress: _segmentProgress,
         startedAt: _startedAt,
         finishedAt: _finishedAt,
         imprintId: _selectedImprint?.id,
@@ -469,12 +471,17 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     final tags = await db.tagDao.watchTagsForBook(bookId).first;
     final imprint = await db.tagDao.watchImprintForBook(bookId).first;
     final collections = await db.tagDao.watchCollectionsForBook(bookId).first;
+    final history = await db.readHistoryDao.watchHistoryForBook(bookId).first;
+    final completedReads = history.where((h) => h.finishedAt != null).length;
+    final activeSessionNum = PaginationHelper.getActiveSessionNumber(widget.existingBook!.status, completedReads);
+    final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
     
     if (!mounted) return;
     setState(() {
       _selectedTags = tags;
       _selectedImprint = imprint;
       _selectedCollections = collections;
+      _segmentProgress = activeSession?.segmentProgress;
     });
   }
 
@@ -591,8 +598,19 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                 onPickCoverFromUrl: _pickCoverFromUrl,
                 onSearchCovers: _searchCovers,
                 paginationConfig: _paginationConfig,
-                onPaginationConfigChanged: (cfg) {
-                  setState(() => _paginationConfig = cfg);
+                initialSegmentProgress: _segmentProgress,
+                onPaginationConfigChanged: (PaginationConfig cfg, Map<int, int>? segProgress) {
+                  setState(() {
+                    _paginationConfig = cfg;
+                    if (segProgress != null) {
+                      _segmentProgress = segProgress;
+                      final sumProgress = segProgress.values.fold(0, (a, b) => a + b);
+                      final useVisual = cfg.useVisualMode;
+                      _currentPageCtrl.text = useVisual
+                          ? PaginationHelper.getVisualPage(sumProgress, cfg)
+                          : sumProgress.toString();
+                    }
+                  });
                   final newTotal = PaginationHelper.calculateTotalPhysicalPages(cfg);
                   if (newTotal > 0) _totalPagesCtrl.text = newTotal.toString();
                 },

@@ -181,9 +181,16 @@ class MainTab extends StatelessWidget {
                     final totalRead = PaginationHelper.getTotalReadPages(book, history);
                     final totalPages = book.totalPages ?? 0;
                     final useVisual = book.paginationConfig?.useVisualMode ?? false;
+                    final completedReads = history.where((h) => h.finishedAt != null).length;
+                    final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+                    final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
 
                     final String currentText = useVisual 
-                        ? PaginationHelper.getVisualPage(totalRead, book.paginationConfig)
+                        ? PaginationHelper.getVisualPageForProgress(
+                            totalRead,
+                            book.paginationConfig,
+                            segmentProgress: activeSession?.segmentProgress,
+                          )
                         : totalRead.toString();
                         
                     final String totalText = totalPages.toString();

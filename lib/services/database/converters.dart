@@ -150,6 +150,8 @@ class PaginationMarker {
   );
 }
 
+typedef OnSavePaginationConfig = void Function(PaginationConfig config, Map<int, int>? segmentProgress);
+
 class PaginationConfig {
   final List<PaginationSegment> segments;
   final List<PaginationMarker> markers;

@@ -144,6 +144,7 @@ class BookFormController {
     String? originalLanguage,
     required int copies,
     required PaginationConfig? paginationConfig,
+    Map<int, int>? segmentProgress,
     required DateTime? startedAt,
     required DateTime? finishedAt,
     required int? imprintId,
@@ -220,9 +221,11 @@ class BookFormController {
       final activeSessionNum = PaginationHelper.getActiveSessionNumber(status, completedReads);
       final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
 
-      final Map<int, int> distributedProgress = (finalConfig?.segments.isNotEmpty ?? false)
-          ? PaginationHelper.distributePhysicalPage(currentPage, finalConfig!.segments)
-          : {};
+      final Map<int, int> distributedProgress = (segmentProgress != null && segmentProgress.isNotEmpty)
+          ? segmentProgress
+          : ((finalConfig?.segments.isNotEmpty ?? false)
+              ? PaginationHelper.distributePhysicalPage(currentPage, finalConfig!.segments)
+              : {});
 
       if (activeSession != null) {
         await _db.readHistoryDao.updateRead(activeSession.copyWith(
@@ -254,9 +257,11 @@ class BookFormController {
     } else {
       bookId = await _db.bookDao.insertBook(companion);
       
-      final Map<int, int> distributedProgress = (finalConfig?.segments.isNotEmpty ?? false)
-          ? PaginationHelper.distributePhysicalPage(currentPage, finalConfig!.segments)
-          : {};
+      final Map<int, int> distributedProgress = (segmentProgress != null && segmentProgress.isNotEmpty)
+          ? segmentProgress
+          : ((finalConfig?.segments.isNotEmpty ?? false)
+              ? PaginationHelper.distributePhysicalPage(currentPage, finalConfig!.segments)
+              : {});
 
       if (status == ReadingStatus.read) {
         final total = totalPages > 0 ? totalPages : currentPage;

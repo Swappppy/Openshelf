@@ -353,7 +353,7 @@ class _ProgressBar extends StatelessWidget {
     final useVisual = config?.useVisualMode ?? false;
 
     final String currentText = useVisual 
-        ? PaginationHelper.getVisualPage(current, config)
+        ? PaginationHelper.getVisualPageForProgress(current, config)
         : current.toString();
         
     final String totalText = total.toString();

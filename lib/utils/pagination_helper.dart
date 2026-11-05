@@ -2,6 +2,45 @@ import 'package:collection/collection.dart';
 import '../services/database.dart';
 
 class PaginationHelper {
+  static String getVisualPageForProgress(
+    int totalReadPages,
+    PaginationConfig? config, {
+    Map<int, int>? segmentProgress,
+  }) {
+    if (config == null || config.segments.isEmpty) {
+      return totalReadPages.toString();
+    }
+
+    final segments = config.segments;
+
+    if (segmentProgress != null && segmentProgress.isNotEmpty) {
+      for (int i = 0; i < segments.length; i++) {
+        final s = segments[i];
+        final segLength = s.endPhysical - s.startPhysical + 1;
+        final prog = segmentProgress[i] ?? 0;
+        if (prog < segLength) {
+          final phys = s.startPhysical + (prog > 0 ? prog - 1 : 0);
+          return getVisualPageInSegment(phys, s);
+        }
+      }
+      final lastSeg = segments.last;
+      return getVisualPageInSegment(lastSeg.endPhysical, lastSeg);
+    }
+
+    final distributed = distributePhysicalPage(totalReadPages, segments);
+    for (int i = 0; i < segments.length; i++) {
+      final s = segments[i];
+      final segLength = s.endPhysical - s.startPhysical + 1;
+      final prog = distributed[i] ?? 0;
+      if (prog < segLength) {
+        final phys = s.startPhysical + (prog > 0 ? prog - 1 : 0);
+        return getVisualPageInSegment(phys, s);
+      }
+    }
+    final lastSeg = segments.last;
+    return getVisualPageInSegment(lastSeg.endPhysical, lastSeg);
+  }
+
   static String getVisualPage(int physicalPage, PaginationConfig? config, {bool forceRoman = false}) {
     if (config == null || config.segments.isEmpty) {
       if (forceRoman) return _toRoman(physicalPage);

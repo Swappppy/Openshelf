@@ -9,12 +9,14 @@ import 'widgets/segment_item.dart';
 
 class AdvancedPaginationView extends StatefulWidget {
   final PaginationConfig initialConfig;
+  final Map<int, int>? initialSegmentProgress;
   final int totalPages;
-  final Function(PaginationConfig) onSave;
+  final OnSavePaginationConfig onSave;
 
   const AdvancedPaginationView({
     super.key,
     required this.initialConfig,
+    this.initialSegmentProgress,
     required this.totalPages,
     required this.onSave,
   });
@@ -26,6 +28,7 @@ class AdvancedPaginationView extends StatefulWidget {
 class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
   late List<PaginationSegment> _segments;
   late List<PaginationMarker> _markers;
+  late Map<int, int>? _segmentProgress;
   bool _useVisual = false;
 
   @override
@@ -33,6 +36,9 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
     super.initState();
     _segments = List.from(widget.initialConfig.segments);
     _markers = List.from(widget.initialConfig.markers);
+    _segmentProgress = widget.initialSegmentProgress != null
+        ? Map<int, int>.from(widget.initialSegmentProgress!)
+        : null;
     _useVisual = widget.initialConfig.useVisualMode;
   }
 
@@ -75,9 +81,9 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
         // A) Adjust physical bounds for segments after the changed one
         if (i > index) {
           final prev = _segments[i - 1];
+          final currentLength = current.endPhysical - current.startPhysical;
           final newStart = prev.endPhysical + 1;
-          int newEnd = current.endPhysical;
-          if (newEnd < newStart) newEnd = newStart;
+          final newEnd = newStart + (currentLength >= 0 ? currentLength : 0);
           
           current = current.copyWith(
             startPhysical: newStart,
@@ -127,6 +133,43 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
     _updateSegment(index, currentSeg.copyWith(restartNumbering: newRestart));
   }
 
+  void _onReorderSegments(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _segments.removeAt(oldIndex);
+      _segments.insert(newIndex, item);
+
+      // Reorder segment progress map accordingly
+      if (_segmentProgress != null && _segmentProgress!.isNotEmpty) {
+        final List<int?> list = List.generate(_segments.length, (i) => _segmentProgress![i]);
+        if (oldIndex < list.length) {
+          final prog = list.removeAt(oldIndex);
+          if (newIndex <= list.length) {
+            list.insert(newIndex, prog);
+          } else {
+            list.add(prog);
+          }
+        }
+        final Map<int, int> newMap = {};
+        for (int i = 0; i < list.length; i++) {
+          if (list[i] != null) {
+            newMap[i] = list[i]!;
+          }
+        }
+        _segmentProgress = newMap;
+      }
+
+      // Recalculate physical page bounds starting from index 0
+      if (_segments.isNotEmpty) {
+        final firstLength = _segments[0].endPhysical - _segments[0].startPhysical;
+        _segments[0] = _segments[0].copyWith(
+          startPhysical: 1,
+          endPhysical: 1 + firstLength,
+        );
+        _updateSegment(0, _segments[0]);
+      }
+    });
+  }
+
   void _addMarker() {
     setState(() {
       _markers.add(PaginationMarker(
@@ -173,11 +216,14 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
             icon: const Icon(Icons.check),
             onPressed: validationErrors.isNotEmpty ? null : () {
               HapticFeedback.selectionClick();
-              widget.onSave(PaginationConfig(
-                segments: _segments, 
-                markers: _markers,
-                useVisualMode: _useVisual,
-              ));
+              widget.onSave(
+                PaginationConfig(
+                  segments: _segments, 
+                  markers: _markers,
+                  useVisualMode: _useVisual,
+                ),
+                _segmentProgress,
+              );
               Navigator.pop(context);
             },
           ),
@@ -209,29 +255,53 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
           ),
           const SizedBox(height: 8),
           if (_segments.isEmpty)
-             Text(context.l10n.paginationNoSegmentsDefined, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-          
-          ..._segments.asMap().entries.map((e) => SegmentItem(
-            index: e.key,
-            segment: e.value,
-            totalPages: widget.totalPages,
-            useVisual: _useVisual,
-            onColorTap: (c) => setState(() => _segments[e.key] = e.value.copyWith(color: c, clearColor: c == null)),
-            onDelete: () {
-              setState(() {
-                _segments.removeAt(e.key);
-                if (_segments.isNotEmpty && e.key < _segments.length) {
-                  final triggerIdx = e.key > 0 ? e.key - 1 : 0;
-                  _updateSegment(triggerIdx, _segments[triggerIdx]);
-                }
-              });
-            },
-            onLabelChanged: (v) => setState(() => _segments[e.key] = e.value.copyWith(label: v)),
-            onRangeChanged: (newSeg) => _updateSegment(e.key, newSeg),
-            onTypeChanged: (type) => _updateSegment(e.key, e.value.copyWith(type: type)),
-            onOffsetChanged: (v) => _updateSegment(e.key, e.value.copyWith(offset: v)),
-            onToggleRestartNumbering: () => _handleToggleRestartNumbering(e.key),
-          )),
+            Text(context.l10n.paginationNoSegmentsDefined, style: const TextStyle(color: Colors.grey, fontSize: 12))
+          else
+            ReorderableListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              buildDefaultDragHandles: false,
+              itemCount: _segments.length,
+              onReorderItem: _onReorderSegments,
+              itemBuilder: (context, index) {
+                final segment = _segments[index];
+                return SegmentItem(
+                  key: ValueKey('segment_${segment.startPhysical}_${segment.endPhysical}_$index'),
+                  index: index,
+                  segment: segment,
+                  totalPages: widget.totalPages,
+                  useVisual: _useVisual,
+                  onColorTap: (c) => setState(() => _segments[index] = segment.copyWith(color: c, clearColor: c == null)),
+                  onDelete: () {
+                    setState(() {
+                      _segments.removeAt(index);
+                      if (_segmentProgress != null) {
+                        final List<int?> list = List.generate(_segments.length + 1, (i) => _segmentProgress![i]);
+                        if (index < list.length) {
+                          list.removeAt(index);
+                        }
+                        final Map<int, int> newMap = {};
+                        for (int i = 0; i < list.length; i++) {
+                          if (list[i] != null) {
+                            newMap[i] = list[i]!;
+                          }
+                        }
+                        _segmentProgress = newMap;
+                      }
+                      if (_segments.isNotEmpty && index < _segments.length) {
+                        final triggerIdx = index > 0 ? index - 1 : 0;
+                        _updateSegment(triggerIdx, _segments[triggerIdx]);
+                      }
+                    });
+                  },
+                  onLabelChanged: (v) => setState(() => _segments[index] = segment.copyWith(label: v)),
+                  onRangeChanged: (newSeg) => _updateSegment(index, newSeg),
+                  onTypeChanged: (type) => _updateSegment(index, segment.copyWith(type: type)),
+                  onOffsetChanged: (v) => _updateSegment(index, segment.copyWith(offset: v)),
+                  onToggleRestartNumbering: () => _handleToggleRestartNumbering(index),
+                );
+              },
+            ),
           
           const SizedBox(height: 12),
           OutlinedButton.icon(

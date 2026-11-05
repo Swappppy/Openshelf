@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collection/collection.dart';
 import '../../../controllers/books_controller.dart';
 import '../../../services/database.dart';
 import '../../../models/stats_widget.dart';
@@ -109,9 +110,16 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
               
               return historyAsync.maybeWhen(
                 data: (history) {
+                  final completedReads = history.where((h) => h.finishedAt != null).length;
+                  final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+                  final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
                   final currentPhys = PaginationHelper.getTotalReadPages(book, history);
                   final currentText = useVisual 
-                      ? PaginationHelper.getVisualPage(currentPhys, book.paginationConfig)
+                      ? PaginationHelper.getVisualPageForProgress(
+                          currentPhys,
+                          book.paginationConfig,
+                          segmentProgress: activeSession?.segmentProgress,
+                        )
                       : currentPhys.toString();
                   final totalText = (book.totalPages ?? 0).toString();
                   return Text(
@@ -121,7 +129,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                 },
                 orElse: () {
                   final currentText = useVisual 
-                      ? PaginationHelper.getVisualPage(book.currentPage ?? 0, book.paginationConfig)
+                      ? PaginationHelper.getVisualPageForProgress(book.currentPage ?? 0, book.paginationConfig)
                       : (book.currentPage ?? 0).toString();
                   final totalText = (book.totalPages ?? 0).toString();
                   return Text(
@@ -181,9 +189,16 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
 
                   return historyAsync.maybeWhen(
                     data: (history) {
+                      final completedReads = history.where((h) => h.finishedAt != null).length;
+                      final activeSessionNum = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+                      final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
                       final currentPhys = PaginationHelper.getTotalReadPages(book, history);
                       final currentText = useVisual 
-                          ? PaginationHelper.getVisualPage(currentPhys, book.paginationConfig)
+                          ? PaginationHelper.getVisualPageForProgress(
+                              currentPhys,
+                              book.paginationConfig,
+                              segmentProgress: activeSession?.segmentProgress,
+                            )
                           : currentPhys.toString();
                       final totalText = (book.totalPages ?? 0).toString();
 
@@ -196,7 +211,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                     },
                     orElse: () {
                       final currentText = useVisual 
-                          ? PaginationHelper.getVisualPage(book.currentPage ?? 0, book.paginationConfig)
+                          ? PaginationHelper.getVisualPageForProgress(book.currentPage ?? 0, book.paginationConfig)
                           : (book.currentPage ?? 0).toString();
                       final totalText = (book.totalPages ?? 0).toString();
 
