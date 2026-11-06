@@ -214,4 +214,49 @@ void main() {
     expect(savedProgress![0], equals(50));
     expect(savedProgress![1], equals(50));
   });
+
+  testWidgets('Modifying physical end page of a non-last segment cascades and preserves subsequent segment lengths', (WidgetTester tester) async {
+    // Segment 0: 1..50 (50 pages), Segment 1: 51..150 (100 pages)
+    final initialConfig = PaginationConfig(
+      segments: [
+        PaginationSegment(startPhysical: 1, endPhysical: 50, type: PageNumberingType.arabic, label: 'Segment 0'),
+        PaginationSegment(startPhysical: 51, endPhysical: 150, type: PageNumberingType.arabic, label: 'Segment 1'),
+      ],
+      useVisualMode: false,
+    );
+
+    PaginationConfig? savedConfig;
+
+    await tester.pumpWidget(buildTestWidget(
+      initialConfig: initialConfig,
+      onSave: (config, _) => savedConfig = config,
+    ));
+
+    await tester.pumpAndSettle();
+
+    // Find the end page TextFormField for Segment 0 (first end input field)
+    final textFields = find.byType(TextFormField);
+    // Index 0: Label 0, Index 1: Start 0, Index 2: End 0
+    final endTextField0 = textFields.at(2);
+
+    // Enter '60' and submit (unfocus/submit)
+    await tester.enterText(endTextField0, '60');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    // Save and verify configuration
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    expect(savedConfig, isNotNull);
+    expect(savedConfig!.segments.length, equals(2));
+
+    // Segment 0 is now 1..60
+    expect(savedConfig!.segments[0].startPhysical, equals(1));
+    expect(savedConfig!.segments[0].endPhysical, equals(60));
+
+    // Segment 1 should be 61..160 (length 100 preserved)
+    expect(savedConfig!.segments[1].startPhysical, equals(61));
+    expect(savedConfig!.segments[1].endPhysical, equals(160));
+  });
 }

@@ -157,23 +157,43 @@ class _OffsetField extends StatefulWidget {
 
 class _OffsetFieldState extends State<_OffsetField> {
   late TextEditingController _controller;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.value.toString());
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus) {
+      _commit();
+    }
+  }
+
+  void _commit() {
+    final n = int.tryParse(_controller.text.trim());
+    if (n != null && n != widget.value) {
+      widget.onChanged(n);
+    } else {
+      _controller.text = widget.value.toString();
+    }
   }
 
   @override
   void didUpdateWidget(_OffsetField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.value != widget.value) {
+    if (oldWidget.value != widget.value && !_focusNode.hasFocus) {
       _controller.text = widget.value.toString();
     }
   }
 
   @override
   void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -182,6 +202,7 @@ class _OffsetFieldState extends State<_OffsetField> {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: _controller,
+      focusNode: _focusNode,
       enabled: widget.enabled,
       decoration: InputDecoration(
         labelText: context.l10n.paginationOffset,
@@ -190,10 +211,7 @@ class _OffsetFieldState extends State<_OffsetField> {
         filled: !widget.enabled,
       ),
       keyboardType: TextInputType.number,
-      onChanged: (v) {
-        final n = int.tryParse(v.trim());
-        if (n != null) widget.onChanged(n);
-      },
+      onFieldSubmitted: (_) => _commit(),
     );
   }
 }
@@ -224,12 +242,70 @@ class _SegmentRangeInput extends StatefulWidget {
 class _SegmentRangeInputState extends State<_SegmentRangeInput> {
   late TextEditingController _startCtrl;
   late TextEditingController _endCtrl;
+  late FocusNode _startFocusNode;
+  late FocusNode _endFocusNode;
 
   @override
   void initState() {
     super.initState();
     _startCtrl = TextEditingController(text: _getStartText());
     _endCtrl = TextEditingController(text: _getEndText());
+    _startFocusNode = FocusNode();
+    _endFocusNode = FocusNode();
+    _startFocusNode.addListener(_onStartFocusChange);
+    _endFocusNode.addListener(_onEndFocusChange);
+  }
+
+  void _onStartFocusChange() {
+    if (!_startFocusNode.hasFocus) {
+      _commitStart();
+    }
+  }
+
+  void _onEndFocusChange() {
+    if (!_endFocusNode.hasFocus) {
+      _commitEnd();
+    }
+  }
+
+  void _commitStart() {
+    final s = widget.segment;
+    final trimmed = _startCtrl.text.trim();
+    int phys = 0;
+    if (trimmed.isNotEmpty) {
+      if (widget.useVisual) {
+        phys = PaginationHelper.getPhysicalFromVisualInSegment(trimmed, s);
+      } else {
+        phys = int.tryParse(trimmed) ?? 0;
+      }
+    }
+
+    if (phys > 0 && phys != s.startPhysical) {
+      final currentLength = s.endPhysical - s.startPhysical;
+      final newEnd = phys + (currentLength >= 0 ? currentLength : 0);
+      widget.onChanged(s.copyWith(startPhysical: phys, endPhysical: newEnd));
+    } else {
+      _startCtrl.text = _getStartText();
+    }
+  }
+
+  void _commitEnd() {
+    final s = widget.segment;
+    final trimmed = _endCtrl.text.trim();
+    int phys = 0;
+    if (trimmed.isNotEmpty) {
+      if (widget.useVisual) {
+        phys = PaginationHelper.getPhysicalFromVisualInSegment(trimmed, s);
+      } else {
+        phys = int.tryParse(trimmed) ?? 0;
+      }
+    }
+
+    if (phys >= s.startPhysical && phys != s.endPhysical) {
+      widget.onChanged(s.copyWith(endPhysical: phys));
+    } else {
+      _endCtrl.text = _getEndText();
+    }
   }
 
   String _getStartText() {
@@ -248,6 +324,10 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
 
   @override
   void dispose() {
+    _startFocusNode.removeListener(_onStartFocusChange);
+    _endFocusNode.removeListener(_onEndFocusChange);
+    _startFocusNode.dispose();
+    _endFocusNode.dispose();
     _startCtrl.dispose();
     _endCtrl.dispose();
     super.dispose();
@@ -256,15 +336,19 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
   @override
   void didUpdateWidget(_SegmentRangeInput oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
-    final newStart = _getStartText();
-    if (_startCtrl.text.toUpperCase() != newStart.toUpperCase()) {
-      _startCtrl.text = newStart;
+
+    if (!_startFocusNode.hasFocus) {
+      final newStart = _getStartText();
+      if (_startCtrl.text.toUpperCase() != newStart.toUpperCase()) {
+        _startCtrl.text = newStart;
+      }
     }
-    
-    final newEnd = _getEndText();
-    if (_endCtrl.text.toUpperCase() != newEnd.toUpperCase()) {
-      _endCtrl.text = newEnd;
+
+    if (!_endFocusNode.hasFocus) {
+      final newEnd = _getEndText();
+      if (_endCtrl.text.toUpperCase() != newEnd.toUpperCase()) {
+        _endCtrl.text = newEnd;
+      }
     }
   }
 
@@ -282,6 +366,7 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
               Expanded(
                 child: TextFormField(
                   controller: _startCtrl,
+                  focusNode: _startFocusNode,
                   enabled: widget.isFirst,
                   decoration: InputDecoration(
                     labelText: widget.useVisual ? context.l10n.paginationStartVisual : context.l10n.paginationStartPhysical,
@@ -290,46 +375,21 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
                     filled: !widget.isFirst,
                   ),
                   keyboardType: widget.useVisual ? TextInputType.text : TextInputType.number,
-                  onChanged: (v) {
-                    final trimmed = v.trim();
-                    int phys = 0;
-                    if (trimmed.isNotEmpty) {
-                      if (widget.useVisual) {
-                        phys = PaginationHelper.getPhysicalFromVisualInSegment(trimmed, s);
-                      } else {
-                        phys = int.tryParse(trimmed) ?? 0;
-                      }
-                    }
-                    if (phys != s.startPhysical) {
-                      widget.onChanged(s.copyWith(startPhysical: phys));
-                    }
-                  },
+                  onFieldSubmitted: (_) => _commitStart(),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: TextFormField(
                   controller: _endCtrl,
+                  focusNode: _endFocusNode,
                   decoration: InputDecoration(
                     labelText: widget.useVisual ? context.l10n.paginationEndVisual : context.l10n.paginationEndPhysical,
                     isDense: true,
                     border: const OutlineInputBorder(),
                   ),
                   keyboardType: widget.useVisual ? TextInputType.text : TextInputType.number,
-                  onChanged: (v) {
-                    final trimmed = v.trim();
-                    int phys = 0;
-                    if (trimmed.isNotEmpty) {
-                      if (widget.useVisual) {
-                        phys = PaginationHelper.getPhysicalFromVisualInSegment(trimmed, s);
-                      } else {
-                        phys = int.tryParse(trimmed) ?? 0;
-                      }
-                    }
-                    if (phys != s.endPhysical) {
-                      widget.onChanged(s.copyWith(endPhysical: phys));
-                    }
-                  },
+                  onFieldSubmitted: (_) => _commitEnd(),
                 ),
               ),
               const SizedBox(width: 8),
