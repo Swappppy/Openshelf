@@ -1835,65 +1835,86 @@ class AppLocalizationsBe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count seleccionados',
-      one: '1 seleccionado',
+      other: '$count выбрана',
+      one: '1 выбраны',
     );
     return '$_temp0';
   }
 
   @override
-  String get bulkActionEdit => 'Editar masivamente';
+  String get bulkActionEdit => 'Масавае рэдагаванне';
 
   @override
-  String get bulkActionDuplicate => 'Duplicar';
+  String get bulkActionDuplicate => 'Дубляваць';
 
   @override
-  String get bulkActionDelete => 'Eliminar';
+  String get bulkActionDelete => 'Выдаліць';
 
   @override
-  String get bulkDeleteTitle => 'Eliminar libros';
+  String get bulkDeleteTitle => 'Выдаліць кнігі';
 
   @override
   String bulkDeleteConfirm(int count) {
-    return '¿Eliminar los $count libros seleccionados? Esta acción no se puede deshacer.';
+    return 'Выдаліць $count выбраных кніг? Гэта дзеянне нельга адмяніць.';
   }
 
   @override
   String bulkEditTitle(int count) {
-    return 'Editar $count libros';
+    return 'Рэдагаваць $count кніг';
   }
 
   @override
   String bulkEditSaveSuccess(int count) {
-    return 'Se han actualizado $count libros';
+    return 'Абноўлена кніг: $count';
   }
 
   @override
   String bulkDuplicateSuccess(int count) {
-    return 'Se han duplicado $count libros';
+    return 'Сдублявана кніг: $count';
   }
 
   @override
   String bulkDeleteSuccess(int count) {
-    return 'Se han eliminado $count libros';
+    return 'Выдалена кніг: $count';
   }
 
   @override
-  String get padlockLockedHint => 'Campo bloqueado (sin cambios)';
+  String get padlockLockedHint => 'Поле заблакавана (без зменаў)';
 
   @override
-  String get padlockUnlockedHint => 'Campo desbloqueado (se aplicará a todos)';
+  String get padlockUnlockedHint => 'Поле разблакавана (ужывецца да ўсіх)';
 
   @override
-  String get bulkNotesMode => 'Modo de notas';
+  String get bulkNotesMode => 'Рэжым нататак';
 
   @override
-  String get bulkNotesModeOverwrite => 'Reemplazar nota existente';
+  String get bulkNotesModeOverwrite => 'Перазапісаць існуючую нататку';
 
   @override
-  String get bulkNotesModeAppend => 'Añadir al final de la nota';
+  String get bulkNotesModeAppend => 'Дадаць у канец нататкі';
 
   @override
   String get bulkEditNoFieldsUnlocked =>
-      'Desbloquea al menos un campo para aplicar cambios';
+      'Разблакуйце хоць бы адно поле для ўжывання зменаў';
+
+  @override
+  String get authorMultiHelpTitle => 'Некалькі аўтараў';
+
+  @override
+  String get authorMultiHelpContent =>
+      'Вы можаце паказаць некалькі аўтараў, падзяліўшы іх кропкай з коскай (;), слэшам (/) або коскай (,). Аўтазапаўненне прапануе імёны для кожнага аўтара.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Некалькі перакладчыкаў';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'Вы можаце паказаць некалькі перакладчыкаў, падзяліўшы іх кропкай з коскай (;), слэшам (/) або коскай (,). Аўтазапаўненне прапануе імёны для кожнага перакладчыка.';
+
+  @override
+  String get padlockResetTitle => 'Заблакаваць поле?';
+
+  @override
+  String get padlockResetContent =>
+      'Змены ў гэтым полі будуць страчаны. Працягнуць?';
 }

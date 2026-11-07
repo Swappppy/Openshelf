@@ -1846,65 +1846,86 @@ class AppLocalizationsEt extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count seleccionados',
-      one: '1 seleccionado',
+      other: '$count valitud',
+      one: '1 valitud',
     );
     return '$_temp0';
   }
 
   @override
-  String get bulkActionEdit => 'Editar masivamente';
+  String get bulkActionEdit => 'Hulgitöötlus';
 
   @override
-  String get bulkActionDuplicate => 'Duplicar';
+  String get bulkActionDuplicate => 'Klooni';
 
   @override
-  String get bulkActionDelete => 'Eliminar';
+  String get bulkActionDelete => 'Kustuta';
 
   @override
-  String get bulkDeleteTitle => 'Eliminar libros';
+  String get bulkDeleteTitle => 'Kustuta raamatud';
 
   @override
   String bulkDeleteConfirm(int count) {
-    return '¿Eliminar los $count libros seleccionados? Esta acción no se puede deshacer.';
+    return 'Kas kustutada $count valitud raamatut? Seda toimingut ei saa tühistada.';
   }
 
   @override
   String bulkEditTitle(int count) {
-    return 'Editar $count libros';
+    return 'Muuda $count raamatut';
   }
 
   @override
   String bulkEditSaveSuccess(int count) {
-    return 'Se han actualizado $count libros';
+    return '$count raamatut värskendatud';
   }
 
   @override
   String bulkDuplicateSuccess(int count) {
-    return 'Se han duplicado $count libros';
+    return '$count raamatut kloonitud';
   }
 
   @override
   String bulkDeleteSuccess(int count) {
-    return 'Se han eliminado $count libros';
+    return '$count raamatut kustutatud';
   }
 
   @override
-  String get padlockLockedHint => 'Campo bloqueado (sin cambios)';
+  String get padlockLockedHint => 'Väli lukustatud (muudatusi pole)';
 
   @override
-  String get padlockUnlockedHint => 'Campo desbloqueado (se aplicará a todos)';
+  String get padlockUnlockedHint => 'Väli lukust lahti (rakendatakse kõigile)';
 
   @override
-  String get bulkNotesMode => 'Modo de notas';
+  String get bulkNotesMode => 'Märkmete režiim';
 
   @override
-  String get bulkNotesModeOverwrite => 'Reemplazar nota existente';
+  String get bulkNotesModeOverwrite => 'Kirjuta olemasolev märge üle';
 
   @override
-  String get bulkNotesModeAppend => 'Añadir al final de la nota';
+  String get bulkNotesModeAppend => 'Lisa märke lõppu';
 
   @override
   String get bulkEditNoFieldsUnlocked =>
-      'Desbloquea al menos un campo para aplicar cambios';
+      'Muudatuste rakendamiseks ava vähemalt üks väli lukust';
+
+  @override
+  String get authorMultiHelpTitle => 'Mitu autorit';
+
+  @override
+  String get authorMultiHelpContent =>
+      'Saate sisestada mitu autorit, eraldades need semikooloni (;), kaldkriipsu (/) või komaga (,). Automaattäitmine soovitab nimesid iga autori jaoks.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Mitu tõlkijat';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'Saate sisestada mitu tõlkijat, eraldades need semikooloni (;), kaldkriipsu (/) või komaga (,). Automaattäitmine soovitab nimesid iga tõlkija jaoks.';
+
+  @override
+  String get padlockResetTitle => 'Kas lukustada väli?';
+
+  @override
+  String get padlockResetContent =>
+      'Selle välja muudatused lähevad kaotsi. Kas soovite jätkata?';
 }

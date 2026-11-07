@@ -960,5 +960,69 @@
     "@settingsLanguageRussian": {
         "description": "Opción de idioma: ruso"
     },
-    "paginationRestartFromZero": "ビジュアルモードで0から番号付けを再開"
+    "paginationRestartFromZero": "ビジュアルモードで0から番号付けを再開",
+  "bulkSelectionCount": "{count, plural, =1{1件選択} other{{count}件選択}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "一括編集",
+  "bulkActionDuplicate": "複製",
+  "bulkActionDelete": "削除",
+  "bulkDeleteTitle": "本を削除",
+  "bulkDeleteConfirm": "選択した {count} 冊の本を削除しますか？この操作は取り消せません。",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "{count} 冊の本を編集",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "{count} 冊の本を更新しました",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "{count} 冊の本を複製しました",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "{count} 冊の本を削除しました",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "フィールドはロックされています（変更なし）",
+  "padlockUnlockedHint": "フィールドはロック解除されています（全員に適用）",
+  "bulkNotesMode": "メモモード",
+  "bulkNotesModeOverwrite": "既存のメモを上書き",
+  "bulkNotesModeAppend": "既存のメモの末尾に追加",
+  "bulkEditNoFieldsUnlocked": "変更を適用するには、少なくとも1つのフィールドのロックを解除してください",
+  "authorMultiHelpTitle": "複数の著者",
+  "authorMultiHelpContent": "セミコロン（;）、スラッシュ（/）、またはカンマ（,）で区切って複数の著者を入力できます。補完機能が各著者の名前を提案します。",
+  "translatorMultiHelpTitle": "複数の翻訳者",
+  "translatorMultiHelpContent": "セミコロン（;）、スラッシュ（/）、またはカンマ（,）で区切って複数の翻訳者を入力できます。補完機能が各翻訳者の名前を提案します。",
+  "padlockResetTitle": "フィールドをロックしますか？",
+  "padlockResetContent": "このフィールドへの変更は失われます。続行しますか？"
 }

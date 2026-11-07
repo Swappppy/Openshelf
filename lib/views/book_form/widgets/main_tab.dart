@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/database.dart';
+import '../../../controllers/database_provider.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../widgets/entity_field_selector.dart';
 import '../../../widgets/tag_grid_selector.dart';
@@ -65,6 +66,8 @@ class MainTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final bookDao = ref.read(databaseProvider).bookDao;
+    final l10n = context.l10n;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -143,14 +146,23 @@ class MainTab extends ConsumerWidget {
             controller: subtitleCtrl, label: context.l10n.fieldSubtitle,
             icon: Icons.subtitles_outlined),
         const SizedBox(height: 12),
-        FormFieldWidget(
-            controller: authorCtrl, label: context.l10n.fieldAuthor, required: true,
-            icon: Icons.person_outline),
+        DelimitedAutocompleteFormField(
+          controller: authorCtrl,
+          label: l10n.fieldAuthor,
+          required: true,
+          icon: Icons.person_outline,
+          optionsBuilder: (q) => bookDao.getDistinctAuthors(q),
+          showHelp: true,
+          helpTitle: l10n.authorMultiHelpTitle,
+          helpContent: l10n.authorMultiHelpContent,
+        ),
         const SizedBox(height: 12),
-        FormFieldWidget(
-            controller: publisherCtrl,
-            label: context.l10n.fieldPublisher,
-            icon: Icons.business_outlined),
+        DelimitedAutocompleteFormField(
+          controller: publisherCtrl,
+          label: l10n.fieldPublisher,
+          icon: Icons.business_outlined,
+          optionsBuilder: (q) => bookDao.getDistinctPublishers(q),
+        ),
         const SizedBox(height: 12),
         FormFieldWidget(
           controller: descriptionCtrl,

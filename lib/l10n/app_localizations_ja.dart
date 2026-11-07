@@ -1844,65 +1844,84 @@ class AppLocalizationsJa extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count seleccionados',
-      one: '1 seleccionado',
+      other: '$count件選択',
+      one: '1件選択',
     );
     return '$_temp0';
   }
 
   @override
-  String get bulkActionEdit => 'Editar masivamente';
+  String get bulkActionEdit => '一括編集';
 
   @override
-  String get bulkActionDuplicate => 'Duplicar';
+  String get bulkActionDuplicate => '複製';
 
   @override
-  String get bulkActionDelete => 'Eliminar';
+  String get bulkActionDelete => '削除';
 
   @override
-  String get bulkDeleteTitle => 'Eliminar libros';
+  String get bulkDeleteTitle => '本を削除';
 
   @override
   String bulkDeleteConfirm(int count) {
-    return '¿Eliminar los $count libros seleccionados? Esta acción no se puede deshacer.';
+    return '選択した $count 冊の本を削除しますか？この操作は取り消せません。';
   }
 
   @override
   String bulkEditTitle(int count) {
-    return 'Editar $count libros';
+    return '$count 冊の本を編集';
   }
 
   @override
   String bulkEditSaveSuccess(int count) {
-    return 'Se han actualizado $count libros';
+    return '$count 冊の本を更新しました';
   }
 
   @override
   String bulkDuplicateSuccess(int count) {
-    return 'Se han duplicado $count libros';
+    return '$count 冊の本を複製しました';
   }
 
   @override
   String bulkDeleteSuccess(int count) {
-    return 'Se han eliminado $count libros';
+    return '$count 冊の本を削除しました';
   }
 
   @override
-  String get padlockLockedHint => 'Campo bloqueado (sin cambios)';
+  String get padlockLockedHint => 'フィールドはロックされています（変更なし）';
 
   @override
-  String get padlockUnlockedHint => 'Campo desbloqueado (se aplicará a todos)';
+  String get padlockUnlockedHint => 'フィールドはロック解除されています（全員に適用）';
 
   @override
-  String get bulkNotesMode => 'Modo de notas';
+  String get bulkNotesMode => 'メモモード';
 
   @override
-  String get bulkNotesModeOverwrite => 'Reemplazar nota existente';
+  String get bulkNotesModeOverwrite => '既存のメモを上書き';
 
   @override
-  String get bulkNotesModeAppend => 'Añadir al final de la nota';
+  String get bulkNotesModeAppend => '既存のメモの末尾に追加';
 
   @override
-  String get bulkEditNoFieldsUnlocked =>
-      'Desbloquea al menos un campo para aplicar cambios';
+  String get bulkEditNoFieldsUnlocked => '変更を適用するには、少なくとも1つのフィールドのロックを解除してください';
+
+  @override
+  String get authorMultiHelpTitle => '複数の著者';
+
+  @override
+  String get authorMultiHelpContent =>
+      'セミコロン（;）、スラッシュ（/）、またはカンマ（,）で区切って複数の著者を入力できます。補完機能が各著者の名前を提案します。';
+
+  @override
+  String get translatorMultiHelpTitle => '複数の翻訳者';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'セミコロン（;）、スラッシュ（/）、またはカンマ（,）で区切って複数の翻訳者を入力できます。補完機能が各翻訳者の名前を提案します。';
+
+  @override
+  String get padlockResetTitle => 'フィールドをロックしますか？';
+
+  @override
+  String get padlockResetContent => 'このフィールドへの変更は失われます。続行しますか？';
 }

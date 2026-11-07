@@ -954,5 +954,69 @@
     }
   },
   "settingsLanguageGerman": "Allemand",
-  "paginationRestartFromZero": "Recommencer la numérotation à 0 en mode visuel"
+  "paginationRestartFromZero": "Recommencer la numérotation à 0 en mode visuel",
+  "bulkSelectionCount": "{count, plural, =1{1 sélectionné} other{{count} sélectionnés}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Modification groupée",
+  "bulkActionDuplicate": "Dupliquer",
+  "bulkActionDelete": "Supprimer",
+  "bulkDeleteTitle": "Supprimer des livres",
+  "bulkDeleteConfirm": "Supprimer les {count} livres sélectionnés ? Cette action est irréversible.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Modifier {count} livres",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "{count} livres mis à jour",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "{count} livres dupliqués",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "{count} livres supprimés",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Champ verrouillé (pas de modification)",
+  "padlockUnlockedHint": "Champ déverrouillé (sera appliqué à tous)",
+  "bulkNotesMode": "Mode de notes",
+  "bulkNotesModeOverwrite": "Remplacer la note existante",
+  "bulkNotesModeAppend": "Ajouter à la fin de la note",
+  "bulkEditNoFieldsUnlocked": "Déverrouillez au moins un champ pour appliquer les modifications",
+  "authorMultiHelpTitle": "Auteurs multiples",
+  "authorMultiHelpContent": "Vous pouvez saisir plusieurs auteurs en les séparant par un point-virgule (;), une barre oblique (/) ou une virgule (,). La saisie semi-automatique suggérera des noms pour chaque auteur.",
+  "translatorMultiHelpTitle": "Traducteurs multiples",
+  "translatorMultiHelpContent": "Vous pouvez saisir plusieurs traducteurs en les séparant par un point-virgule (;), une barre oblique (/) ou une virgule (,). La saisie semi-automatique suggérera des noms pour chaque traducteur.",
+  "padlockResetTitle": "Verrouiller le champ ?",
+  "padlockResetContent": "Les modifications apportées à ce champ seront perdues. Voulez-vous continuer ?"
 }

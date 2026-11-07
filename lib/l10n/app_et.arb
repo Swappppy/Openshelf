@@ -960,5 +960,69 @@
     "@settingsLanguageRussian": {
         "description": "Opción de idioma: ruso"
     },
-    "paginationRestartFromZero": "Alusta nummerdamist 0-st visuaalses režiimis"
+    "paginationRestartFromZero": "Alusta nummerdamist 0-st visuaalses režiimis",
+  "bulkSelectionCount": "{count, plural, =1{1 valitud} other{{count} valitud}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Hulgitöötlus",
+  "bulkActionDuplicate": "Klooni",
+  "bulkActionDelete": "Kustuta",
+  "bulkDeleteTitle": "Kustuta raamatud",
+  "bulkDeleteConfirm": "Kas kustutada {count} valitud raamatut? Seda toimingut ei saa tühistada.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Muuda {count} raamatut",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "{count} raamatut värskendatud",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "{count} raamatut kloonitud",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "{count} raamatut kustutatud",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Väli lukustatud (muudatusi pole)",
+  "padlockUnlockedHint": "Väli lukust lahti (rakendatakse kõigile)",
+  "bulkNotesMode": "Märkmete režiim",
+  "bulkNotesModeOverwrite": "Kirjuta olemasolev märge üle",
+  "bulkNotesModeAppend": "Lisa märke lõppu",
+  "bulkEditNoFieldsUnlocked": "Muudatuste rakendamiseks ava vähemalt üks väli lukust",
+  "authorMultiHelpTitle": "Mitu autorit",
+  "authorMultiHelpContent": "Saate sisestada mitu autorit, eraldades need semikooloni (;), kaldkriipsu (/) või komaga (,). Automaattäitmine soovitab nimesid iga autori jaoks.",
+  "translatorMultiHelpTitle": "Mitu tõlkijat",
+  "translatorMultiHelpContent": "Saate sisestada mitu tõlkijat, eraldades need semikooloni (;), kaldkriipsu (/) või komaga (,). Automaattäitmine soovitab nimesid iga tõlkija jaoks.",
+  "padlockResetTitle": "Kas lukustada väli?",
+  "padlockResetContent": "Selle välja muudatused lähevad kaotsi. Kas soovite jätkata?"
 }

@@ -1959,4 +1959,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bulkEditNoFieldsUnlocked =>
       'Unlock at least one field to apply changes';
+
+  @override
+  String get authorMultiHelpTitle => 'Multiple authors';
+
+  @override
+  String get authorMultiHelpContent =>
+      'You can specify multiple authors separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each author.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Multiple translators';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'You can specify multiple translators separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each translator.';
+
+  @override
+  String get padlockResetTitle => 'Lock field?';
+
+  @override
+  String get padlockResetContent =>
+      'Changes made to this field will be lost. Do you want to continue?';
 }

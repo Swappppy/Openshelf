@@ -1914,67 +1914,89 @@ class AppLocalizationsPt extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count seleccionados',
-      one: '1 seleccionado',
+      other: '$count selecionados',
+      one: '1 selecionado',
     );
     return '$_temp0';
   }
 
   @override
-  String get bulkActionEdit => 'Editar masivamente';
+  String get bulkActionEdit => 'Edição em lote';
 
   @override
   String get bulkActionDuplicate => 'Duplicar';
 
   @override
-  String get bulkActionDelete => 'Eliminar';
+  String get bulkActionDelete => 'Excluir';
 
   @override
-  String get bulkDeleteTitle => 'Eliminar libros';
+  String get bulkDeleteTitle => 'Excluir livros';
 
   @override
   String bulkDeleteConfirm(int count) {
-    return '¿Eliminar los $count libros seleccionados? Esta acción no se puede deshacer.';
+    return 'Deseja excluir os $count livros selecionados? Esta ação não pode ser desfeita.';
   }
 
   @override
   String bulkEditTitle(int count) {
-    return 'Editar $count libros';
+    return 'Editar $count livros';
   }
 
   @override
   String bulkEditSaveSuccess(int count) {
-    return 'Se han actualizado $count libros';
+    return '$count livros atualizados';
   }
 
   @override
   String bulkDuplicateSuccess(int count) {
-    return 'Se han duplicado $count libros';
+    return '$count livros duplicados';
   }
 
   @override
   String bulkDeleteSuccess(int count) {
-    return 'Se han eliminado $count libros';
+    return '$count livros excluídos';
   }
 
   @override
-  String get padlockLockedHint => 'Campo bloqueado (sin cambios)';
+  String get padlockLockedHint => 'Campo bloqueado (sem alterações)';
 
   @override
-  String get padlockUnlockedHint => 'Campo desbloqueado (se aplicará a todos)';
+  String get padlockUnlockedHint =>
+      'Campo desbloqueado (será aplicado a todos)';
 
   @override
   String get bulkNotesMode => 'Modo de notas';
 
   @override
-  String get bulkNotesModeOverwrite => 'Reemplazar nota existente';
+  String get bulkNotesModeOverwrite => 'Substituir nota existente';
 
   @override
-  String get bulkNotesModeAppend => 'Añadir al final de la nota';
+  String get bulkNotesModeAppend => 'Adicionar ao final da nota';
 
   @override
   String get bulkEditNoFieldsUnlocked =>
-      'Desbloquea al menos un campo para aplicar cambios';
+      'Desbloqueie pelo menos um campo para aplicar as alterações';
+
+  @override
+  String get authorMultiHelpTitle => 'Múltiples autores';
+
+  @override
+  String get authorMultiHelpContent =>
+      'Você pode informar múltiplos autores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada autor.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Múltiples tradutores';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'Você pode informar múltiplos tradutores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada tradutor.';
+
+  @override
+  String get padlockResetTitle => 'Bloquear campo?';
+
+  @override
+  String get padlockResetContent =>
+      'As alterações feitas neste campo serão perdidas. Deseja continuar?';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -3878,4 +3900,93 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get settingsLanguageGerman => 'Alemão';
+
+  @override
+  String bulkSelectionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selecionados',
+      one: '1 selecionado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bulkActionEdit => 'Edição em lote';
+
+  @override
+  String get bulkActionDuplicate => 'Duplicar';
+
+  @override
+  String get bulkActionDelete => 'Excluir';
+
+  @override
+  String get bulkDeleteTitle => 'Excluir livros';
+
+  @override
+  String bulkDeleteConfirm(int count) {
+    return 'Deseja excluir os $count livros selecionados? Esta ação não pode ser desfeita.';
+  }
+
+  @override
+  String bulkEditTitle(int count) {
+    return 'Editar $count livros';
+  }
+
+  @override
+  String bulkEditSaveSuccess(int count) {
+    return '$count livros atualizados';
+  }
+
+  @override
+  String bulkDuplicateSuccess(int count) {
+    return '$count livros duplicados';
+  }
+
+  @override
+  String bulkDeleteSuccess(int count) {
+    return '$count livros excluídos';
+  }
+
+  @override
+  String get padlockLockedHint => 'Campo bloqueado (sem alterações)';
+
+  @override
+  String get padlockUnlockedHint =>
+      'Campo desbloqueado (será aplicado a todos)';
+
+  @override
+  String get bulkNotesMode => 'Modo de notas';
+
+  @override
+  String get bulkNotesModeOverwrite => 'Substituir nota existente';
+
+  @override
+  String get bulkNotesModeAppend => 'Adicionar ao final da nota';
+
+  @override
+  String get bulkEditNoFieldsUnlocked =>
+      'Desbloqueie pelo menos um campo para aplicar as alterações';
+
+  @override
+  String get authorMultiHelpTitle => 'Múltiples autores';
+
+  @override
+  String get authorMultiHelpContent =>
+      'Você pode informar múltiplos autores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada autor.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Múltiples tradutores';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'Você pode informar múltiplos tradutores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada tradutor.';
+
+  @override
+  String get padlockResetTitle => 'Bloquear campo?';
+
+  @override
+  String get padlockResetContent =>
+      'As alterações feitas neste campo serão perdidas. Deseja continuar?';
 }

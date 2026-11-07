@@ -569,5 +569,69 @@
     "ownershipStatusReturned": "Zurückgegeben",
     "dataManagementCreateBackupHint": "Sichere deine Bibliothek in einer Datei",
     "dataManagementImport": "Daten importieren",
-  "paginationRestartFromZero": "Nummerierung im visuellen Modus bei 0 beginnen"
+  "paginationRestartFromZero": "Nummerierung im visuellen Modus bei 0 beginnen",
+  "bulkSelectionCount": "{count, plural, =1{1 ausgewählt} other{{count} ausgewählt}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Massenbearbeitung",
+  "bulkActionDuplicate": "Duplizieren",
+  "bulkActionDelete": "Löschen",
+  "bulkDeleteTitle": "Bücher löschen",
+  "bulkDeleteConfirm": "Sollen die {count} ausgewählten Bücher gelöscht werden? Dies kann nicht rückgängig gemacht werden.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "{count} Bücher bearbeiten",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "{count} Bücher aktualisiert",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "{count} Bücher dupliziert",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "{count} Bücher gelöscht",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Feld gesperrt (keine Änderungen)",
+  "padlockUnlockedHint": "Feld entsperrt (wird auf alle angewendet)",
+  "bulkNotesMode": "Notizen-Modus",
+  "bulkNotesModeOverwrite": "Bestehende Notiz überschreiben",
+  "bulkNotesModeAppend": "An bestehende Notiz anhängen",
+  "bulkEditNoFieldsUnlocked": "Entsperren Sie mindestens ein Feld, um Änderungen anzuwenden",
+  "authorMultiHelpTitle": "Mehrere Autoren",
+  "authorMultiHelpContent": "Sie können mehrere Autoren eingeben, getrennt durch Semikolon (;), Schrägstrich (/) oder Komma (,). Die Autovervollständigung schlägt Namen für jeden Autor vor.",
+  "translatorMultiHelpTitle": "Mehrere Übersetzer",
+  "translatorMultiHelpContent": "Sie können mehrere Übersetzer eingeben, getrennt durch Semikolon (;), Schrägstrich (/) oder Komma (,). Die Autovervollständigung schlägt Namen für jeden Übersetzer vor.",
+  "padlockResetTitle": "Feld sperren?",
+  "padlockResetContent": "Änderungen an diesem Feld gehen verloren. Möchten Sie fortfahren?"
 }

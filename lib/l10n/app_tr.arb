@@ -960,5 +960,69 @@
     "@settingsLanguageRussian": {
         "description": "Opción de idioma: ruso"
     },
-    "paginationRestartFromZero": "Görsel modda numaralandırmayı 0'dan başlat"
+    "paginationRestartFromZero": "Görsel modda numaralandırmayı 0'dan başlat",
+  "bulkSelectionCount": "{count, plural, =1{1 seçildi} other{{count} seçildi}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Toplu düzenle",
+  "bulkActionDuplicate": "Çoğalt",
+  "bulkActionDelete": "Sil",
+  "bulkDeleteTitle": "Kitapları sil",
+  "bulkDeleteConfirm": "Seçilen {count} kitap silinsin mi? Bu işlem geri alınamaz.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "{count} kitabı düzenle",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "{count} kitap güncellendi",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "{count} kitap çoğaltıldı",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "{count} kitap silindi",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Alan kilitli (değişiklik yok)",
+  "padlockUnlockedHint": "Alan kilitsiz (tümüne uygulanacak)",
+  "bulkNotesMode": "Not modu",
+  "bulkNotesModeOverwrite": "Mevcut notun üzerine yaz",
+  "bulkNotesModeAppend": "Mevcut notun sonuna ekle",
+  "bulkEditNoFieldsUnlocked": "Değişiklikleri uygulamak için en az bir alanın kilidini açın",
+  "authorMultiHelpTitle": "Birden fazla yazar",
+  "authorMultiHelpContent": "Noktalı virgül (;), eğik çizgi (/) veya virgül (,) ile ayırarak birden fazla yazar girebilirsiniz. Otomatik tamamlama her yazar için isimler önerecektir.",
+  "translatorMultiHelpTitle": "Birden fazla çevirmen",
+  "translatorMultiHelpContent": "Noktalı virgül (;), eğik çizgi (/) veya virgül (,) ile ayırarak birden fazla çevirmen girebilirsiniz. Otomatik tamamlama her çevirmen için isimler önerecektir.",
+  "padlockResetTitle": "Alan kilitlensin mi?",
+  "padlockResetContent": "Bu alanda yapılan değişiklikler kaybolacak. Devam etmek istiyor musunuz?"
 }

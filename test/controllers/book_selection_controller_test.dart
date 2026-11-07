@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openshelf/controllers/book_selection_controller.dart';
+import 'package:openshelf/views/book_form/widgets/form_components.dart';
 
 void main() {
   group('BookSelectionController Tests', () {
@@ -61,6 +62,30 @@ void main() {
 
       notifier.toggleAll([1, 2, 3]);
       expect(container.read(bookSelectionProvider), isEmpty);
+    });
+  });
+
+  group('DelimitedAutocompleteFormField Helpers', () {
+    test('getCurrentQuerySegment extracts query after last delimiter', () {
+      expect(DelimitedAutocompleteFormField.getCurrentQuerySegment('Gabriel Garcia; Marq'), equals('Marq'));
+      expect(DelimitedAutocompleteFormField.getCurrentQuerySegment('Author A / Author B / Aut'), equals('Aut'));
+      expect(DelimitedAutocompleteFormField.getCurrentQuerySegment('Author A, Author B, '), equals(''));
+      expect(DelimitedAutocompleteFormField.getCurrentQuerySegment('Single Author'), equals('Single Author'));
+    });
+
+    test('applySelection replaces segment after last delimiter with selected option', () {
+      expect(
+        DelimitedAutocompleteFormField.applySelection('Gabriel Garcia; Marq', 'Gabriel García Márquez'),
+        equals('Gabriel Garcia; Gabriel García Márquez'),
+      );
+      expect(
+        DelimitedAutocompleteFormField.applySelection('Author A / ', 'Author B'),
+        equals('Author A / Author B'),
+      );
+      expect(
+        DelimitedAutocompleteFormField.applySelection('Single Author', 'Single Author'),
+        equals('Single Author'),
+      );
     });
   });
 }

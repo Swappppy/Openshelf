@@ -954,5 +954,69 @@
     }
   },
   "settingsLanguageGerman": "Alemany",
-  "paginationRestartFromZero": "Començar des de 0 en mode visual"
+  "paginationRestartFromZero": "Començar des de 0 en mode visual",
+  "bulkSelectionCount": "{count, plural, =1{1 seleccionat} other{{count} seleccionats}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Edició massiva",
+  "bulkActionDuplicate": "Duplicar",
+  "bulkActionDelete": "Eliminar",
+  "bulkDeleteTitle": "Eliminar llibres",
+  "bulkDeleteConfirm": "Vols eliminar els {count} llibres seleccionats? Aquesta acció no es pot desfer.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Editar {count} llibres",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "S'han actualitzat {count} llibres",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "S'han duplicat {count} llibres",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "S'han eliminat {count} llibres",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Camp bloquejat (sense canvis)",
+  "padlockUnlockedHint": "Camp desbloquejat (s'aplicarà a tots)",
+  "bulkNotesMode": "Mode de notes",
+  "bulkNotesModeOverwrite": "Reemplaçar nota existent",
+  "bulkNotesModeAppend": "Afegir al final de la nota",
+  "bulkEditNoFieldsUnlocked": "Desbloqueja almenys un camp per aplicar canvis",
+  "authorMultiHelpTitle": "Múltiples autors",
+  "authorMultiHelpContent": "Pots indicar múltiples autors separant-los amb punt i coma (;), barra (/) o coma (,). L'autocompletat et suggerirà noms individuals per a cada autor.",
+  "translatorMultiHelpTitle": "Múltiples traductors",
+  "translatorMultiHelpContent": "Pots indicar múltiples traductors separant-los amb punt i coma (;), barra (/) o coma (,). L'autocompletat et suggerirà noms individuals per a cada traductor.",
+  "padlockResetTitle": "Bloquejar camp?",
+  "padlockResetContent": "Es perdran els canvis introduïts en aquest camp. Vols continuar?"
 }

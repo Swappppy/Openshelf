@@ -1908,65 +1908,86 @@ class AppLocalizationsIt extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count seleccionados',
-      one: '1 seleccionado',
+      other: '$count selezionati',
+      one: '1 selezionato',
     );
     return '$_temp0';
   }
 
   @override
-  String get bulkActionEdit => 'Editar masivamente';
+  String get bulkActionEdit => 'Modifica di gruppo';
 
   @override
-  String get bulkActionDuplicate => 'Duplicar';
+  String get bulkActionDuplicate => 'Duplica';
 
   @override
-  String get bulkActionDelete => 'Eliminar';
+  String get bulkActionDelete => 'Elimina';
 
   @override
-  String get bulkDeleteTitle => 'Eliminar libros';
+  String get bulkDeleteTitle => 'Elimina libri';
 
   @override
   String bulkDeleteConfirm(int count) {
-    return '¿Eliminar los $count libros seleccionados? Esta acción no se puede deshacer.';
+    return 'Eliminare i $count libri selezionati? Questa azione non può essere annullata.';
   }
 
   @override
   String bulkEditTitle(int count) {
-    return 'Editar $count libros';
+    return 'Modifica $count libri';
   }
 
   @override
   String bulkEditSaveSuccess(int count) {
-    return 'Se han actualizado $count libros';
+    return '$count libri aggiornati';
   }
 
   @override
   String bulkDuplicateSuccess(int count) {
-    return 'Se han duplicado $count libros';
+    return '$count libri duplicati';
   }
 
   @override
   String bulkDeleteSuccess(int count) {
-    return 'Se han eliminado $count libros';
+    return '$count libri eliminati';
   }
 
   @override
-  String get padlockLockedHint => 'Campo bloqueado (sin cambios)';
+  String get padlockLockedHint => 'Campo bloccato (nessuna modifica)';
 
   @override
-  String get padlockUnlockedHint => 'Campo desbloqueado (se aplicará a todos)';
+  String get padlockUnlockedHint => 'Campo sbloccato (verrà applicato a tutti)';
 
   @override
-  String get bulkNotesMode => 'Modo de notas';
+  String get bulkNotesMode => 'Modalità note';
 
   @override
-  String get bulkNotesModeOverwrite => 'Reemplazar nota existente';
+  String get bulkNotesModeOverwrite => 'Sovrascrivi nota esistente';
 
   @override
-  String get bulkNotesModeAppend => 'Añadir al final de la nota';
+  String get bulkNotesModeAppend => 'Aggiungi in coda alla nota';
 
   @override
   String get bulkEditNoFieldsUnlocked =>
-      'Desbloquea al menos un campo para aplicar cambios';
+      'Sblocca almeno un campo per applicare le modifiche';
+
+  @override
+  String get authorMultiHelpTitle => 'Autori multipli';
+
+  @override
+  String get authorMultiHelpContent =>
+      'Puoi inserire più autori separandoli con un punto e virgola (;), una barra (/) o una virgola (,). Il completamento automatico suggerirà i nomi per ogni autore.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Traduttori multipli';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'Puoi inserire più traduttori separandoli con un punto e virgola (;), una barra (/) o una virgola (,). Il completamento automatico suggerirà i nomi per ogni traduttore.';
+
+  @override
+  String get padlockResetTitle => 'Bloccare il campo?';
+
+  @override
+  String get padlockResetContent =>
+      'Le modifiche apportate a questo campo andranno perse. Vuoi continuare?';
 }

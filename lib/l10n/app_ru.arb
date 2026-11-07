@@ -954,5 +954,69 @@
     }
   },
   "settingsLanguageGerman": "Немецкий",
-  "paginationRestartFromZero": "Начать нумерацию с 0 в визуальном режиме"
+  "paginationRestartFromZero": "Начать нумерацию с 0 в визуальном режиме",
+  "bulkSelectionCount": "{count, plural, =1{1 выбран} few{{count} выбрано} many{{count} выбрано} other{{count} выбрано}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Массовое редактирование",
+  "bulkActionDuplicate": "Дублировать",
+  "bulkActionDelete": "Удалить",
+  "bulkDeleteTitle": "Удалить книги",
+  "bulkDeleteConfirm": "Удалить {count} выбранных книг? Это действие нельзя отменить.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Редактировать {count} книг",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "Обновлено книг: {count}",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "Сдублировано книг: {count}",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "Удалено книг: {count}",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Поле заблокировано (без изменений)",
+  "padlockUnlockedHint": "Поле разблокировано (применится ко всем)",
+  "bulkNotesMode": "Режим заметок",
+  "bulkNotesModeOverwrite": "Перезаписать существующую заметку",
+  "bulkNotesModeAppend": "Добавить в конец заметки",
+  "bulkEditNoFieldsUnlocked": "Разблокируйте хотя бы одно поле для применения изменений",
+  "authorMultiHelpTitle": "Несколько авторов",
+  "authorMultiHelpContent": "Вы можете указать нескольких авторов, разделив их точкой с запятой (;), слэшем (/) или запятой (,). Автозаполнение предложит имена для каждого автора.",
+  "translatorMultiHelpTitle": "Несколько переводчиков",
+  "translatorMultiHelpContent": "Вы можете указать нескольких переводчиков, разделив их точкой с запятой (;), слэшем (/) или запятой (,). Автозаполнение предложит имена для каждого переводчика.",
+  "padlockResetTitle": "Заблокировать поле?",
+  "padlockResetContent": "Изменения в этом поле будут утеряны. Продолжить?"
 }

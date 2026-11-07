@@ -453,11 +453,43 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
 
         BooksCompanion companion = const BooksCompanion();
 
+        if (data.updateTitle && data.title != null) {
+          companion = companion.copyWith(title: Value(data.title!));
+        }
+        if (data.updateSubtitle) {
+          companion = companion.copyWith(subtitle: Value(data.subtitle));
+        }
+        if (data.updateOriginalTitle) {
+          companion = companion.copyWith(originalTitle: Value(data.originalTitle));
+        }
+        if (data.updateOriginalLanguage) {
+          companion = companion.copyWith(originalLanguage: Value(data.originalLanguage));
+        }
+        if (data.updateDescription) {
+          companion = companion.copyWith(description: Value(data.description));
+        }
+        if (data.updateCoverPath) {
+          companion = companion.copyWith(coverPath: Value(data.coverPath));
+        }
+        if (data.updateStartedAt) {
+          companion = companion.copyWith(startedAt: Value(data.startedAt));
+        }
+        if (data.updateFinishedAt) {
+          companion = companion.copyWith(finishedAt: Value(data.finishedAt));
+        }
         if (data.updateStatus && data.status != null) {
           companion = companion.copyWith(status: Value(data.status!));
         }
         if (data.updateOwnership) {
           companion = companion.copyWith(ownershipStatus: Value(data.ownershipStatus));
+          if (data.ownershipStatus != null) {
+            await db.ownershipDao.insertEvent(OwnershipLogCompanion.insert(
+              bookId: id,
+              eventType: data.ownershipStatus!,
+              personName: Value(data.personName),
+              date: DateTime.now(),
+            ));
+          }
         }
         if (data.updateFormat) {
           companion = companion.copyWith(bookFormat: Value(data.format));
@@ -538,46 +570,131 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
   Future<List<String>> getDistinctAuthors(String query) async {
     final q = selectOnly(books, distinct: true)
       ..addColumns([books.author])
-      ..where(books.author.lower().contains(query.toLowerCase()) & books.author.isNotNull() & books.author.equals('').not())
-      ..limit(20);
+      ..where(books.author.isNotNull() & books.author.equals('').not());
     final rows = await q.get();
-    return rows.map((r) => r.read(books.author)!).where((s) => s.isNotEmpty).toList();
+    final Set<String> results = {};
+    final qLower = query.toLowerCase();
+
+    for (final row in rows) {
+      final raw = row.read(books.author);
+      if (raw == null || raw.isEmpty) continue;
+      final parts = raw.split(RegExp(r'[;/,]'));
+      for (final part in parts) {
+        final trimmed = part.trim();
+        if (trimmed.isNotEmpty && trimmed.toLowerCase().contains(qLower)) {
+          results.add(trimmed);
+          if (results.length >= 20) break;
+        }
+      }
+      if (results.length >= 20) break;
+    }
+
+    return results.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
   }
 
   Future<List<String>> getDistinctPublishers(String query) async {
     final q = selectOnly(books, distinct: true)
       ..addColumns([books.publisher])
-      ..where(books.publisher.lower().contains(query.toLowerCase()) & books.publisher.isNotNull() & books.publisher.equals('').not())
-      ..limit(20);
+      ..where(books.publisher.isNotNull() & books.publisher.equals('').not());
     final rows = await q.get();
-    return rows.map((r) => r.read(books.publisher)!).where((s) => s.isNotEmpty).toList();
+    final Set<String> results = {};
+    final qLower = query.toLowerCase();
+
+    for (final row in rows) {
+      final raw = row.read(books.publisher);
+      if (raw == null || raw.isEmpty) continue;
+      final parts = raw.split(RegExp(r'[;/,]'));
+      for (final part in parts) {
+        final trimmed = part.trim();
+        if (trimmed.isNotEmpty && trimmed.toLowerCase().contains(qLower)) {
+          results.add(trimmed);
+          if (results.length >= 20) break;
+        }
+      }
+      if (results.length >= 20) break;
+    }
+
+    return results.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
   }
 
   Future<List<String>> getDistinctLanguages(String query) async {
     final q = selectOnly(books, distinct: true)
       ..addColumns([books.language])
-      ..where(books.language.lower().contains(query.toLowerCase()) & books.language.isNotNull() & books.language.equals('').not())
-      ..limit(20);
+      ..where(books.language.isNotNull() & books.language.equals('').not());
     final rows = await q.get();
-    return rows.map((r) => r.read(books.language)!).where((s) => s.isNotEmpty).toList();
+    final Set<String> results = {};
+    final qLower = query.toLowerCase();
+
+    for (final row in rows) {
+      final raw = row.read(books.language);
+      if (raw == null || raw.isEmpty) continue;
+      final parts = raw.split(RegExp(r'[;/,]'));
+      for (final part in parts) {
+        final trimmed = part.trim();
+        if (trimmed.isNotEmpty && trimmed.toLowerCase().contains(qLower)) {
+          results.add(trimmed);
+          if (results.length >= 20) break;
+        }
+      }
+      if (results.length >= 20) break;
+    }
+
+    return results.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
   }
 
   Future<List<String>> getDistinctTranslators(String query) async {
     final q = selectOnly(books, distinct: true)
       ..addColumns([books.translator])
-      ..where(books.translator.lower().contains(query.toLowerCase()) & books.translator.isNotNull() & books.translator.equals('').not())
-      ..limit(20);
+      ..where(books.translator.isNotNull() & books.translator.equals('').not());
     final rows = await q.get();
-    return rows.map((r) => r.read(books.translator)!).where((s) => s.isNotEmpty).toList();
+    final Set<String> results = {};
+    final qLower = query.toLowerCase();
+
+    for (final row in rows) {
+      final raw = row.read(books.translator);
+      if (raw == null || raw.isEmpty) continue;
+      final parts = raw.split(RegExp(r'[;/,]'));
+      for (final part in parts) {
+        final trimmed = part.trim();
+        if (trimmed.isNotEmpty && trimmed.toLowerCase().contains(qLower)) {
+          results.add(trimmed);
+          if (results.length >= 20) break;
+        }
+      }
+      if (results.length >= 20) break;
+    }
+
+    return results.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
   }
 }
 
 class BulkEditData {
+  final bool updateTitle;
+  final String? title;
+
+  final bool updateSubtitle;
+  final String? subtitle;
+
+  final bool updateOriginalTitle;
+  final String? originalTitle;
+
+  final bool updateOriginalLanguage;
+  final String? originalLanguage;
+
+  final bool updateDescription;
+  final String? description;
+
+  final bool updateCoverPath;
+  final String? coverPath;
+
   final bool updateStatus;
   final ReadingStatus? status;
 
   final bool updateOwnership;
   final OwnershipStatus? ownershipStatus;
+
+  final bool updatePersonName;
+  final String? personName;
 
   final bool updateFormat;
   final BookFormat? format;
@@ -616,11 +733,31 @@ class BulkEditData {
   final bool updateCopies;
   final int? copies;
 
+  final bool updateStartedAt;
+  final DateTime? startedAt;
+
+  final bool updateFinishedAt;
+  final DateTime? finishedAt;
+
   const BulkEditData({
+    this.updateTitle = false,
+    this.title,
+    this.updateSubtitle = false,
+    this.subtitle,
+    this.updateOriginalTitle = false,
+    this.originalTitle,
+    this.updateOriginalLanguage = false,
+    this.originalLanguage,
+    this.updateDescription = false,
+    this.description,
+    this.updateCoverPath = false,
+    this.coverPath,
     this.updateStatus = false,
     this.status,
     this.updateOwnership = false,
     this.ownershipStatus,
+    this.updatePersonName = false,
+    this.personName,
     this.updateFormat = false,
     this.format,
     this.updateRating = false,
@@ -646,11 +783,22 @@ class BulkEditData {
     this.appendNotes = false,
     this.updateCopies = false,
     this.copies,
+    this.updateStartedAt = false,
+    this.startedAt,
+    this.updateFinishedAt = false,
+    this.finishedAt,
   });
 
   bool get hasAnyFieldToUpdate =>
+      updateTitle ||
+      updateSubtitle ||
+      updateOriginalTitle ||
+      updateOriginalLanguage ||
+      updateDescription ||
+      updateCoverPath ||
       updateStatus ||
       updateOwnership ||
+      updatePersonName ||
       updateFormat ||
       updateRating ||
       updateAuthor ||
@@ -662,6 +810,8 @@ class BulkEditData {
       updateImprint ||
       updateCollections ||
       updateNotes ||
-      updateCopies;
+      updateCopies ||
+      updateStartedAt ||
+      updateFinishedAt;
 }
 

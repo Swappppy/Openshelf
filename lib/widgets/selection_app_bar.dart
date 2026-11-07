@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/book_selection_controller.dart';
 import '../controllers/database_provider.dart';
 import '../l10n/l10n_extension.dart';
+import '../views/book_form/book_form_view.dart';
 import '../views/book_form/bulk_edit_view.dart';
 import 'library_app_bar.dart';
 
@@ -53,14 +54,28 @@ class SelectionAppBar extends ConsumerWidget implements PreferredSizeWidget {
         // Bulk Edit Action
         BoxedIconButton(
           icon: Icons.edit_outlined,
-          onPressed: () {
+          onPressed: () async {
             if (selectedIds.isEmpty) return;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BulkEditView(selectedBookIds: selectedIds.toList()),
-              ),
-            );
+            if (selectedIds.length == 1) {
+              final bookId = selectedIds.first;
+              final book = await ref.read(databaseProvider).bookDao.getBook(bookId);
+              selectionController.clear();
+              if (book != null && context.mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BookFormView(existingBook: book),
+                  ),
+                );
+              }
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BulkEditView(selectedBookIds: selectedIds.toList()),
+                ),
+              );
+            }
           },
         ),
         const SizedBox(width: 8),

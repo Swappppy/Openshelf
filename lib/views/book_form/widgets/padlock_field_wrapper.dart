@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import '../../../l10n/l10n_extension.dart';
 
 /// A wrapper widget for bulk edit form fields.
-/// Controls locking/unlocking of a field using the Padlock pattern.
-/// When locked, the child widget is disabled and greyed out.
+/// Places a slim lock toggle button (32px width) to the right of the field widget.
+/// Supports [centerChild] to keep centered content (like cover pickers) perfectly centered on screen.
+/// When locked, the field widget is disabled and opacified.
 class PadlockFieldWrapper extends StatelessWidget {
   final Widget child;
   final bool isLocked;
   final ValueChanged<bool> onLockChanged;
   final String? label;
+  final bool centerChild;
 
   const PadlockFieldWrapper({
     super.key,
@@ -16,6 +18,7 @@ class PadlockFieldWrapper extends StatelessWidget {
     required this.isLocked,
     required this.onLockChanged,
     this.label,
+    this.centerChild = false,
   });
 
   @override
@@ -25,54 +28,68 @@ class PadlockFieldWrapper extends StatelessWidget {
     final l10n = context.l10n;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (label != null) ...[
+            Text(
+              label!,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isLocked ? colorScheme.outline : colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 6),
+          ],
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (label != null)
-                Expanded(
-                  child: Text(
-                    label!,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isLocked
-                          ? colorScheme.outline
-                          : colorScheme.onSurface,
-                    ),
+              if (centerChild) const SizedBox(width: 40),
+              Expanded(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: isLocked ? 0.45 : 1.0,
+                  child: IgnorePointer(
+                    ignoring: isLocked,
+                    child: child,
                   ),
-                )
-              else
-                const Spacer(),
+                ),
+              ),
+              const SizedBox(width: 8),
               Tooltip(
                 message: isLocked ? l10n.padlockLockedHint : l10n.padlockUnlockedHint,
-                child: IconButton.filledTonal(
-                  style: IconButton.styleFrom(
-                    backgroundColor: isLocked
-                        ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-                        : colorScheme.primaryContainer,
-                    foregroundColor: isLocked
-                        ? colorScheme.outline
-                        : colorScheme.primary,
+                child: Container(
+                  height: 56,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isLocked
+                          ? colorScheme.outlineVariant.withValues(alpha: 0.5)
+                          : colorScheme.primary,
+                      width: 1,
+                    ),
+                    color: isLocked
+                        ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                        : colorScheme.primaryContainer.withValues(alpha: 0.4),
                   ),
-                  icon: Icon(
-                    isLocked ? Icons.lock : Icons.lock_open,
-                    size: 20,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => onLockChanged(!isLocked),
+                    child: Center(
+                      child: Icon(
+                        isLocked ? Icons.lock : Icons.lock_open,
+                        size: 18,
+                        color: isLocked
+                            ? colorScheme.onSurfaceVariant.withValues(alpha: 0.7)
+                            : colorScheme.primary,
+                      ),
+                    ),
                   ),
-                  onPressed: () => onLockChanged(!isLocked),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 4),
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 200),
-            opacity: isLocked ? 0.45 : 1.0,
-            child: IgnorePointer(
-              ignoring: isLocked,
-              child: child,
-            ),
           ),
         ],
       ),

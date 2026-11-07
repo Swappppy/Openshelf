@@ -1914,5 +1914,11 @@
   "bulkNotesMode": "Modo de notas",
   "bulkNotesModeOverwrite": "Reemplazar nota existente",
   "bulkNotesModeAppend": "Añadir al final de la nota",
-  "bulkEditNoFieldsUnlocked": "Desbloquea al menos un campo para aplicar cambios"
+  "bulkEditNoFieldsUnlocked": "Desbloquea al menos un campo para aplicar cambios",
+  "authorMultiHelpTitle": "Múltiples autores",
+  "authorMultiHelpContent": "Puedes indicar múltiples autores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada autor.",
+  "translatorMultiHelpTitle": "Múltiples traductores",
+  "translatorMultiHelpContent": "Puedes indicar múltiples traductores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada traductor.",
+  "padlockResetTitle": "¿Bloquear campo?",
+  "padlockResetContent": "Se perderán los cambios introducidos en este campo. ¿Deseas continuar?"
 }

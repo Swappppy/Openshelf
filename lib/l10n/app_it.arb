@@ -954,5 +954,69 @@
     }
   },
   "settingsLanguageGerman": "Tedesco",
-  "paginationRestartFromZero": "Ricomincia la numerazione da 0 in modalità visuale"
+  "paginationRestartFromZero": "Ricomincia la numerazione da 0 in modalità visuale",
+  "bulkSelectionCount": "{count, plural, =1{1 selezionato} other{{count} selezionati}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Modifica di gruppo",
+  "bulkActionDuplicate": "Duplica",
+  "bulkActionDelete": "Elimina",
+  "bulkDeleteTitle": "Elimina libri",
+  "bulkDeleteConfirm": "Eliminare i {count} libri selezionati? Questa azione non può essere annullata.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Modifica {count} libri",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "{count} libri aggiornati",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "{count} libri duplicati",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "{count} libri eliminati",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Campo bloccato (nessuna modifica)",
+  "padlockUnlockedHint": "Campo sbloccato (verrà applicato a tutti)",
+  "bulkNotesMode": "Modalità note",
+  "bulkNotesModeOverwrite": "Sovrascrivi nota esistente",
+  "bulkNotesModeAppend": "Aggiungi in coda alla nota",
+  "bulkEditNoFieldsUnlocked": "Sblocca almeno un campo per applicare le modifiche",
+  "authorMultiHelpTitle": "Autori multipli",
+  "authorMultiHelpContent": "Puoi inserire più autori separandoli con un punto e virgola (;), una barra (/) o una virgola (,). Il completamento automatico suggerirà i nomi per ogni autore.",
+  "translatorMultiHelpTitle": "Traduttori multipli",
+  "translatorMultiHelpContent": "Puoi inserire più traduttori separandoli con un punto e virgola (;), una barra (/) o una virgola (,). Il completamento automatico suggerirà i nomi per ogni traduttore.",
+  "padlockResetTitle": "Bloccare il campo?",
+  "padlockResetContent": "Le modifiche apportate a questo campo andranno perse. Vuoi continuare?"
 }

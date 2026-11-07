@@ -1012,5 +1012,11 @@
   "bulkNotesMode": "Notes mode",
   "bulkNotesModeOverwrite": "Overwrite existing note",
   "bulkNotesModeAppend": "Append to existing note",
-  "bulkEditNoFieldsUnlocked": "Unlock at least one field to apply changes"
+  "bulkEditNoFieldsUnlocked": "Unlock at least one field to apply changes",
+  "authorMultiHelpTitle": "Multiple authors",
+  "authorMultiHelpContent": "You can specify multiple authors separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each author.",
+  "translatorMultiHelpTitle": "Multiple translators",
+  "translatorMultiHelpContent": "You can specify multiple translators separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each translator.",
+  "padlockResetTitle": "Lock field?",
+  "padlockResetContent": "Changes made to this field will be lost. Do you want to continue?"
 }

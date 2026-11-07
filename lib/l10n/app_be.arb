@@ -1856,5 +1856,69 @@
     "@settingsLanguageGerman": {
         "description": "Opción de idioma: alemán"
     },
-    "paginationRestartFromZero": "Пачаць нумарацыю з 0 у візуальным рэжыме"
+    "paginationRestartFromZero": "Пачаць нумарацыю з 0 у візуальным рэжыме",
+  "bulkSelectionCount": "{count, plural, =1{1 выбраны} other{{count} выбрана}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Масавае рэдагаванне",
+  "bulkActionDuplicate": "Дубляваць",
+  "bulkActionDelete": "Выдаліць",
+  "bulkDeleteTitle": "Выдаліць кнігі",
+  "bulkDeleteConfirm": "Выдаліць {count} выбраных кніг? Гэта дзеянне нельга адмяніць.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Рэдагаваць {count} кніг",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "Абноўлена кніг: {count}",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "Сдублявана кніг: {count}",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "Выдалена кніг: {count}",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Поле заблакавана (без зменаў)",
+  "padlockUnlockedHint": "Поле разблакавана (ужывецца да ўсіх)",
+  "bulkNotesMode": "Рэжым нататак",
+  "bulkNotesModeOverwrite": "Перазапісаць існуючую нататку",
+  "bulkNotesModeAppend": "Дадаць у канец нататкі",
+  "bulkEditNoFieldsUnlocked": "Разблакуйце хоць бы адно поле для ўжывання зменаў",
+  "authorMultiHelpTitle": "Некалькі аўтараў",
+  "authorMultiHelpContent": "Вы можаце паказаць некалькі аўтараў, падзяліўшы іх кропкай з коскай (;), слэшам (/) або коскай (,). Аўтазапаўненне прапануе імёны для кожнага аўтара.",
+  "translatorMultiHelpTitle": "Некалькі перакладчыкаў",
+  "translatorMultiHelpContent": "Вы можаце паказаць некалькі перакладчыкаў, падзяліўшы іх кропкай з коскай (;), слэшам (/) або коскай (,). Аўтазапаўненне прапануе імёны для кожнага перакладчыка.",
+  "padlockResetTitle": "Заблакаваць поле?",
+  "padlockResetContent": "Змены ў гэтым полі будуць страчаны. Працягнуць?"
 }

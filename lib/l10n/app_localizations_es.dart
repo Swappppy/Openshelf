@@ -1971,4 +1971,25 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get bulkEditNoFieldsUnlocked =>
       'Desbloquea al menos un campo para aplicar cambios';
+
+  @override
+  String get authorMultiHelpTitle => 'Múltiples autores';
+
+  @override
+  String get authorMultiHelpContent =>
+      'Puedes indicar múltiples autores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada autor.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Múltiples traductores';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'Puedes indicar múltiples traductores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada traductor.';
+
+  @override
+  String get padlockResetTitle => '¿Bloquear campo?';
+
+  @override
+  String get padlockResetContent =>
+      'Se perderán los cambios introducidos en este campo. ¿Deseas continuar?';
 }

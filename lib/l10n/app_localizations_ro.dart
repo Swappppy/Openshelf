@@ -1846,65 +1846,86 @@ class AppLocalizationsRo extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count seleccionados',
-      one: '1 seleccionado',
+      other: '$count selectate',
+      one: '1 selectat',
     );
     return '$_temp0';
   }
 
   @override
-  String get bulkActionEdit => 'Editar masivamente';
+  String get bulkActionEdit => 'Editare în masă';
 
   @override
-  String get bulkActionDuplicate => 'Duplicar';
+  String get bulkActionDuplicate => 'Duplică';
 
   @override
-  String get bulkActionDelete => 'Eliminar';
+  String get bulkActionDelete => 'Șterge';
 
   @override
-  String get bulkDeleteTitle => 'Eliminar libros';
+  String get bulkDeleteTitle => 'Șterge cărți';
 
   @override
   String bulkDeleteConfirm(int count) {
-    return '¿Eliminar los $count libros seleccionados? Esta acción no se puede deshacer.';
+    return 'Ștergeți cele $count cărți selectate? Această acțiune nu poate fi anulată.';
   }
 
   @override
   String bulkEditTitle(int count) {
-    return 'Editar $count libros';
+    return 'Editează $count cărți';
   }
 
   @override
   String bulkEditSaveSuccess(int count) {
-    return 'Se han actualizado $count libros';
+    return '$count cărți actualizate';
   }
 
   @override
   String bulkDuplicateSuccess(int count) {
-    return 'Se han duplicado $count libros';
+    return '$count cărți duplicate';
   }
 
   @override
   String bulkDeleteSuccess(int count) {
-    return 'Se han eliminado $count libros';
+    return '$count cărți șterse';
   }
 
   @override
-  String get padlockLockedHint => 'Campo bloqueado (sin cambios)';
+  String get padlockLockedHint => 'Câmp blocat (fără modificări)';
 
   @override
-  String get padlockUnlockedHint => 'Campo desbloqueado (se aplicará a todos)';
+  String get padlockUnlockedHint => 'Câmp deblocat (se va aplica tuturor)';
 
   @override
-  String get bulkNotesMode => 'Modo de notas';
+  String get bulkNotesMode => 'Mod notițe';
 
   @override
-  String get bulkNotesModeOverwrite => 'Reemplazar nota existente';
+  String get bulkNotesModeOverwrite => 'Înlocuiește notița existentă';
 
   @override
-  String get bulkNotesModeAppend => 'Añadir al final de la nota';
+  String get bulkNotesModeAppend => 'Adaugă la sfârșitul notiței';
 
   @override
   String get bulkEditNoFieldsUnlocked =>
-      'Desbloquea al menos un campo para aplicar cambios';
+      'Deblocați cel puțin un câmp pentru a aplica modificările';
+
+  @override
+  String get authorMultiHelpTitle => 'Autori multipli';
+
+  @override
+  String get authorMultiHelpContent =>
+      'Puteți introduce mai mulți autori separați prin punct și virgulă (;), bară (/) sau virgulă (,). Autocompletarea va sugera nume pentru fiecare autor.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Traducători multipli';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'Puteți introduce mai mulți traducători separați prin punct și virgulă (;), bară (/) sau virgulă (,). Autocompletarea va sugera nume pentru fiecare traducător.';
+
+  @override
+  String get padlockResetTitle => 'Blocați câmpul?';
+
+  @override
+  String get padlockResetContent =>
+      'Modificările aduse acestui câmp se vor pierde. Doriți să continuați?';
 }

@@ -1847,65 +1847,86 @@ class AppLocalizationsTr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count seleccionados',
-      one: '1 seleccionado',
+      other: '$count seçildi',
+      one: '1 seçildi',
     );
     return '$_temp0';
   }
 
   @override
-  String get bulkActionEdit => 'Editar masivamente';
+  String get bulkActionEdit => 'Toplu düzenle';
 
   @override
-  String get bulkActionDuplicate => 'Duplicar';
+  String get bulkActionDuplicate => 'Çoğalt';
 
   @override
-  String get bulkActionDelete => 'Eliminar';
+  String get bulkActionDelete => 'Sil';
 
   @override
-  String get bulkDeleteTitle => 'Eliminar libros';
+  String get bulkDeleteTitle => 'Kitapları sil';
 
   @override
   String bulkDeleteConfirm(int count) {
-    return '¿Eliminar los $count libros seleccionados? Esta acción no se puede deshacer.';
+    return 'Seçilen $count kitap silinsin mi? Bu işlem geri alınamaz.';
   }
 
   @override
   String bulkEditTitle(int count) {
-    return 'Editar $count libros';
+    return '$count kitabı düzenle';
   }
 
   @override
   String bulkEditSaveSuccess(int count) {
-    return 'Se han actualizado $count libros';
+    return '$count kitap güncellendi';
   }
 
   @override
   String bulkDuplicateSuccess(int count) {
-    return 'Se han duplicado $count libros';
+    return '$count kitap çoğaltıldı';
   }
 
   @override
   String bulkDeleteSuccess(int count) {
-    return 'Se han eliminado $count libros';
+    return '$count kitap silindi';
   }
 
   @override
-  String get padlockLockedHint => 'Campo bloqueado (sin cambios)';
+  String get padlockLockedHint => 'Alan kilitli (değişiklik yok)';
 
   @override
-  String get padlockUnlockedHint => 'Campo desbloqueado (se aplicará a todos)';
+  String get padlockUnlockedHint => 'Alan kilitsiz (tümüne uygulanacak)';
 
   @override
-  String get bulkNotesMode => 'Modo de notas';
+  String get bulkNotesMode => 'Not modu';
 
   @override
-  String get bulkNotesModeOverwrite => 'Reemplazar nota existente';
+  String get bulkNotesModeOverwrite => 'Mevcut notun üzerine yaz';
 
   @override
-  String get bulkNotesModeAppend => 'Añadir al final de la nota';
+  String get bulkNotesModeAppend => 'Mevcut notun sonuna ekle';
 
   @override
   String get bulkEditNoFieldsUnlocked =>
-      'Desbloquea al menos un campo para aplicar cambios';
+      'Değişiklikleri uygulamak için en az bir alanın kilidini açın';
+
+  @override
+  String get authorMultiHelpTitle => 'Birden fazla yazar';
+
+  @override
+  String get authorMultiHelpContent =>
+      'Noktalı virgül (;), eğik çizgi (/) veya virgül (,) ile ayırarak birden fazla yazar girebilirsiniz. Otomatik tamamlama her yazar için isimler önerecektir.';
+
+  @override
+  String get translatorMultiHelpTitle => 'Birden fazla çevirmen';
+
+  @override
+  String get translatorMultiHelpContent =>
+      'Noktalı virgül (;), eğik çizgi (/) veya virgül (,) ile ayırarak birden fazla çevirmen girebilirsiniz. Otomatik tamamlama her çevirmen için isimler önerecektir.';
+
+  @override
+  String get padlockResetTitle => 'Alan kilitlensin mi?';
+
+  @override
+  String get padlockResetContent =>
+      'Bu alanda yapılan değişiklikler kaybolacak. Devam etmek istiyor musunuz?';
 }

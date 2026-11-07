@@ -960,5 +960,69 @@
     "@settingsLanguageRussian": {
         "description": "Opción de idioma: ruso"
     },
-    "paginationRestartFromZero": "Reîncepe numerotarea de la 0 în modul vizual"
+    "paginationRestartFromZero": "Reîncepe numerotarea de la 0 în modul vizual",
+  "bulkSelectionCount": "{count, plural, =1{1 selectat} other{{count} selectate}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Editare în masă",
+  "bulkActionDuplicate": "Duplică",
+  "bulkActionDelete": "Șterge",
+  "bulkDeleteTitle": "Șterge cărți",
+  "bulkDeleteConfirm": "Ștergeți cele {count} cărți selectate? Această acțiune nu poate fi anulată.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Editează {count} cărți",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "{count} cărți actualizate",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "{count} cărți duplicate",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "{count} cărți șterse",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Câmp blocat (fără modificări)",
+  "padlockUnlockedHint": "Câmp deblocat (se va aplica tuturor)",
+  "bulkNotesMode": "Mod notițe",
+  "bulkNotesModeOverwrite": "Înlocuiește notița existentă",
+  "bulkNotesModeAppend": "Adaugă la sfârșitul notiței",
+  "bulkEditNoFieldsUnlocked": "Deblocați cel puțin un câmp pentru a aplica modificările",
+  "authorMultiHelpTitle": "Autori multipli",
+  "authorMultiHelpContent": "Puteți introduce mai mulți autori separați prin punct și virgulă (;), bară (/) sau virgulă (,). Autocompletarea va sugera nume pentru fiecare autor.",
+  "translatorMultiHelpTitle": "Traducători multipli",
+  "translatorMultiHelpContent": "Puteți introduce mai mulți traducători separați prin punct și virgulă (;), bară (/) sau virgulă (,). Autocompletarea va sugera nume pentru fiecare traducător.",
+  "padlockResetTitle": "Blocați câmpul?",
+  "padlockResetContent": "Modificările aduse acestui câmp se vor pierde. Doriți să continuați?"
 }

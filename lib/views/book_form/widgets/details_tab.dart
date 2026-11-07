@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/database.dart';
+import '../../../controllers/database_provider.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../widgets/entity_field_selector.dart';
 import '../../../widgets/imprint_placeholder.dart';
@@ -60,6 +61,7 @@ class DetailsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final bookDao = ref.read(databaseProvider).bookDao;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -93,19 +95,21 @@ class DetailsTab extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: FormFieldWidget(
+              child: DelimitedAutocompleteFormField(
                 controller: languageCtrl,
                 label: context.l10n.fieldLanguage,
                 icon: Icons.language_outlined,
+                optionsBuilder: (q) => bookDao.getDistinctLanguages(q),
               ),
             ),
             if (isTranslation) ...[
               const SizedBox(width: 12),
               Expanded(
-                child: FormFieldWidget(
+                child: DelimitedAutocompleteFormField(
                   controller: originalLanguageCtrl,
                   label: context.l10n.fieldOriginalLanguage,
                   icon: Icons.language_outlined,
+                  optionsBuilder: (q) => bookDao.getDistinctLanguages(q),
                 ),
               ),
             ],
@@ -126,10 +130,14 @@ class DetailsTab extends ConsumerWidget {
             icon: Icons.title_outlined,
           ),
           const SizedBox(height: 12),
-          FormFieldWidget(
+          DelimitedAutocompleteFormField(
             controller: translatorCtrl,
             label: context.l10n.fieldTranslator,
             icon: Icons.translate_outlined,
+            optionsBuilder: (q) => bookDao.getDistinctTranslators(q),
+            showHelp: true,
+            helpTitle: context.l10n.translatorMultiHelpTitle,
+            helpContent: context.l10n.translatorMultiHelpContent,
           ),
         ],
         const SizedBox(height: 24),

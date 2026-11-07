@@ -954,5 +954,69 @@
     }
   },
   "settingsLanguageGerman": "Alemão",
-  "paginationRestartFromZero": "Reiniciar numeração a partir do 0 no modo visual"
+  "paginationRestartFromZero": "Reiniciar numeração a partir do 0 no modo visual",
+  "bulkSelectionCount": "{count, plural, =1{1 selecionado} other{{count} selecionados}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Edição em lote",
+  "bulkActionDuplicate": "Duplicar",
+  "bulkActionDelete": "Excluir",
+  "bulkDeleteTitle": "Excluir livros",
+  "bulkDeleteConfirm": "Deseja excluir os {count} livros selecionados? Esta ação não pode ser desfeita.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Editar {count} livros",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "{count} livros atualizados",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "{count} livros duplicados",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "{count} livros excluídos",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Campo bloqueado (sem alterações)",
+  "padlockUnlockedHint": "Campo desbloqueado (será aplicado a todos)",
+  "bulkNotesMode": "Modo de notas",
+  "bulkNotesModeOverwrite": "Substituir nota existente",
+  "bulkNotesModeAppend": "Adicionar ao final da nota",
+  "bulkEditNoFieldsUnlocked": "Desbloqueie pelo menos um campo para aplicar as alterações",
+  "authorMultiHelpTitle": "Múltiples autores",
+  "authorMultiHelpContent": "Você pode informar múltiplos autores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada autor.",
+  "translatorMultiHelpTitle": "Múltiples tradutores",
+  "translatorMultiHelpContent": "Você pode informar múltiplos tradutores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada tradutor.",
+  "padlockResetTitle": "Bloquear campo?",
+  "padlockResetContent": "As alterações feitas neste campo serão perdidas. Deseja continuar?"
 }

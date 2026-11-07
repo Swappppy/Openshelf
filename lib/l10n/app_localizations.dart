@@ -3642,6 +3642,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Desbloquea al menos un campo para aplicar cambios'**
   String get bulkEditNoFieldsUnlocked;
+
+  /// No description provided for @authorMultiHelpTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Múltiples autores'**
+  String get authorMultiHelpTitle;
+
+  /// No description provided for @authorMultiHelpContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes indicar múltiples autores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada autor.'**
+  String get authorMultiHelpContent;
+
+  /// No description provided for @translatorMultiHelpTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Múltiples traductores'**
+  String get translatorMultiHelpTitle;
+
+  /// No description provided for @translatorMultiHelpContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes indicar múltiples traductores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada traductor.'**
+  String get translatorMultiHelpContent;
+
+  /// No description provided for @padlockResetTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Bloquear campo?'**
+  String get padlockResetTitle;
+
+  /// No description provided for @padlockResetContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Se perderán los cambios introducidos en este campo. ¿Deseas continuar?'**
+  String get padlockResetContent;
 }
 
 class _AppLocalizationsDelegate
