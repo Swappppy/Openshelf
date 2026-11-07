@@ -17,6 +17,8 @@ class BookGridCard extends ConsumerWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final String? overlayLabel;
+  final bool isSelected;
+  final bool isSelecting;
 
   const BookGridCard({
     super.key,
@@ -25,6 +27,8 @@ class BookGridCard extends ConsumerWidget {
     this.onTap,
     this.onLongPress,
     this.overlayLabel,
+    this.isSelected = false,
+    this.isSelecting = false,
   });
 
   @override
@@ -43,12 +47,17 @@ class BookGridCard extends ConsumerWidget {
 
         return Card(
           clipBehavior: Clip.antiAlias,
-          elevation: 0,
+          elevation: isSelected ? 3 : 0,
+          color: isSelected
+              ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+              : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-              width: 0.5,
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.outlineVariant.withValues(alpha: 0.3),
+              width: isSelected ? 2.0 : 0.5,
             ),
           ),
           child: InkWell(
@@ -84,6 +93,44 @@ class BookGridCard extends ConsumerWidget {
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
                               ),
+                            ),
+                          ),
+                        ),
+                      if (isSelected)
+                        Positioned(
+                          top: 6,
+                          right: 6,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      else if (isSelecting)
+                        Positioned(
+                          top: 6,
+                          right: 6,
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 1.5),
                             ),
                           ),
                         ),

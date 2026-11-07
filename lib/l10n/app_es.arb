@@ -1856,5 +1856,63 @@
   "settingsLanguageGerman": "Alemán",
   "@settingsLanguageGerman": {
     "description": "Opción de idioma: alemán"
-  }
+  },
+  "bulkSelectionCount": "{count, plural, =1{1 seleccionado} other{{count} seleccionados}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Editar masivamente",
+  "bulkActionDuplicate": "Duplicar",
+  "bulkActionDelete": "Eliminar",
+  "bulkDeleteTitle": "Eliminar libros",
+  "bulkDeleteConfirm": "¿Eliminar los {count} libros seleccionados? Esta acción no se puede deshacer.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Editar {count} libros",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "Se han actualizado {count} libros",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "Se han duplicado {count} libros",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "Se han eliminado {count} libros",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Campo bloqueado (sin cambios)",
+  "padlockUnlockedHint": "Campo desbloqueado (se aplicará a todos)",
+  "bulkNotesMode": "Modo de notas",
+  "bulkNotesModeOverwrite": "Reemplazar nota existente",
+  "bulkNotesModeAppend": "Añadir al final de la nota",
+  "bulkEditNoFieldsUnlocked": "Desbloquea al menos un campo para aplicar cambios"
 }

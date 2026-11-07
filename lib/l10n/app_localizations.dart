@@ -3546,6 +3546,102 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Alemán'**
   String get settingsLanguageGerman;
+
+  /// No description provided for @bulkSelectionCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 seleccionado} other{{count} seleccionados}}'**
+  String bulkSelectionCount(int count);
+
+  /// No description provided for @bulkActionEdit.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar masivamente'**
+  String get bulkActionEdit;
+
+  /// No description provided for @bulkActionDuplicate.
+  ///
+  /// In es, this message translates to:
+  /// **'Duplicar'**
+  String get bulkActionDuplicate;
+
+  /// No description provided for @bulkActionDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get bulkActionDelete;
+
+  /// No description provided for @bulkDeleteTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar libros'**
+  String get bulkDeleteTitle;
+
+  /// No description provided for @bulkDeleteConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar los {count} libros seleccionados? Esta acción no se puede deshacer.'**
+  String bulkDeleteConfirm(int count);
+
+  /// No description provided for @bulkEditTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar {count} libros'**
+  String bulkEditTitle(int count);
+
+  /// No description provided for @bulkEditSaveSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Se han actualizado {count} libros'**
+  String bulkEditSaveSuccess(int count);
+
+  /// No description provided for @bulkDuplicateSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Se han duplicado {count} libros'**
+  String bulkDuplicateSuccess(int count);
+
+  /// No description provided for @bulkDeleteSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Se han eliminado {count} libros'**
+  String bulkDeleteSuccess(int count);
+
+  /// No description provided for @padlockLockedHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo bloqueado (sin cambios)'**
+  String get padlockLockedHint;
+
+  /// No description provided for @padlockUnlockedHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo desbloqueado (se aplicará a todos)'**
+  String get padlockUnlockedHint;
+
+  /// No description provided for @bulkNotesMode.
+  ///
+  /// In es, this message translates to:
+  /// **'Modo de notas'**
+  String get bulkNotesMode;
+
+  /// No description provided for @bulkNotesModeOverwrite.
+  ///
+  /// In es, this message translates to:
+  /// **'Reemplazar nota existente'**
+  String get bulkNotesModeOverwrite;
+
+  /// No description provided for @bulkNotesModeAppend.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir al final de la nota'**
+  String get bulkNotesModeAppend;
+
+  /// No description provided for @bulkEditNoFieldsUnlocked.
+  ///
+  /// In es, this message translates to:
+  /// **'Desbloquea al menos un campo para aplicar cambios'**
+  String get bulkEditNoFieldsUnlocked;
 }
 
 class _AppLocalizationsDelegate

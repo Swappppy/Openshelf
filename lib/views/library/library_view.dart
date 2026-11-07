@@ -19,6 +19,8 @@ import '../../widgets/search_panel.dart';
 
 import '../../controllers/library_navigation_controller.dart';
 import '../../controllers/shelf_creation_buffer_controller.dart';
+import '../../controllers/book_selection_controller.dart';
+import '../../widgets/selection_app_bar.dart';
 import '../stats/stats_view.dart';
 
 /// Main container for the library, featuring a navigation bar for the three main sections.
@@ -60,6 +62,7 @@ class _LibraryViewState extends ConsumerState<LibraryView> {
           selectedIndex: currentIndex,
           onDestinationSelected: (index) {
             HapticFeedback.selectionClick();
+            ref.read(bookSelectionProvider.notifier).clear();
             ref.read(libraryNavigationProvider.notifier).setIndex(index);
           },
           destinations: [
@@ -126,6 +129,13 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
     final isFabVisible = ref.watch(fabVisibilityProvider);
     final filters = ref.watch(searchFiltersProvider);
     final booksAsync = ref.watch(filteredBooksProvider);
+    final selectedIds = ref.watch(bookSelectionProvider);
+    final isSelecting = selectedIds.isNotEmpty;
+
+    final visibleBookIds = booksAsync.maybeWhen(
+      data: (list) => list.map((b) => b.id).toList(),
+      orElse: () => <int>[],
+    );
 
     final isEmpty = booksAsync.maybeWhen(
       data: (list) => list.isEmpty && filters.isEmpty && filters.status == null,
@@ -133,24 +143,30 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
     );
 
     return PopScope(
-      canPop: !_searchVisible,
+      canPop: !isSelecting && !_searchVisible,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
+        if (isSelecting) {
+          ref.read(bookSelectionProvider.notifier).clear();
+          return;
+        }
         if (_searchVisible) {
           setState(() => _searchVisible = false);
           ref.read(searchFiltersProvider.notifier).clearAll();
         }
       },
       child: Scaffold(
-        appBar: LibraryAppBar(
-          searchVisible: _searchVisible,
-          onSearchToggle: () {
-            setState(() => _searchVisible = !_searchVisible);
-            if (!_searchVisible) {
-              ref.read(searchFiltersProvider.notifier).clearAll();
-            }
-          },
-        ),
+        appBar: isSelecting
+            ? SelectionAppBar(visibleBookIds: visibleBookIds)
+            : LibraryAppBar(
+                searchVisible: _searchVisible,
+                onSearchToggle: () {
+                  setState(() => _searchVisible = !_searchVisible);
+                  if (!_searchVisible) {
+                    ref.read(searchFiltersProvider.notifier).clearAll();
+                  }
+                },
+              ),
         body: Column(
           children: [
             ScrollableSelectionBar<ReadingStatus?>(

@@ -954,5 +954,63 @@
       }
     }
   },
-  "settingsLanguageGerman": "German"
+  "settingsLanguageGerman": "German",
+  "bulkSelectionCount": "{count, plural, =1{1 selected} other{{count} selected}}",
+  "@bulkSelectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkActionEdit": "Bulk edit",
+  "bulkActionDuplicate": "Duplicate",
+  "bulkActionDelete": "Delete",
+  "bulkDeleteTitle": "Delete books",
+  "bulkDeleteConfirm": "Delete {count} selected books? This action cannot be undone.",
+  "@bulkDeleteConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditTitle": "Edit {count} books",
+  "@bulkEditTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkEditSaveSuccess": "Updated {count} books",
+  "@bulkEditSaveSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDuplicateSuccess": "Duplicated {count} books",
+  "@bulkDuplicateSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkDeleteSuccess": "Deleted {count} books",
+  "@bulkDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "padlockLockedHint": "Field locked (no changes)",
+  "padlockUnlockedHint": "Field unlocked (will apply to all)",
+  "bulkNotesMode": "Notes mode",
+  "bulkNotesModeOverwrite": "Overwrite existing note",
+  "bulkNotesModeAppend": "Append to existing note",
+  "bulkEditNoFieldsUnlocked": "Unlock at least one field to apply changes"
 }

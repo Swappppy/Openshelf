@@ -1908,6 +1908,73 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsLanguageGerman => 'Alemão';
+
+  @override
+  String bulkSelectionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seleccionados',
+      one: '1 seleccionado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bulkActionEdit => 'Editar masivamente';
+
+  @override
+  String get bulkActionDuplicate => 'Duplicar';
+
+  @override
+  String get bulkActionDelete => 'Eliminar';
+
+  @override
+  String get bulkDeleteTitle => 'Eliminar libros';
+
+  @override
+  String bulkDeleteConfirm(int count) {
+    return '¿Eliminar los $count libros seleccionados? Esta acción no se puede deshacer.';
+  }
+
+  @override
+  String bulkEditTitle(int count) {
+    return 'Editar $count libros';
+  }
+
+  @override
+  String bulkEditSaveSuccess(int count) {
+    return 'Se han actualizado $count libros';
+  }
+
+  @override
+  String bulkDuplicateSuccess(int count) {
+    return 'Se han duplicado $count libros';
+  }
+
+  @override
+  String bulkDeleteSuccess(int count) {
+    return 'Se han eliminado $count libros';
+  }
+
+  @override
+  String get padlockLockedHint => 'Campo bloqueado (sin cambios)';
+
+  @override
+  String get padlockUnlockedHint => 'Campo desbloqueado (se aplicará a todos)';
+
+  @override
+  String get bulkNotesMode => 'Modo de notas';
+
+  @override
+  String get bulkNotesModeOverwrite => 'Reemplazar nota existente';
+
+  @override
+  String get bulkNotesModeAppend => 'Añadir al final de la nota';
+
+  @override
+  String get bulkEditNoFieldsUnlocked =>
+      'Desbloquea al menos un campo para aplicar cambios';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).

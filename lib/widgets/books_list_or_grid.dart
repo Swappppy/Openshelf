@@ -6,6 +6,7 @@ import '../services/database.dart';
 import '../controllers/display_preferences_controller.dart';
 import '../controllers/app_settings_controller.dart';
 import '../controllers/books_controller.dart';
+import '../controllers/book_selection_controller.dart';
 import '../views/book_detail/book_detail_view.dart';
 import '../l10n/l10n_extension.dart';
 import '../utils/book_sorting.dart';
@@ -183,6 +184,10 @@ class BooksListOrGrid extends ConsumerWidget {
       );
     }
 
+    final selectedIds = ref.watch(bookSelectionProvider);
+    final isSelecting = selectedIds.isNotEmpty;
+    final selectionNotifier = ref.read(bookSelectionProvider.notifier);
+
     if (viewMode == LibraryViewMode.list) {
       return ListView.builder(
         key: const ValueKey('list_layout'),
@@ -191,6 +196,8 @@ class BooksListOrGrid extends ConsumerWidget {
         itemCount: items.length,
         itemBuilder: (context, index) {
           final book = items[index];
+          final isSelected = selectedIds.contains(book.id);
+
           return TweenAnimationBuilder<double>(
             duration: Duration(milliseconds: 300 + (index.clamp(0, 10) * 100)),
             tween: Tween(begin: 0.0, end: 1.0),
@@ -208,11 +215,27 @@ class BooksListOrGrid extends ConsumerWidget {
               book: book,
               prefs: prefs,
               collectionNumber: isCollection ? book.collectionNumber : null,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
-              ),
-              onLongPress: onLongPress != null ? () => onLongPress!(book) : null,
+              isSelected: isSelected,
+              isSelecting: isSelecting,
+              onTap: () {
+                if (isSelecting) {
+                  selectionNotifier.toggle(book.id);
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+                  );
+                }
+              },
+              onLongPress: () {
+                if (isSelecting) {
+                  selectionNotifier.toggle(book.id);
+                } else if (onLongPress != null) {
+                  onLongPress!(book);
+                } else {
+                  selectionNotifier.select(book.id);
+                }
+              },
             ),
           );
         },
@@ -231,6 +254,8 @@ class BooksListOrGrid extends ConsumerWidget {
         itemCount: items.length,
         itemBuilder: (context, index) {
           final book = items[index];
+          final isSelected = selectedIds.contains(book.id);
+
           return TweenAnimationBuilder<double>(
             duration: Duration(milliseconds: 300 + (index.clamp(0, 10) * 100)),
             tween: Tween(begin: 0.0, end: 1.0),
@@ -248,11 +273,27 @@ class BooksListOrGrid extends ConsumerWidget {
               book: book,
               prefs: prefs,
               overlayLabel: isCollection ? (book.collectionNumber?.toString()) : null,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
-              ),
-              onLongPress: onLongPress != null ? () => onLongPress!(book) : null,
+              isSelected: isSelected,
+              isSelecting: isSelecting,
+              onTap: () {
+                if (isSelecting) {
+                  selectionNotifier.toggle(book.id);
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => BookDetailView(book: book)),
+                  );
+                }
+              },
+              onLongPress: () {
+                if (isSelecting) {
+                  selectionNotifier.toggle(book.id);
+                } else if (onLongPress != null) {
+                  onLongPress!(book);
+                } else {
+                  selectionNotifier.select(book.id);
+                }
+              },
             ),
           );
         },

@@ -10,7 +10,6 @@ import '../l10n/l10n_extension.dart';
 
 import '../utils/pagination_helper.dart';
 
-
 /// A comprehensive list tile for displaying book information in the Library list view.
 /// Supports reorderable fields, custom status highlighting, and progress bars.
 class BookListTile extends ConsumerWidget {
@@ -19,6 +18,8 @@ class BookListTile extends ConsumerWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final int? collectionNumber;
+  final bool isSelected;
+  final bool isSelecting;
 
   const BookListTile({
     super.key,
@@ -27,6 +28,8 @@ class BookListTile extends ConsumerWidget {
     this.onTap,
     this.onLongPress,
     this.collectionNumber,
+    this.isSelected = false,
+    this.isSelecting = false,
   });
 
   @override
@@ -41,10 +44,15 @@ class BookListTile extends ConsumerWidget {
         height: 160, // Accommodates the larger cover image
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
+          color: isSelected
+              ? colorScheme.primaryContainer.withValues(alpha: 0.25)
+              : null,
           border: Border(
             bottom: BorderSide(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-              width: 0.5,
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.outlineVariant.withValues(alpha: 0.3),
+              width: isSelected ? 1.5 : 0.5,
             ),
           ),
         ),
@@ -85,6 +93,44 @@ class BookListTile extends ConsumerWidget {
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
+                      ),
+                    ),
+                  ),
+                if (isSelected)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        size: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                else if (isSelecting)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
                       ),
                     ),
                   ),
@@ -399,5 +445,3 @@ class _ProgressBar extends StatelessWidget {
     }
   }
 }
-
-

@@ -403,4 +403,265 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         return bookIdCol.isInQuery(subquery);
     }
   }
+
+  /// Duplicates multiple books in a single transaction.
+  Future<List<int>> bulkDuplicateBooks(List<int> originalIds) async {
+    return await transaction(() async {
+      final newIds = <int>[];
+      for (final id in originalIds) {
+        newIds.add(await duplicateBook(id));
+      }
+      return newIds;
+    });
+  }
+
+  /// Deletes multiple books in a single transaction with orphan tag pruning.
+  Future<void> bulkDeleteBooks(List<int> ids, {bool pruneEnabled = true, List<int>? excludedIds}) async {
+    if (ids.isEmpty) return;
+    await transaction(() async {
+      final allTagIds = <int>{};
+      for (final id in ids) {
+        final linked = await (select(bookTags)..where((bt) => bt.bookId.equals(id))).get();
+        allTagIds.addAll(linked.map((bt) => bt.tagId));
+      }
+
+      await (delete(db.readHistory)..where((h) => h.bookId.isIn(ids))).go();
+      await (delete(db.ownershipLog)..where((o) => o.bookId.isIn(ids))).go();
+      await (delete(db.readingLog)..where((l) => l.bookId.isIn(ids))).go();
+
+      await (delete(bookTags)..where((bt) => bt.bookId.isIn(ids))).go();
+      await (delete(books)..where((b) => b.id.isIn(ids))).go();
+
+      await db.tagDao.pruneOrphanTags(
+        enabled: pruneEnabled,
+        excludedIds: excludedIds,
+        candidateIds: allTagIds.toList(),
+      );
+    });
+  }
+
+  /// Applies bulk edits to a list of book IDs for specified unlocked fields.
+  Future<void> bulkUpdateBooks(List<int> bookIds, BulkEditData data) async {
+    if (bookIds.isEmpty || !data.hasAnyFieldToUpdate) return;
+
+    await transaction(() async {
+      final candidateTagIds = <int>{};
+
+      for (final id in bookIds) {
+        final existingBook = await getBook(id);
+        if (existingBook == null) continue;
+
+        BooksCompanion companion = const BooksCompanion();
+
+        if (data.updateStatus && data.status != null) {
+          companion = companion.copyWith(status: Value(data.status!));
+        }
+        if (data.updateOwnership) {
+          companion = companion.copyWith(ownershipStatus: Value(data.ownershipStatus));
+        }
+        if (data.updateFormat) {
+          companion = companion.copyWith(bookFormat: Value(data.format));
+        }
+        if (data.updateRating) {
+          companion = companion.copyWith(rating: Value(data.rating));
+        }
+        if (data.updateAuthor && data.author != null) {
+          companion = companion.copyWith(author: Value(data.author!));
+        }
+        if (data.updatePublisher) {
+          companion = companion.copyWith(publisher: Value(data.publisher));
+        }
+        if (data.updateLanguage) {
+          companion = companion.copyWith(language: Value(data.language));
+        }
+        if (data.updatePublishYear) {
+          companion = companion.copyWith(publishYear: Value(data.publishYear));
+        }
+        if (data.updateTranslator) {
+          companion = companion.copyWith(translator: Value(data.translator));
+        }
+        if (data.updateCopies && data.copies != null) {
+          companion = companion.copyWith(copies: Value(data.copies!));
+        }
+        if (data.updateImprint) {
+          companion = companion.copyWith(imprintId: Value(data.imprintId));
+        }
+
+        if (data.updateNotes) {
+          if (data.appendNotes && data.notes != null && data.notes!.isNotEmpty) {
+            final existingNotes = existingBook.notes ?? '';
+            final combined = existingNotes.isEmpty
+                ? data.notes!
+                : '$existingNotes\n${data.notes!}';
+            companion = companion.copyWith(notes: Value(combined));
+          } else {
+            companion = companion.copyWith(notes: Value(data.notes));
+          }
+        }
+
+        if (companion != const BooksCompanion()) {
+          await (update(books)..where((b) => b.id.equals(id))).write(companion);
+        }
+
+        // Tags & Collections M:M updates
+        if (data.updateTags || data.updateCollections) {
+          final oldTags = await db.tagDao.watchTagsForBook(id).first;
+          candidateTagIds.addAll(oldTags.map((t) => t.id));
+
+          final List<int> newTagIds = data.updateTags && data.tagIds != null
+              ? data.tagIds!
+              : (await db.tagDao.watchTagsForBook(id).first).map((t) => t.id).toList();
+
+          final List<(int, int?)> newCollections = data.updateCollections && data.collections != null
+              ? data.collections!
+              : (await db.tagDao.watchCollectionsForBook(id).first)
+                  .map((c) => (c.$1.id, c.$2))
+                  .toList();
+
+          candidateTagIds.addAll(newTagIds);
+          for (final c in newCollections) {
+            candidateTagIds.add(c.$1);
+          }
+
+          await db.tagDao.setBookTags(id, newTagIds, collections: newCollections);
+        }
+      }
+
+      if (candidateTagIds.isNotEmpty) {
+        await db.tagDao.pruneOrphanTags(
+          candidateIds: candidateTagIds.toList(),
+        );
+      }
+    });
+  }
+
+  Future<List<String>> getDistinctAuthors(String query) async {
+    final q = selectOnly(books, distinct: true)
+      ..addColumns([books.author])
+      ..where(books.author.lower().contains(query.toLowerCase()) & books.author.isNotNull() & books.author.equals('').not())
+      ..limit(20);
+    final rows = await q.get();
+    return rows.map((r) => r.read(books.author)!).where((s) => s.isNotEmpty).toList();
+  }
+
+  Future<List<String>> getDistinctPublishers(String query) async {
+    final q = selectOnly(books, distinct: true)
+      ..addColumns([books.publisher])
+      ..where(books.publisher.lower().contains(query.toLowerCase()) & books.publisher.isNotNull() & books.publisher.equals('').not())
+      ..limit(20);
+    final rows = await q.get();
+    return rows.map((r) => r.read(books.publisher)!).where((s) => s.isNotEmpty).toList();
+  }
+
+  Future<List<String>> getDistinctLanguages(String query) async {
+    final q = selectOnly(books, distinct: true)
+      ..addColumns([books.language])
+      ..where(books.language.lower().contains(query.toLowerCase()) & books.language.isNotNull() & books.language.equals('').not())
+      ..limit(20);
+    final rows = await q.get();
+    return rows.map((r) => r.read(books.language)!).where((s) => s.isNotEmpty).toList();
+  }
+
+  Future<List<String>> getDistinctTranslators(String query) async {
+    final q = selectOnly(books, distinct: true)
+      ..addColumns([books.translator])
+      ..where(books.translator.lower().contains(query.toLowerCase()) & books.translator.isNotNull() & books.translator.equals('').not())
+      ..limit(20);
+    final rows = await q.get();
+    return rows.map((r) => r.read(books.translator)!).where((s) => s.isNotEmpty).toList();
+  }
 }
+
+class BulkEditData {
+  final bool updateStatus;
+  final ReadingStatus? status;
+
+  final bool updateOwnership;
+  final OwnershipStatus? ownershipStatus;
+
+  final bool updateFormat;
+  final BookFormat? format;
+
+  final bool updateRating;
+  final double? rating;
+
+  final bool updateAuthor;
+  final String? author;
+
+  final bool updatePublisher;
+  final String? publisher;
+
+  final bool updateLanguage;
+  final String? language;
+
+  final bool updatePublishYear;
+  final int? publishYear;
+
+  final bool updateTranslator;
+  final String? translator;
+
+  final bool updateTags;
+  final List<int>? tagIds;
+
+  final bool updateImprint;
+  final int? imprintId;
+
+  final bool updateCollections;
+  final List<(int, int?)>? collections;
+
+  final bool updateNotes;
+  final String? notes;
+  final bool appendNotes;
+
+  final bool updateCopies;
+  final int? copies;
+
+  const BulkEditData({
+    this.updateStatus = false,
+    this.status,
+    this.updateOwnership = false,
+    this.ownershipStatus,
+    this.updateFormat = false,
+    this.format,
+    this.updateRating = false,
+    this.rating,
+    this.updateAuthor = false,
+    this.author,
+    this.updatePublisher = false,
+    this.publisher,
+    this.updateLanguage = false,
+    this.language,
+    this.updatePublishYear = false,
+    this.publishYear,
+    this.updateTranslator = false,
+    this.translator,
+    this.updateTags = false,
+    this.tagIds,
+    this.updateImprint = false,
+    this.imprintId,
+    this.updateCollections = false,
+    this.collections,
+    this.updateNotes = false,
+    this.notes,
+    this.appendNotes = false,
+    this.updateCopies = false,
+    this.copies,
+  });
+
+  bool get hasAnyFieldToUpdate =>
+      updateStatus ||
+      updateOwnership ||
+      updateFormat ||
+      updateRating ||
+      updateAuthor ||
+      updatePublisher ||
+      updateLanguage ||
+      updatePublishYear ||
+      updateTranslator ||
+      updateTags ||
+      updateImprint ||
+      updateCollections ||
+      updateNotes ||
+      updateCopies;
+}
+

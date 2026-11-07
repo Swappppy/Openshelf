@@ -1892,4 +1892,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageGerman => 'German';
+
+  @override
+  String bulkSelectionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bulkActionEdit => 'Bulk edit';
+
+  @override
+  String get bulkActionDuplicate => 'Duplicate';
+
+  @override
+  String get bulkActionDelete => 'Delete';
+
+  @override
+  String get bulkDeleteTitle => 'Delete books';
+
+  @override
+  String bulkDeleteConfirm(int count) {
+    return 'Delete $count selected books? This action cannot be undone.';
+  }
+
+  @override
+  String bulkEditTitle(int count) {
+    return 'Edit $count books';
+  }
+
+  @override
+  String bulkEditSaveSuccess(int count) {
+    return 'Updated $count books';
+  }
+
+  @override
+  String bulkDuplicateSuccess(int count) {
+    return 'Duplicated $count books';
+  }
+
+  @override
+  String bulkDeleteSuccess(int count) {
+    return 'Deleted $count books';
+  }
+
+  @override
+  String get padlockLockedHint => 'Field locked (no changes)';
+
+  @override
+  String get padlockUnlockedHint => 'Field unlocked (will apply to all)';
+
+  @override
+  String get bulkNotesMode => 'Notes mode';
+
+  @override
+  String get bulkNotesModeOverwrite => 'Overwrite existing note';
+
+  @override
+  String get bulkNotesModeAppend => 'Append to existing note';
+
+  @override
+  String get bulkEditNoFieldsUnlocked =>
+      'Unlock at least one field to apply changes';
 }

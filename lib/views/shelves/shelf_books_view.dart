@@ -11,6 +11,8 @@ import '../../models/display_preferences.dart';
 import '../../widgets/books_list_or_grid.dart';
 import '../../widgets/cover_mosaic.dart';
 import '../../widgets/cover_stack_fade.dart';
+import '../../controllers/book_selection_controller.dart';
+import '../../widgets/selection_app_bar.dart';
 
 /// Displays the collection of books that match a dynamic shelf's criteria.
 class ShelfBooksView extends ConsumerWidget {
@@ -26,89 +28,106 @@ class ShelfBooksView extends ConsumerWidget {
         ? context.l10n.noCoverShelfTitle
         : shelf.name;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: Hero(
-            tag: 'shelf_mosaic_${shelf.id}',
-            child: Center(
-              child: SizedBox(
-                width: 32,
-                height: 32,
-                child: CoverMosaic(books: booksAsync.value ?? []),
-              ),
-            ),
-          ),
-        ),
-        title: Hero(
-          tag: 'shelf_title_${shelf.id}',
-          child: Material(
-            color: Colors.transparent,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    displayName,
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+    final selectedIds = ref.watch(bookSelectionProvider);
+    final isSelecting = selectedIds.isNotEmpty;
+    final visibleBookIds = booksAsync.value?.map((b) => b.id).toList() ?? [];
+
+    final PreferredSizeWidget appBar = isSelecting
+        ? SelectionAppBar(visibleBookIds: visibleBookIds)
+        : AppBar(
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Hero(
+                tag: 'shelf_mosaic_${shelf.id}',
+                child: Center(
+                  child: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CoverMosaic(books: booksAsync.value ?? []),
                   ),
-                  Consumer(builder: (context, ref, _) {
-                    return booksAsync.when(
-                      data: (books) {
-                        if (books.isEmpty) return const SizedBox.shrink();
-                        final bookIds = books.map((b) => b.id).toList();
-                        return Consumer(builder: (context, ref, _) {
-                          final topTagsAsync = ref.watch(topTagsForBooksProvider(bookIds.join(',')));
-                          return topTagsAsync.maybeWhen(
-                            data: (tags) {
-                              if (tags.isEmpty) return const SizedBox.shrink();
-                              return Text(
-                                tags.map((t) => '#$t').join(' '),
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              );
-                            },
-                            orElse: () => const SizedBox.shrink(),
-                          );
-                        });
-                      },
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, _) => const SizedBox.shrink(),
-                    );
-                  }),
-                ],
+                ),
               ),
             ),
-          ),
+            title: Hero(
+              tag: 'shelf_title_${shelf.id}',
+              child: Material(
+                color: Colors.transparent,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        displayName,
+                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Consumer(builder: (context, ref, _) {
+                        return booksAsync.when(
+                          data: (books) {
+                            if (books.isEmpty) return const SizedBox.shrink();
+                            final bookIds = books.map((b) => b.id).toList();
+                            return Consumer(builder: (context, ref, _) {
+                              final topTagsAsync = ref.watch(topTagsForBooksProvider(bookIds.join(',')));
+                              return topTagsAsync.maybeWhen(
+                                data: (tags) {
+                                  if (tags.isEmpty) return const SizedBox.shrink();
+                                  return Text(
+                                    tags.map((t) => '#$t').join(' '),
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                },
+                                orElse: () => const SizedBox.shrink(),
+                              );
+                            });
+                          },
+                          loading: () => const SizedBox.shrink(),
+                          error: (_, _) => const SizedBox.shrink(),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            toolbarHeight: 72,
+            actions: [
+              IconButton(
+                icon: Consumer(builder: (context, ref, _) {
+                  final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
+                  return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
+                }),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  ref.read(displayPreferencesProvider.notifier).toggleViewMode();
+                },
+              ),
+            ],
+          );
+
+    return PopScope(
+      canPop: !isSelecting,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (isSelecting) {
+          ref.read(bookSelectionProvider.notifier).clear();
+        }
+      },
+      child: Scaffold(
+        appBar: appBar,
+        body: BooksListOrGrid(
+          booksAsync: booksAsync,
+          emptySubtitle: context.l10n.shelfBooksEmptyHint,
         ),
-        toolbarHeight: 72,
-        actions: [
-          IconButton(
-            icon: Consumer(builder: (context, ref, _) {
-              final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
-              return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
-            }),
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              ref.read(displayPreferencesProvider.notifier).toggleViewMode();
-            },
-          ),
-        ],
-      ),
-      body: BooksListOrGrid(
-        booksAsync: booksAsync,
-        emptySubtitle: context.l10n.shelfBooksEmptyHint,
       ),
     );
   }
@@ -133,53 +152,70 @@ class TagBooksView extends ConsumerWidget {
       _ => 'tag',
     };
 
+    final selectedIds = ref.watch(bookSelectionProvider);
+    final isSelecting = selectedIds.isNotEmpty;
+    final visibleBookIds = booksAsync.value?.map((b) => b.id).toList() ?? [];
+
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: Hero(
-            tag: '${prefix}_stack_${tag.id}',
-            child: Center(
-              child: SizedBox(
-                width: 32,
-                height: 32,
-                child: CoverStackFade(books: booksAsync.value ?? [], height: 32),
+    final PreferredSizeWidget appBar = isSelecting
+        ? SelectionAppBar(visibleBookIds: visibleBookIds)
+        : AppBar(
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Hero(
+                tag: '${prefix}_stack_${tag.id}',
+                child: Center(
+                  child: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CoverStackFade(books: booksAsync.value ?? [], height: 32),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        title: Hero(
-          tag: '${prefix}_title_${tag.id}',
-          child: Material(
-            color: Colors.transparent,
-            child: Text(
-              tag.name,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            title: Hero(
+              tag: '${prefix}_title_${tag.id}',
+              child: Material(
+                color: Colors.transparent,
+                child: Text(
+                  tag.name,
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ),
-          ),
+            toolbarHeight: 56,
+            actions: [
+              IconButton(
+                icon: Consumer(builder: (context, ref, _) {
+                  final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
+                  return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
+                }),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  ref.read(displayPreferencesProvider.notifier).toggleViewMode();
+                },
+              ),
+            ],
+          );
+
+    return PopScope(
+      canPop: !isSelecting,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (isSelecting) {
+          ref.read(bookSelectionProvider.notifier).clear();
+        }
+      },
+      child: Scaffold(
+        appBar: appBar,
+        body: BooksListOrGrid(
+          booksAsync: booksAsync,
+          isCollection: tag.type == TagType.collection,
+          emptySubtitle: context.l10n.shelfBooksEmptyHint,
+          onLongPress: (book) => _showBookOptions(context, ref, book),
         ),
-        toolbarHeight: 56,
-        actions: [
-          IconButton(
-            icon: Consumer(builder: (context, ref, _) {
-              final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
-              return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
-            }),
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              ref.read(displayPreferencesProvider.notifier).toggleViewMode();
-            },
-          ),
-        ],
-      ),
-      body: BooksListOrGrid(
-        booksAsync: booksAsync,
-        isCollection: tag.type == TagType.collection,
-        emptySubtitle: context.l10n.shelfBooksEmptyHint,
-        onLongPress: (book) => _showBookOptions(context, ref, book),
       ),
     );
   }
@@ -286,30 +322,47 @@ class StatusBooksView extends ConsumerWidget {
             ? ref.watch(allBooksProvider)
             : ref.watch(booksByStatusProvider(status!)));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+    final selectedIds = ref.watch(bookSelectionProvider);
+    final isSelecting = selectedIds.isNotEmpty;
+    final visibleBookIds = booksAsync.value?.map((b) => b.id).toList() ?? [];
+
+    final PreferredSizeWidget appBar = isSelecting
+        ? SelectionAppBar(visibleBookIds: visibleBookIds)
+        : AppBar(
+            title: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            toolbarHeight: 56,
+            actions: [
+              IconButton(
+                icon: Consumer(builder: (context, ref, _) {
+                  final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
+                  return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
+                }),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  ref.read(displayPreferencesProvider.notifier).toggleViewMode();
+                },
+              ),
+            ],
+          );
+
+    return PopScope(
+      canPop: !isSelecting,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (isSelecting) {
+          ref.read(bookSelectionProvider.notifier).clear();
+        }
+      },
+      child: Scaffold(
+        appBar: appBar,
+        body: BooksListOrGrid(
+          booksAsync: booksAsync,
+          emptySubtitle: context.l10n.shelfBooksEmptyHint,
         ),
-        toolbarHeight: 56,
-        actions: [
-          IconButton(
-            icon: Consumer(builder: (context, ref, _) {
-              final mode = ref.watch(displayPreferencesProvider.select((p) => p.viewMode));
-              return Icon(mode == LibraryViewMode.list ? Icons.grid_view : Icons.view_list);
-            }),
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              ref.read(displayPreferencesProvider.notifier).toggleViewMode();
-            },
-          ),
-        ],
-      ),
-      body: BooksListOrGrid(
-        booksAsync: booksAsync,
-        emptySubtitle: context.l10n.shelfBooksEmptyHint,
       ),
     );
   }
