@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,13 +7,9 @@ import '../../controllers/database_provider.dart';
 import '../../controllers/book_selection_controller.dart';
 import '../../controllers/book_form_controller.dart';
 import '../../l10n/l10n_extension.dart';
-import '../../widgets/entity_field_selector.dart';
-import '../../widgets/imprint_placeholder.dart';
-import '../../widgets/cover_placeholder.dart';
-import '../../widgets/date_picker_field.dart';
 import 'cover_picker_sheet.dart';
-import 'widgets/form_components.dart';
-import 'widgets/padlock_field_wrapper.dart';
+import 'widgets/bulk_main_tab.dart';
+import 'widgets/bulk_details_tab.dart';
 
 /// Form for bulk editing common attributes across multiple selected books.
 /// Replicates the tabbed structure of BookFormView while allowing padlock toggles.
@@ -158,43 +153,19 @@ class _BulkEditViewState extends ConsumerState<BulkEditView>
                   foregroundColor: Theme.of(ctx).colorScheme.onError,
                 ),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(l10n.delete),
+                child: Text(l10n.yes),
               ),
             ],
           ),
         );
-
-        if (confirmed == true && mounted) {
-          FocusManager.instance.primaryFocus?.unfocus();
-          setState(() {
-            onClearContent();
-            setLocked(true);
-          });
+        if (confirmed == true) {
+          onClearContent();
+          setLocked(true);
         }
       } else {
-        FocusManager.instance.primaryFocus?.unfocus();
         setLocked(true);
       }
     }
-  }
-
-  // --- Cover Actions ---
-  Future<void> _pickCover() async {
-    if (_isProcessingImage) return;
-    final l10n = context.l10n;
-    try {
-      final saved = await ref.read(bookFormControllerProvider).pickCoverFromGallery(
-        cropTitle: l10n.cropCoverTitle,
-        doneTitle: l10n.done,
-        cancelTitle: l10n.cancel,
-      );
-      if (mounted && saved != null) {
-        setState(() {
-          _coverPath = saved;
-          _isCoverLocked = false;
-        });
-      }
-    } catch (_) {}
   }
 
   Future<void> _takePhoto() async {
@@ -435,8 +406,6 @@ class _BulkEditViewState extends ConsumerState<BulkEditView>
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final bookDao = ref.read(databaseProvider).bookDao;
 
     return Scaffold(
@@ -470,761 +439,208 @@ class _BulkEditViewState extends ConsumerState<BulkEditView>
         child: TabBarView(
           controller: _tabController,
           children: [
-            // --- TAB 1: MAIN ---
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Cover Picker with Padlock
-                PadlockFieldWrapper(
-                  centerChild: true,
-                  isLocked: _isCoverLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isCoverLocked,
-                    setLocked: (v) => setState(() => _isCoverLocked = v),
-                    isModified: _coverPath != null,
-                    onClearContent: () => _coverPath = null,
-                  ),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: _pickCover,
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: _coverPath != null
-                                    ? Image.file(
-                                        File(_coverPath!),
-                                        width: 100,
-                                        height: 150,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) =>
-                                            const CoverPlaceholder(width: 100, height: 150, iconSize: 48),
-                                      )
-                                    : const CoverPlaceholder(width: 100, height: 150, iconSize: 48),
-                              ),
-                              Positioned(
-                                bottom: 4,
-                                right: 4,
-                                child: CircleAvatar(
-                                  radius: 14,
-                                  backgroundColor: colorScheme.primary,
-                                  child: Icon(
-                                    Icons.photo_library_outlined,
-                                    size: 14,
-                                    color: colorScheme.onPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextButton.icon(
-                              icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                              label: Text(l10n.photo),
-                              onPressed: _takePhoto,
-                            ),
-                            const SizedBox(width: 4),
-                            TextButton.icon(
-                              icon: const Icon(Icons.link, size: 16),
-                              label: Text(l10n.url),
-                              onPressed: _pickCoverFromUrl,
-                            ),
-                            const SizedBox(width: 4),
-                            TextButton.icon(
-                              icon: const Icon(Icons.image_search, size: 16),
-                              label: Text(l10n.coverSearch),
-                              onPressed: _searchCovers,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Basic Info
-                SectionHeader(label: l10n.sectionBasicInfo),
-                const SizedBox(height: 12),
-
-                PadlockFieldWrapper(
-                  isLocked: _isTitleLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isTitleLocked,
-                    setLocked: (v) => setState(() => _isTitleLocked = v),
-                    isModified: _titleCtrl.text.isNotEmpty,
-                    onClearContent: () => _titleCtrl.clear(),
-                  ),
-                  child: FormFieldWidget(
-                    controller: _titleCtrl,
-                    label: l10n.fieldTitle,
-                    icon: Icons.title,
-                  ),
-                ),
-
-                PadlockFieldWrapper(
-                  isLocked: _isSubtitleLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isSubtitleLocked,
-                    setLocked: (v) => setState(() => _isSubtitleLocked = v),
-                    isModified: _subtitleCtrl.text.isNotEmpty,
-                    onClearContent: () => _subtitleCtrl.clear(),
-                  ),
-                  child: FormFieldWidget(
-                    controller: _subtitleCtrl,
-                    label: l10n.fieldSubtitle,
-                    icon: Icons.subtitles_outlined,
-                  ),
-                ),
-
-                PadlockFieldWrapper(
-                  isLocked: _isAuthorLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isAuthorLocked,
-                    setLocked: (v) => setState(() => _isAuthorLocked = v),
-                    isModified: _authorCtrl.text.isNotEmpty,
-                    onClearContent: () => _authorCtrl.clear(),
-                  ),
-                  child: DelimitedAutocompleteFormField(
-                    controller: _authorCtrl,
-                    label: l10n.fieldAuthor,
-                    icon: Icons.person_outline,
-                    optionsBuilder: (q) => bookDao.getDistinctAuthors(q),
-                    showHelp: true,
-                    helpTitle: l10n.authorMultiHelpTitle,
-                    helpContent: l10n.authorMultiHelpContent,
-                  ),
-                ),
-
-                PadlockFieldWrapper(
-                  isLocked: _isPublisherLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isPublisherLocked,
-                    setLocked: (v) => setState(() => _isPublisherLocked = v),
-                    isModified: _publisherCtrl.text.isNotEmpty,
-                    onClearContent: () => _publisherCtrl.clear(),
-                  ),
-                  child: DelimitedAutocompleteFormField(
-                    controller: _publisherCtrl,
-                    label: l10n.fieldPublisher,
-                    icon: Icons.business_outlined,
-                    optionsBuilder: (q) => bookDao.getDistinctPublishers(q),
-                  ),
-                ),
-
-                PadlockFieldWrapper(
-                  isLocked: _isDescriptionLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isDescriptionLocked,
-                    setLocked: (v) => setState(() => _isDescriptionLocked = v),
-                    isModified: _descriptionCtrl.text.isNotEmpty,
-                    onClearContent: () => _descriptionCtrl.clear(),
-                  ),
-                  child: FormFieldWidget(
-                    controller: _descriptionCtrl,
-                    label: l10n.fieldDescription,
-                    icon: Icons.description_outlined,
-                    maxLines: 5,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Categories / Tags
-                PadlockFieldWrapper(
-                  isLocked: _isTagsLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isTagsLocked,
-                    setLocked: (v) => setState(() => _isTagsLocked = v),
-                    isModified: _selectedTags.isNotEmpty,
-                    onClearContent: () => _selectedTags = [],
-                  ),
-                  child: EntityFieldSelector(
-                    selected: _selectedTags,
-                    onChanged: (list) => setState(() => _selectedTags = list),
-                    type: TagType.tag,
-                    label: l10n.tagSearchOrCreate,
-                    icon: Icons.label_outline,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Unalterable Property Notice: Pages
-                _UnalterablePropertyCard(
-                  title: l10n.fieldReadingProgress,
-                  icon: Icons.menu_book_outlined,
-                  message: "Las páginas y el progreso de lectura son específicos de cada libro y no se alteran en masa.",
-                ),
-                const SizedBox(height: 24),
-
-                // Status Section
-                SectionHeader(label: l10n.sectionReadingStatus),
-                const SizedBox(height: 12),
-                PadlockFieldWrapper(
-                  isLocked: _isStatusLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isStatusLocked,
-                    setLocked: (v) => setState(() => _isStatusLocked = v),
-                    isModified: _status != ReadingStatus.wantToRead,
-                    onClearContent: () => _status = ReadingStatus.wantToRead,
-                  ),
-                  child: StatusSelector(
-                    selected: _status,
-                    onChanged: (s) => setState(() => _status = s),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Format Section
-                SectionHeader(label: l10n.sectionFormat),
-                const SizedBox(height: 12),
-                PadlockFieldWrapper(
-                  isLocked: _isFormatLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isFormatLocked,
-                    setLocked: (v) => setState(() => _isFormatLocked = v),
-                    isModified: _format != null,
-                    onClearContent: () => _format = null,
-                  ),
-                  child: FormatSelector(
-                    selected: _format,
-                    onChanged: (f) => setState(() => _format = f),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Unalterable Property Notice: Rating
-                _UnalterablePropertyCard(
-                  title: l10n.sectionRating,
-                  icon: Icons.star_outline,
-                  message: "La puntuación es individual para cada libro y no se altera en masa.",
-                ),
-                const SizedBox(height: 32),
-              ],
+            BulkMainTab(
+              isCoverLocked: _isCoverLocked,
+              onCoverLockChanged: (_) => _toggleLock(
+                currentLocked: _isCoverLocked,
+                setLocked: (v) => setState(() => _isCoverLocked = v),
+                isModified: _coverPath != null,
+                onClearContent: () => _coverPath = null,
+              ),
+              coverPath: _coverPath,
+              onPickCover: _takePhoto,
+              onTakePhoto: _takePhoto,
+              onPickCoverFromUrl: _pickCoverFromUrl,
+              onSearchCovers: _searchCovers,
+              isTitleLocked: _isTitleLocked,
+              onTitleLockChanged: (_) => _toggleLock(
+                currentLocked: _isTitleLocked,
+                setLocked: (v) => setState(() => _isTitleLocked = v),
+                isModified: _titleCtrl.text.isNotEmpty,
+                onClearContent: () => _titleCtrl.clear(),
+              ),
+              titleCtrl: _titleCtrl,
+              isSubtitleLocked: _isSubtitleLocked,
+              onSubtitleLockChanged: (_) => _toggleLock(
+                currentLocked: _isSubtitleLocked,
+                setLocked: (v) => setState(() => _isSubtitleLocked = v),
+                isModified: _subtitleCtrl.text.isNotEmpty,
+                onClearContent: () => _subtitleCtrl.clear(),
+              ),
+              subtitleCtrl: _subtitleCtrl,
+              isAuthorLocked: _isAuthorLocked,
+              onAuthorLockChanged: (_) => _toggleLock(
+                currentLocked: _isAuthorLocked,
+                setLocked: (v) => setState(() => _isAuthorLocked = v),
+                isModified: _authorCtrl.text.isNotEmpty,
+                onClearContent: () => _authorCtrl.clear(),
+              ),
+              authorCtrl: _authorCtrl,
+              isPublisherLocked: _isPublisherLocked,
+              onPublisherLockChanged: (_) => _toggleLock(
+                currentLocked: _isPublisherLocked,
+                setLocked: (v) => setState(() => _isPublisherLocked = v),
+                isModified: _publisherCtrl.text.isNotEmpty,
+                onClearContent: () => _publisherCtrl.clear(),
+              ),
+              publisherCtrl: _publisherCtrl,
+              isDescriptionLocked: _isDescriptionLocked,
+              onDescriptionLockChanged: (_) => _toggleLock(
+                currentLocked: _isDescriptionLocked,
+                setLocked: (v) => setState(() => _isDescriptionLocked = v),
+                isModified: _descriptionCtrl.text.isNotEmpty,
+                onClearContent: () => _descriptionCtrl.clear(),
+              ),
+              descriptionCtrl: _descriptionCtrl,
+              isTagsLocked: _isTagsLocked,
+              onTagsLockChanged: (_) => _toggleLock(
+                currentLocked: _isTagsLocked,
+                setLocked: (v) => setState(() => _isTagsLocked = v),
+                isModified: _selectedTags.isNotEmpty,
+                onClearContent: () => _selectedTags = [],
+              ),
+              selectedTags: _selectedTags,
+              onTagsChanged: (list) => setState(() => _selectedTags = list),
+              isStatusLocked: _isStatusLocked,
+              onStatusLockChanged: (_) => _toggleLock(
+                currentLocked: _isStatusLocked,
+                setLocked: (v) => setState(() => _isStatusLocked = v),
+                isModified: _status != ReadingStatus.wantToRead,
+                onClearContent: () => _status = ReadingStatus.wantToRead,
+              ),
+              status: _status,
+              onStatusChanged: (s) => setState(() => _status = s),
+              isFormatLocked: _isFormatLocked,
+              onFormatLockChanged: (_) => _toggleLock(
+                currentLocked: _isFormatLocked,
+                setLocked: (v) => setState(() => _isFormatLocked = v),
+                isModified: _format != null,
+                onClearContent: () => _format = null,
+              ),
+              format: _format,
+              onFormatChanged: (f) => setState(() => _format = f),
+              bookDao: bookDao,
             ),
-
-            // --- TAB 2: DETAILS ---
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                SectionHeader(label: l10n.sectionBasicInfo),
-                const SizedBox(height: 12),
-
-                // Unalterable Property Notice: ISBN
-                _UnalterablePropertyCard(
-                  title: l10n.fieldIsbn,
-                  icon: Icons.barcode_reader,
-                  message: "El código ISBN es único para cada libro y no se altera en masa.",
-                ),
-                const SizedBox(height: 16),
-
-                PadlockFieldWrapper(
-                  label: l10n.fieldYear,
-                  isLocked: _isYearLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isYearLocked,
-                    setLocked: (v) => setState(() => _isYearLocked = v),
-                    isModified: _publishYearCtrl.text.isNotEmpty,
-                    onClearContent: () => _publishYearCtrl.clear(),
-                  ),
-                  child: FormFieldWidget(
-                    controller: _publishYearCtrl,
-                    label: l10n.fieldYear,
-                    icon: Icons.calendar_today_outlined,
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-
-                PadlockFieldWrapper(
-                  label: l10n.fieldLanguage,
-                  isLocked: _isLanguageLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isLanguageLocked,
-                    setLocked: (v) => setState(() => _isLanguageLocked = v),
-                    isModified: _languageCtrl.text.isNotEmpty,
-                    onClearContent: () => _languageCtrl.clear(),
-                  ),
-                  child: DelimitedAutocompleteFormField(
-                    controller: _languageCtrl,
-                    label: l10n.fieldLanguage,
-                    icon: Icons.language_outlined,
-                    optionsBuilder: (q) => bookDao.getDistinctLanguages(q),
-                  ),
-                ),
-
-                PadlockFieldWrapper(
-                  label: l10n.fieldIsTranslation,
-                  isLocked: _isTranslationLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isTranslationLocked,
-                    setLocked: (v) => setState(() => _isTranslationLocked = v),
-                    isModified: _isTranslation,
-                    onClearContent: () => _isTranslation = false,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(l10n.fieldIsTranslation),
-                      const Spacer(),
-                      Switch(
-                        value: _isTranslation,
-                        onChanged: (v) => setState(() => _isTranslation = v),
-                      ),
-                    ],
-                  ),
-                ),
-
-                if (_isTranslation) ...[
-                  PadlockFieldWrapper(
-                    isLocked: _isOriginalLanguageLocked,
-                    onLockChanged: (_) => _toggleLock(
-                      currentLocked: _isOriginalLanguageLocked,
-                      setLocked: (v) => setState(() => _isOriginalLanguageLocked = v),
-                      isModified: _originalLanguageCtrl.text.isNotEmpty,
-                      onClearContent: () => _originalLanguageCtrl.clear(),
-                    ),
-                    child: DelimitedAutocompleteFormField(
-                      controller: _originalLanguageCtrl,
-                      label: l10n.fieldOriginalLanguage,
-                      icon: Icons.language_outlined,
-                      optionsBuilder: (q) => bookDao.getDistinctLanguages(q),
-                    ),
-                  ),
-                  PadlockFieldWrapper(
-                    isLocked: _isOriginalTitleLocked,
-                    onLockChanged: (_) => _toggleLock(
-                      currentLocked: _isOriginalTitleLocked,
-                      setLocked: (v) => setState(() => _isOriginalTitleLocked = v),
-                      isModified: _originalTitleCtrl.text.isNotEmpty,
-                      onClearContent: () => _originalTitleCtrl.clear(),
-                    ),
-                    child: FormFieldWidget(
-                      controller: _originalTitleCtrl,
-                      label: l10n.fieldOriginalTitle,
-                      icon: Icons.title_outlined,
-                    ),
-                  ),
-                  PadlockFieldWrapper(
-                    isLocked: _isTranslatorLocked,
-                    onLockChanged: (_) => _toggleLock(
-                      currentLocked: _isTranslatorLocked,
-                      setLocked: (v) => setState(() => _isTranslatorLocked = v),
-                      isModified: _translatorCtrl.text.isNotEmpty,
-                      onClearContent: () => _translatorCtrl.clear(),
-                    ),
-                    child: DelimitedAutocompleteFormField(
-                      controller: _translatorCtrl,
-                      label: l10n.fieldTranslator,
-                      icon: Icons.translate_outlined,
-                      optionsBuilder: (q) => bookDao.getDistinctTranslators(q),
-                      showHelp: true,
-                      helpTitle: l10n.translatorMultiHelpTitle,
-                      helpContent: l10n.translatorMultiHelpContent,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 24),
-
-                // Ownership Status
-                SectionHeader(label: l10n.fieldOwnershipStatus),
-                const SizedBox(height: 12),
-                PadlockFieldWrapper(
-                  isLocked: _isOwnershipLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isOwnershipLocked,
-                    setLocked: (v) => setState(() => _isOwnershipLocked = v),
-                    isModified: _ownershipStatus != null || _personNameCtrl.text.isNotEmpty,
-                    onClearContent: () {
-                      _ownershipStatus = null;
-                      _personNameCtrl.clear();
-                    },
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      OwnershipStatusSelector(
-                        selected: _ownershipStatus,
-                        onChanged: (s) => setState(() => _ownershipStatus = s),
-                      ),
-                      if (_ownershipStatus == OwnershipStatus.borrowed ||
-                          _ownershipStatus == OwnershipStatus.gifted) ...[
-                        const SizedBox(height: 12),
-                        FormFieldWidget(
-                          controller: _personNameCtrl,
-                          label: l10n.ownershipEventPerson,
-                          icon: Icons.person_outline,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Collections
-                SectionHeader(label: l10n.fieldCollection),
-                const SizedBox(height: 12),
-                PadlockFieldWrapper(
-                  isLocked: _isCollectionsLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isCollectionsLocked,
-                    setLocked: (v) => setState(() => _isCollectionsLocked = v),
-                    isModified: _selectedCollections.isNotEmpty,
-                    onClearContent: () => _selectedCollections = [],
-                  ),
-                  child: Column(
-                    children: [
-                      ..._selectedCollections.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final col = entry.value.$1;
-                        final number = entry.value.$2;
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: colorScheme.outlineVariant),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.collections_bookmark_outlined, size: 20, color: colorScheme.primary),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          col.name,
-                                          style: theme.textTheme.bodyLarge?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                SizedBox(
-                                  width: 72,
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      prefix: Padding(
-                                        padding: const EdgeInsets.only(right: 4),
-                                        child: Text(
-                                          '#',
-                                          style: TextStyle(
-                                            color: colorScheme.onSurface.withValues(alpha: 0.5),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                                      isDense: true,
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    controller: TextEditingController(text: number?.toString() ?? '')
-                                      ..selection = TextSelection.fromPosition(
-                                        TextPosition(offset: (number?.toString() ?? '').length),
-                                      ),
-                                    onChanged: (value) {
-                                      final newNumber = int.tryParse(value);
-                                      final newList = List<(Tag, int?)>.from(_selectedCollections);
-                                      newList[index] = (col, newNumber);
-                                      setState(() => _selectedCollections = newList);
-                                    },
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                                  onPressed: () {
-                                    final newList = List<(Tag, int?)>.from(_selectedCollections);
-                                    newList.removeAt(index);
-                                    setState(() => _selectedCollections = newList);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                      EntityFieldSelector(
-                        key: const ValueKey('bulk_collection_selector'),
-                        selected: const [],
-                        onChanged: (list) {
-                          if (list.isNotEmpty) {
-                            final newTag = list.last;
-                            if (!_selectedCollections.any((c) => c.$1.id == newTag.id)) {
-                              setState(() {
-                                _selectedCollections = [..._selectedCollections, (newTag, null)];
-                              });
-                            }
-                          }
-                        },
-                        type: TagType.collection,
-                        label: l10n.fieldCollection,
-                        icon: Icons.layers_outlined,
-                        multiSelection: true,
-                        useSquareButton: true,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Imprint
-                SectionHeader(label: l10n.sectionImprint),
-                const SizedBox(height: 12),
-                PadlockFieldWrapper(
-                  isLocked: _isImprintLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isImprintLocked,
-                    setLocked: (v) => setState(() => _isImprintLocked = v),
-                    isModified: _selectedImprint != null,
-                    onClearContent: () => _selectedImprint = null,
-                  ),
-                  child: Column(
-                    children: [
-                      if (_selectedImprint != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: colorScheme.outlineVariant),
-                            ),
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: _selectedImprint!.imagePath != null
-                                      ? Image.file(
-                                          File(_selectedImprint!.imagePath!),
-                                          width: 40,
-                                          height: 40,
-                                          fit: BoxFit.cover,
-                                          alignment: Alignment.topCenter,
-                                          errorBuilder: (context, error, stackTrace) =>
-                                              ImprintPlaceholder(size: 40, iconSize: 20, name: _selectedImprint!.name),
-                                        )
-                                      : ImprintPlaceholder(size: 40, iconSize: 20, name: _selectedImprint!.name),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _selectedImprint!.name,
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                                  onPressed: () => setState(() => _selectedImprint = null),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      EntityFieldSelector(
-                        key: const ValueKey('bulk_imprint_selector'),
-                        selected: const [],
-                        onChanged: (list) {
-                          setState(() => _selectedImprint = list.firstOrNull);
-                        },
-                        type: TagType.imprint,
-                        label: l10n.imprintSearch,
-                        icon: Icons.business_outlined,
-                        multiSelection: false,
-                        useSquareButton: true,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Personal Notes
-                SectionHeader(label: l10n.bookDetailNotesTitle),
-                const SizedBox(height: 12),
-                PadlockFieldWrapper(
-                  isLocked: _isNotesLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isNotesLocked,
-                    setLocked: (v) => setState(() => _isNotesLocked = v),
-                    isModified: _notesCtrl.text.isNotEmpty,
-                    onClearContent: () {
-                      _notesCtrl.clear();
-                      _appendNotes = false;
-                    },
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FormFieldWidget(
-                        controller: _notesCtrl,
-                        label: l10n.fieldNotes,
-                        icon: Icons.notes_outlined,
-                        maxLines: 5,
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          Text(
-                            l10n.bulkNotesMode,
-                            style: theme.textTheme.bodySmall,
-                          ),
-                          ChoiceChip(
-                            label: Text(l10n.bulkNotesModeOverwrite),
-                            selected: !_appendNotes,
-                            onSelected: (selected) {
-                              if (selected) setState(() => _appendNotes = false);
-                            },
-                          ),
-                          ChoiceChip(
-                            label: Text(l10n.bulkNotesModeAppend),
-                            selected: _appendNotes,
-                            onSelected: (selected) {
-                              if (selected) setState(() => _appendNotes = true);
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Reading Dates
-                SectionHeader(label: l10n.tabDetails),
-                const SizedBox(height: 12),
-                PadlockFieldWrapper(
-                  isLocked: _isDatesLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isDatesLocked,
-                    setLocked: (v) => setState(() => _isDatesLocked = v),
-                    isModified: _startedAt != null || _finishedAt != null,
-                    onClearContent: () {
-                      _startedAt = null;
-                      _finishedAt = null;
-                    },
-                  ),
-                  child: Column(
-                    children: [
-                      DatePickerField(
-                        label: l10n.bookDetailFieldStarted,
-                        value: _startedAt,
-                        onChanged: (d) => setState(() => _startedAt = d),
-                        icon: Icons.play_circle_outline,
-                      ),
-                      const SizedBox(height: 12),
-                      DatePickerField(
-                        label: l10n.bookDetailFieldFinished,
-                        value: _finishedAt,
-                        onChanged: (d) => setState(() => _finishedAt = d),
-                        icon: Icons.check_circle_outline,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Copies
-                PadlockFieldWrapper(
-                  isLocked: _isCopiesLocked,
-                  onLockChanged: (_) => _toggleLock(
-                    currentLocked: _isCopiesLocked,
-                    setLocked: (v) => setState(() => _isCopiesLocked = v),
-                    isModified: _copiesCtrl.text != '1',
-                    onClearContent: () => _copiesCtrl.text = '1',
-                  ),
-                  child: FormFieldWidget(
-                    controller: _copiesCtrl,
-                    label: l10n.fieldCopies,
-                    icon: Icons.copy,
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(height: 32),
-              ],
+            BulkDetailsTab(
+              isYearLocked: _isYearLocked,
+              onYearLockChanged: (_) => _toggleLock(
+                currentLocked: _isYearLocked,
+                setLocked: (v) => setState(() => _isYearLocked = v),
+                isModified: _publishYearCtrl.text.isNotEmpty,
+                onClearContent: () => _publishYearCtrl.clear(),
+              ),
+              publishYearCtrl: _publishYearCtrl,
+              isLanguageLocked: _isLanguageLocked,
+              onLanguageLockChanged: (_) => _toggleLock(
+                currentLocked: _isLanguageLocked,
+                setLocked: (v) => setState(() => _isLanguageLocked = v),
+                isModified: _languageCtrl.text.isNotEmpty,
+                onClearContent: () => _languageCtrl.clear(),
+              ),
+              languageCtrl: _languageCtrl,
+              isTranslationLocked: _isTranslationLocked,
+              onTranslationLockChanged: (_) => _toggleLock(
+                currentLocked: _isTranslationLocked,
+                setLocked: (v) => setState(() => _isTranslationLocked = v),
+                isModified: _isTranslation,
+                onClearContent: () => _isTranslation = false,
+              ),
+              isTranslation: _isTranslation,
+              onIsTranslationChanged: (v) => setState(() => _isTranslation = v),
+              isOriginalLanguageLocked: _isOriginalLanguageLocked,
+              onOriginalLanguageLockChanged: (_) => _toggleLock(
+                currentLocked: _isOriginalLanguageLocked,
+                setLocked: (v) => setState(() => _isOriginalLanguageLocked = v),
+                isModified: _originalLanguageCtrl.text.isNotEmpty,
+                onClearContent: () => _originalLanguageCtrl.clear(),
+              ),
+              originalLanguageCtrl: _originalLanguageCtrl,
+              isOriginalTitleLocked: _isOriginalTitleLocked,
+              onOriginalTitleLockChanged: (_) => _toggleLock(
+                currentLocked: _isOriginalTitleLocked,
+                setLocked: (v) => setState(() => _isOriginalTitleLocked = v),
+                isModified: _originalTitleCtrl.text.isNotEmpty,
+                onClearContent: () => _originalTitleCtrl.clear(),
+              ),
+              originalTitleCtrl: _originalTitleCtrl,
+              isTranslatorLocked: _isTranslatorLocked,
+              onTranslatorLockChanged: (_) => _toggleLock(
+                currentLocked: _isTranslatorLocked,
+                setLocked: (v) => setState(() => _isTranslatorLocked = v),
+                isModified: _translatorCtrl.text.isNotEmpty,
+                onClearContent: () => _translatorCtrl.clear(),
+              ),
+              translatorCtrl: _translatorCtrl,
+              isOwnershipLocked: _isOwnershipLocked,
+              onOwnershipLockChanged: (_) => _toggleLock(
+                currentLocked: _isOwnershipLocked,
+                setLocked: (v) => setState(() => _isOwnershipLocked = v),
+                isModified: _ownershipStatus != null || _personNameCtrl.text.isNotEmpty,
+                onClearContent: () {
+                  _ownershipStatus = null;
+                  _personNameCtrl.clear();
+                },
+              ),
+              ownershipStatus: _ownershipStatus,
+              onOwnershipStatusChanged: (s) => setState(() => _ownershipStatus = s),
+              personNameCtrl: _personNameCtrl,
+              isCollectionsLocked: _isCollectionsLocked,
+              onCollectionsLockChanged: (_) => _toggleLock(
+                currentLocked: _isCollectionsLocked,
+                setLocked: (v) => setState(() => _isCollectionsLocked = v),
+                isModified: _selectedCollections.isNotEmpty,
+                onClearContent: () => _selectedCollections = [],
+              ),
+              selectedCollections: _selectedCollections,
+              onCollectionsChanged: (list) => setState(() => _selectedCollections = list),
+              isImprintLocked: _isImprintLocked,
+              onImprintLockChanged: (_) => _toggleLock(
+                currentLocked: _isImprintLocked,
+                setLocked: (v) => setState(() => _isImprintLocked = v),
+                isModified: _selectedImprint != null,
+                onClearContent: () => _selectedImprint = null,
+              ),
+              selectedImprint: _selectedImprint,
+              onImprintChanged: (imprint) => setState(() => _selectedImprint = imprint),
+              isNotesLocked: _isNotesLocked,
+              onNotesLockChanged: (_) => _toggleLock(
+                currentLocked: _isNotesLocked,
+                setLocked: (v) => setState(() => _isNotesLocked = v),
+                isModified: _notesCtrl.text.isNotEmpty,
+                onClearContent: () {
+                  _notesCtrl.clear();
+                  _appendNotes = false;
+                },
+              ),
+              notesCtrl: _notesCtrl,
+              appendNotes: _appendNotes,
+              onAppendNotesChanged: (append) => setState(() => _appendNotes = append),
+              isDatesLocked: _isDatesLocked,
+              onDatesLockChanged: (_) => _toggleLock(
+                currentLocked: _isDatesLocked,
+                setLocked: (v) => setState(() => _isDatesLocked = v),
+                isModified: _startedAt != null || _finishedAt != null,
+                onClearContent: () {
+                  _startedAt = null;
+                  _finishedAt = null;
+                },
+              ),
+              startedAt: _startedAt,
+              finishedAt: _finishedAt,
+              onStartedAtChanged: (d) => setState(() => _startedAt = d),
+              onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
+              isCopiesLocked: _isCopiesLocked,
+              onCopiesLockChanged: (_) => _toggleLock(
+                currentLocked: _isCopiesLocked,
+                setLocked: (v) => setState(() => _isCopiesLocked = v),
+                isModified: _copiesCtrl.text != '1',
+                onClearContent: () => _copiesCtrl.text = '1',
+              ),
+              copiesCtrl: _copiesCtrl,
+              bookDao: bookDao,
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _UnalterablePropertyCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final String message;
-
-  const _UnalterablePropertyCard({
-    required this.title,
-    required this.icon,
-    required this.message,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: colorScheme.outline),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.outline,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  message,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.outline,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Tooltip(
-            message: "Campo inalterable en edición masiva",
-            child: Icon(Icons.lock_outline, color: colorScheme.outline, size: 20),
-          ),
-        ],
       ),
     );
   }
