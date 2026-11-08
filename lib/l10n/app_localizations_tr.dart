@@ -223,6 +223,40 @@ class AppLocalizationsTr extends AppLocalizations {
   String get scanBatchSubtitle => '';
 
   @override
+  String get searchHistoryTitle => 'Arama ve Tarama Geçmişi';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Geçmiş aramaları ve başarısız/çevrimdışı taramaları görüntüleyin';
+
+  @override
+  String get searchHistoryEmpty => 'Henüz arama veya tarama geçmişi yok';
+
+  @override
+  String get searchHistoryClear => 'Geçmişi temizle';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Barkod tarama';
+
+  @override
+  String get searchHistoryTypeBatch => 'Toplu tarama';
+
+  @override
+  String get searchHistoryTypeText => 'Metin araması';
+
+  @override
+  String get searchHistoryStatusSuccess => 'BAŞARILI';
+
+  @override
+  String get searchHistoryStatusFailed => 'BAŞARISIZ';
+
+  @override
+  String get searchHistoryStatusPending => 'BEKLEYEN';
+
+  @override
+  String get searchHistorySaved => 'Geçmişe kaydedildi';
+
+  @override
   String get scanModeBarcode => '';
 
   @override

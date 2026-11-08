@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 import 'package:camera/camera.dart';
+import 'package:drift/drift.dart' hide Column;
 import '../../services/permission_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/app_settings_controller.dart';
@@ -250,10 +251,21 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
   void _onFound(String code) async {
     if (_isPopped || _isBatchProcessing) return;
 
+    final historyDao = ref.read(searchHistoryDaoProvider);
+    final scanType = widget.batchMode ? 'batch_scan' : 'isbn_scan';
+
     if (!widget.batchMode) {
       _isPopped = true;
       _ocrTimer?.cancel();
       HapticFeedback.mediumImpact();
+
+      await historyDao.insertEntry(SearchHistoryCompanion.insert(
+        query: code,
+        type: scanType,
+        status: 'success',
+        timestamp: DateTime.now(),
+      ));
+
       Navigator.pop(context, code);
       return;
     }
@@ -284,7 +296,13 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
       );
 
       if (results.isEmpty) {
-        if (mounted) _showFeedback(warning: context.l10n.bookSearchNoResults(code));
+        await historyDao.insertEntry(SearchHistoryCompanion.insert(
+          query: code,
+          type: scanType,
+          status: 'failed',
+          timestamp: DateTime.now(),
+        ));
+        if (mounted) _showFeedback(warning: '${context.l10n.bookSearchNoResults(code)} (${context.l10n.searchHistorySaved})');
         return;
       }
 
@@ -302,11 +320,27 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
 
       final fullBook = await db.bookDao.getBook(id);
 
+      await historyDao.insertEntry(SearchHistoryCompanion.insert(
+        query: code,
+        type: scanType,
+        status: 'success',
+        title: Value(book.title),
+        author: Value(book.authors.join(', ')),
+        publisher: Value(book.publisher),
+        timestamp: DateTime.now(),
+      ));
+
       if (mounted && fullBook != null) {
         _showFeedback(book: fullBook);
       }
     } catch (e) {
-      if (mounted) _showFeedback(warning: context.l10n.bookSearchErrorNetwork);
+      await historyDao.insertEntry(SearchHistoryCompanion.insert(
+        query: code,
+        type: scanType,
+        status: 'failed',
+        timestamp: DateTime.now(),
+      ));
+      if (mounted) _showFeedback(warning: '${context.l10n.bookSearchErrorNetwork} (${context.l10n.searchHistorySaved})');
     }
   }
 

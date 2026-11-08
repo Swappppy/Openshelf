@@ -8,7 +8,19 @@ import 'widgets/book_search_form.dart';
 /// Screen for searching books across multiple online providers.
 class BookSearchView extends ConsumerStatefulWidget {
   final String? initialQuery;
-  const BookSearchView({super.key, this.initialQuery});
+  final String? initialTitle;
+  final String? initialAuthor;
+  final String? initialPublisher;
+  final String? initialIsbn;
+
+  const BookSearchView({
+    super.key,
+    this.initialQuery,
+    this.initialTitle,
+    this.initialAuthor,
+    this.initialPublisher,
+    this.initialIsbn,
+  });
 
   @override
   ConsumerState<BookSearchView> createState() => _BookSearchViewState();
@@ -20,8 +32,20 @@ class _BookSearchViewState extends ConsumerState<BookSearchView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = ref.read(bookSearchControllerProvider);
-      if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
-        controller.initQuery(widget.initialQuery);
+      final hasParams = (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) ||
+          (widget.initialTitle != null && widget.initialTitle!.isNotEmpty) ||
+          (widget.initialAuthor != null && widget.initialAuthor!.isNotEmpty) ||
+          (widget.initialPublisher != null && widget.initialPublisher!.isNotEmpty) ||
+          (widget.initialIsbn != null && widget.initialIsbn!.isNotEmpty);
+
+      if (hasParams) {
+        controller.initStructuredQuery(
+          query: widget.initialQuery,
+          title: widget.initialTitle,
+          author: widget.initialAuthor,
+          publisher: widget.initialPublisher,
+          isbn: widget.initialIsbn,
+        );
         controller.search(context, networkErrorMsg: context.l10n.bookSearchErrorNetwork);
       } else {
         controller.titleFocusNode.requestFocus();

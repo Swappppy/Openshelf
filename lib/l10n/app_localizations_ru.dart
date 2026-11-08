@@ -225,6 +225,40 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scanBatchSubtitle => 'Сканировать несколько книг подряд';
 
   @override
+  String get searchHistoryTitle => 'История поиска и сканирования';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Просмотр прошлых поисков и неудачных/офлайн сканирований';
+
+  @override
+  String get searchHistoryEmpty => 'История поиска или сканирования пока пуста';
+
+  @override
+  String get searchHistoryClear => 'Очистить историю';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Сканирование штрихкода';
+
+  @override
+  String get searchHistoryTypeBatch => 'Пакетное сканирование';
+
+  @override
+  String get searchHistoryTypeText => 'Текстовый поиск';
+
+  @override
+  String get searchHistoryStatusSuccess => 'УСПЕШНО';
+
+  @override
+  String get searchHistoryStatusFailed => 'ОШИБКА';
+
+  @override
+  String get searchHistoryStatusPending => 'В ОБРАБОТКЕ';
+
+  @override
+  String get searchHistorySaved => 'Сохранено в историю';
+
+  @override
   String get scanModeBarcode => 'Баркод';
 
   @override

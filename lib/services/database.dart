@@ -18,6 +18,7 @@ import 'daos/log_dao.dart';
 import 'daos/stat_dao.dart';
 import 'daos/read_history_dao.dart';
 import 'daos/ownership_dao.dart';
+import 'daos/search_history_dao.dart';
 
 import 'database/converters.dart';
 import 'database/tables/books_table.dart';
@@ -29,6 +30,7 @@ import 'database/tables/logs_table.dart';
 import 'database/tables/stats_table.dart';
 import 'database/tables/read_history_table.dart';
 import 'database/tables/ownership_log_table.dart';
+import 'database/tables/search_history_table.dart';
 
 export 'database/converters.dart';
 export 'database/tables/books_table.dart';
@@ -40,18 +42,19 @@ export 'database/tables/logs_table.dart';
 export 'database/tables/stats_table.dart';
 export 'database/tables/read_history_table.dart';
 export 'database/tables/ownership_log_table.dart';
+export 'database/tables/search_history_table.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs, ReadHistory, OwnershipLog],
-  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao, ReadHistoryDao, OwnershipDao],
+  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs, ReadHistory, OwnershipLog, SearchHistory],
+  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao, ReadHistoryDao, OwnershipDao, SearchHistoryDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 30;
+  int get schemaVersion => 31;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -69,6 +72,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 30) {
         await m.addColumn(shelves, shelves.filterNotes as GeneratedColumn);
+      }
+      if (from < 31) {
+        await m.createTable(searchHistory);
       }
     },
     beforeOpen: (details) async {

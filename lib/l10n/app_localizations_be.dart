@@ -223,6 +223,41 @@ class AppLocalizationsBe extends AppLocalizations {
   String get scanBatchSubtitle => '';
 
   @override
+  String get searchHistoryTitle => 'Гісторыя пошуку і сканавання';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Прагляд мінулых пошукаў і няўдалых/афлайн сканаванняў';
+
+  @override
+  String get searchHistoryEmpty =>
+      'Гісторыя пошуку або сканавання пакуль пустая';
+
+  @override
+  String get searchHistoryClear => 'Ачысціць гісторыю';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Сканаванне штрых-кода';
+
+  @override
+  String get searchHistoryTypeBatch => 'Пакетнае сканаванне';
+
+  @override
+  String get searchHistoryTypeText => 'Тэкставы пошук';
+
+  @override
+  String get searchHistoryStatusSuccess => 'СПЯХ';
+
+  @override
+  String get searchHistoryStatusFailed => 'ПАМЫЛКА';
+
+  @override
+  String get searchHistoryStatusPending => 'У АПРАЦОЎЦЫ';
+
+  @override
+  String get searchHistorySaved => 'Захавана ў гісторыю';
+
+  @override
   String get scanModeBarcode => '';
 
   @override

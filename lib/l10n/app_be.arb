@@ -283,6 +283,50 @@
     "@scanBatchSubtitle": {
         "description": "Subtítulo de la opción de escanear en lote"
     },
+    "searchHistoryTitle": "Гісторыя пошуку і сканавання",
+    "@searchHistoryTitle": {
+        "description": "Título del historial de búsquedas y escaneos"
+    },
+    "searchHistorySubtitle": "Прагляд мінулых пошукаў і няўдалых/афлайн сканаванняў",
+    "@searchHistorySubtitle": {
+        "description": "Subtítulo del historial de búsquedas y escaneos"
+    },
+    "searchHistoryEmpty": "Гісторыя пошуку або сканавання пакуль пустая",
+    "@searchHistoryEmpty": {
+        "description": "Mensaje cuando el historial está vacío"
+    },
+    "searchHistoryClear": "Ачысціць гісторыю",
+    "@searchHistoryClear": {
+        "description": "Acción para borrar el historial"
+    },
+    "searchHistoryTypeBarcode": "Сканаванне штрых-кода",
+    "@searchHistoryTypeBarcode": {
+        "description": "Etiqueta para tipo de escaneo de código de barras"
+    },
+    "searchHistoryTypeBatch": "Пакетнае сканаванне",
+    "@searchHistoryTypeBatch": {
+        "description": "Etiqueta para tipo de escaneo en lote"
+    },
+    "searchHistoryTypeText": "Тэкставы пошук",
+    "@searchHistoryTypeText": {
+        "description": "Etiqueta para tipo de búsqueda de texto"
+    },
+    "searchHistoryStatusSuccess": "СПЯХ",
+    "@searchHistoryStatusSuccess": {
+        "description": "Estado éxito en el historial"
+    },
+    "searchHistoryStatusFailed": "ПАМЫЛКА",
+    "@searchHistoryStatusFailed": {
+        "description": "Estado fallido en el historial"
+    },
+    "searchHistoryStatusPending": "У АПРАЦОЎЦЫ",
+    "@searchHistoryStatusPending": {
+        "description": "Estado pendiente en el historial"
+    },
+    "searchHistorySaved": "Захавана ў гісторыю",
+    "@searchHistorySaved": {
+        "description": "Aviso de guardado en el historial"
+    },
     "scanModeBarcode": "",
     "@scanModeBarcode": {
         "description": "Etiqueta del modo escáner: código de barras"

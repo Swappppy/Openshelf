@@ -223,6 +223,39 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scanBatchSubtitle => '';
 
   @override
+  String get searchHistoryTitle => '検索とスキャン履歴';
+
+  @override
+  String get searchHistorySubtitle => '過去の検索と失敗/オフラインスキャンを表示';
+
+  @override
+  String get searchHistoryEmpty => '検索またはスキャンの履歴はまだありません';
+
+  @override
+  String get searchHistoryClear => '履歴を消去';
+
+  @override
+  String get searchHistoryTypeBarcode => 'バーコードスキャン';
+
+  @override
+  String get searchHistoryTypeBatch => '一括スキャン';
+
+  @override
+  String get searchHistoryTypeText => 'テキスト検索';
+
+  @override
+  String get searchHistoryStatusSuccess => '成功';
+
+  @override
+  String get searchHistoryStatusFailed => '失敗';
+
+  @override
+  String get searchHistoryStatusPending => '保留中';
+
+  @override
+  String get searchHistorySaved => '履歴に保存されました';
+
+  @override
   String get scanModeBarcode => '';
 
   @override

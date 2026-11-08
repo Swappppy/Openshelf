@@ -529,6 +529,72 @@ abstract class AppLocalizations {
   /// **'Escanea varios libros seguidos'**
   String get scanBatchSubtitle;
 
+  /// Título del historial de búsquedas y escaneos
+  ///
+  /// In es, this message translates to:
+  /// **'Historial de búsquedas y escaneos'**
+  String get searchHistoryTitle;
+
+  /// Subtítulo del historial de búsquedas y escaneos
+  ///
+  /// In es, this message translates to:
+  /// **'Ver búsquedas pasadas y escaneos fallidos u offline'**
+  String get searchHistorySubtitle;
+
+  /// Mensaje cuando el historial está vacío
+  ///
+  /// In es, this message translates to:
+  /// **'No hay historial de búsquedas o escaneos aún'**
+  String get searchHistoryEmpty;
+
+  /// Acción para borrar el historial
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar historial'**
+  String get searchHistoryClear;
+
+  /// Etiqueta para tipo de escaneo de código de barras
+  ///
+  /// In es, this message translates to:
+  /// **'Escaneo de código de barras'**
+  String get searchHistoryTypeBarcode;
+
+  /// Etiqueta para tipo de escaneo en lote
+  ///
+  /// In es, this message translates to:
+  /// **'Escaneo en lote'**
+  String get searchHistoryTypeBatch;
+
+  /// Etiqueta para tipo de búsqueda de texto
+  ///
+  /// In es, this message translates to:
+  /// **'Búsqueda de texto'**
+  String get searchHistoryTypeText;
+
+  /// Estado éxito en el historial
+  ///
+  /// In es, this message translates to:
+  /// **'ÉXITO'**
+  String get searchHistoryStatusSuccess;
+
+  /// Estado fallido en el historial
+  ///
+  /// In es, this message translates to:
+  /// **'FALLIDO'**
+  String get searchHistoryStatusFailed;
+
+  /// Estado pendiente en el historial
+  ///
+  /// In es, this message translates to:
+  /// **'PENDIENTE'**
+  String get searchHistoryStatusPending;
+
+  /// Aviso de guardado en el historial
+  ///
+  /// In es, this message translates to:
+  /// **'Guardado en el historial'**
+  String get searchHistorySaved;
+
   /// Etiqueta del modo escáner: código de barras
   ///
   /// In es, this message translates to:

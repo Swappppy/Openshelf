@@ -223,6 +223,40 @@ class AppLocalizationsRo extends AppLocalizations {
   String get scanBatchSubtitle => '';
 
   @override
+  String get searchHistoryTitle => 'Istoric căutări și scanări';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Vizualizează căutările anterioare și scanările eșuate/offline';
+
+  @override
+  String get searchHistoryEmpty => 'Niciun istoric de căutare sau scanare încă';
+
+  @override
+  String get searchHistoryClear => 'Șterge istoricul';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Scanare cod de bare';
+
+  @override
+  String get searchHistoryTypeBatch => 'Scanare în lot';
+
+  @override
+  String get searchHistoryTypeText => 'Căutare text';
+
+  @override
+  String get searchHistoryStatusSuccess => 'SUCCES';
+
+  @override
+  String get searchHistoryStatusFailed => 'EȘUAT';
+
+  @override
+  String get searchHistoryStatusPending => 'ÎN AȘTEPTARE';
+
+  @override
+  String get searchHistorySaved => 'Salvat în istoric';
+
+  @override
   String get scanModeBarcode => '';
 
   @override

@@ -4,6 +4,7 @@ import '../../l10n/l10n_extension.dart';
 import 'book_form_view.dart';
 import '../book_search/book_search_view.dart';
 import '../barcode_scanner/barcode_scanner_view.dart';
+import '../search_history/search_history_view.dart';
 
 class AddBookModal extends ConsumerWidget {
   const AddBookModal({super.key});
@@ -144,6 +145,22 @@ class AddBookModal extends ConsumerWidget {
                   await rootNav.push(
                     MaterialPageRoute(
                       builder: (_) => const BarcodeScannerView(batchMode: true),
+                    ),
+                  );
+                },
+              ),
+              _AddOption(
+                icon: Icons.history,
+                title: context.l10n.searchHistoryTitle,
+                subtitle: context.l10n.searchHistorySubtitle,
+                onTap: () async {
+                  final rootNav = Navigator.of(context, rootNavigator: true);
+                  Navigator.of(context).pop();
+                  await Future.microtask(() {});
+
+                  await rootNav.push(
+                    MaterialPageRoute(
+                      builder: (_) => const SearchHistoryView(),
                     ),
                   );
                 },

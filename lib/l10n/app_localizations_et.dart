@@ -223,6 +223,40 @@ class AppLocalizationsEt extends AppLocalizations {
   String get scanBatchSubtitle => '';
 
   @override
+  String get searchHistoryTitle => 'Otsingute ja skannimiste ajalugu';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Vaata varasemaid otsinguid ja ebaõnnestunud/võrguühenduseta skannimisi';
+
+  @override
+  String get searchHistoryEmpty => 'Otsingute või skannimiste ajalugu puudub';
+
+  @override
+  String get searchHistoryClear => 'Tühjenda ajalugu';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Triipkoodi skannimine';
+
+  @override
+  String get searchHistoryTypeBatch => 'Partiiskannimine';
+
+  @override
+  String get searchHistoryTypeText => 'Tekstiotsing';
+
+  @override
+  String get searchHistoryStatusSuccess => 'EDUKAS';
+
+  @override
+  String get searchHistoryStatusFailed => 'EBAÕNNESTUNUD';
+
+  @override
+  String get searchHistoryStatusPending => 'OOTEL';
+
+  @override
+  String get searchHistorySaved => 'Salvestatud ajalukku';
+
+  @override
   String get scanModeBarcode => '';
 
   @override

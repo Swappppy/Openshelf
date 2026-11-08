@@ -225,6 +225,41 @@ class AppLocalizationsPt extends AppLocalizations {
   String get scanBatchSubtitle => 'Digitaliza vários livros seguidos';
 
   @override
+  String get searchHistoryTitle => 'Histórico de pesquisas e leituras';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Ver pesquisas anteriores e leituras falhadas/offline';
+
+  @override
+  String get searchHistoryEmpty =>
+      'Ainda sem histórico de pesquisas ou leituras';
+
+  @override
+  String get searchHistoryClear => 'Limpar histórico';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Leitura de código de barras';
+
+  @override
+  String get searchHistoryTypeBatch => 'Leitura em lote';
+
+  @override
+  String get searchHistoryTypeText => 'Pesquisa de texto';
+
+  @override
+  String get searchHistoryStatusSuccess => 'SUCESSO';
+
+  @override
+  String get searchHistoryStatusFailed => 'FALHOU';
+
+  @override
+  String get searchHistoryStatusPending => 'PENDENTE';
+
+  @override
+  String get searchHistorySaved => 'Guardado no histórico';
+
+  @override
   String get scanModeBarcode => 'Código de barras';
 
   @override
@@ -2218,6 +2253,41 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get scanBatchSubtitle => 'Escanear vários livros seguidos';
+
+  @override
+  String get searchHistoryTitle => 'Histórico de pesquisas e escaneamentos';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Ver pesquisas anteriores e escaneamentos com falha/offline';
+
+  @override
+  String get searchHistoryEmpty =>
+      'Nenhum histórico de pesquisa ou escaneamento ainda';
+
+  @override
+  String get searchHistoryClear => 'Limpar histórico';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Escaneamento de código de barras';
+
+  @override
+  String get searchHistoryTypeBatch => 'Escaneamento em lote';
+
+  @override
+  String get searchHistoryTypeText => 'Pesquisa de texto';
+
+  @override
+  String get searchHistoryStatusSuccess => 'SUCESSO';
+
+  @override
+  String get searchHistoryStatusFailed => 'FALHOU';
+
+  @override
+  String get searchHistoryStatusPending => 'PENDENTE';
+
+  @override
+  String get searchHistorySaved => 'Salvo no histórico';
 
   @override
   String get scanModeBarcode => 'Código de barras';

@@ -225,6 +225,41 @@ class AppLocalizationsIt extends AppLocalizations {
   String get scanBatchSubtitle => 'Scansiona più libri in sequenza';
 
   @override
+  String get searchHistoryTitle => 'Cronologia ricerche e scansioni';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Visualizza ricerche passate e scansioni fallite/offline';
+
+  @override
+  String get searchHistoryEmpty =>
+      'Nessuna cronologia di ricerca o scansione ancora';
+
+  @override
+  String get searchHistoryClear => 'Cancella cronologia';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Scansione codice a barre';
+
+  @override
+  String get searchHistoryTypeBatch => 'Scansione a lotti';
+
+  @override
+  String get searchHistoryTypeText => 'Ricerca testo';
+
+  @override
+  String get searchHistoryStatusSuccess => 'RIUSCITO';
+
+  @override
+  String get searchHistoryStatusFailed => 'FALLITO';
+
+  @override
+  String get searchHistoryStatusPending => 'IN ATTESA';
+
+  @override
+  String get searchHistorySaved => 'Salvato nella cronologia';
+
+  @override
   String get scanModeBarcode => 'Codice a barre';
 
   @override

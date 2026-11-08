@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart' hide Column;
 import '../l10n/l10n_extension.dart';
 import '../models/book_search_result.dart';
 import '../services/book_search_service.dart';
+import '../services/database.dart';
 import 'app_settings_controller.dart';
+import 'database_provider.dart';
 
 final bookSearchControllerProvider =
     Provider.autoDispose((ref) => BookSearchController(ref));
@@ -60,6 +63,31 @@ class BookSearchController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void initStructuredQuery({
+    String? query,
+    String? title,
+    String? author,
+    String? publisher,
+    String? isbn,
+  }) {
+    if (title != null && title.isNotEmpty && titleController.text.isEmpty) {
+      titleController.text = title;
+    }
+    if (author != null && author.isNotEmpty && authorController.text.isEmpty) {
+      authorController.text = author;
+    }
+    if (publisher != null && publisher.isNotEmpty && publisherController.text.isEmpty) {
+      publisherController.text = publisher;
+    }
+    if (isbn != null && isbn.isNotEmpty && isbnController.text.isEmpty) {
+      isbnController.text = isbn;
+    }
+
+    if (!hasAnyInput && query != null && query.trim().isNotEmpty) {
+      initQuery(query);
+    }
+  }
+
   void initQuery(String? initialQuery) {
     if (initialQuery == null || initialQuery.trim().isEmpty) return;
 
@@ -106,6 +134,23 @@ class BookSearchController extends ChangeNotifier {
       final publisher = publisherController.text.trim();
       final isbn = isbnController.text.trim();
 
+      final cleanQuery = isbn.isNotEmpty
+          ? isbn
+          : (title.isNotEmpty
+              ? title
+              : (author.isNotEmpty ? author : publisher));
+
+      final historyDao = ref.read(searchHistoryDaoProvider);
+      final historyId = await historyDao.insertEntry(SearchHistoryCompanion.insert(
+        query: cleanQuery,
+        type: isbn.isNotEmpty ? 'isbn_scan' : 'text_search',
+        status: 'pending',
+        title: Value(title.isNotEmpty ? title : null),
+        author: Value(author.isNotEmpty ? author : null),
+        publisher: Value(publisher.isNotEmpty ? publisher : null),
+        timestamp: DateTime.now(),
+      ));
+
       final searchQuery = BookSearchQuery(
         title: title.isNotEmpty ? title : null,
         author: author.isNotEmpty ? author : null,
@@ -125,15 +170,24 @@ class BookSearchController extends ChangeNotifier {
           _results = partialResults;
           notifyListeners();
         },
-        onError: (e) {
+        onError: (e) async {
           if (_results.isEmpty) {
             _error = defaultError;
           }
           _loading = false;
+          final entry = await (historyDao.select(historyDao.searchHistory)..where((h) => h.id.equals(historyId))).getSingleOrNull();
+          if (entry != null) {
+            await historyDao.updateEntry(entry.copyWith(status: 'failed'));
+          }
           notifyListeners();
         },
-        onDone: () {
+        onDone: () async {
           _loading = false;
+          final status = _results.isNotEmpty ? 'success' : 'failed';
+          final entry = await (historyDao.select(historyDao.searchHistory)..where((h) => h.id.equals(historyId))).getSingleOrNull();
+          if (entry != null) {
+            await historyDao.updateEntry(entry.copyWith(status: status));
+          }
           notifyListeners();
         },
       );

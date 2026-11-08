@@ -228,6 +228,41 @@ class AppLocalizationsCa extends AppLocalizations {
   String get scanBatchSubtitle => 'Escaneja diversos llibres seguits';
 
   @override
+  String get searchHistoryTitle => 'Historial de cerques i escanejos';
+
+  @override
+  String get searchHistorySubtitle =>
+      'Cerca cerques passades i escanejos fallits o fora de línia';
+
+  @override
+  String get searchHistoryEmpty =>
+      'Encara no hi ha cap historial de cerques o escanejos';
+
+  @override
+  String get searchHistoryClear => 'Netejar l\'historial';
+
+  @override
+  String get searchHistoryTypeBarcode => 'Escaneig de codi de barres';
+
+  @override
+  String get searchHistoryTypeBatch => 'Escaneig en lot';
+
+  @override
+  String get searchHistoryTypeText => 'Cerca de text';
+
+  @override
+  String get searchHistoryStatusSuccess => 'ÈXIT';
+
+  @override
+  String get searchHistoryStatusFailed => 'FALLIT';
+
+  @override
+  String get searchHistoryStatusPending => 'PENDENT';
+
+  @override
+  String get searchHistorySaved => 'Desat a l\'historial';
+
+  @override
   String get scanModeBarcode => 'Codi de barres';
 
   @override
