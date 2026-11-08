@@ -253,6 +253,8 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
 
     final historyDao = ref.read(searchHistoryDaoProvider);
     final scanType = widget.batchMode ? 'batch_scan' : 'isbn_scan';
+    final l10n = context.l10n;
+    final nav = Navigator.of(context);
 
     if (!widget.batchMode) {
       _isPopped = true;
@@ -266,7 +268,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
         timestamp: DateTime.now(),
       ));
 
-      Navigator.pop(context, code);
+      nav.pop(code);
       return;
     }
 
@@ -284,7 +286,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
 
       final existing = await db.bookDao.getBookByIsbn(code);
       if (existing != null) {
-        if (mounted) _showFeedback(warning: context.l10n.errorDuplicateIsbn);
+        if (mounted) _showFeedback(warning: l10n.errorDuplicateIsbn);
         return;
       }
 
@@ -302,7 +304,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
           status: 'failed',
           timestamp: DateTime.now(),
         ));
-        if (mounted) _showFeedback(warning: '${context.l10n.bookSearchNoResults(code)} (${context.l10n.searchHistorySaved})');
+        if (mounted) _showFeedback(warning: '${l10n.bookSearchNoResults(code)} (${l10n.searchHistorySaved})');
         return;
       }
 
@@ -340,7 +342,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
         status: 'failed',
         timestamp: DateTime.now(),
       ));
-      if (mounted) _showFeedback(warning: '${context.l10n.bookSearchErrorNetwork} (${context.l10n.searchHistorySaved})');
+      if (mounted) _showFeedback(warning: '${l10n.bookSearchErrorNetwork} (${l10n.searchHistorySaved})');
     }
   }
 
