@@ -1,7 +1,7 @@
 name: openshelf
 description: "Biblioteca personal local y FOSS."
 publish_to: 'none'
-version: 1.4.1+8
+version: 1.5.0+9
 
 environment:
   sdk: '^3.11.0'
