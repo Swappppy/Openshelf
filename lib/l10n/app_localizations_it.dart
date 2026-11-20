@@ -2069,4 +2069,8 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Usa la posizione predefinita';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'La data di fine è obbligatoria quando è segnato come Letto';
 }

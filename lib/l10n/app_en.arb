@@ -1040,5 +1040,6 @@
   "storageCoversMoved": "Covers moved: {count}",
   "dbMissingTitle": "Library not found",
   "dbMissingBody": "The library database was not found in the custom folder:\n{path}\n\nIf it is on removable storage, reconnect it and retry. You can also switch back to the default location, which opens the library stored there or starts an empty one.",
-  "dbMissingUseDefault": "Use default location"
+  "dbMissingUseDefault": "Use default location",
+  "bookFormFinishDateRequired": "Finish date is required when marked as Read"
 }

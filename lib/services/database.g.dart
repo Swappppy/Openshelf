@@ -3863,8 +3863,42 @@ class $ReadingLogTable extends ReadingLog
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       ).withConverter<List<String>?>($ReadingLogTable.$convertersectionsn);
+  static const VerificationMeta _readNumberMeta = const VerificationMeta(
+    'readNumber',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, bookId, date, pagesRead, sections];
+  late final GeneratedColumn<int> readNumber = GeneratedColumn<int>(
+    'read_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isBackfillMeta = const VerificationMeta(
+    'isBackfill',
+  );
+  @override
+  late final GeneratedColumn<bool> isBackfill = GeneratedColumn<bool>(
+    'is_backfill',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_backfill" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bookId,
+    date,
+    pagesRead,
+    sections,
+    readNumber,
+    isBackfill,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3904,6 +3938,18 @@ class $ReadingLogTable extends ReadingLog
     } else if (isInserting) {
       context.missing(_pagesReadMeta);
     }
+    if (data.containsKey('read_number')) {
+      context.handle(
+        _readNumberMeta,
+        readNumber.isAcceptableOrUnknown(data['read_number']!, _readNumberMeta),
+      );
+    }
+    if (data.containsKey('is_backfill')) {
+      context.handle(
+        _isBackfillMeta,
+        isBackfill.isAcceptableOrUnknown(data['is_backfill']!, _isBackfillMeta),
+      );
+    }
     return context;
   }
 
@@ -3935,6 +3981,14 @@ class $ReadingLogTable extends ReadingLog
           data['${effectivePrefix}sections'],
         ),
       ),
+      readNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}read_number'],
+      ),
+      isBackfill: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_backfill'],
+      )!,
     );
   }
 
@@ -3955,12 +4009,16 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
   final DateTime date;
   final int pagesRead;
   final List<String>? sections;
+  final int? readNumber;
+  final bool isBackfill;
   const ReadingLogData({
     required this.id,
     required this.bookId,
     required this.date,
     required this.pagesRead,
     this.sections,
+    this.readNumber,
+    required this.isBackfill,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3974,6 +4032,10 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
         $ReadingLogTable.$convertersectionsn.toSql(sections),
       );
     }
+    if (!nullToAbsent || readNumber != null) {
+      map['read_number'] = Variable<int>(readNumber);
+    }
+    map['is_backfill'] = Variable<bool>(isBackfill);
     return map;
   }
 
@@ -3986,6 +4048,10 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       sections: sections == null && nullToAbsent
           ? const Value.absent()
           : Value(sections),
+      readNumber: readNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readNumber),
+      isBackfill: Value(isBackfill),
     );
   }
 
@@ -4000,6 +4066,8 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       date: serializer.fromJson<DateTime>(json['date']),
       pagesRead: serializer.fromJson<int>(json['pagesRead']),
       sections: serializer.fromJson<List<String>?>(json['sections']),
+      readNumber: serializer.fromJson<int?>(json['readNumber']),
+      isBackfill: serializer.fromJson<bool>(json['isBackfill']),
     );
   }
   @override
@@ -4011,6 +4079,8 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       'date': serializer.toJson<DateTime>(date),
       'pagesRead': serializer.toJson<int>(pagesRead),
       'sections': serializer.toJson<List<String>?>(sections),
+      'readNumber': serializer.toJson<int?>(readNumber),
+      'isBackfill': serializer.toJson<bool>(isBackfill),
     };
   }
 
@@ -4020,12 +4090,16 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
     DateTime? date,
     int? pagesRead,
     Value<List<String>?> sections = const Value.absent(),
+    Value<int?> readNumber = const Value.absent(),
+    bool? isBackfill,
   }) => ReadingLogData(
     id: id ?? this.id,
     bookId: bookId ?? this.bookId,
     date: date ?? this.date,
     pagesRead: pagesRead ?? this.pagesRead,
     sections: sections.present ? sections.value : this.sections,
+    readNumber: readNumber.present ? readNumber.value : this.readNumber,
+    isBackfill: isBackfill ?? this.isBackfill,
   );
   ReadingLogData copyWithCompanion(ReadingLogCompanion data) {
     return ReadingLogData(
@@ -4034,6 +4108,12 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       date: data.date.present ? data.date.value : this.date,
       pagesRead: data.pagesRead.present ? data.pagesRead.value : this.pagesRead,
       sections: data.sections.present ? data.sections.value : this.sections,
+      readNumber: data.readNumber.present
+          ? data.readNumber.value
+          : this.readNumber,
+      isBackfill: data.isBackfill.present
+          ? data.isBackfill.value
+          : this.isBackfill,
     );
   }
 
@@ -4044,13 +4124,23 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
           ..write('bookId: $bookId, ')
           ..write('date: $date, ')
           ..write('pagesRead: $pagesRead, ')
-          ..write('sections: $sections')
+          ..write('sections: $sections, ')
+          ..write('readNumber: $readNumber, ')
+          ..write('isBackfill: $isBackfill')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, bookId, date, pagesRead, sections);
+  int get hashCode => Object.hash(
+    id,
+    bookId,
+    date,
+    pagesRead,
+    sections,
+    readNumber,
+    isBackfill,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4059,7 +4149,9 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
           other.bookId == this.bookId &&
           other.date == this.date &&
           other.pagesRead == this.pagesRead &&
-          other.sections == this.sections);
+          other.sections == this.sections &&
+          other.readNumber == this.readNumber &&
+          other.isBackfill == this.isBackfill);
 }
 
 class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
@@ -4068,12 +4160,16 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
   final Value<DateTime> date;
   final Value<int> pagesRead;
   final Value<List<String>?> sections;
+  final Value<int?> readNumber;
+  final Value<bool> isBackfill;
   const ReadingLogCompanion({
     this.id = const Value.absent(),
     this.bookId = const Value.absent(),
     this.date = const Value.absent(),
     this.pagesRead = const Value.absent(),
     this.sections = const Value.absent(),
+    this.readNumber = const Value.absent(),
+    this.isBackfill = const Value.absent(),
   });
   ReadingLogCompanion.insert({
     this.id = const Value.absent(),
@@ -4081,6 +4177,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     required DateTime date,
     required int pagesRead,
     this.sections = const Value.absent(),
+    this.readNumber = const Value.absent(),
+    this.isBackfill = const Value.absent(),
   }) : bookId = Value(bookId),
        date = Value(date),
        pagesRead = Value(pagesRead);
@@ -4090,6 +4188,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     Expression<DateTime>? date,
     Expression<int>? pagesRead,
     Expression<String>? sections,
+    Expression<int>? readNumber,
+    Expression<bool>? isBackfill,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4097,6 +4197,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
       if (date != null) 'date': date,
       if (pagesRead != null) 'pages_read': pagesRead,
       if (sections != null) 'sections': sections,
+      if (readNumber != null) 'read_number': readNumber,
+      if (isBackfill != null) 'is_backfill': isBackfill,
     });
   }
 
@@ -4106,6 +4208,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     Value<DateTime>? date,
     Value<int>? pagesRead,
     Value<List<String>?>? sections,
+    Value<int?>? readNumber,
+    Value<bool>? isBackfill,
   }) {
     return ReadingLogCompanion(
       id: id ?? this.id,
@@ -4113,6 +4217,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
       date: date ?? this.date,
       pagesRead: pagesRead ?? this.pagesRead,
       sections: sections ?? this.sections,
+      readNumber: readNumber ?? this.readNumber,
+      isBackfill: isBackfill ?? this.isBackfill,
     );
   }
 
@@ -4136,6 +4242,12 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
         $ReadingLogTable.$convertersectionsn.toSql(sections.value),
       );
     }
+    if (readNumber.present) {
+      map['read_number'] = Variable<int>(readNumber.value);
+    }
+    if (isBackfill.present) {
+      map['is_backfill'] = Variable<bool>(isBackfill.value);
+    }
     return map;
   }
 
@@ -4146,7 +4258,9 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
           ..write('bookId: $bookId, ')
           ..write('date: $date, ')
           ..write('pagesRead: $pagesRead, ')
-          ..write('sections: $sections')
+          ..write('sections: $sections, ')
+          ..write('readNumber: $readNumber, ')
+          ..write('isBackfill: $isBackfill')
           ..write(')'))
         .toString();
   }
@@ -10014,6 +10128,8 @@ typedef $$ReadingLogTableCreateCompanionBuilder =
       required DateTime date,
       required int pagesRead,
       Value<List<String>?> sections,
+      Value<int?> readNumber,
+      Value<bool> isBackfill,
     });
 typedef $$ReadingLogTableUpdateCompanionBuilder =
     ReadingLogCompanion Function({
@@ -10022,6 +10138,8 @@ typedef $$ReadingLogTableUpdateCompanionBuilder =
       Value<DateTime> date,
       Value<int> pagesRead,
       Value<List<String>?> sections,
+      Value<int?> readNumber,
+      Value<bool> isBackfill,
     });
 
 final class $$ReadingLogTableReferences
@@ -10074,6 +10192,16 @@ class $$ReadingLogTableFilterComposer
   get sections => $composableBuilder(
     column: $table.sections,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get readNumber => $composableBuilder(
+    column: $table.readNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isBackfill => $composableBuilder(
+    column: $table.isBackfill,
+    builder: (column) => ColumnFilters(column),
   );
 
   $$BooksTableFilterComposer get bookId {
@@ -10129,6 +10257,16 @@ class $$ReadingLogTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get readNumber => $composableBuilder(
+    column: $table.readNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isBackfill => $composableBuilder(
+    column: $table.isBackfill,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BooksTableOrderingComposer get bookId {
     final $$BooksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -10173,6 +10311,16 @@ class $$ReadingLogTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<List<String>?, String> get sections =>
       $composableBuilder(column: $table.sections, builder: (column) => column);
+
+  GeneratedColumn<int> get readNumber => $composableBuilder(
+    column: $table.readNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isBackfill => $composableBuilder(
+    column: $table.isBackfill,
+    builder: (column) => column,
+  );
 
   $$BooksTableAnnotationComposer get bookId {
     final $$BooksTableAnnotationComposer composer = $composerBuilder(
@@ -10231,12 +10379,16 @@ class $$ReadingLogTableTableManager
                 Value<DateTime> date = const Value.absent(),
                 Value<int> pagesRead = const Value.absent(),
                 Value<List<String>?> sections = const Value.absent(),
+                Value<int?> readNumber = const Value.absent(),
+                Value<bool> isBackfill = const Value.absent(),
               }) => ReadingLogCompanion(
                 id: id,
                 bookId: bookId,
                 date: date,
                 pagesRead: pagesRead,
                 sections: sections,
+                readNumber: readNumber,
+                isBackfill: isBackfill,
               ),
           createCompanionCallback:
               ({
@@ -10245,12 +10397,16 @@ class $$ReadingLogTableTableManager
                 required DateTime date,
                 required int pagesRead,
                 Value<List<String>?> sections = const Value.absent(),
+                Value<int?> readNumber = const Value.absent(),
+                Value<bool> isBackfill = const Value.absent(),
               }) => ReadingLogCompanion.insert(
                 id: id,
                 bookId: bookId,
                 date: date,
                 pagesRead: pagesRead,
                 sections: sections,
+                readNumber: readNumber,
+                isBackfill: isBackfill,
               ),
           withReferenceMapper: (p0) => p0
               .map(

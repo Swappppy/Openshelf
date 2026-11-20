@@ -1996,4 +1996,8 @@ class AppLocalizationsBe extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Выкарыстоўваць размяшчэнне па змаўчанні';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'Дата заканчэння абавязковая, калі статус «Прачытана»';
 }

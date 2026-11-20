@@ -27,6 +27,7 @@ class DetailsTab extends ConsumerWidget {
   final Tag? selectedImprint;
   final DateTime? startedAt;
   final DateTime? finishedAt;
+  final String? finishedAtError;
   final ValueChanged<DateTime?> onStartedAtChanged;
   final ValueChanged<DateTime?> onFinishedAtChanged;
   final ValueChanged<List<(Tag, int?)>> onCollectionsChanged;
@@ -51,6 +52,7 @@ class DetailsTab extends ConsumerWidget {
     required this.selectedImprint,
     this.startedAt,
     this.finishedAt,
+    this.finishedAtError,
     required this.onStartedAtChanged,
     required this.onFinishedAtChanged,
     required this.onCollectionsChanged,
@@ -345,6 +347,7 @@ class DetailsTab extends ConsumerWidget {
           value: finishedAt,
           onChanged: onFinishedAtChanged,
           icon: Icons.check_circle_outline,
+          errorText: finishedAtError,
         ),
         const SizedBox(height: 24),
         Row(

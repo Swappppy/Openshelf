@@ -2080,4 +2080,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Standardort verwenden';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'Das Enddatum ist erforderlich, wenn als Gelesen markiert';
 }

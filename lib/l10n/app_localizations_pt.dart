@@ -2076,6 +2076,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Usar localização predefinida';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'A data de conclusão é obrigatória quando marcado como Lido';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -4147,4 +4151,8 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get dbMissingUseDefault => 'Usar local padrão';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'A data de conclusão é obrigatória quando marcado como Lido';
 }

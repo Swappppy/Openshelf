@@ -2069,4 +2069,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Использовать расположение по умолчанию';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'Дата окончания обязательна, если статус «Прочитано»';
 }

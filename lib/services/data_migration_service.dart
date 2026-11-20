@@ -249,9 +249,9 @@ class DataMigrationService {
 
   Future<String> exportLogsToCsv() async {
     final logs = await _db.select(_db.readingLog).get();
-    final rows = <List<dynamic>>[['bookId', 'date', 'pagesRead', 'sections']];
+    final rows = <List<dynamic>>[['bookId', 'date', 'pagesRead', 'sections', 'readNumber', 'isBackfill']];
     for (final l in logs) {
-      rows.add([l.bookId, l.date.toIso8601String(), l.pagesRead, l.sections != null ? jsonEncode(l.sections) : null]);
+      rows.add([l.bookId, l.date.toIso8601String(), l.pagesRead, l.sections != null ? jsonEncode(l.sections) : null, l.readNumber, l.isBackfill]);
     }
     return Csv().encode(rows);
   }
@@ -647,15 +647,25 @@ class DataMigrationService {
     if (progress > 0) {
       final logDate = comp.finishedAt.value ?? comp.startedAt.value ?? (comp.createdAt.present ? comp.createdAt.value : DateTime.now());
       final day = DateTime(logDate.year, logDate.month, logDate.day);
-      if (!await _logExists(bookId, day)) {
-        await _db.logDao.insertLog(ReadingLogCompanion.insert(bookId: bookId, date: day, pagesRead: progress));
+      if (!await _logExists(bookId, day, isBackfill: true, readNumber: 1)) {
+        await _db.logDao.insertLog(ReadingLogCompanion.insert(
+          bookId: bookId,
+          date: day,
+          pagesRead: progress,
+          readNumber: const Value(1),
+          isBackfill: const Value(true),
+        ));
       }
     }
   }
 
-  Future<bool> _logExists(int bookId, DateTime date) async =>
+  Future<bool> _logExists(int bookId, DateTime date, {bool isBackfill = false, int? readNumber}) async =>
       await (_db.select(_db.readingLog)
-            ..where((l) => l.bookId.equals(bookId) & l.date.equals(date))
+            ..where((l) =>
+                l.bookId.equals(bookId) &
+                l.date.equals(date) &
+                l.isBackfill.equals(isBackfill) &
+                (readNumber != null ? l.readNumber.equals(readNumber) : l.readNumber.isNull()))
             ..limit(1))
           .getSingleOrNull() !=
       null;
@@ -807,15 +817,19 @@ class DataMigrationService {
       final newBookId = bookIdMap[ImportExportUtils.parseInt(get('bookId'))];
       final date = ImportExportUtils.parseDate(get('date'));
       if (newBookId == null || date == null) return;
-      // Logs are one row per book per day; skip days that already exist so
-      // re-importing a backup does not inflate statistics.
-      if (await _logExists(newBookId, date)) return;
+      final readNumber = ImportExportUtils.parseInt(get('readNumber'));
+      final isBackfillRaw = get('isBackfill');
+      final isBackfill = isBackfillRaw != null && (isBackfillRaw.toLowerCase() == 'true' || isBackfillRaw == '1');
+
+      if (await _logExists(newBookId, date, isBackfill: isBackfill, readNumber: readNumber)) return;
       final sectionsRaw = get('sections');
       await _db.logDao.insertLog(ReadingLogCompanion.insert(
         bookId: newBookId,
         date: date,
         pagesRead: ImportExportUtils.parseInt(get('pagesRead')) ?? 0,
         sections: Value(sectionsRaw != null ? (jsonDecode(sectionsRaw) as List).cast<String>() : null),
+        readNumber: Value(readNumber),
+        isBackfill: Value(isBackfill),
       ));
     });
   }

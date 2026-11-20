@@ -117,6 +117,8 @@ class BookshelfImportService {
               bookId: bookId,
               date: dateOnly,
               pagesRead: progress,
+              readNumber: const Value(1),
+              isBackfill: const Value(true),
             ));
           }
         }

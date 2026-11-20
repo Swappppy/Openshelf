@@ -2080,4 +2080,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Utiliser l\'emplacement par défaut';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'La date de fin est obligatoire lorsque le statut est Lu';
 }

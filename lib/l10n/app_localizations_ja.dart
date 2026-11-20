@@ -1997,4 +1997,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => '既定の場所を使用';
+
+  @override
+  String get bookFormFinishDateRequired => '読了に設定する場合、読了日は必須です';
 }

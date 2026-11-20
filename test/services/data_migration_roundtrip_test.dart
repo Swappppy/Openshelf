@@ -108,7 +108,8 @@ void main() {
       ));
       await db.tagDao.setBookTags(bookId, [cat], collections: [(colA, 1), (colB, 7)]);
       await db.bookDao.setBookImprint(bookId, imp);
-      await db.into(db.readingLog).insert(ReadingLogCompanion.insert(bookId: bookId, date: DateTime(2026, 1, 1), pagesRead: 10));
+      await db.into(db.readingLog).insert(ReadingLogCompanion.insert(
+          bookId: bookId, date: DateTime(2026, 1, 1), pagesRead: 10, readNumber: const Value(1), isBackfill: const Value(true)));
       await db.ownershipDao.insertEvent(OwnershipLogCompanion.insert(bookId: bookId, eventType: OwnershipStatus.borrowed, personName: const Value('Ana'), date: DateTime(2026, 2, 1)));
 
       final shelf = await db.into(db.shelves).insert(ShelvesCompanion.insert(
@@ -141,6 +142,8 @@ void main() {
       final cols = await db2.tagDao.watchCollectionsForBook(b.id).first;
       expect(cols.map((c) => (c.$1.name, c.$2)).toSet(), {('Saga A', 1), ('Saga B', 7)});
       expect((await db2.tagDao.watchTagsForBook(b.id).first).single.name, 'Sci-Fi');
+      final log = (await db2.select(db2.readingLog).get()).single;
+      expect((log.readNumber, log.isBackfill), (1, true));
       expect((await db2.select(db2.ownershipLog).get()).single.personName, 'Ana');
       expect((await db2.select(db2.searchHistory).get()).single.query, '978');
 

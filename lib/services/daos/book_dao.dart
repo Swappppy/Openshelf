@@ -1,8 +1,10 @@
 import 'package:drift/drift.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:collection/collection.dart';
 import '../database.dart';
 import '../cover_service.dart';
 import '../../models/search_filters.dart';
+import '../../utils/date_range.dart';
 
 part 'book_dao.g.dart';
 
@@ -298,15 +300,17 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         return _applyNumOp(b.totalPages, cond.operator, val);
       case SearchField.status:
         final s = ReadingStatus.values.where((e) => e.name == val.toString()).firstOrNull;
-        return s != null ? b.status.equals(s.name) : const Constant(false);
-      case SearchField.noCover:
-        if (val == true) {
-          return (b.coverPath.isNull() | b.coverPath.equals('')) & 
-                 (b.coverUrl.isNull() | b.coverUrl.equals(''));
-        } else {
-          return (b.coverPath.isNotNull() & b.coverPath.equals('').not()) | 
-                 (b.coverUrl.isNotNull() & b.coverUrl.equals('').not());
+        if (s == null) {
+          return cond.operator == BooleanOperator.notEquals ? const Constant(true) : const Constant(false);
         }
+        final equalsExpr = b.status.equals(s.name);
+        return cond.operator == BooleanOperator.notEquals ? equalsExpr.not() : equalsExpr;
+      case SearchField.noCover:
+        final isNoCover = val == true || val.toString() == 'true';
+        final equalsExpr = (b.coverPath.isNull() | b.coverPath.equals('')) & 
+                           (b.coverUrl.isNull() | b.coverUrl.equals(''));
+        final matchExpr = isNoCover ? equalsExpr : equalsExpr.not();
+        return cond.operator == BooleanOperator.notEquals ? matchExpr.not() : matchExpr;
       case SearchField.category:
         return _applyTagOp(b.id, cond.operator, val, TagType.tag);
       case SearchField.imprint:
@@ -319,10 +323,22 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         return _applyTagOp(b.id, cond.operator, val, TagType.collection);
       case SearchField.format:
         final f = BookFormat.values.where((e) => e.name == val.toString()).firstOrNull;
-        return f != null ? b.bookFormat.equals(f.name) : const Constant(false);
+        if (f == null) {
+          return cond.operator == BooleanOperator.notEquals ? const Constant(true) : const Constant(false);
+        }
+        final equalsExpr = b.bookFormat.equals(f.name);
+        return cond.operator == BooleanOperator.notEquals
+            ? (b.bookFormat.isNull() | equalsExpr.not())
+            : equalsExpr;
       case SearchField.ownership:
         final o = OwnershipStatus.values.where((e) => e.name == val.toString()).firstOrNull;
-        return o != null ? b.ownershipStatus.equals(o.name) : const Constant(false);
+        if (o == null) {
+          return cond.operator == BooleanOperator.notEquals ? const Constant(true) : const Constant(false);
+        }
+        final equalsExpr = b.ownershipStatus.equals(o.name);
+        return cond.operator == BooleanOperator.notEquals
+            ? (b.ownershipStatus.isNull() | equalsExpr.not())
+            : equalsExpr;
       case SearchField.startedAt:
         return _applyDateOp(b.startedAt, cond.operator, val);
       case SearchField.finishedAt:
@@ -330,11 +346,10 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
       case SearchField.notes:
         return _applyStringOp(b.notes, cond.operator, val.toString());
       case SearchField.hasNotes:
-        if (val == true) {
-          return b.notes.isNotNull() & b.notes.equals('').not();
-        } else {
-          return b.notes.isNull() | b.notes.equals('');
-        }
+        final isHasNotes = val == true || val.toString() == 'true';
+        final equalsExpr = b.notes.isNotNull() & b.notes.equals('').not();
+        final matchExpr = isHasNotes ? equalsExpr : equalsExpr.not();
+        return cond.operator == BooleanOperator.notEquals ? matchExpr.not() : matchExpr;
     }
   }
 
@@ -343,15 +358,18 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
     final DateTime? date = val is DateTime ? val : DateTime.tryParse(val.toString());
     if (date == null) return const Constant(true);
 
+    final startOfDay = DayRange.startOfDay(date);
+    final startOfNextDay = DayRange.startOfNextDay(date);
+
     switch (op) {
       case BooleanOperator.equals:
-        return col.equals(date);
+        return col.isBiggerOrEqual(Constant(startOfDay)) & col.isSmallerThan(Constant(startOfNextDay));
       case BooleanOperator.greaterThan:
-        return col.isBiggerThan(Constant(date));
+        return col.isBiggerOrEqual(Constant(startOfNextDay));
       case BooleanOperator.lessThan:
-        return col.isSmallerThan(Constant(date));
+        return col.isSmallerThan(Constant(startOfDay));
       default:
-        return col.equals(date);
+        return col.isBiggerOrEqual(Constant(startOfDay)) & col.isSmallerThan(Constant(startOfNextDay));
     }
   }
 
@@ -369,12 +387,15 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
   }
 
   Expression<bool> _applyNumOp(IntColumn col, BooleanOperator op, dynamic val) {
-    final numVal = int.tryParse(val.toString()) ?? 0;
+    if (val == null) return const Constant(true);
+    final numVal = int.tryParse(val.toString());
+    if (numVal == null) return const Constant(true);
+
     switch (op) {
       case BooleanOperator.equals:
         return col.equals(numVal);
       case BooleanOperator.notEquals:
-        return col.equals(numVal).not();
+        return col.isNull() | col.equals(numVal).not();
       case BooleanOperator.greaterThan:
         return col.isBiggerThan(Constant(numVal));
       case BooleanOperator.lessThan:
@@ -383,9 +404,11 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         // Expects "min,max" string
         final parts = val.toString().split(',');
         if (parts.length == 2) {
-          final min = int.tryParse(parts[0]) ?? 0;
-          final max = int.tryParse(parts[1]) ?? 9999;
-          return col.isBetween(Constant(min), Constant(max));
+          final min = int.tryParse(parts[0]);
+          final max = int.tryParse(parts[1]);
+          if (min != null && max != null) {
+            return col.isBetween(Constant(min), Constant(max));
+          }
         }
         return const Constant(true);
       default:
@@ -486,6 +509,18 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         }
         if (data.updateFinishedAt) {
           companion = companion.copyWith(finishedAt: Value(data.finishedAt));
+          // Only move the date of a completed read, and only for books that
+          // end up Read: clearing it would reopen the read, and for a book
+          // being re-read the last finished read is an earlier one.
+          final resultingStatus = data.updateStatus && data.status != null ? data.status! : existingBook.status;
+          if (data.finishedAt != null && resultingStatus == ReadingStatus.read) {
+            final history = await db.readHistoryDao.getHistoryForBook(id);
+            final lastFinished = history.lastWhereOrNull((h) => h.finishedAt != null);
+            if (lastFinished != null) {
+              await db.readHistoryDao.updateRead(lastFinished.copyWith(finishedAt: Value(data.finishedAt)));
+              await db.logDao.moveBackfill(id, lastFinished.readNumber, data.finishedAt!);
+            }
+          }
         }
         if (data.updateStatus && data.status != null) {
           companion = companion.copyWith(status: Value(data.status!));

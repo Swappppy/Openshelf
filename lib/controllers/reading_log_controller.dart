@@ -7,16 +7,27 @@ class ReadingLogController extends Notifier<void> {
   @override
   void build() {}
 
-  Future<void> logPages(int bookId, int delta, [List<String>? sectionLabels]) async {
+  Future<void> logPages(
+    int bookId,
+    int delta, {
+    List<String>? sections,
+    DateTime? date,
+    int? readNumber,
+    bool backfill = false,
+  }) async {
     if (delta == 0) return;
 
     final db = ref.read(databaseProvider);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final targetDate = date ?? DateTime.now();
+    final logDate = DateTime(targetDate.year, targetDate.month, targetDate.day);
 
-    // Check if an entry for this book and day already exists
+    // Check if an entry for this book, day, readNumber, and isBackfill already exists
     final existing = await (db.logDao.select(db.logDao.readingLog)
-          ..where((l) => l.bookId.equals(bookId) & l.date.equals(today))
+          ..where((l) =>
+              l.bookId.equals(bookId) &
+              l.date.equals(logDate) &
+              l.isBackfill.equals(backfill) &
+              (readNumber != null ? l.readNumber.equals(readNumber) : l.readNumber.isNull()))
           ..limit(1))
         .getSingleOrNull();
 
@@ -25,9 +36,9 @@ class ReadingLogController extends Notifier<void> {
       
       // Merge section labels
       List<String>? updatedSections = existing.sections;
-      if (sectionLabels != null && sectionLabels.isNotEmpty) {
+      if (sections != null && sections.isNotEmpty) {
         final List<String> current = updatedSections ?? [];
-        final newSet = {...current, ...sectionLabels};
+        final newSet = {...current, ...sections};
         updatedSections = newSet.toList();
       }
 
@@ -41,16 +52,18 @@ class ReadingLogController extends Notifier<void> {
       if (delta <= 0) return;
       
       List<String>? finalSections;
-      if (sectionLabels != null && sectionLabels.isNotEmpty) {
-        finalSections = sectionLabels.toSet().toList();
+      if (sections != null && sections.isNotEmpty) {
+        finalSections = sections.toSet().toList();
       }
 
       await db.logDao.insertLog(
         ReadingLogCompanion.insert(
           bookId: bookId,
-          date: today,
+          date: logDate,
           pagesRead: delta,
           sections: Value(finalSections),
+          readNumber: Value(readNumber),
+          isBackfill: Value(backfill),
         ),
       );
     }

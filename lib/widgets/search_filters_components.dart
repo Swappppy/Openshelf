@@ -409,6 +409,7 @@ class FieldSelector<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveValue = options.contains(value) ? value : options.firstOrNull;
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: 28,
@@ -418,7 +419,7 @@ class FieldSelector<T> extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: DropdownButton<T>(
-        value: value,
+        value: effectiveValue,
         menuMaxHeight: 200,
         items: options.map((opt) => DropdownMenuItem(
           value: opt,

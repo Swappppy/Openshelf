@@ -67,7 +67,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 31;
+  int get schemaVersion => 32;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -220,6 +220,83 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 31) {
         await m.createTable(searchHistory);
+      }
+      if (from < 32) {
+        await transaction(() async {
+          await _addColumnIfMissing(m, readingLog, readingLog.readNumber);
+          await _addColumnIfMissing(m, readingLog, readingLog.isBackfill);
+
+          final logs = await customSelect('SELECT id, book_id, date, pages_read FROM reading_log').get();
+          final historyRows = await customSelect('SELECT id, book_id, read_number, started_at, finished_at, progress FROM read_history').get();
+
+          final historyByBook = <int, List<_HistoryMigrationRow>>{};
+          for (final row in historyRows) {
+            final bId = row.read<int>('book_id');
+            final readNum = row.read<int>('read_number');
+            final startedAt = row.readNullable<DateTime>('started_at');
+            final finishedAt = row.readNullable<DateTime>('finished_at');
+            final progress = row.read<int>('progress');
+            historyByBook.putIfAbsent(bId, () => []).add(_HistoryMigrationRow(readNum, startedAt, finishedAt, progress));
+          }
+
+          final logsByBook = <int, List<_LogMigrationRow>>{};
+          for (final row in logs) {
+            final lId = row.read<int>('id');
+            final bId = row.read<int>('book_id');
+            final date = row.read<DateTime>('date');
+            final pagesRead = row.read<int>('pages_read');
+            logsByBook.putIfAbsent(bId, () => []).add(_LogMigrationRow(lId, date, pagesRead));
+          }
+
+          for (final entry in logsByBook.entries) {
+            final bId = entry.key;
+            final bookLogs = entry.value;
+            final bookHistory = historyByBook[bId] ?? [];
+
+            final finishedReads = bookHistory.where((h) => h.finishedAt != null).toList();
+
+            if (bookHistory.length == 1 && finishedReads.length == 1 && bookLogs.length == 1 && bookLogs.first.pagesRead == finishedReads.first.progress) {
+              final singleLog = bookLogs.first;
+              final singleRead = finishedReads.first;
+
+              final logDay = DateTime(singleLog.date.year, singleLog.date.month, singleLog.date.day);
+              final finishDay = DateTime(singleRead.finishedAt!.year, singleRead.finishedAt!.month, singleRead.finishedAt!.day);
+
+              final targetDate = logDay.isAfter(finishDay) ? finishDay : singleLog.date;
+
+              await customStatement(
+                'UPDATE reading_log SET date = ?, read_number = ?, is_backfill = 1 WHERE id = ?',
+                [targetDate.millisecondsSinceEpoch ~/ 1000, singleRead.readNumber, singleLog.id],
+              );
+              continue;
+            }
+
+            for (final log in bookLogs) {
+              final logDay = DateTime(log.date.year, log.date.month, log.date.day);
+              int? matchedReadNumber;
+
+              for (final h in bookHistory) {
+                final startDay = h.startedAt != null ? DateTime(h.startedAt!.year, h.startedAt!.month, h.startedAt!.day) : null;
+                final finishDay = h.finishedAt != null ? DateTime(h.finishedAt!.year, h.finishedAt!.month, h.finishedAt!.day) : null;
+
+                final afterStart = startDay == null || !logDay.isBefore(startDay);
+                final beforeFinish = finishDay == null || !logDay.isAfter(finishDay);
+
+                if (afterStart && beforeFinish) {
+                  matchedReadNumber = h.readNumber;
+                  break;
+                }
+              }
+
+              if (matchedReadNumber != null) {
+                await customStatement(
+                  'UPDATE reading_log SET read_number = ? WHERE id = ?',
+                  [matchedReadNumber, log.id],
+                );
+              }
+            }
+          }
+        });
       }
 
       await customStatement('PRAGMA foreign_keys = ON');
@@ -437,4 +514,19 @@ class AppDatabase extends _$AppDatabase {
       await delete(tags).go(); // Clears Categories, Imprints, and Collections
     });
   }
+}
+
+class _HistoryMigrationRow {
+  final int readNumber;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int progress;
+  _HistoryMigrationRow(this.readNumber, this.startedAt, this.finishedAt, this.progress);
+}
+
+class _LogMigrationRow {
+  final int id;
+  final DateTime date;
+  final int pagesRead;
+  _LogMigrationRow(this.id, this.date, this.pagesRead);
 }

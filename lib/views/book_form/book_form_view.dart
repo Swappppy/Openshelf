@@ -57,6 +57,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   String? _coverPath;
   DateTime? _startedAt;
   DateTime? _finishedAt;
+  String? _finishedAtError;
   bool _isTranslation = false;
   List<Tag> _selectedTags = [];        
   List<(Tag, int?)> _selectedCollections = [];
@@ -153,14 +154,27 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     super.dispose();
   }
 
+  DateTime? _defaultFinishDate() {
+    if (_startedAt != null) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final startDay = DateTime(_startedAt!.year, _startedAt!.month, _startedAt!.day);
+      if (startDay.isBefore(today)) {
+        return null;
+      }
+    }
+    return DateTime.now();
+  }
+
   void _onStatusChanged(ReadingStatus s) {
     setState(() {
       final oldStatus = _status;
       _status = s;
       if (s == ReadingStatus.read) {
-        _finishedAt ??= DateTime.now();
+        _finishedAt ??= _defaultFinishDate();
       } else if (s == ReadingStatus.reading || s == ReadingStatus.wantToRead) {
         _finishedAt = null;
+        _finishedAtError = null;
       }
 
       if (s == ReadingStatus.reading && oldStatus == ReadingStatus.wantToRead) {
@@ -360,6 +374,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
       return;
     }
 
+    if (_status == ReadingStatus.read && _finishedAt == null) {
+      setState(() {
+        _finishedAtError = l10n.bookFormFinishDateRequired;
+      });
+      _tabController.animateTo(1);
+      return;
+    }
+
     final db = ref.read(databaseProvider);
     final isbn = _isbnCtrl.text.trim();
 
@@ -524,9 +546,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         final oldStatus = _status;
         _status = newStatus;
         if (newStatus == ReadingStatus.read) {
-          _finishedAt ??= DateTime.now();
+          _finishedAt ??= _defaultFinishDate();
         } else if (newStatus == ReadingStatus.reading || newStatus == ReadingStatus.wantToRead) {
           _finishedAt = null;
+          _finishedAtError = null;
         }
         if (newStatus == ReadingStatus.reading && oldStatus == ReadingStatus.wantToRead) {
           _startedAt ??= DateTime.now();
@@ -632,8 +655,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                 selectedImprint: _selectedImprint,
                 startedAt: _startedAt,
                 finishedAt: _finishedAt,
+                finishedAtError: _finishedAtError,
                 onStartedAtChanged: (d) => setState(() => _startedAt = d),
-                onFinishedAtChanged: (d) => setState(() => _finishedAt = d),
+                onFinishedAtChanged: (d) => setState(() {
+                  _finishedAt = d;
+                  if (d != null) _finishedAtError = null;
+                }),
                 onCollectionsChanged: (list) => setState(() => _selectedCollections = list),
                 onImprintChanged: (tag) => setState(() => _selectedImprint = tag),
                 copiesCtrl: _copiesCtrl,

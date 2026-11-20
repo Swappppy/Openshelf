@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:drift/native.dart';
 import 'package:openshelf/controllers/book_form_controller.dart';
 import 'package:openshelf/controllers/database_provider.dart';
+import 'package:openshelf/controllers/reading_goals_controller.dart';
 import 'package:openshelf/controllers/reading_log_controller.dart';
 import 'package:openshelf/controllers/shelf_automation_controller.dart';
 import 'package:openshelf/services/database.dart';
@@ -13,6 +15,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MockReadingLogController extends Notifier<void> with Mock implements ReadingLogController {}
 class MockShelfAutomationController extends Notifier<void> with Mock implements ShelfAutomationController {}
+
+Future<T> nextValue<T>(ProviderContainer container, StreamProvider<T> provider) {
+  final completer = Completer<T>();
+  container.listen(provider, (prev, next) {
+    next.whenData((data) {
+      if (!completer.isCompleted) completer.complete(data);
+    });
+  }, fireImmediately: true);
+  return completer.future.timeout(const Duration(seconds: 5));
+}
 
 void main() {
   late AppDatabase db;
@@ -52,7 +64,7 @@ void main() {
       final container = createContainer();
       final controller = container.read(bookFormControllerProvider);
 
-      when(() => mockReadingLog.logPages(any(), any(), any())).thenAnswer((_) async {});
+      when(() => mockReadingLog.logPages(any(), any(), sections: any(named: 'sections'), date: any(named: 'date'), readNumber: any(named: 'readNumber'), backfill: any(named: 'backfill'))).thenAnswer((_) async {});
       when(() => mockShelfAuto.checkNoCoverShelf()).thenAnswer((_) async {});
 
       final bookId = await controller.saveBook(
@@ -97,7 +109,7 @@ void main() {
       expect(history.first.progress, 10);
 
       // Verify logPages call
-      verify(() => mockReadingLog.logPages(bookId, 10)).called(1);
+      verify(() => mockReadingLog.logPages(bookId, 10, sections: null, date: null, readNumber: 1, backfill: false)).called(1);
       verify(() => mockShelfAuto.checkNoCoverShelf()).called(1);
     });
 
@@ -122,7 +134,7 @@ void main() {
 
       final existing = await db.bookDao.getBook(existingId);
 
-      when(() => mockReadingLog.logPages(any(), any(), any())).thenAnswer((_) async {});
+      when(() => mockReadingLog.logPages(any(), any(), sections: any(named: 'sections'), date: any(named: 'date'), readNumber: any(named: 'readNumber'), backfill: any(named: 'backfill'))).thenAnswer((_) async {});
       when(() => mockShelfAuto.checkNoCoverShelf()).thenAnswer((_) async {});
 
       await controller.saveBook(
@@ -165,11 +177,11 @@ void main() {
       expect(history.first.progress, 25);
 
       // Delta is 25 - 10 = 15
-      verify(() => mockReadingLog.logPages(existingId, 15)).called(1);
+      verify(() => mockReadingLog.logPages(existingId, 15, sections: null, date: null, readNumber: 1, backfill: false)).called(1);
     });
 
     test('saveBook registers OwnershipLog event on change', () async {
-       final container = createContainer();
+      final container = createContainer();
       final controller = container.read(bookFormControllerProvider);
 
       final bookId = await db.bookDao.insertBook(const BooksCompanion(
@@ -180,7 +192,7 @@ void main() {
       ));
       final book = await db.bookDao.getBook(bookId);
 
-      when(() => mockReadingLog.logPages(any(), any(), any())).thenAnswer((_) async {});
+      when(() => mockReadingLog.logPages(any(), any(), sections: any(named: 'sections'), date: any(named: 'date'), readNumber: any(named: 'readNumber'), backfill: any(named: 'backfill'))).thenAnswer((_) async {});
       when(() => mockShelfAuto.checkNoCoverShelf()).thenAnswer((_) async {});
 
       await controller.saveBook(
@@ -219,6 +231,84 @@ void main() {
       expect(logs.length, 1);
       expect(logs.first.eventType, OwnershipStatus.bought);
       expect(logs.first.personName, 'Buyer');
+    });
+
+    test('saveBook for new book marked Read with past dates logs on finish date and not today, keeping current goal unchanged', () async {
+      final container = ProviderContainer(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          sharedPrefsProvider.overrideWithValue(prefs),
+          shelfAutomationProvider.overrideWith(() => mockShelfAuto),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      when(() => mockShelfAuto.checkNoCoverShelf()).thenAnswer((_) async {});
+
+      final controller = container.read(bookFormControllerProvider);
+
+      // Create a pages goal for the current year
+      final now = DateTime.now();
+      final currentYearStart = DateTime(now.year, 1, 1);
+      final currentYearEnd = DateTime(now.year, 12, 31, 23, 59, 59);
+      final goalId = await db.goalDao.insertGoal(ReadingGoalsCompanion.insert(
+        title: 'Pages Goal',
+        type: 'pages',
+        targetValue: 1000,
+        startDate: currentYearStart,
+        endDate: currentYearEnd,
+      ));
+
+      final pastDate = DateTime(now.year - 2, 5, 10);
+      final pastFinishDate = DateTime(now.year - 2, 5, 20);
+
+      final bookId = await controller.saveBook(
+        title: 'Past Read Book',
+        subtitle: null,
+        author: 'Author',
+        isbn: null,
+        language: null,
+        publisher: null,
+        totalPages: 250,
+        currentPage: 250,
+        status: ReadingStatus.read,
+        ownershipStatus: null,
+        format: null,
+        rating: null,
+        notes: null,
+        description: null,
+        coverPath: null,
+        collectionId: null,
+        collectionName: null,
+        collectionNumber: null,
+        publishYear: 2020,
+        copies: 1,
+        paginationConfig: null,
+        startedAt: pastDate,
+        finishedAt: pastFinishDate,
+        imprintId: null,
+        tagIds: [],
+        collections: [],
+        personName: null,
+        unknownAuthorLabel: 'Unknown',
+      );
+
+      // Check log entry
+      final logs = await db.logDao.watchLogs().first;
+      expect(logs.length, 1);
+      final log = logs.first;
+      expect(log.bookId, bookId);
+      expect(log.pagesRead, 250);
+      expect(log.date, DateTime(pastFinishDate.year, pastFinishDate.month, pastFinishDate.day));
+
+      // Ensure no log entries for today
+      final today = DateTime(now.year, now.month, now.day);
+      final todayLogs = logs.where((l) => l.date == today);
+      expect(todayLogs.isEmpty, true);
+
+      // Verify pages goal progress for current period has not changed (remains 0)
+      final goalProgress = await nextValue(container, goalProgressProvider(goalId));
+      expect(goalProgress, 0);
     });
   });
 }

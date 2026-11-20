@@ -1040,5 +1040,6 @@
   "storageCoversMoved": "Capas movidas: {count}",
   "dbMissingTitle": "Biblioteca não encontrada",
   "dbMissingBody": "O banco de dados da biblioteca não foi encontrado na pasta personalizada:\n{path}\n\nSe ele estiver em um armazenamento removível, reconecte-o e tente novamente. Você também pode voltar ao local padrão, que abrirá a biblioteca existente ou criará uma vazia.",
-  "dbMissingUseDefault": "Usar local padrão"
+  "dbMissingUseDefault": "Usar local padrão",
+  "bookFormFinishDateRequired": "A data de conclusão é obrigatória quando marcado como Lido"
 }

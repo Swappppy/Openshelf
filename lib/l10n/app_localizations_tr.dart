@@ -2006,4 +2006,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Varsayılan konumu kullan';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'Okundu olarak işaretlendiğinde bitiş tarihi zorunludur';
 }

@@ -9,4 +9,6 @@ class ReadingLog extends Table {
   DateTimeColumn get date => dateTime()();
   IntColumn get pagesRead => integer()();
   TextColumn get sections => text().nullable().map(const StringListConverter())();
+  IntColumn get readNumber => integer().nullable()();
+  BoolColumn get isBackfill => boolean().withDefault(const Constant(false))();
 }

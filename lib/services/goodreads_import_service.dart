@@ -133,6 +133,8 @@ class GoodreadsImportService {
                 bookId: bookId,
                 date: dateOnly,
                 pagesRead: progress,
+                readNumber: Value(n),
+                isBackfill: const Value(true),
               ));
             }
           }
@@ -154,6 +156,8 @@ class GoodreadsImportService {
             bookId: bookId,
             date: dateOnly,
             pagesRead: 1,
+            readNumber: const Value(1),
+            isBackfill: const Value(false),
           ));
         }
 

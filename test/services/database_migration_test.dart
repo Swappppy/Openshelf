@@ -18,14 +18,44 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in GeneratedHelper.versions.where((v) => v < 31)) {
+  for (final from in GeneratedHelper.versions.where((v) => v < 32)) {
     test('upgrade from released schema v$from produces the current schema', () async {
       final connection = await verifier.startAt(from);
       final db = AppDatabase(connection);
-      await verifier.migrateAndValidate(db, 31);
+      await verifier.migrateAndValidate(db, 32);
       await db.close();
     });
   }
+
+  test('v32 migration moves and flags #55-style entries', () async {
+    final schema = await verifier.schemaAt(31);
+    final raw = schema.rawDatabase;
+    // Insert a finished read and a #55-style log entry dated after finish day
+    raw.execute("INSERT INTO books (id, title, author, status, created_at) VALUES (1, 'Book', 'Author', 'read', 0)");
+    raw.execute("INSERT INTO read_history (id, book_id, read_number, started_at, finished_at, progress) VALUES (1, 1, 1, 0, 1609459200, 300)"); // 2021-01-01
+    raw.execute("INSERT INTO reading_log (id, book_id, date, pages_read) VALUES (1, 1, 1612137600, 300)"); // 2021-02-01 (after finish)
+
+    // Insert a book with several day-by-day entries
+    raw.execute("INSERT INTO books (id, title, author, status, created_at) VALUES (2, 'Book 2', 'Author', 'read', 0)");
+    raw.execute("INSERT INTO read_history (id, book_id, read_number, started_at, finished_at, progress) VALUES (2, 2, 1, 1609459200, 1609718400, 100)");
+    raw.execute("INSERT INTO reading_log (id, book_id, date, pages_read) VALUES (2, 2, 1609459200, 50)");
+    raw.execute("INSERT INTO reading_log (id, book_id, date, pages_read) VALUES (3, 2, 1609545600, 50)");
+
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 32);
+
+    final logs1 = await (db.select(db.readingLog)..where((l) => l.bookId.equals(1))).get();
+    expect(logs1.single.isBackfill, true);
+    expect(logs1.single.readNumber, 1);
+    expect(logs1.single.date, DateTime(2021, 1, 1));
+
+    final logs2 = await (db.select(db.readingLog)..where((l) => l.bookId.equals(2))).get();
+    expect(logs2.length, 2);
+    expect(logs2.every((l) => !l.isBackfill), true);
+    expect(logs2.every((l) => l.readNumber == 1), true);
+
+    await db.close();
+  });
 
   test('v16 (v1.0.0) data survives the upgrade', () async {
     final schema = await verifier.schemaAt(16);
@@ -36,7 +66,7 @@ void main() {
     raw.execute('INSERT INTO book_tags (book_id, tag_id) VALUES (1, 1)');
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 31);
+    await verifier.migrateAndValidate(db, 32);
 
     final book = await (db.select(db.books)..where((b) => b.id.equals(1))).getSingle();
     expect(book.title, 'Dune');
@@ -58,7 +88,7 @@ void main() {
         "VALUES (1, 'B', 'A', 'reading', 0, '{\"1\": 120, \"2\": 30}')");
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 31);
+    await verifier.migrateAndValidate(db, 32);
 
     final history = await (db.select(db.readHistory)..orderBy([(h) => OrderingTerm(expression: h.readNumber)])).get();
     expect(history.map((h) => (h.readNumber, h.progress)), [(1, 120), (2, 30)]);

@@ -5,6 +5,7 @@ class DatePickerField extends StatelessWidget {
   final DateTime? value;
   final ValueChanged<DateTime?> onChanged;
   final IconData icon;
+  final String? errorText;
 
   const DatePickerField({
     super.key,
@@ -12,6 +13,7 @@ class DatePickerField extends StatelessWidget {
     required this.value,
     required this.onChanged,
     required this.icon,
+    this.errorText,
   });
 
   @override
@@ -31,6 +33,7 @@ class DatePickerField extends StatelessWidget {
           labelText: label,
           prefixIcon: Icon(icon),
           border: const OutlineInputBorder(),
+          errorText: errorText,
           suffixIcon: value != null
               ? IconButton(
                   icon: const Icon(Icons.clear),

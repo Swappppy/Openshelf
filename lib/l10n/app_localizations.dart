@@ -3810,6 +3810,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Usar ubicación predeterminada'**
   String get dbMissingUseDefault;
+
+  /// No description provided for @bookFormFinishDateRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La fecha de finalización es obligatoria cuando el libro está marcado como Leído'**
+  String get bookFormFinishDateRequired;
 }
 
 class _AppLocalizationsDelegate

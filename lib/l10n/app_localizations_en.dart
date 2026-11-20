@@ -2058,4 +2058,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Use default location';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'Finish date is required when marked as Read';
 }

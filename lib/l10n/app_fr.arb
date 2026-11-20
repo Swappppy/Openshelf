@@ -1040,5 +1040,6 @@
   "storageCoversMoved": "Couvertures déplacées : {count}",
   "dbMissingTitle": "Bibliothèque introuvable",
   "dbMissingBody": "La base de données de la bibliothèque est introuvable dans le dossier personnalisé :\n{path}\n\nSi elle se trouve sur un stockage amovible, reconnectez-le et réessayez. Vous pouvez aussi revenir à l'emplacement par défaut, qui ouvrira la bibliothèque qui s'y trouve ou en créera une vide.",
-  "dbMissingUseDefault": "Utiliser l'emplacement par défaut"
+  "dbMissingUseDefault": "Utiliser l'emplacement par défaut",
+  "bookFormFinishDateRequired": "La date de fin est obligatoire lorsque le statut est Lu"
 }

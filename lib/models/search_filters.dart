@@ -69,11 +69,12 @@ extension SearchFieldExt on SearchField {
       case SearchField.pages:
         return [BooleanOperator.equals, BooleanOperator.notEquals, BooleanOperator.greaterThan, BooleanOperator.lessThan, BooleanOperator.between];
       case SearchField.status:
-      case SearchField.noCover:
-      case SearchField.hasNotes:
       case SearchField.format:
       case SearchField.ownership:
         return [BooleanOperator.equals, BooleanOperator.notEquals];
+      case SearchField.noCover:
+      case SearchField.hasNotes:
+        return [BooleanOperator.equals];
       case SearchField.startedAt:
       case SearchField.finishedAt:
         return [BooleanOperator.equals, BooleanOperator.greaterThan, BooleanOperator.lessThan];
@@ -162,12 +163,29 @@ class BooleanCondition {
         'connector': connector?.name,
       };
 
-  factory BooleanCondition.fromJson(Map<String, dynamic> json) => BooleanCondition(
-        field: SearchField.values.byName(json['field']),
-        operator: BooleanOperator.values.byName(json['operator']),
-        value: json['value'],
-        connector: json['connector'] != null ? BooleanConnector.values.byName(json['connector']) : null,
-      );
+  factory BooleanCondition.fromJson(Map<String, dynamic> json) {
+    final field = SearchField.values.byName(json['field']);
+    var operator = BooleanOperator.values.byName(json['operator']);
+    dynamic value = json['value'];
+
+    if ((field == SearchField.hasNotes || field == SearchField.noCover) &&
+        operator == BooleanOperator.notEquals) {
+      operator = BooleanOperator.equals;
+      if (value is bool) {
+        value = !value;
+      } else if (value != null) {
+        final str = value.toString().toLowerCase();
+        value = (str == 'true') ? false : true;
+      }
+    }
+
+    return BooleanCondition(
+      field: field,
+      operator: operator,
+      value: value,
+      connector: json['connector'] != null ? BooleanConnector.values.byName(json['connector']) : null,
+    );
+  }
 }
 
 class BooleanQuery {

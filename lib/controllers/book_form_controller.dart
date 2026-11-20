@@ -175,6 +175,8 @@ class BookFormController {
       );
     }
 
+    final effectiveFinishedAt = status == ReadingStatus.read ? (finishedAt ?? DateTime.now()) : finishedAt;
+
     final companion = BooksCompanion(
       title: Value(title),
       subtitle: Value(subtitle),
@@ -202,7 +204,7 @@ class BookFormController {
       copies: Value(copies),
       paginationConfig: Value(finalConfig),
       startedAt: Value(startedAt),
-      finishedAt: Value(finishedAt),
+      finishedAt: Value(effectiveFinishedAt),
       imprintId: Value(imprintId),
     );
 
@@ -214,15 +216,30 @@ class BookFormController {
         await CoverService.deleteUnreferencedCovers(_db, [existingBook.coverPath]);
       }
 
-      if (currentPage > (existingBook.currentPage ?? 0)) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, currentPage - (existingBook.currentPage ?? 0));
-      }
-
       // Sync with ReadHistory
       final history = await (_db.select(_db.readHistory)..where((h) => h.bookId.equals(bookId))).get();
       final completedReads = history.where((h) => h.finishedAt != null).length;
       final activeSessionNum = PaginationHelper.getActiveSessionNumber(status, completedReads);
       final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
+
+      if (currentPage > (existingBook.currentPage ?? 0)) {
+        final delta = currentPage - (existingBook.currentPage ?? 0);
+        final isRead = status == ReadingStatus.read;
+        final logDate = isRead && effectiveFinishedAt != null
+            ? DateTime(effectiveFinishedAt.year, effectiveFinishedAt.month, effectiveFinishedAt.day)
+            : null;
+        await ref.read(readingLogControllerProvider.notifier).logPages(
+          bookId,
+          delta,
+          date: logDate,
+          readNumber: activeSessionNum,
+          backfill: isRead,
+        );
+      }
+
+      if (status == ReadingStatus.read && effectiveFinishedAt != null && existingBook.finishedAt != effectiveFinishedAt) {
+        await _db.logDao.moveBackfill(bookId, activeSessionNum, effectiveFinishedAt);
+      }
 
       final Map<int, int> distributedProgress = (segmentProgress != null && segmentProgress.isNotEmpty)
           ? segmentProgress
@@ -233,7 +250,7 @@ class BookFormController {
       if (activeSession != null) {
         await _db.readHistoryDao.updateRead(activeSession.copyWith(
           progress: currentPage,
-          finishedAt: Value(finishedAt),
+          finishedAt: Value(effectiveFinishedAt),
           startedAt: Value(startedAt),
           segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
         ));
@@ -242,7 +259,7 @@ class BookFormController {
           bookId: bookId,
           readNumber: activeSessionNum,
           startedAt: Value(startedAt ?? DateTime.now()),
-          finishedAt: Value(finishedAt),
+          finishedAt: Value(effectiveFinishedAt),
           progress: Value(currentPage),
           segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
         ));
@@ -276,7 +293,7 @@ class BookFormController {
           bookId: bookId,
           readNumber: 1,
           startedAt: Value(startedAt ?? DateTime.now()),
-          finishedAt: Value(finishedAt ?? DateTime.now()),
+          finishedAt: Value(effectiveFinishedAt),
           progress: Value(total),
           segmentProgress: Value(fullProgress.isEmpty ? null : fullProgress),
         ));
@@ -299,8 +316,19 @@ class BookFormController {
         ));
       }
 
-      if (currentPage > 0) {
-        await ref.read(readingLogControllerProvider.notifier).logPages(bookId, currentPage);
+      final loggedPages = status == ReadingStatus.read ? (totalPages > 0 ? totalPages : currentPage) : currentPage;
+      if (loggedPages > 0) {
+        final isRead = status == ReadingStatus.read;
+        final logDate = isRead && effectiveFinishedAt != null
+            ? DateTime(effectiveFinishedAt.year, effectiveFinishedAt.month, effectiveFinishedAt.day)
+            : null;
+        await ref.read(readingLogControllerProvider.notifier).logPages(
+          bookId,
+          loggedPages,
+          date: logDate,
+          readNumber: 1,
+          backfill: isRead,
+        );
       }
     }
 

@@ -2071,4 +2071,8 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Usar ubicación predeterminada';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'La fecha de finalización es obligatoria cuando el libro está marcado como Leído';
 }

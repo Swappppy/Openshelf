@@ -2076,4 +2076,8 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Fes servir la ubicació predeterminada';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'La data de finalització és obligatòria quan el llibre està marcat com a Llegit';
 }

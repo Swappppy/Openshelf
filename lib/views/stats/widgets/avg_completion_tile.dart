@@ -27,7 +27,8 @@ class AvgCompletionTimeTile extends ConsumerWidget {
               final readBooks = books.where((b) => 
                 b.status == ReadingStatus.read && 
                 b.startedAt != null && 
-                b.finishedAt != null
+                b.finishedAt != null &&
+                !b.finishedAt!.isBefore(b.startedAt!)
               ).toList();
 
               if (readBooks.isEmpty) {

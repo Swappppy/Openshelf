@@ -2005,4 +2005,8 @@ class AppLocalizationsEt extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Kasuta vaikeasukohta';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'Lõpetamise kuupäev on kohustuslik, kui olek on Loetud';
 }

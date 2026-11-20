@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 import '../services/database.dart';
+import '../utils/date_range.dart';
 import 'database_provider.dart';
 
 final allGoalsProvider = StreamProvider<List<ReadingGoal>>((ref) {
@@ -19,13 +20,11 @@ final goalProgressProvider = StreamProvider.family<int, int>((ref, goalId) {
           .where((b) =>
               b.status == ReadingStatus.read &&
               b.finishedAt != null &&
-              b.finishedAt!.isAfter(goal.startDate) &&
-              b.finishedAt!.isBefore(goal.endDate))
+              DayRange.contains(b.finishedAt!, goal.startDate, goal.endDate))
           .length);
     } else if (goal.type == 'pages') {
       return db.logDao.watchLogs().map((logs) => logs
-          .where((l) =>
-              l.date.isAfter(goal.startDate) && l.date.isBefore(goal.endDate))
+          .where((l) => DayRange.contains(l.date, goal.startDate, goal.endDate))
           .fold<int>(0, (sum, l) => sum + l.pagesRead));
     } else if (goal.type == 'shelf' && goal.shelfId != null) {
       // For shelf goals, progress is how many books in that shelf are 'read'

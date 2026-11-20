@@ -1991,5 +1991,6 @@
       }
     }
   },
-  "dbMissingUseDefault": "Usar ubicación predeterminada"
+  "dbMissingUseDefault": "Usar ubicación predeterminada",
+  "bookFormFinishDateRequired": "La fecha de finalización es obligatoria cuando el libro está marcado como Leído"
 }

@@ -1046,5 +1046,6 @@
     "storageCoversMoved": "Teisaldatud kaaned: {count}",
     "dbMissingTitle": "Raamatukogu ei leitud",
     "dbMissingBody": "Raamatukogu andmebaasi ei leitud kohandatud kaustast:\n{path}\n\nKui see asub eemaldataval andmekandjal, ühenda see uuesti ja proovi uuesti. Võid ka naasta vaikeasukohta, kus avatakse seal olev raamatukogu või luuakse tühi.",
-    "dbMissingUseDefault": "Kasuta vaikeasukohta"
+    "dbMissingUseDefault": "Kasuta vaikeasukohta",
+    "bookFormFinishDateRequired": "Lõpetamise kuupäev on kohustuslik, kui olek on Loetud"
 }

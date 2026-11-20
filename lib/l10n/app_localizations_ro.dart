@@ -2006,4 +2006,8 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get dbMissingUseDefault => 'Folosește locația implicită';
+
+  @override
+  String get bookFormFinishDateRequired =>
+      'Data finalizării este obligatorie când este marcat ca Citit';
 }

@@ -198,7 +198,8 @@ class ReadingSessionController {
       await ref.read(readingLogControllerProvider.notifier).logPages(
         book.id, 
         newTotalRead - oldTotalRead,
-        changedSectionLabels.isEmpty ? null : changedSectionLabels,
+        sections: changedSectionLabels.isEmpty ? null : changedSectionLabels,
+        readNumber: sessionIdx,
       );
     }
   }
@@ -287,27 +288,65 @@ class ReadingSessionController {
       await ref.read(readingLogControllerProvider.notifier).logPages(
         bookId, 
         justReadDelta,
-        selectedLabels.isEmpty ? null : selectedLabels,
+        sections: selectedLabels.isEmpty ? null : selectedLabels,
+        readNumber: newReadNumber,
       );
     }
   }
 
   Future<void> updateHistoryEntry(ReadHistoryData history, {DateTime? startedAt, DateTime? finishedAt, int? readNumber}) async {
-    await _db.readHistoryDao.updateRead(history.copyWith(
-      startedAt: Value(startedAt),
-      finishedAt: Value(finishedAt),
-      readNumber: readNumber,
-    ));
+    await _db.transaction(() async {
+      final finishDateChanged = history.finishedAt != finishedAt;
+      final targetReadNum = readNumber ?? history.readNumber;
+
+      await _db.readHistoryDao.updateRead(history.copyWith(
+        startedAt: Value(startedAt),
+        finishedAt: Value(finishedAt),
+        readNumber: readNumber,
+      ));
+
+      if (finishDateChanged && finishedAt != null) {
+        await _db.logDao.moveBackfill(history.bookId, targetReadNum, finishedAt);
+      }
+
+      final remaining = await _db.readHistoryDao.getHistoryForBook(history.bookId);
+      final book = await _db.bookDao.getBook(history.bookId);
+      if (book == null || remaining.isEmpty) return;
+
+      if (book.status == ReadingStatus.read || book.status == ReadingStatus.reading) {
+        // Read/reading follow the history (e.g. giving the open read a
+        // finish date completes it).
+        final derived = _stateFromHistory(book, remaining);
+        await _db.bookDao.updateBook(book.copyWith(
+          status: derived.status,
+          currentPage: Value(derived.currentPage),
+          startedAt: Value(derived.startedAt),
+          finishedAt: Value(derived.finishedAt),
+        ));
+      } else {
+        // Paused/abandoned/want-to-read keep their status and page; only the
+        // book's dates follow its latest read.
+        final latest = remaining.last;
+        await _db.bookDao.updateBook(book.copyWith(
+          startedAt: Value(latest.startedAt),
+          finishedAt: Value(latest.finishedAt),
+        ));
+      }
+    });
   }
 
   Future<void> deleteHistoryEntry(Book book, int readNumber) => _db.transaction(() async {
         await _db.readHistoryDao.deleteReadByNumber(book.id, readNumber);
+        await _db.logDao.deleteForRead(book.id, readNumber);
 
         // Renumber subsequent entries
         final remaining = await _db.readHistoryDao.getHistoryForBook(book.id);
         for (int i = 0; i < remaining.length; i++) {
-          if (remaining[i].readNumber != i + 1) {
-            await _db.readHistoryDao.updateRead(remaining[i].copyWith(readNumber: i + 1));
+          final oldNum = remaining[i].readNumber;
+          final newNum = i + 1;
+          if (oldNum != newNum) {
+            await _db.readHistoryDao.updateRead(remaining[i].copyWith(readNumber: newNum));
+            await _db.logDao.renumberRead(book.id, oldNum, newNum);
           }
         }
 
