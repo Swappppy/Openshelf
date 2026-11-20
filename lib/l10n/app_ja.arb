@@ -1035,5 +1035,16 @@
   "translatorMultiHelpTitle": "複数の翻訳者",
   "translatorMultiHelpContent": "セミコロン（;）、スラッシュ（/）、またはカンマ（,）で区切って複数の翻訳者を入力できます。補完機能が各翻訳者の名前を提案します。",
   "padlockResetTitle": "フィールドをロックしますか？",
-  "padlockResetContent": "このフィールドへの変更は失われます。続行しますか？"
+  "padlockResetContent": "このフィールドへの変更は失われます。続行しますか？",
+    "storageDbMoveSuccess": "データベースを移動しました。アプリを再起動しています...",
+    "storageDbErrorNotWritable": "選択したフォルダーに書き込めません。別の場所を選んでください。",
+    "storageDbErrorNeedsAllFiles": "選択したフォルダーに書き込めません。Android 11以降では、外部フォルダーを使うにはストレージ設定で「すべてのファイルへのアクセス」を有効にしてください。",
+    "storageDbErrorSameFolder": "データベースはすでに選択したフォルダーにあります。",
+    "storageDbErrorSourceMissing": "現在のデータベースファイルが見つかりません。",
+    "storageDbErrorCloseFailed": "データベースを安全に閉じられませんでした。何も移動していません。もう一度お試しください。",
+    "storageDbErrorCopyFailed": "データベースのコピーに失敗しました。データは変更されていません。アプリを再起動しています...",
+    "storageCoversMoved": "移動した表紙: {count}",
+    "dbMissingTitle": "ライブラリが見つかりません",
+    "dbMissingBody": "カスタムフォルダーにライブラリのデータベースが見つかりません:\n{path}\n\nリムーバブルストレージにある場合は、接続し直して再試行してください。既定の場所に戻すこともできます。その場合は既定の場所にあるライブラリが開くか、空のライブラリが作成されます。",
+    "dbMissingUseDefault": "既定の場所を使用"
 }

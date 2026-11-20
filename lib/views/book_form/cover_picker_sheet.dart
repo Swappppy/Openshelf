@@ -49,6 +49,10 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
   @override
   void dispose() {
     _searchSubscription?.cancel();
+    // Previews are temporary downloads; the chosen one was already copied.
+    for (final (_, preview) in _items) {
+      if (preview != null && preview.isNotEmpty) CoverService.deleteCover(preview);
+    }
     super.dispose();
   }
 
@@ -154,6 +158,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
         }
         
         finalPath = await CoverService.saveCover(croppedPath);
+        await CoverService.deleteCover(croppedPath);
       }
 
       if (mounted) {

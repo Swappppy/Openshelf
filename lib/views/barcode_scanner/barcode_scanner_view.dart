@@ -29,7 +29,7 @@ class BarcodeScannerView extends ConsumerStatefulWidget {
   ConsumerState<BarcodeScannerView> createState() => _BarcodeScannerViewState();
 }
 
-class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
+class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> with WidgetsBindingObserver {
   ScannerMode _mode = ScannerMode.barcode;
   
   // Camera package - for OCR and Barcode (via ReaderWidget)
@@ -56,6 +56,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _preFetchCameras();
     _checkPermission();
   }
@@ -162,7 +163,7 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
         }
       }
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied) {
+      if (e.code == BarcodeScanner.cameraAccessDenied && mounted) {
         setState(() {
           _hasPermission = false;
         });
@@ -185,7 +186,20 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Release the camera while in the background so other apps can use it and
+    // the OCR timer doesn't fire against a dead controller; re-acquire on resume.
+    if (_mode != ScannerMode.ocr || _isPopped) return;
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      _stopOcrMode();
+    } else if (state == AppLifecycleState.resumed && _cameraController == null) {
+      _startOcrMode();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _isPopped = true;
     _ocrTimer?.cancel();
     _feedbackTimer?.cancel();
@@ -199,10 +213,11 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
 
     _isProcessingOcr = true;
+    String? originalPath;
+    final String croppedPath = '${Directory.systemTemp.path}/ocr_crop_${DateTime.now().microsecondsSinceEpoch}.png';
     try {
       final xFile = await _cameraController!.takePicture();
-      final String originalPath = xFile.path;
-      final String croppedPath = '${Directory.systemTemp.path}/ocr_crop_${DateTime.now().millisecondsSinceEpoch}.png';
+      originalPath = xFile.path;
 
       // Background Isolate processing
       final OcrProcessingResult result = await compute(OcrProcessor.processAndCrop, OcrCropParams(
@@ -222,8 +237,6 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
           },
         );
 
-        final File croppedFile = File(croppedPath);
-        if (await croppedFile.exists()) await croppedFile.delete();
         
         final candidates = HocrParser.parse(hocr);
         
@@ -237,14 +250,17 @@ class _BarcodeScannerViewState extends ConsumerState<BarcodeScannerView> {
           _detectedIsbns = [];
         });
       }
-      
-      final File originalFile = File(originalPath);
-      if (await originalFile.exists()) await originalFile.delete();
-
     } catch (e) {
       debugPrint('OCR Error: $e');
     } finally {
       _isProcessingOcr = false;
+      for (final path in [originalPath, croppedPath]) {
+        if (path == null) continue;
+        try {
+          final f = File(path);
+          if (await f.exists()) await f.delete();
+        } catch (_) {}
+      }
     }
   }
 

@@ -81,7 +81,7 @@ void main() {
       expect(await bookDao.getBook(bookId), isNotNull);
       expect(await (db.select(db.tags)..where((t) => t.id.equals(tagId))).getSingleOrNull(), isNotNull);
 
-      await bookDao.deleteBook(bookId);
+      await bookDao.deleteBook(bookId, pruneEnabled: true);
 
       expect(await bookDao.getBook(bookId), isNull);
       final tag = await (db.select(db.tags)..where((t) => t.id.equals(tagId))).getSingleOrNull();

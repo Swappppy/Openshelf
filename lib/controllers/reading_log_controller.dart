@@ -16,7 +16,8 @@ class ReadingLogController extends Notifier<void> {
 
     // Check if an entry for this book and day already exists
     final existing = await (db.logDao.select(db.logDao.readingLog)
-          ..where((l) => l.bookId.equals(bookId) & l.date.equals(today)))
+          ..where((l) => l.bookId.equals(bookId) & l.date.equals(today))
+          ..limit(1))
         .getSingleOrNull();
 
     if (existing != null) {

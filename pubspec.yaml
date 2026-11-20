@@ -23,7 +23,9 @@ dependencies:
 
   # Escáner ISBN
   barcode_scan2: ^4.3.0
-  flutter_tesseract_ocr: ^0.4.31
+  # Pinned exactly: the F-Droid build recipe replaces the AAR inside
+  # flutter_tesseract_ocr-0.4.31 in the pub cache. Update the recipe before bumping.
+  flutter_tesseract_ocr: 0.4.31
   camera: ^0.12.0+1
 
 

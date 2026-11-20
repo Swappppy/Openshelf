@@ -13,6 +13,7 @@ import '../../widgets/cover_mosaic.dart';
 import '../../widgets/cover_stack_fade.dart';
 import '../../controllers/book_selection_controller.dart';
 import '../../widgets/selection_app_bar.dart';
+import '../../controllers/app_settings_controller.dart';
 
 /// Displays the collection of books that match a dynamic shelf's criteria.
 class ShelfBooksView extends ConsumerWidget {
@@ -289,7 +290,12 @@ class TagBooksView extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await ref.read(databaseProvider).bookDao.deleteBook(book.id);
+              final settings = ref.read(appSettingsProvider);
+              await ref.read(databaseProvider).bookDao.deleteBook(
+                book.id,
+                pruneEnabled: settings.pruneOrphanCategories,
+                excludedIds: settings.excludedCategoriesFromPruning,
+              );
             },
             child: Text(
               context.l10n.delete,

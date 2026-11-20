@@ -1957,4 +1957,44 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get padlockResetContent => 'このフィールドへの変更は失われます。続行しますか？';
+
+  @override
+  String get storageDbMoveSuccess => 'データベースを移動しました。アプリを再起動しています...';
+
+  @override
+  String get storageDbErrorNotWritable => '選択したフォルダーに書き込めません。別の場所を選んでください。';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      '選択したフォルダーに書き込めません。Android 11以降では、外部フォルダーを使うにはストレージ設定で「すべてのファイルへのアクセス」を有効にしてください。';
+
+  @override
+  String get storageDbErrorSameFolder => 'データベースはすでに選択したフォルダーにあります。';
+
+  @override
+  String get storageDbErrorSourceMissing => '現在のデータベースファイルが見つかりません。';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'データベースを安全に閉じられませんでした。何も移動していません。もう一度お試しください。';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'データベースのコピーに失敗しました。データは変更されていません。アプリを再起動しています...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return '移動した表紙: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'ライブラリが見つかりません';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'カスタムフォルダーにライブラリのデータベースが見つかりません:\n$path\n\nリムーバブルストレージにある場合は、接続し直して再試行してください。既定の場所に戻すこともできます。その場合は既定の場所にあるライブラリが開くか、空のライブラリが作成されます。';
+  }
+
+  @override
+  String get dbMissingUseDefault => '既定の場所を使用';
 }

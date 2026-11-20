@@ -1029,5 +1029,16 @@
   "translatorMultiHelpTitle": "Traducteurs multiples",
   "translatorMultiHelpContent": "Vous pouvez saisir plusieurs traducteurs en les séparant par un point-virgule (;), une barre oblique (/) ou une virgule (,). La saisie semi-automatique suggérera des noms pour chaque traducteur.",
   "padlockResetTitle": "Verrouiller le champ ?",
-  "padlockResetContent": "Les modifications apportées à ce champ seront perdues. Voulez-vous continuer ?"
+  "padlockResetContent": "Les modifications apportées à ce champ seront perdues. Voulez-vous continuer ?",
+  "storageDbMoveSuccess": "Base de données déplacée avec succès. Redémarrage de l'application...",
+  "storageDbErrorNotWritable": "Le dossier sélectionné n'est pas accessible en écriture. Essayez un autre emplacement.",
+  "storageDbErrorNeedsAllFiles": "Le dossier sélectionné n'est pas accessible en écriture. Sur Android 11+, activez « Accès à tous les fichiers » dans les paramètres de stockage pour utiliser des dossiers externes.",
+  "storageDbErrorSameFolder": "La base de données se trouve déjà dans le dossier sélectionné.",
+  "storageDbErrorSourceMissing": "Le fichier de la base de données actuelle est introuvable.",
+  "storageDbErrorCloseFailed": "La base de données n'a pas pu être fermée en toute sécurité. Rien n'a été déplacé ; veuillez réessayer.",
+  "storageDbErrorCopyFailed": "La copie de la base de données a échoué. Vos données n'ont pas été modifiées. Redémarrage de l'application...",
+  "storageCoversMoved": "Couvertures déplacées : {count}",
+  "dbMissingTitle": "Bibliothèque introuvable",
+  "dbMissingBody": "La base de données de la bibliothèque est introuvable dans le dossier personnalisé :\n{path}\n\nSi elle se trouve sur un stockage amovible, reconnectez-le et réessayez. Vous pouvez aussi revenir à l'emplacement par défaut, qui ouvrira la bibliothèque qui s'y trouve ou en créera une vide.",
+  "dbMissingUseDefault": "Utiliser l'emplacement par défaut"
 }

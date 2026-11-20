@@ -2032,6 +2032,50 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'As alterações feitas neste campo serão perdidas. Deseja continuar?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Base de dados movida com sucesso. A reiniciar a aplicação...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Não é possível escrever na pasta selecionada. Experimente outra localização.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Não é possível escrever na pasta selecionada. No Android 11+, ative «Acesso a todos os ficheiros» nas definições de armazenamento para usar pastas externas.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'A base de dados já está na pasta selecionada.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Não foi possível encontrar o ficheiro da base de dados atual.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Não foi possível fechar a base de dados em segurança. Nada foi movido; tente novamente.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Falha ao copiar a base de dados. Os seus dados não foram alterados. A reiniciar a aplicação...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Capas movidas: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Biblioteca não encontrada';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'A base de dados da biblioteca não foi encontrada na pasta personalizada:\n$path\n\nSe estiver num armazenamento amovível, volte a ligá-lo e tente novamente. Também pode voltar à localização predefinida, que abrirá a biblioteca aí existente ou criará uma vazia.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Usar localização predefinida';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -4059,4 +4103,48 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get padlockResetContent =>
       'As alterações feitas neste campo serão perdidas. Deseja continuar?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Banco de dados movido com sucesso. Reiniciando o app...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Não é possível gravar na pasta selecionada. Tente outro local.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Não é possível gravar na pasta selecionada. No Android 11+, ative \"Acesso a todos os arquivos\" nas configurações de armazenamento para usar pastas externas.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'O banco de dados já está na pasta selecionada.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Não foi possível encontrar o arquivo do banco de dados atual.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Não foi possível fechar o banco de dados com segurança. Nada foi movido; tente novamente.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Falha ao copiar o banco de dados. Seus dados não foram alterados. Reiniciando o app...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Capas movidas: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Biblioteca não encontrada';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'O banco de dados da biblioteca não foi encontrado na pasta personalizada:\n$path\n\nSe ele estiver em um armazenamento removível, reconecte-o e tente novamente. Você também pode voltar ao local padrão, que abrirá a biblioteca existente ou criará uma vazia.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Usar local padrão';
 }

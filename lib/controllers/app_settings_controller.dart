@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_settings.dart';
+import '../services/cover_service.dart';
+import '../services/database.dart';
 import 'shared_prefs_provider.dart';
 import 'database_provider.dart';
 
@@ -10,8 +12,8 @@ class AppSettingsController extends Notifier<AppSettings> {
   static const _keyTheme = 'app_theme';
   static const _keyLocale = 'app_locale';
   static const _keySeedColor = 'app_seed_color';
-  static const _keyCoversPath = 'app_covers_path';
-  static const _keyDbPath = 'app_db_path';
+  static const _keyCoversPath = CoverService.coversPathPrefKey;
+  static const _keyDbPath = AppDatabase.customPathPrefKey;
   static const _keySearchServers = 'app_search_servers';
   static const _keyDisabledSearchServers = 'app_disabled_search_servers';
   static const _keyGoogleApiKey = 'app_google_api_key';

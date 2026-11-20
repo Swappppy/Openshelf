@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'http_utils.dart';
 import 'package:collection/collection.dart';
 import '../models/book_search_result.dart';
 import '../services/database.dart';
@@ -11,7 +12,7 @@ class OpenLibraryService {
   static const _host = 'openlibrary.org';
   static const _searchPath = '/search.json';
   static const _headers = {
-    'User-Agent': 'Openshelf/1.0.0 (https://github.com/ftena/openshelf)',
+    'User-Agent': kUserAgent,
     'Accept': 'application/json',
   };
 

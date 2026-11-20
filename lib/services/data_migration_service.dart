@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:csv/csv.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,16 +13,48 @@ import 'package:share_plus/share_plus.dart';
 import 'database.dart';
 import 'cover_service.dart';
 import 'import_export_base.dart';
+import '../models/search_filters.dart';
 import '../utils/pagination_helper.dart';
 
+/// Thrown when a backup archive is malformed or exceeds safety limits.
+class BackupFormatException implements Exception {
+  final String message;
+  BackupFormatException(this.message);
+  @override
+  String toString() => 'Exception: $message';
+}
+
 /// Service for exporting and importing the entire library database via CSV and ZIP.
+///
+/// Backup format (v2). All cross-references are stored by *name* so a backup
+/// can be restored into any database:
+/// - manifest.json, books.csv, shelves.csv, tags.csv, history.csv, logs.csv,
+///   goals.csv, ownership.csv, widgets.csv, search_history.csv
+/// - cover images at the archive root, imprint images under `imprints/`.
+/// Backups written by older versions (v1, without the newer files/columns)
+/// are still accepted.
 class DataMigrationService {
   final AppDatabase _db;
-  final Map<String, int> _tagCache = {};
+  Map<String, int> _tagCache = {};
 
   DataMigrationService(this._db);
 
-  // --- Export ---
+  static const backupFormatVersion = 2;
+
+  /// Per-entry and whole-archive limits on decompressed size (zip-bomb guard).
+  static const _maxEntryBytes = 256 * 1024 * 1024;
+  static const _maxTotalBytes = 4 * 1024 * 1024 * 1024;
+  static const _imageExtensions = {'.jpg', '.jpeg', '.png', '.webp'};
+
+  static const _tagFields = {
+    SearchField.category: TagType.tag,
+    SearchField.imprint: TagType.imprint,
+    SearchField.collection: TagType.collection,
+  };
+
+  // ---------------------------------------------------------------------------
+  // Export
+  // ---------------------------------------------------------------------------
 
   Future<File> createBackupFile({bool includeCovers = true, void Function(String)? onProgress}) async {
     final tempDir = await getTemporaryDirectory();
@@ -30,33 +64,31 @@ class DataMigrationService {
     final encoder = ZipFileEncoder();
     encoder.create(zipFile.path);
 
-    final backupSubDir = Directory(p.join(tempDir.path, 'backup_csv_${DateTime.now().millisecondsSinceEpoch}'))..createSync(recursive: true);
+    final backupSubDir = Directory(p.join(tempDir.path, 'backup_csv_${DateTime.now().microsecondsSinceEpoch}'))
+      ..createSync(recursive: true);
+
+    Future<void> add(String name, String content) async {
+      final f = File(p.join(backupSubDir.path, name))..writeAsStringSync(content, encoding: utf8);
+      await encoder.addFile(f, name);
+    }
 
     try {
       onProgress?.call('data');
-      final booksCsv = await exportBooksToCsv();
-      final booksFile = File(p.join(backupSubDir.path, 'books.csv'))..writeAsStringSync(booksCsv, encoding: utf8);
-      await encoder.addFile(booksFile, 'books.csv');
-
-      final shelvesCsv = await exportShelvesToCsv();
-      final shelvesFile = File(p.join(backupSubDir.path, 'shelves.csv'))..writeAsStringSync(shelvesCsv, encoding: utf8);
-      await encoder.addFile(shelvesFile, 'shelves.csv');
-
-      final tagsCsv = await exportTagsToCsv();
-      final tagsFile = File(p.join(backupSubDir.path, 'tags.csv'))..writeAsStringSync(tagsCsv, encoding: utf8);
-      await encoder.addFile(tagsFile, 'tags.csv');
-
-      final historyCsv = await exportHistoryToCsv();
-      final historyFile = File(p.join(backupSubDir.path, 'history.csv'))..writeAsStringSync(historyCsv, encoding: utf8);
-      await encoder.addFile(historyFile, 'history.csv');
-
-      final logsCsv = await exportLogsToCsv();
-      final logsFile = File(p.join(backupSubDir.path, 'logs.csv'))..writeAsStringSync(logsCsv, encoding: utf8);
-      await encoder.addFile(logsFile, 'logs.csv');
-
-      final goalsCsv = await exportGoalsToCsv();
-      final goalsFile = File(p.join(backupSubDir.path, 'goals.csv'))..writeAsStringSync(goalsCsv, encoding: utf8);
-      await encoder.addFile(goalsFile, 'goals.csv');
+      await add('manifest.json', jsonEncode({
+        'app': 'openshelf',
+        'format': backupFormatVersion,
+        'schemaVersion': _db.schemaVersion,
+        'createdAt': DateTime.now().toIso8601String(),
+      }));
+      await add('books.csv', await exportBooksToCsv());
+      await add('shelves.csv', await exportShelvesToCsv());
+      await add('tags.csv', await exportTagsToCsv());
+      await add('history.csv', await exportHistoryToCsv());
+      await add('logs.csv', await exportLogsToCsv());
+      await add('goals.csv', await exportGoalsToCsv());
+      await add('ownership.csv', await exportOwnershipToCsv());
+      await add('widgets.csv', await exportWidgetsToCsv());
+      await add('search_history.csv', await exportSearchHistoryToCsv());
 
       if (includeCovers) {
         onProgress?.call('media');
@@ -74,70 +106,122 @@ class DataMigrationService {
     return zipFile;
   }
 
+  Future<Map<int, Tag>> _tagsById() async =>
+      {for (final t in await _db.select(_db.tags).get()) t.id: t};
+
   Future<String> exportBooksToCsv() async {
-    final books = await _db.bookDao.select(_db.bookDao.books).get();
+    final books = await _db.select(_db.books).get();
+    final tagsById = await _tagsById();
+    final linksByBook = groupBy(await _db.select(_db.bookTags).get(), (BookTag bt) => bt.bookId);
+
     final rows = <List<dynamic>>[[
       'id', 'title', 'subtitle', 'author', 'isbn', 'language', 'translator',
       'publisher', 'publishYear', 'totalPages', 'currentPage', 'status',
       'rating', 'bookFormat', 'collectionName', 'collectionNumber',
       'notes', 'startedAt', 'finishedAt', 'createdAt', 'coverUrl', 'coverPath',
       'categories', 'categoryColors', 'imprintName', 'imprintColor', 'imprintImage',
-      'collectionId', 'imprintId', 'paginationConfig'
+      'collectionId', 'imprintId', 'paginationConfig',
+      // v2
+      'originalTitle', 'originalLanguage', 'description', 'ownershipStatus', 'copies', 'collections',
     ]];
 
     for (final b in books) {
-      final tags = await _db.tagDao.watchTagsForBook(b.id).first;
-      final imprint = await _db.tagDao.watchImprintForBook(b.id).first;
-
-      // Resolve collection name from tag when collectionName field is null
-      // (books created after v14 only store collectionId, not the text name)
-      String? resolvedCollectionName = b.collectionName;
-      if (resolvedCollectionName == null && b.collectionId != null) {
-        final collTag = await (_db.tagDao.select(_db.tagDao.tags)
-          ..where((t) => t.id.equals(b.collectionId!))).getSingleOrNull();
-        resolvedCollectionName = collTag?.name;
-      }
+      final links = linksByBook[b.id] ?? const <BookTag>[];
+      final categories = links.map((l) => tagsById[l.tagId]).whereType<Tag>().where((t) => t.type == TagType.tag).toList();
+      final collections = [
+        for (final l in links)
+          if (tagsById[l.tagId]?.type == TagType.collection)
+            {'name': tagsById[l.tagId]!.name, 'number': l.collectionNumber},
+      ];
+      final imprint = b.imprintId != null ? tagsById[b.imprintId] : null;
+      final firstCollection = collections.firstOrNull;
 
       rows.add([
         b.id, b.title, b.subtitle, b.author, b.isbn, b.language, b.translator,
         b.publisher, b.publishYear, b.totalPages, b.currentPage, b.status.name,
-        b.rating, b.bookFormat?.name, resolvedCollectionName, b.collectionNumber,
+        b.rating, b.bookFormat?.name,
+        firstCollection?['name'] ?? b.collectionName ?? (b.collectionId != null ? tagsById[b.collectionId]?.name : null),
+        firstCollection?['number'] ?? b.collectionNumber,
         b.notes, b.startedAt?.toIso8601String(), b.finishedAt?.toIso8601String(),
-        b.createdAt.toIso8601String(), b.coverUrl, b.coverPath,
-        tags.map((t) => t.name).join('|'),
-        tags.map((t) => t.color ?? '').join('|'),
-        imprint?.name, imprint?.color, imprint?.imagePath,
+        b.createdAt.toIso8601String(), b.coverUrl,
+        b.coverPath != null ? p.basename(b.coverPath!) : null,
+        categories.map((t) => t.name).join('|'),
+        categories.map((t) => t.color ?? '').join('|'),
+        imprint?.name, imprint?.color, imprint?.imagePath != null ? p.basename(imprint!.imagePath!) : null,
         b.collectionId, b.imprintId,
         b.paginationConfig != null ? jsonEncode(b.paginationConfig!.toJson()) : null,
+        b.originalTitle, b.originalLanguage, b.description, b.ownershipStatus?.name, b.copies,
+        collections.isEmpty ? null : jsonEncode(collections),
       ]);
     }
     return Csv().encode(rows);
   }
 
   Future<String> exportShelvesToCsv() async {
-    final shelves = await _db.shelfDao.select(_db.shelfDao.shelves).get();
+    final shelves = await _db.select(_db.shelves).get();
+    final tagsById = await _tagsById();
+    final linksByShelf = groupBy(await _db.select(_db.shelfTags).get(), (ShelfTag st) => st.shelfId);
+
+    List<String> namesFromJson(String? json) {
+      if (json == null) return [];
+      try {
+        return (jsonDecode(json) as List).map((id) => tagsById[id]?.name).whereType<String>().toList();
+      } catch (_) {
+        return [];
+      }
+    }
+
     final rows = <List<dynamic>>[[
       'name', 'filterQuery', 'filterAuthor', 'filterPublisher', 'filterIsbn',
-      'filterSubtitle', 'filterLanguage', 'filterTranslator', 'filterCollectionIds',
-      'filterStatus', 'filterTagNames', 'filterImprintNames'
+      'filterSubtitle', 'filterLanguage', 'filterTranslator', 'filterCollection',
+      'filterStatus', 'filterTagNames', 'filterImprintNames',
+      // v2
+      'filterCollectionNames', 'filterNoCover', 'filterSearchMode', 'filterFormat',
+      'filterOwnership', 'filterNotes', 'filterBooleanQuery',
     ]];
 
     for (final s in shelves) {
-      final tagNames = await _getNamesFromIds(s.filterTagIds);
-      final imprintNames = await _getNamesFromIds(s.filterImprintIds);
+      // shelf_tags is authoritative; the JSON columns are a legacy mirror.
+      final linked = (linksByShelf[s.id] ?? const <ShelfTag>[]).map((l) => tagsById[l.tagId]).whereType<Tag>().toList();
+      List<String> names(TagType type, String? legacyJson) {
+        final fromLinks = linked.where((t) => t.type == type).map((t) => t.name).toList();
+        return fromLinks.isNotEmpty ? fromLinks : namesFromJson(legacyJson);
+      }
+
+      final collectionNames = names(TagType.collection, s.filterCollectionIds);
       rows.add([
         s.name, s.filterQuery, s.filterAuthor, s.filterPublisher, s.filterIsbn,
-        s.filterSubtitle, s.filterLanguage, s.filterTranslator, s.filterCollectionIds,
-        s.filterStatus, tagNames.join('|'), imprintNames.join('|')
+        s.filterSubtitle, s.filterLanguage, s.filterTranslator, collectionNames.join('|'),
+        s.filterStatus, names(TagType.tag, s.filterTagIds).join('|'), names(TagType.imprint, s.filterImprintIds).join('|'),
+        collectionNames.isEmpty ? null : jsonEncode(collectionNames),
+        s.filterNoCover, s.filterSearchMode, s.filterFormat,
+        s.filterOwnership, s.filterNotes, _booleanQueryIdsToNames(s.filterBooleanQuery, tagsById),
       ]);
     }
     return Csv().encode(rows);
   }
 
-  Future<String> exportTagsToCsv() async {
-    final tags = await _db.tagDao.select(_db.tagDao.tags).get();
-    final rows = <List<dynamic>>[['name', 'type', 'color', 'imagePath']];
+  /// Annotates tag conditions with the tag name, since tag IDs differ between databases.
+  String? _booleanQueryIdsToNames(String? json, Map<int, Tag> tagsById) {
+    if (json == null) return null;
+    try {
+      final map = jsonDecode(json) as Map<String, dynamic>;
+      for (final c in (map['conditions'] as List? ?? const []).cast<Map<String, dynamic>>()) {
+        final field = SearchField.values.firstWhereOrNull((f) => f.name == c['field']);
+        if (field == null || !_tagFields.containsKey(field)) continue;
+        final id = int.tryParse('${c['value']}');
+        final name = id != null ? tagsById[id]?.name : null;
+        if (name != null) c['valueName'] = name;
+      }
+      return jsonEncode(map);
+    } catch (_) {
+      return json;
+    }
+  }
 
+  Future<String> exportTagsToCsv() async {
+    final tags = await _db.select(_db.tags).get();
+    final rows = <List<dynamic>>[['name', 'type', 'color', 'imagePath']];
     for (final t in tags) {
       rows.add([t.name, t.type.name, t.color, t.imagePath != null ? p.basename(t.imagePath!) : null]);
     }
@@ -145,11 +229,10 @@ class DataMigrationService {
   }
 
   Future<String> exportHistoryToCsv() async {
-    final history = await _db.readHistoryDao.select(_db.readHistoryDao.readHistory).get();
+    final history = await _db.select(_db.readHistory).get();
     final rows = <List<dynamic>>[[
       'bookId', 'readNumber', 'startedAt', 'finishedAt', 'sections', 'progress', 'segmentProgress'
     ]];
-
     for (final h in history) {
       rows.add([
         h.bookId,
@@ -165,49 +248,60 @@ class DataMigrationService {
   }
 
   Future<String> exportLogsToCsv() async {
-    final logs = await _db.logDao.select(_db.logDao.readingLog).get();
+    final logs = await _db.select(_db.readingLog).get();
     final rows = <List<dynamic>>[['bookId', 'date', 'pagesRead', 'sections']];
-
     for (final l in logs) {
-      rows.add([
-        l.bookId,
-        l.date.toIso8601String(),
-        l.pagesRead,
-        l.sections != null ? jsonEncode(l.sections) : null,
-      ]);
+      rows.add([l.bookId, l.date.toIso8601String(), l.pagesRead, l.sections != null ? jsonEncode(l.sections) : null]);
     }
     return Csv().encode(rows);
   }
 
   Future<String> exportGoalsToCsv() async {
-    final goals = await _db.goalDao.select(_db.goalDao.readingGoals).get();
+    final goals = await _db.select(_db.readingGoals).get();
+    final shelfNames = {for (final s in await _db.select(_db.shelves).get()) s.id: s.name};
+    final tagsById = await _tagsById();
     final rows = <List<dynamic>>[[
-      'title', 'type', 'targetValue', 'startDate', 'endDate', 'shelfId', 'collectionId'
+      'title', 'type', 'targetValue', 'startDate', 'endDate', 'shelfName', 'collectionName'
     ]];
-
     for (final g in goals) {
       rows.add([
-        g.title,
-        g.type,
-        g.targetValue,
-        g.startDate.toIso8601String(),
-        g.endDate.toIso8601String(),
-        g.shelfId,
-        g.collectionId,
+        g.title, g.type, g.targetValue,
+        g.startDate.toIso8601String(), g.endDate.toIso8601String(),
+        g.shelfId != null ? shelfNames[g.shelfId] : null,
+        g.collectionId != null ? tagsById[g.collectionId]?.name : null,
       ]);
     }
     return Csv().encode(rows);
   }
 
-  Future<List<String>> _getNamesFromIds(String? jsonIds) async {
-    if (jsonIds == null) return [];
-    try {
-      final ids = (jsonDecode(jsonIds) as List).cast<int>();
-      final tags = await _db.tagDao.getTagsByIds(ids);
-      return tags.map((t) => t.name).toList();
-    } catch (_) { return []; }
+  Future<String> exportOwnershipToCsv() async {
+    final events = await _db.select(_db.ownershipLog).get();
+    final rows = <List<dynamic>>[['bookId', 'eventType', 'personName', 'date', 'notes']];
+    for (final e in events) {
+      rows.add([e.bookId, e.eventType.name, e.personName, e.date.toIso8601String(), e.notes]);
+    }
+    return Csv().encode(rows);
   }
 
+  Future<String> exportWidgetsToCsv() async {
+    final widgets = await _db.select(_db.statWidgetConfigs).get();
+    final goals = {for (final g in await _db.select(_db.readingGoals).get()) g.id: g};
+    final rows = <List<dynamic>>[['type', 'size', 'sortOrder', 'config', 'goalTitle', 'goalStartDate']];
+    for (final w in widgets) {
+      final goal = w.goalId != null ? goals[w.goalId] : null;
+      rows.add([w.type, w.size, w.sortOrder, w.config, goal?.title, goal?.startDate.toIso8601String()]);
+    }
+    return Csv().encode(rows);
+  }
+
+  Future<String> exportSearchHistoryToCsv() async {
+    final entries = await _db.select(_db.searchHistory).get();
+    final rows = <List<dynamic>>[['query', 'type', 'status', 'title', 'author', 'publisher', 'timestamp']];
+    for (final e in entries) {
+      rows.add([e.query, e.type, e.status, e.title, e.author, e.publisher, e.timestamp.toIso8601String()]);
+    }
+    return Csv().encode(rows);
+  }
 
   Future<void> shareBackup({bool includeCovers = true, void Function(String)? onProgress}) async {
     final zipFile = await createBackupFile(includeCovers: includeCovers, onProgress: onProgress);
@@ -221,500 +315,600 @@ class DataMigrationService {
 
   Future<void> _bundleMediaWithEncoder(ZipFileEncoder encoder) async {
     final addedNames = <String>{};
-    final books = await _db.bookDao.select(_db.bookDao.books).get();
-    for (final b in books) {
-      if (b.coverPath != null) {
-        final file = File(b.coverPath!);
-        if (await file.exists()) {
-          final name = p.basename(b.coverPath!);
-          if (addedNames.add(name)) {
-            await encoder.addFile(file, name);
-          }
-        }
-      }
+    for (final b in await _db.select(_db.books).get()) {
+      if (b.coverPath == null) continue;
+      final file = File(b.coverPath!);
+      final name = p.basename(b.coverPath!);
+      if (await file.exists() && addedNames.add(name)) await encoder.addFile(file, name);
     }
-    final tags = await _db.tagDao.select(_db.tagDao.tags).get();
-    for (final t in tags) {
-      if (t.imagePath != null) {
-        final file = File(t.imagePath!);
-        if (await file.exists()) {
-          final name = p.join('imprints', p.basename(t.imagePath!));
-          if (addedNames.add(name)) {
-            await encoder.addFile(file, name);
-          }
-        }
-      }
+    for (final t in await _db.select(_db.tags).get()) {
+      if (t.imagePath == null) continue;
+      final file = File(t.imagePath!);
+      final name = 'imprints/${p.basename(t.imagePath!)}';
+      if (await file.exists() && addedNames.add(name)) await encoder.addFile(file, name);
     }
   }
 
-  // --- Import ---
+  // ---------------------------------------------------------------------------
+  // Import
+  // ---------------------------------------------------------------------------
 
   Future<int> importFromBackup(File sourceFile, {File? zipFile, bool compress = true}) async {
-    if (p.extension(sourceFile.path).toLowerCase() == '.csv' && zipFile != null) {
-      return _importLegacy(sourceFile, zipFile);
-    }
-    if (p.extension(sourceFile.path).toLowerCase() == '.zip') {
-      return _importFromZip(sourceFile, compress: compress);
-    }
-    if (p.extension(sourceFile.path).toLowerCase() == '.csv') {
-      return _importBooksCsv(sourceFile);
-    }
+    _tagCache = {};
+    final ext = p.extension(sourceFile.path).toLowerCase();
+    if (ext == '.csv' && zipFile != null) return _importLegacy(sourceFile, zipFile);
+    if (ext == '.zip') return _importFromZip(sourceFile, compress: compress);
+    if (ext == '.csv') return _importBooksCsv(sourceFile);
     throw Exception('Format not supported');
   }
 
-  Future<Archive> _decodeZipSafely(File zipFile) async {
-    final bytes = await zipFile.readAsBytes();
-    final decoder = ZipDecoder();
-    final archive = decoder.decodeBytes(bytes);
-    for (final header in decoder.directory.fileHeaders) {
-      if (header.file != null) {
-        header.file!.uncompressedSize = 0x7fffffffffffffff;
+  /// Opens a zip without loading it fully into memory and enforces size limits.
+  (Archive, InputFileStream) _openZipSafely(File zipFile) {
+    final input = InputFileStream(zipFile.path);
+    try {
+      final decoder = ZipDecoder();
+      final archive = decoder.decodeStream(input);
+      var total = 0;
+      for (final header in decoder.directory.fileHeaders) {
+        final file = header.file;
+        if (file == null) continue;
+        if (file.uncompressedSize > _maxEntryBytes) {
+          throw BackupFormatException('Backup entry "${header.filename}" is too large');
+        }
+        if (header.filename.toLowerCase().endsWith('.csv')) {
+          // Backups written before v1.5 recorded the UTF-16 length of the CSV
+          // text instead of its UTF-8 byte length. UTF-8 needs at most 3 bytes
+          // per UTF-16 code unit, so allow that much (still bounded).
+          file.uncompressedSize = min(file.uncompressedSize * 3 + 1024, _maxEntryBytes);
+        }
+        total += file.uncompressedSize;
+        if (total > _maxTotalBytes) throw BackupFormatException('Backup is too large');
       }
+      return (archive, input);
+    } catch (_) {
+      input.closeSync();
+      rethrow;
     }
-    return archive;
+  }
+
+  /// Maps an archive entry to a safe relative path inside the app's storage,
+  /// or `null` if the entry must be ignored (path traversal, unexpected
+  /// location or non-image file).
+  static String? safeMediaPath(String entryName) {
+    final normalized = p.posix.normalize(entryName.replaceAll('\\', '/'));
+    if (normalized.startsWith('/') || normalized.startsWith('..') || normalized.contains(':')) return null;
+    final parts = p.posix.split(normalized);
+    if (parts.contains('..') || parts.contains('.')) return null;
+    if (!_imageExtensions.contains(p.extension(normalized).toLowerCase())) return null;
+    if (parts.length == 1) return parts.single;
+    if (parts.length == 2 && parts.first == 'imprints') return normalized;
+    return null;
+  }
+
+  Future<void> _extractMedia(ArchiveFile file, {required String coverDir, required String docDir, required bool compress}) async {
+    final rel = safeMediaPath(file.name);
+    if (rel == null) {
+      debugPrint('DataMigrationService: skipping unexpected archive entry "${file.name}"');
+      return;
+    }
+    final baseDir = rel.startsWith('imprints/') ? docDir : coverDir;
+    final target = File(p.join(baseDir, rel));
+    if (!p.isWithin(baseDir, target.path)) return; // defence in depth
+    await target.parent.create(recursive: true);
+
+    final data = file.content as List<int>;
+    if (compress) {
+      final tempDir = await getTemporaryDirectory();
+      final temp = File(p.join(tempDir.path, 'import_${DateTime.now().microsecondsSinceEpoch}_${p.basename(rel)}'));
+      await temp.writeAsBytes(data);
+      try {
+        await CoverService.compressImage(temp.path, target.path);
+      } finally {
+        if (await temp.exists()) await temp.delete();
+      }
+    } else {
+      await target.writeAsBytes(data);
+    }
+    file.clear();
+  }
+
+  String _text(ArchiveFile f) {
+    final s = utf8.decode(f.content as List<int>, allowMalformed: true);
+    f.clear();
+    return s;
   }
 
   Future<int> _importFromZip(File zipFile, {bool compress = true}) async {
-    final archive = await _decodeZipSafely(zipFile);
-    final docDir = await getApplicationDocumentsDirectory();
-    final tempDir = await getTemporaryDirectory();
+    final (archive, input) = _openZipSafely(zipFile);
+    try {
+      final docDir = (await getApplicationDocumentsDirectory()).path;
+      final coverDir = (await CoverService.getCoverDirectory()).path;
 
-    ArchiveFile? booksF, shelvesF, tagsF, historyF, logsF, goalsF;
-
-    for (final file in archive) {
-      if (!file.isFile) continue;
-      if (file.name == 'books.csv') {
-        booksF = file;
-      } else if (file.name == 'shelves.csv') {
-        shelvesF = file;
-      } else if (file.name == 'tags.csv') {
-        tagsF = file;
-      } else if (file.name == 'history.csv') {
-        historyF = file;
-      } else if (file.name == 'logs.csv') {
-        logsF = file;
-      } else if (file.name == 'goals.csv') {
-        goalsF = file;
-      } else {
-        final data = file.content as List<int>;
-        final targetFile = File(p.join(docDir.path, file.name));
-        // Ensure the directory for this file exists before writing/compressing
-        targetFile.parent.createSync(recursive: true);
-
-        final isImg = ['.jpg', '.png', '.jpeg'].any((ext) => file.name.toLowerCase().endsWith(ext));
-
-        if (compress && isImg) {
-          // Use a flat name for the temp file to avoid creating subdirectories in the cache
-          final tempName = 'import_${p.basename(file.name)}';
-          final temp = File(p.join(tempDir.path, tempName))..createSync(recursive: true)..writeAsBytesSync(data);
-          file.clear();
-          
-          await CoverService.compressImage(temp.path, targetFile.path);
-          if (temp.existsSync()) temp.deleteSync();
-        } else {
-          targetFile.writeAsBytesSync(data);
-          file.clear();
+      final csv = <String, ArchiveFile>{};
+      for (final file in archive) {
+        if (!file.isFile) continue;
+        if (file.name.toLowerCase().endsWith('.csv') && !file.name.contains('/')) {
+          csv[file.name] = file;
+        } else if (file.name != 'manifest.json') {
+          await _extractMedia(file, coverDir: coverDir, docDir: docDir, compress: compress);
         }
       }
-    }
 
-    if (booksF == null) throw Exception('books.csv missing');
-    if (tagsF != null) {
-      await _importTagsCsvContent(utf8.decode(tagsF.content as List<int>), localBaseDir: docDir.path);
-      tagsF.clear();
+      final booksF = csv['books.csv'];
+      if (booksF == null) throw Exception('books.csv missing');
+
+      String? read(String name) => csv[name] != null ? _text(csv[name]!) : null;
+      final tagsCsv = read('tags.csv');
+      final booksCsv = _text(booksF);
+      final shelvesCsv = read('shelves.csv');
+      final historyCsv = read('history.csv');
+      final logsCsv = read('logs.csv');
+      final goalsCsv = read('goals.csv');
+      final ownershipCsv = read('ownership.csv');
+      final widgetsCsv = read('widgets.csv');
+      final searchCsv = read('search_history.csv');
+
+      return await _db.transaction(() async {
+        if (tagsCsv != null) await _importTagsCsvContent(tagsCsv, docDir: docDir);
+        final bookIdMap = <int, int>{};
+        final count = await _importBooksCsvContent(booksCsv, coverDir: coverDir, docDir: docDir, bookIdMap: bookIdMap);
+        if (shelvesCsv != null) await _importShelvesCsvContent(shelvesCsv);
+        if (historyCsv != null) await _importHistoryCsvContent(historyCsv, bookIdMap);
+        if (logsCsv != null) await _importLogsCsvContent(logsCsv, bookIdMap);
+        if (goalsCsv != null) await _importGoalsCsvContent(goalsCsv);
+        if (ownershipCsv != null) await _importOwnershipCsvContent(ownershipCsv, bookIdMap);
+        if (widgetsCsv != null) await _importWidgetsCsvContent(widgetsCsv);
+        if (searchCsv != null) await _importSearchHistoryCsvContent(searchCsv);
+        return count;
+      });
+    } finally {
+      input.closeSync();
     }
-    
-    final bookIdMap = <int, int>{};
-    final count = await _importBooksCsvContent(utf8.decode(booksF.content as List<int>), localBaseDir: docDir.path, bookIdMap: bookIdMap);
-    booksF.clear();
-    
-    if (shelvesF != null) {
-      await _importShelvesCsvContent(utf8.decode(shelvesF.content as List<int>));
-      shelvesF.clear();
-    }
-    if (historyF != null) {
-      await _importHistoryCsvContent(utf8.decode(historyF.content as List<int>), bookIdMap);
-      historyF.clear();
-    }
-    if (logsF != null) {
-      await _importLogsCsvContent(utf8.decode(logsF.content as List<int>), bookIdMap);
-      logsF.clear();
-    }
-    if (goalsF != null) {
-      await _importGoalsCsvContent(utf8.decode(goalsF.content as List<int>));
-      goalsF.clear();
-    }
-    
-    return count;
   }
 
+  /// Old two-file format: books CSV + a zip containing only images.
   Future<int> _importLegacy(File csvFile, File zipFile) async {
-    final archive = await _decodeZipSafely(zipFile);
-    final docDir = await getApplicationDocumentsDirectory();
-    for (final f in archive) {
-      if (f.isFile) {
-        File(p.join(docDir.path, f.name))..createSync(recursive: true)..writeAsBytesSync(f.content as List<int>);
-        f.clear();
+    final (archive, input) = _openZipSafely(zipFile);
+    try {
+      final docDir = (await getApplicationDocumentsDirectory()).path;
+      final coverDir = (await CoverService.getCoverDirectory()).path;
+      for (final f in archive) {
+        if (f.isFile) await _extractMedia(f, coverDir: coverDir, docDir: docDir, compress: false);
       }
+    } finally {
+      input.closeSync();
     }
     return _importBooksCsv(csvFile);
   }
 
   Future<int> _importBooksCsv(File file) async {
-    final docDir = await getApplicationDocumentsDirectory();
-    return _importBooksCsvContent(await file.readAsString(encoding: utf8), localBaseDir: docDir.path);
+    final docDir = (await getApplicationDocumentsDirectory()).path;
+    final coverDir = (await CoverService.getCoverDirectory()).path;
+    final content = await file.readAsString(encoding: utf8);
+    return _db.transaction(() => _importBooksCsvContent(content, coverDir: coverDir, docDir: docDir));
   }
 
-  Future<void> _importTagsCsvContent(String content, {required String localBaseDir}) async {
+  /// Parses CSV rows into header-keyed accessors, skipping (and logging) rows
+  /// whose processing throws, so one bad row never aborts a whole restore.
+  Future<void> _forEachRow(String content, String label, Future<void> Function(String? Function(String) get) body) async {
     final rows = Csv().decode(content);
     if (rows.length < 2) return;
-    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
-    
-    for (final row in rows.skip(1)) {
-      final name = _get(head, row, 'name');
-      final type = TagType.values.firstWhere((e) => e.name == _get(head, row, 'type'), orElse: () => TagType.tag);
-      final img = _get(head, row, 'imagePath');
-      final localImg = (img != null) ? p.join(localBaseDir, 'imprints', p.basename(img)) : null;
-      
-      if (name != null) await _getOrCreateTag(name, type, color: _get(head, row, 'color'), imagePath: localImg);
+    final head = rows.first.map((e) => e.toString().trim().toLowerCase()).toList();
+    for (var i = 1; i < rows.length; i++) {
+      final row = rows[i];
+      String? get(String col) {
+        final idx = head.indexOf(col.toLowerCase());
+        if (idx == -1 || idx >= row.length) return null;
+        return row[idx]?.toString().nullIfEmpty();
+      }
+      try {
+        await body(get);
+      } catch (e) {
+        debugPrint('DataMigrationService: skipped $label row ${i + 1}: $e');
+      }
     }
   }
 
-  Future<int> _importBooksCsvContent(String content, {required String localBaseDir, Map<int, int>? bookIdMap}) async {
-    final rows = Csv().decode(content);
-    if (rows.length < 2) return 0;
-    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
-    int imported = 0;
+  Future<void> _importTagsCsvContent(String content, {required String docDir}) async {
+    await _forEachRow(content, 'tags', (get) async {
+      final name = get('name');
+      if (name == null) return;
+      final type = TagType.values.firstWhere((e) => e.name == get('type'), orElse: () => TagType.tag);
+      final img = get('imagePath');
+      await _getOrCreateTag(name, type, color: get('color'), imagePath: _existingImprintImage(img, docDir));
+    });
+  }
 
-    await _db.transaction(() async {
-      for (final row in rows.skip(1)) {
-        final comp = _mapRow(head, row, localBaseDir: localBaseDir);
-        final isbn = comp.isbn.value;
-        
-        Book? exist;
-        if (isbn != null && isbn.isNotEmpty) {
-          exist = await (_db.bookDao.select(_db.bookDao.books)..where((t) => t.isbn.equals(isbn))).getSingleOrNull();
+  String? _existingImprintImage(String? name, String docDir) {
+    if (name == null) return null;
+    final path = p.join(docDir, 'imprints', p.basename(name));
+    return File(path).existsSync() ? path : null;
+  }
+
+  /// Finds a pre-existing book that this row should update. Each existing
+  /// book is matched at most once per import ([claimed]), so restoring a
+  /// library that intentionally contains duplicates (copies) keeps them all,
+  /// while re-importing the same backup does not create new ones.
+  Future<Book?> _findMatch(BooksCompanion comp, Set<int> claimed) async {
+    final isbn = comp.isbn.value;
+    final query = _db.select(_db.books);
+    if (isbn != null && isbn.isNotEmpty) {
+      query.where((b) => b.isbn.equals(isbn));
+    } else {
+      query.where((b) =>
+          b.title.lower().equals(comp.title.value.toLowerCase()) &
+          b.author.lower().equals(comp.author.value.toLowerCase()) &
+          (b.isbn.isNull() | b.isbn.equals('')));
+    }
+    query.orderBy([(b) => OrderingTerm(expression: b.id)]);
+    return (await query.get()).firstWhereOrNull((b) => !claimed.contains(b.id));
+  }
+
+  Future<int> _importBooksCsvContent(String content, {required String coverDir, required String docDir, Map<int, int>? bookIdMap}) async {
+    var imported = 0;
+    final claimed = <int>{};
+
+    await _forEachRow(content, 'books', (get) async {
+      final comp = _mapRow(get, coverDir: coverDir);
+      final exist = await _findMatch(comp, claimed);
+
+      final int bookId;
+      if (exist != null) {
+        bookId = exist.id;
+        // Never wipe a local cover just because the backup has none.
+        final update = comp.coverPath.value == null ? comp.copyWith(coverPath: const Value.absent()) : comp;
+        await (_db.update(_db.books)..where((t) => t.id.equals(bookId))).write(update);
+      } else {
+        bookId = await _db.into(_db.books).insert(comp);
+        imported++;
+      }
+      claimed.add(bookId);
+
+      final oldId = ImportExportUtils.parseInt(get('id'));
+      if (oldId != null) bookIdMap?[oldId] = bookId;
+
+      // Standalone CSV import: synthesize a read history entry. In a ZIP
+      // restore (bookIdMap != null) history.csv provides the real records.
+      final status = comp.status.value;
+      if (bookIdMap == null && (status == ReadingStatus.reading || status == ReadingStatus.read)) {
+        await _synthesizeHistory(bookId, comp);
+      }
+
+      // Categories
+      final tagIds = <int>[];
+      final cats = get('categories')?.split('|') ?? const [];
+      final colors = get('categoryColors')?.split('|') ?? const [];
+      for (var j = 0; j < cats.length; j++) {
+        final name = cats[j].trim();
+        if (name.isEmpty) continue;
+        tagIds.add(await _getOrCreateTag(name, TagType.tag, color: j < colors.length ? colors[j].nullIfEmpty() : null));
+      }
+
+      // Collections: v2 JSON list, falling back to the single v1 columns.
+      final collections = <(int, int?)>[];
+      final collectionsJson = get('collections');
+      if (collectionsJson != null) {
+        for (final c in (jsonDecode(collectionsJson) as List).cast<Map>()) {
+          final name = c['name']?.toString().trim();
+          if (name == null || name.isEmpty) continue;
+          collections.add((await _getOrCreateTag(name, TagType.collection), (c['number'] as num?)?.toInt()));
         }
-          
-        int bookId;
-        if (exist != null) {
-          bookId = exist.id;
-          await (_db.bookDao.update(_db.bookDao.books)..where((t) => t.id.equals(bookId))).write(comp);
-        } else {
-          bookId = await _db.bookDao.into(_db.bookDao.books).insert(comp);
-          imported++;
-        }
-
-        final oldId = ImportExportUtils.parseInt(_get(head, row, 'id'));
-        if (oldId != null) bookIdMap?[oldId] = bookId;
-
-        // Auto-create history if reading or read and we're not expecting a separate history import
-        // (standalone CSV import). If bookIdMap is not null, we are in a ZIP import and
-        // history.csv will provide the detailed records.
-        final status = comp.status.value;
-        if (bookIdMap == null && (status == ReadingStatus.reading || status == ReadingStatus.read)) {
-          final historyExist = await _db.readHistoryDao.getRead(bookId, 1);
-          final total = comp.totalPages.value ?? 0;
-          final current = comp.currentPage.value ?? 0;
-          final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
-
-          final Map<int, int> distributedProgress = (comp.paginationConfig.value?.segments.isNotEmpty ?? false)
-              ? PaginationHelper.distributePhysicalPage(progress, comp.paginationConfig.value!.segments)
-              : {0: progress};
-
-          if (historyExist == null) {
-            await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
-              bookId: bookId,
-              readNumber: 1,
-              startedAt: comp.startedAt,
-              finishedAt: comp.finishedAt,
-              progress: Value(progress),
-              segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
-            ));
-          } else if (progress > historyExist.progress) {
-             await _db.readHistoryDao.updateRead(historyExist.copyWith(
-               progress: progress,
-               finishedAt: comp.finishedAt,
-               segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
-             ));
-          }
-
-          // Also create a log entry if missing to populate charts
-          if (progress > 0) {
-            final logDate = comp.finishedAt.value ?? comp.startedAt.value ?? comp.createdAt.value;
-            final dateOnly = DateTime(logDate.year, logDate.month, logDate.day);
-            final logExist = await (_db.logDao.select(_db.logDao.readingLog)
-              ..where((l) => l.bookId.equals(bookId) & l.date.equals(dateOnly))).getSingleOrNull();
-            
-            if (logExist == null) {
-              await _db.logDao.insertLog(ReadingLogCompanion.insert(
-                bookId: bookId,
-                date: dateOnly,
-                pagesRead: progress,
-              ));
-            }
-          }
-        }
-
-        // Gather Tags and Collections
-        final tagIds = <int>[];
-        final collections = <(int, int?)>[];
-
-        // 1. Categories
-        final cats = _get(head, row, 'categories')?.split('|') ?? [];
-        final clrs = _get(head, row, 'categoryColors')?.split('|') ?? [];
-        for (int j = 0; j < cats.length; j++) {
-          final name = cats[j].trim();
-          if (name.isNotEmpty) {
-            final color = (j < clrs.length) ? clrs[j].nullIfEmpty() : null;
-            tagIds.add(await _getOrCreateTag(name, TagType.tag, color: color));
-          }
-        }
-
-        // 2. Collection
-        final collName = _get(head, row, 'collectionName')?.trim();
+      } else {
+        final collName = get('collectionName')?.trim();
         if (collName != null && collName.isNotEmpty) {
-          final tid = await _getOrCreateTag(collName, TagType.collection);
-          final vol = ImportExportUtils.parseInt(_get(head, row, 'collectionNumber'));
-          collections.add((tid, vol));
+          collections.add((await _getOrCreateTag(collName, TagType.collection), ImportExportUtils.parseInt(get('collectionNumber'))));
         }
+      }
+      await _db.tagDao.setBookTags(bookId, tagIds, collections: collections);
+      await (_db.update(_db.books)..where((b) => b.id.equals(bookId)))
+          .write(BooksCompanion(collectionId: Value(collections.firstOrNull?.$1)));
 
-        // Sync to BookTags
-        await _db.tagDao.setBookTags(bookId, tagIds, collections: collections);
-
-        // Imprint - still One-to-One
-        final impName = _get(head, row, 'imprintName')?.trim();
-        if (impName != null && impName.isNotEmpty) {
-          final img = _get(head, row, 'imprintImage')?.trim();
-          final tid = await _getOrCreateTag(
-            impName, 
-            TagType.imprint, 
-            color: _get(head, row, 'imprintColor'), 
-            imagePath: img != null ? p.join(localBaseDir, 'imprints', p.basename(img)) : null
-          );
-          await _db.bookDao.setBookImprint(bookId, tid);
-        } else {
-          // If no imprint name in CSV, ensure we don't keep a stale one if updating
-          if (exist != null) await _db.bookDao.setBookImprint(bookId, null);
-        }
+      // Imprint (one-to-one)
+      final impName = get('imprintName')?.trim();
+      if (impName != null && impName.isNotEmpty) {
+        final tid = await _getOrCreateTag(impName, TagType.imprint,
+            color: get('imprintColor'), imagePath: _existingImprintImage(get('imprintImage'), docDir));
+        await _db.bookDao.setBookImprint(bookId, tid);
+      } else if (exist != null) {
+        await _db.bookDao.setBookImprint(bookId, null);
       }
     });
     return imported;
   }
 
-  Future<void> _importShelvesCsvContent(String content) async {
-    final rows = Csv().decode(content);
-    if (rows.length < 2) return;
-    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
+  Future<void> _synthesizeHistory(int bookId, BooksCompanion comp) async {
+    final status = comp.status.value;
+    final total = comp.totalPages.value ?? 0;
+    final current = comp.currentPage.value ?? 0;
+    final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
+    final segments = comp.paginationConfig.present ? comp.paginationConfig.value?.segments : null;
+    final distributed = (segments?.isNotEmpty ?? false)
+        ? PaginationHelper.distributePhysicalPage(progress, segments!)
+        : {0: progress};
 
-    for (final row in rows.skip(1)) {
-      final name = _get(head, row, 'name');
-      if (name == null) continue;
+    final historyExist = await _db.readHistoryDao.getRead(bookId, 1);
+    if (historyExist == null) {
+      await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: bookId,
+        readNumber: 1,
+        startedAt: comp.startedAt,
+        finishedAt: comp.finishedAt,
+        progress: Value(progress),
+        segmentProgress: Value(distributed.isEmpty ? null : distributed),
+      ));
+    } else if (progress > historyExist.progress) {
+      await _db.readHistoryDao.updateRead(historyExist.copyWith(
+        progress: progress,
+        finishedAt: comp.finishedAt,
+        segmentProgress: Value(distributed.isEmpty ? null : distributed),
+      ));
+    }
 
-      final tagNames = _get(head, row, 'filterTagNames')?.split('|') ?? [];
-      final impNames = _get(head, row, 'filterImprintNames')?.split('|') ?? [];
-
-      final tIds = <int>[];
-      for (final n in tagNames) {
-        if (n.isNotEmpty) tIds.add(await _getOrCreateTag(n, TagType.tag));
-      }
-
-      final iIds = <int>[];
-      for (final n in impNames) {
-        if (n.isNotEmpty) iIds.add(await _getOrCreateTag(n, TagType.imprint));
-      }
-
-      // Support both new format (filterCollectionIds = JSON array of IDs) and
-      // legacy backup format (filterCollection = pipe-separated collection names).
-      // Name-based resolution keeps IDs correct across different DB instances.
-      String? collIdsJson = _get(head, row, 'filterCollectionIds');
-      if (collIdsJson == null) {
-        final collNames = (_get(head, row, 'filterCollection') ?? '')
-            .split('|')
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty)
-            .toList();
-        if (collNames.isNotEmpty) {
-          final cIds = <int>[];
-          for (final n in collNames) {
-            cIds.add(await _getOrCreateTag(n, TagType.collection));
-          }
-          collIdsJson = jsonEncode(cIds);
-        }
-      }
-
-      final comp = ShelvesCompanion.insert(
-        name: name,
-        filterQuery: Value(_get(head, row, 'filterQuery')),
-        filterAuthor: Value(_get(head, row, 'filterAuthor')),
-        filterPublisher: Value(_get(head, row, 'filterPublisher')),
-        filterIsbn: Value(_get(head, row, 'filterIsbn')),
-        filterSubtitle: Value(_get(head, row, 'filterSubtitle')),
-        filterLanguage: Value(_get(head, row, 'filterLanguage')),
-        filterTranslator: Value(_get(head, row, 'filterTranslator')),
-        filterCollectionIds: Value(collIdsJson),
-        filterStatus: Value(_get(head, row, 'filterStatus')),
-        filterTagIds: Value(tIds.isEmpty ? null : jsonEncode(tIds)),
-        filterImprintIds: Value(iIds.isEmpty ? null : jsonEncode(iIds)),
-      );
-
-      final exist = await (_db.shelfDao.select(_db.shelfDao.shelves)..where((t) => t.name.equals(name))).getSingleOrNull();
-      if (exist == null) {
-        final id = await _db.shelfDao.into(_db.shelfDao.shelves).insert(comp);
-        if (tIds.isNotEmpty || iIds.isNotEmpty) {
-          await _db.shelfDao.setShelfTags(id, [...tIds, ...iIds]);
-        }
-      } else {
-        await _db.shelfDao.updateShelf(exist.copyWith(
-          filterQuery: comp.filterQuery.value,
-          filterAuthor: comp.filterAuthor.value,
-          filterPublisher: comp.filterPublisher.value,
-          filterIsbn: comp.filterIsbn.value,
-          filterSubtitle: comp.filterSubtitle.value,
-          filterLanguage: comp.filterLanguage.value,
-          filterTranslator: comp.filterTranslator.value,
-          filterCollectionIds: comp.filterCollectionIds.value,
-          filterStatus: comp.filterStatus.value,
-          filterTagIds: comp.filterTagIds.value,
-          filterImprintIds: comp.filterImprintIds.value,
-        ));
-        await _db.shelfDao.setShelfTags(exist.id, [...tIds, ...iIds]);
+    if (progress > 0) {
+      final logDate = comp.finishedAt.value ?? comp.startedAt.value ?? (comp.createdAt.present ? comp.createdAt.value : DateTime.now());
+      final day = DateTime(logDate.year, logDate.month, logDate.day);
+      if (!await _logExists(bookId, day)) {
+        await _db.logDao.insertLog(ReadingLogCompanion.insert(bookId: bookId, date: day, pagesRead: progress));
       }
     }
   }
 
-  Future<int> _getOrCreateTag(String name, TagType type, {String? color, String? imagePath}) async {
-    final key = '${type.name}_$name'.toLowerCase();
-    if (_tagCache.containsKey(key)) return _tagCache[key]!;
-    final id = await ImportExportUtils.getOrCreateTag(_db, name, type, color: color, imagePath: imagePath);
-    _tagCache[key] = id;
-    return id;
-  }
+  Future<bool> _logExists(int bookId, DateTime date) async =>
+      await (_db.select(_db.readingLog)
+            ..where((l) => l.bookId.equals(bookId) & l.date.equals(date))
+            ..limit(1))
+          .getSingleOrNull() !=
+      null;
 
-  String? _get(List<String> head, List<dynamic> row, String col) {
-    final i = head.indexOf(col.toLowerCase());
-    if (i == -1 || i >= row.length) return null;
-    return row[i]?.toString().nullIfEmpty();
-  }
-
-  BooksCompanion _mapRow(List<String> head, List<dynamic> row, {required String localBaseDir}) {
-    String? s(String c) => _get(head, row, c);
+  BooksCompanion _mapRow(String? Function(String) s, {required String coverDir}) {
     final cp = s('coverPath');
-    final localCp = cp != null && File(p.join(localBaseDir, p.basename(cp))).existsSync() ? p.join(localBaseDir, p.basename(cp)) : null;
+    final localCover = cp != null ? p.join(coverDir, p.basename(cp)) : null;
+
+    PaginationConfig? pagination;
+    final rawPagination = s('paginationConfig');
+    if (rawPagination != null) {
+      try {
+        pagination = PaginationConfig.fromJson(jsonDecode(rawPagination));
+      } catch (_) {}
+    }
+    final createdAt = ImportExportUtils.parseDate(s('createdAt'));
 
     return BooksCompanion.insert(
       title: s('title') ?? 'Unknown',
       subtitle: Value(s('subtitle')),
+      originalTitle: Value(s('originalTitle')),
       author: s('author') ?? 'Unknown',
       isbn: Value(s('isbn')),
       language: Value(s('language')),
+      originalLanguage: Value(s('originalLanguage')),
       translator: Value(s('translator')),
       publisher: Value(s('publisher')),
       publishYear: Value(ImportExportUtils.parseInt(s('publishYear'))),
       totalPages: Value(ImportExportUtils.parseInt(s('totalPages'))),
       currentPage: Value(ImportExportUtils.parseInt(s('currentPage'))),
       status: ReadingStatus.values.firstWhere((e) => e.name == s('status'), orElse: () => ReadingStatus.wantToRead),
+      ownershipStatus: Value(OwnershipStatus.values.firstWhereOrNull((e) => e.name == s('ownershipStatus'))),
       rating: Value(ImportExportUtils.parseRating(s('rating'))),
       bookFormat: Value(BookFormat.values.firstWhereOrNull((e) => e.name == s('bookFormat'))),
       collectionName: Value(s('collectionName')),
       collectionNumber: Value(ImportExportUtils.parseInt(s('collectionNumber'))),
       notes: Value(s('notes')),
+      description: Value(s('description')),
+      copies: Value(max(1, ImportExportUtils.parseInt(s('copies')) ?? 1)),
       startedAt: Value(ImportExportUtils.parseDate(s('startedAt'))),
       finishedAt: Value(ImportExportUtils.parseDate(s('finishedAt'))),
-      createdAt: s('createdAt') != null ? Value(DateTime.parse(s('createdAt')!)) : const Value.absent(),
+      createdAt: createdAt != null ? Value(createdAt) : const Value.absent(),
       coverUrl: Value(s('coverUrl')),
-      coverPath: Value(localCp),
-      collectionId: const Value.absent(), // Resolved by name in _importBooksCsvContent
-      imprintId: const Value.absent(), // Resolved by name in _importBooksCsvContent
-      paginationConfig: s('paginationConfig') != null ? Value(PaginationConfig.fromJson(jsonDecode(s('paginationConfig')!))) : const Value.absent(),
+      coverPath: Value(localCover != null && File(localCover).existsSync() ? localCover : null),
+      collectionId: const Value.absent(),
+      imprintId: const Value.absent(),
+      paginationConfig: pagination != null ? Value(pagination) : const Value.absent(),
     );
   }
 
+  Future<void> _importShelvesCsvContent(String content) async {
+    await _forEachRow(content, 'shelves', (get) async {
+      final name = get('name');
+      if (name == null) return;
+
+      Future<List<int>> resolve(List<String> names, TagType type) async => [
+            for (final n in names.map((e) => e.trim()).where((e) => e.isNotEmpty)) await _getOrCreateTag(n, type),
+          ];
+      List<String> pipe(String? v) => v?.split('|') ?? const [];
+
+      final tIds = await resolve(pipe(get('filterTagNames')), TagType.tag);
+      final iIds = await resolve(pipe(get('filterImprintNames')), TagType.imprint);
+      final collectionNamesJson = get('filterCollectionNames');
+      final cIds = await resolve(
+        collectionNamesJson != null
+            ? (jsonDecode(collectionNamesJson) as List).map((e) => e.toString()).toList()
+            : pipe(get('filterCollection')),
+        TagType.collection,
+      );
+
+      final comp = ShelvesCompanion(
+        name: Value(name),
+        filterQuery: Value(get('filterQuery')),
+        filterAuthor: Value(get('filterAuthor')),
+        filterPublisher: Value(get('filterPublisher')),
+        filterIsbn: Value(get('filterIsbn')),
+        filterSubtitle: Value(get('filterSubtitle')),
+        filterLanguage: Value(get('filterLanguage')),
+        filterTranslator: Value(get('filterTranslator')),
+        filterCollectionIds: Value(cIds.isEmpty ? null : jsonEncode(cIds)),
+        filterStatus: Value(get('filterStatus')),
+        filterTagIds: Value(tIds.isEmpty ? null : jsonEncode(tIds)),
+        filterImprintIds: Value(iIds.isEmpty ? null : jsonEncode(iIds)),
+        filterNoCover: Value(get('filterNoCover')?.toLowerCase() == 'true'),
+        filterSearchMode: Value(ImportExportUtils.parseInt(get('filterSearchMode')) ?? 0),
+        filterFormat: Value(get('filterFormat')),
+        filterOwnership: Value(get('filterOwnership')),
+        filterNotes: Value(get('filterNotes')),
+        filterBooleanQuery: Value(await _booleanQueryNamesToIds(get('filterBooleanQuery'))),
+      );
+
+      final exist = await _db.shelfDao.getShelfByName(name);
+      final shelfId = exist?.id ?? await _db.into(_db.shelves).insert(comp);
+      if (exist != null) {
+        await (_db.update(_db.shelves)..where((s) => s.id.equals(shelfId))).write(comp);
+      }
+      await _db.shelfDao.setShelfTags(shelfId, {...tIds, ...iIds, ...cIds}.toList());
+    });
+  }
+
+  Future<String?> _booleanQueryNamesToIds(String? json) async {
+    if (json == null) return null;
+    final map = jsonDecode(json) as Map<String, dynamic>;
+    for (final c in (map['conditions'] as List? ?? const []).cast<Map<String, dynamic>>()) {
+      final field = SearchField.values.firstWhereOrNull((f) => f.name == c['field']);
+      final name = c.remove('valueName') as String?;
+      if (field == null || name == null) continue;
+      final type = _tagFields[field];
+      if (type != null) c['value'] = await _getOrCreateTag(name, type);
+    }
+    return jsonEncode(map);
+  }
+
+  Future<int> _getOrCreateTag(String name, TagType type, {String? color, String? imagePath}) async {
+    final key = '${type.name}_$name'.toLowerCase();
+    final cached = _tagCache[key];
+    if (cached != null) return cached;
+    final id = await ImportExportUtils.getOrCreateTag(_db, name, type, color: color, imagePath: imagePath);
+    _tagCache[key] = id;
+    return id;
+  }
+
   Future<void> _importHistoryCsvContent(String content, Map<int, int> bookIdMap) async {
-    final rows = Csv().decode(content);
-    if (rows.length < 2) return;
-    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
+    await _forEachRow(content, 'history', (get) async {
+      final newBookId = bookIdMap[ImportExportUtils.parseInt(get('bookId'))];
+      if (newBookId == null) return;
+      final readNum = ImportExportUtils.parseInt(get('readNumber')) ?? 1;
+      if (await _db.readHistoryDao.getRead(newBookId, readNum) != null) return;
 
-    for (final row in rows.skip(1)) {
-      final oldBookId = ImportExportUtils.parseInt(_get(head, row, 'bookId'));
-      final newBookId = bookIdMap[oldBookId];
-      if (newBookId == null) continue;
-
-      final readNum = ImportExportUtils.parseInt(_get(head, row, 'readNumber')) ?? 1;
-      
-      // Check if entry already exists (title/author check in _importBooksCsvContent ensures newBookId is unique-ish)
-      final exist = await _db.readHistoryDao.getRead(newBookId, readNum);
-      if (exist != null) continue;
-
-      final sectionsRaw = _get(head, row, 'sections');
-      final segProgressRaw = _get(head, row, 'segmentProgress');
-      final progress = ImportExportUtils.parseInt(_get(head, row, 'progress')) ?? 0;
-
+      final sectionsRaw = get('sections');
+      final segRaw = get('segmentProgress');
+      final progress = ImportExportUtils.parseInt(get('progress')) ?? 0;
       await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
         bookId: newBookId,
         readNumber: readNum,
-        startedAt: Value(ImportExportUtils.parseDate(_get(head, row, 'startedAt'))),
-        finishedAt: Value(ImportExportUtils.parseDate(_get(head, row, 'finishedAt'))),
+        startedAt: Value(ImportExportUtils.parseDate(get('startedAt'))),
+        finishedAt: Value(ImportExportUtils.parseDate(get('finishedAt'))),
         sections: Value(sectionsRaw != null ? (jsonDecode(sectionsRaw) as List).cast<String>() : null),
         progress: Value(progress),
-        segmentProgress: Value(segProgressRaw != null 
-            ? (jsonDecode(segProgressRaw) as Map).map((k, v) => MapEntry(int.parse(k.toString()), v as int)) 
+        segmentProgress: Value(segRaw != null
+            ? (jsonDecode(segRaw) as Map).map((k, v) => MapEntry(int.parse(k.toString()), (v as num).toInt()))
             : (progress > 0 ? {0: progress} : null)),
       ));
-    }
+    });
   }
 
   Future<void> _importLogsCsvContent(String content, Map<int, int> bookIdMap) async {
-    final rows = Csv().decode(content);
-    if (rows.length < 2) return;
-    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
-
-    for (final row in rows.skip(1)) {
-      final oldBookId = ImportExportUtils.parseInt(_get(head, row, 'bookId'));
-      final newBookId = bookIdMap[oldBookId];
-      if (newBookId == null) continue;
-
-      final date = ImportExportUtils.parseDate(_get(head, row, 'date'));
-      if (date == null) continue;
-
-      final sectionsRaw = _get(head, row, 'sections');
-
+    await _forEachRow(content, 'logs', (get) async {
+      final newBookId = bookIdMap[ImportExportUtils.parseInt(get('bookId'))];
+      final date = ImportExportUtils.parseDate(get('date'));
+      if (newBookId == null || date == null) return;
+      // Logs are one row per book per day; skip days that already exist so
+      // re-importing a backup does not inflate statistics.
+      if (await _logExists(newBookId, date)) return;
+      final sectionsRaw = get('sections');
       await _db.logDao.insertLog(ReadingLogCompanion.insert(
         bookId: newBookId,
         date: date,
-        pagesRead: ImportExportUtils.parseInt(_get(head, row, 'pagesRead')) ?? 0,
+        pagesRead: ImportExportUtils.parseInt(get('pagesRead')) ?? 0,
         sections: Value(sectionsRaw != null ? (jsonDecode(sectionsRaw) as List).cast<String>() : null),
       ));
-    }
+    });
   }
 
+  Future<ReadingGoal?> _findGoal(String title, DateTime startDate) =>
+      (_db.select(_db.readingGoals)
+            ..where((t) => t.title.equals(title) & t.startDate.equals(startDate))
+            ..limit(1))
+          .getSingleOrNull();
+
   Future<void> _importGoalsCsvContent(String content) async {
-    final rows = Csv().decode(content);
-    if (rows.length < 2) return;
-    final head = rows.first.map((e) => e.toString().toLowerCase()).toList();
+    await _forEachRow(content, 'goals', (get) async {
+      final title = get('title');
+      final startDate = ImportExportUtils.parseDate(get('startDate'));
+      if (title == null || startDate == null) return;
+      if (await _findGoal(title, startDate) != null) return;
 
-    for (final row in rows.skip(1)) {
-      final title = _get(head, row, 'title');
-      if (title == null) continue;
-
-      // Deduplicate by title and start date
-      final startDate = ImportExportUtils.parseDate(_get(head, row, 'startDate'));
-      if (startDate == null) continue;
-
-      final exist = await (_db.goalDao.select(_db.goalDao.readingGoals)
-        ..where((t) => t.title.equals(title) & t.startDate.equals(startDate))).getSingleOrNull();
-      
-      if (exist != null) continue;
-
+      final shelfName = get('shelfName');
+      final collectionName = get('collectionName');
       await _db.goalDao.insertGoal(ReadingGoalsCompanion.insert(
         title: title,
-        type: _get(head, row, 'type') ?? 'books',
-        targetValue: ImportExportUtils.parseInt(_get(head, row, 'targetValue')) ?? 1,
+        type: get('type') ?? 'books',
+        targetValue: ImportExportUtils.parseInt(get('targetValue')) ?? 1,
         startDate: startDate,
-        endDate: ImportExportUtils.parseDate(_get(head, row, 'endDate')) ?? DateTime.now(),
-        // shelfId and collectionId are harder to map correctly across DBs without more complex logic,
-        // we omit them for now or they will stay null.
+        endDate: ImportExportUtils.parseDate(get('endDate')) ?? DateTime(startDate.year, 12, 31),
+        shelfId: Value(shelfName != null ? (await _db.shelfDao.getShelfByName(shelfName))?.id : null),
+        collectionId: Value(collectionName != null ? await _getOrCreateTag(collectionName, TagType.collection) : null),
       ));
-    }
+    });
+  }
+
+  Future<void> _importOwnershipCsvContent(String content, Map<int, int> bookIdMap) async {
+    await _forEachRow(content, 'ownership', (get) async {
+      final bookId = bookIdMap[ImportExportUtils.parseInt(get('bookId'))];
+      final type = OwnershipStatus.values.firstWhereOrNull((e) => e.name == get('eventType'));
+      final date = ImportExportUtils.parseDate(get('date'));
+      if (bookId == null || type == null || date == null) return;
+      final exists = await (_db.select(_db.ownershipLog)
+            ..where((o) => o.bookId.equals(bookId) & o.eventType.equals(type.name) & o.date.equals(date))
+            ..limit(1))
+          .getSingleOrNull();
+      if (exists != null) return;
+      await _db.ownershipDao.insertEvent(OwnershipLogCompanion.insert(
+        bookId: bookId,
+        eventType: type,
+        personName: Value(get('personName')),
+        date: date,
+        notes: Value(get('notes')),
+      ));
+    });
+  }
+
+  Future<void> _importWidgetsCsvContent(String content) async {
+    // The dashboard layout is restored only into an empty dashboard; merging
+    // two layouts would just produce duplicate widgets.
+    final existing = await (_db.select(_db.statWidgetConfigs)..limit(1)).get();
+    if (existing.isNotEmpty) return;
+    await _forEachRow(content, 'widgets', (get) async {
+      final type = get('type');
+      final size = get('size');
+      if (type == null || size == null) return;
+      final goalTitle = get('goalTitle');
+      final goalStart = ImportExportUtils.parseDate(get('goalStartDate'));
+      final goal = goalTitle != null && goalStart != null ? await _findGoal(goalTitle, goalStart) : null;
+      await _db.statDao.insertWidgetConfig(StatWidgetConfigsCompanion.insert(
+        type: type,
+        size: size,
+        sortOrder: ImportExportUtils.parseInt(get('sortOrder')) ?? 0,
+        goalId: Value(goal?.id),
+        config: Value(get('config')),
+      ));
+    });
+  }
+
+  Future<void> _importSearchHistoryCsvContent(String content) async {
+    await _forEachRow(content, 'search history', (get) async {
+      final query = get('query');
+      final timestamp = ImportExportUtils.parseDate(get('timestamp'));
+      if (query == null || timestamp == null) return;
+      final exists = await (_db.select(_db.searchHistory)
+            ..where((h) => h.query.equals(query) & h.timestamp.equals(timestamp))
+            ..limit(1))
+          .getSingleOrNull();
+      if (exists != null) return;
+      await _db.searchHistoryDao.insertEntry(SearchHistoryCompanion.insert(
+        query: query,
+        type: get('type') ?? 'text_search',
+        status: get('status') ?? 'success',
+        title: Value(get('title')),
+        author: Value(get('author')),
+        publisher: Value(get('publisher')),
+        timestamp: timestamp,
+      ));
+    });
   }
 }

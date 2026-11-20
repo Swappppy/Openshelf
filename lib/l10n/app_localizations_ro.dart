@@ -1962,4 +1962,48 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Modificările aduse acestui câmp se vor pierde. Doriți să continuați?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Baza de date a fost mutată cu succes. Se repornește aplicația...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Folderul selectat nu poate fi scris. Încearcă altă locație.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Folderul selectat nu poate fi scris. Pe Android 11+, activează „Acces la toate fișierele” în setările de stocare pentru a folosi foldere externe.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'Baza de date se află deja în folderul selectat.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Fișierul bazei de date curente nu a fost găsit.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Baza de date nu a putut fi închisă în siguranță. Nu s-a mutat nimic; încearcă din nou.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Copierea bazei de date a eșuat. Datele tale nu au fost modificate. Se repornește aplicația...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Coperți mutate: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Biblioteca nu a fost găsită';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'Baza de date a bibliotecii nu a fost găsită în folderul personalizat:\n$path\n\nDacă se află pe un suport amovibil, reconectează-l și încearcă din nou. Poți reveni și la locația implicită, unde se va deschide biblioteca existentă sau se va crea una goală.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Folosește locația implicită';
 }

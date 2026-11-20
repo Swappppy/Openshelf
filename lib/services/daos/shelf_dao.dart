@@ -15,11 +15,15 @@ class ShelfDao extends DatabaseAccessor<AppDatabase> with _$ShelfDaoMixin {
 
   Future<bool> updateShelf(Shelf shelf) => update(shelves).replace(shelf);
 
-  Future<void> deleteShelf(int id) =>
-      (delete(shelves)..where((s) => s.id.equals(id))).go();
+  Future<void> deleteShelf(int id) => transaction(() async {
+        // Goals may point at this shelf (no ON DELETE action on that FK).
+        await (update(db.readingGoals)..where((g) => g.shelfId.equals(id)))
+            .write(const ReadingGoalsCompanion(shelfId: Value(null)));
+        await (delete(shelves)..where((s) => s.id.equals(id))).go();
+      });
 
   Future<Shelf?> getShelfByName(String name) =>
-      (select(shelves)..where((s) => s.name.equals(name))).getSingleOrNull();
+      (select(shelves)..where((s) => s.name.equals(name))..limit(1)).getSingleOrNull();
 
   Future<void> setShelfTags(int shelfId, List<int> tagIds) async {
     await transaction(() async {

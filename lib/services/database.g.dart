@@ -6614,7 +6614,12 @@ class $$TagsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (bookCollection)
-                        await $_getPrefetchedData<Tag, $TagsTable, Book>(
+                        await $_getPrefetchedDataByColumns<
+                          Tag,
+                          $TagsTable,
+                          Book,
+                          $BooksTable
+                        >(
                           currentTable: table,
                           referencedTable: $$TagsTableReferences
                               ._bookCollectionTable(db),
@@ -6623,40 +6628,49 @@ class $$TagsTableTableManager
                             table,
                             p0,
                           ).bookCollection,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.collectionId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'collection_id',
                           typedResults: items,
                         ),
                       if (bookImprint)
-                        await $_getPrefetchedData<Tag, $TagsTable, Book>(
+                        await $_getPrefetchedDataByColumns<
+                          Tag,
+                          $TagsTable,
+                          Book,
+                          $BooksTable
+                        >(
                           currentTable: table,
                           referencedTable: $$TagsTableReferences
                               ._bookImprintTable(db),
                           managerFromTypedResult: (p0) =>
                               $$TagsTableReferences(db, table, p0).bookImprint,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.imprintId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'imprint_id',
                           typedResults: items,
                         ),
                       if (bookTagsRefs)
-                        await $_getPrefetchedData<Tag, $TagsTable, BookTag>(
+                        await $_getPrefetchedDataByColumns<
+                          Tag,
+                          $TagsTable,
+                          BookTag,
+                          $BookTagsTable
+                        >(
                           currentTable: table,
                           referencedTable: $$TagsTableReferences
                               ._bookTagsRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$TagsTableReferences(db, table, p0).bookTagsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.tagId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'tag_id',
                           typedResults: items,
                         ),
                       if (shelfTagsRefs)
-                        await $_getPrefetchedData<Tag, $TagsTable, ShelfTag>(
+                        await $_getPrefetchedDataByColumns<
+                          Tag,
+                          $TagsTable,
+                          ShelfTag,
+                          $ShelfTagsTable
+                        >(
                           currentTable: table,
                           referencedTable: $$TagsTableReferences
                               ._shelfTagsRefsTable(db),
@@ -6665,14 +6679,17 @@ class $$TagsTableTableManager
                             table,
                             p0,
                           ).shelfTagsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.tagId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'tag_id',
                           typedResults: items,
                         ),
                       if (readingGoalsRefs)
-                        await $_getPrefetchedData<Tag, $TagsTable, ReadingGoal>(
+                        await $_getPrefetchedDataByColumns<
+                          Tag,
+                          $TagsTable,
+                          ReadingGoal,
+                          $ReadingGoalsTable
+                        >(
                           currentTable: table,
                           referencedTable: $$TagsTableReferences
                               ._readingGoalsRefsTable(db),
@@ -6681,10 +6698,8 @@ class $$TagsTableTableManager
                             table,
                             p0,
                           ).readingGoalsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.collectionId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'collection_id',
                           typedResults: items,
                         ),
                     ];
@@ -7894,7 +7909,12 @@ class $$BooksTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (bookTagsRefs)
-                        await $_getPrefetchedData<Book, $BooksTable, BookTag>(
+                        await $_getPrefetchedDataByColumns<
+                          Book,
+                          $BooksTable,
+                          BookTag,
+                          $BookTagsTable
+                        >(
                           currentTable: table,
                           referencedTable: $$BooksTableReferences
                               ._bookTagsRefsTable(db),
@@ -7904,17 +7924,16 @@ class $$BooksTableTableManager
                                 table,
                                 p0,
                               ).bookTagsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bookId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'book_id',
                           typedResults: items,
                         ),
                       if (readingLogRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Book,
                           $BooksTable,
-                          ReadingLogData
+                          ReadingLogData,
+                          $ReadingLogTable
                         >(
                           currentTable: table,
                           referencedTable: $$BooksTableReferences
@@ -7925,17 +7944,16 @@ class $$BooksTableTableManager
                                 table,
                                 p0,
                               ).readingLogRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bookId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'book_id',
                           typedResults: items,
                         ),
                       if (readHistoryRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Book,
                           $BooksTable,
-                          ReadHistoryData
+                          ReadHistoryData,
+                          $ReadHistoryTable
                         >(
                           currentTable: table,
                           referencedTable: $$BooksTableReferences
@@ -7946,17 +7964,16 @@ class $$BooksTableTableManager
                                 table,
                                 p0,
                               ).readHistoryRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bookId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'book_id',
                           typedResults: items,
                         ),
                       if (ownershipLogRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Book,
                           $BooksTable,
-                          OwnershipLogData
+                          OwnershipLogData,
+                          $OwnershipLogTable
                         >(
                           currentTable: table,
                           referencedTable: $$BooksTableReferences
@@ -7967,10 +7984,8 @@ class $$BooksTableTableManager
                                 table,
                                 p0,
                               ).ownershipLogRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.bookId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'book_id',
                           typedResults: items,
                         ),
                     ];
@@ -9017,10 +9032,11 @@ class $$ShelvesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (shelfTagsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Shelf,
                           $ShelvesTable,
-                          ShelfTag
+                          ShelfTag,
+                          $ShelfTagsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ShelvesTableReferences
@@ -9031,17 +9047,16 @@ class $$ShelvesTableTableManager
                                 table,
                                 p0,
                               ).shelfTagsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.shelfId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'shelf_id',
                           typedResults: items,
                         ),
                       if (readingGoalsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Shelf,
                           $ShelvesTable,
-                          ReadingGoal
+                          ReadingGoal,
+                          $ReadingGoalsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ShelvesTableReferences
@@ -9052,10 +9067,8 @@ class $$ShelvesTableTableManager
                                 table,
                                 p0,
                               ).readingGoalsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.shelfId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'shelf_id',
                           typedResults: items,
                         ),
                     ];
@@ -9949,10 +9962,11 @@ class $$ReadingGoalsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (statWidgetConfigsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ReadingGoal,
                           $ReadingGoalsTable,
-                          StatWidgetConfig
+                          StatWidgetConfig,
+                          $StatWidgetConfigsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ReadingGoalsTableReferences
@@ -9963,10 +9977,8 @@ class $$ReadingGoalsTableTableManager
                                 table,
                                 p0,
                               ).statWidgetConfigsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.goalId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'goal_id',
                           typedResults: items,
                         ),
                     ];

@@ -54,3 +54,5 @@ android/key.properties
 /resolve_arb_conflicts.py
 /fix_l10n_v2.py
 /process_l10n.py
+/keys*.txt
+/meta_keys*.txt

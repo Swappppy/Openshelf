@@ -54,6 +54,28 @@ void main() {
   }
 
   group('ReadingSessionController Tests', () {
+    test('resetting a re-read to 0 keeps earlier completed reads and status', () async {
+      final container = createContainer();
+      final controller = container.read(readingSessionControllerProvider);
+      when(() => mockService.logPages(any(), any(), any())).thenAnswer((_) async {});
+
+      final id = await db.into(db.books).insert(BooksCompanion.insert(
+        title: 'T', author: 'A', status: ReadingStatus.reading, totalPages: const Value(100), currentPage: const Value(50)));
+      await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: id, readNumber: 1, startedAt: Value(DateTime(2025)), finishedAt: Value(DateTime(2025, 2)), progress: const Value(100)));
+      await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: id, readNumber: 2, startedAt: Value(DateTime(2026)), progress: const Value(50)));
+
+      final book = (await db.bookDao.getBook(id))!;
+      await controller.updatePageProgress(book: book, newPage: 0, newSegProgress: {}, sectionLabelGetter: (i) => '$i');
+
+      final history = await db.readHistoryDao.getHistoryForBook(id);
+      expect(history.map((h) => h.readNumber), [1], reason: 'only the re-read is undone');
+      final updated = (await db.bookDao.getBook(id))!;
+      expect(updated.status, ReadingStatus.read);
+      expect(updated.finishedAt, DateTime(2025, 2));
+    });
+
     test('updatePageProgress - transition to reading status', () async {
       final container = createContainer();
       final controller = container.read(readingSessionControllerProvider);

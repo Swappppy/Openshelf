@@ -10,6 +10,7 @@ import '../../l10n/l10n_extension.dart';
 import 'cover_picker_sheet.dart';
 import 'widgets/bulk_main_tab.dart';
 import 'widgets/bulk_details_tab.dart';
+import '../../controllers/app_settings_controller.dart';
 
 /// Form for bulk editing common attributes across multiple selected books.
 /// Replicates the tabbed structure of BookFormView while allowing padlock toggles.
@@ -382,7 +383,13 @@ class _BulkEditViewState extends ConsumerState<BulkEditView>
         copies: int.tryParse(_copiesCtrl.text) ?? 1,
       );
 
-      await db.bookDao.bulkUpdateBooks(widget.selectedBookIds, bulkData);
+      final settings = ref.read(appSettingsProvider);
+      await db.bookDao.bulkUpdateBooks(
+        widget.selectedBookIds,
+        bulkData,
+        pruneEnabled: settings.pruneOrphanCategories,
+        excludedIds: settings.excludedCategoriesFromPruning,
+      );
 
       // Clear selection
       ref.read(bookSelectionProvider.notifier).clear();

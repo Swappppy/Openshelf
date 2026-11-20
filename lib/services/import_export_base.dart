@@ -83,18 +83,31 @@ class ImportExportUtils {
     final parsed = DateTime.tryParse(clean);
     if (parsed != null) return parsed;
 
-    // 2. Manual split fallback (yyyy/MM/dd or dd/MM/yyyy)
+    // 2. Manual split fallback: yyyy/MM/dd, dd/MM/yyyy, or MM/dd/yyyy when the
+    //    order is unambiguous (e.g. 12/25/2024). Out-of-range values are
+    //    rejected instead of silently rolling over (DateTime(2024, 25, 12)
+    //    would otherwise become 2026-01-12).
     final parts = clean.split(RegExp(r'[/ \-.]'));
     if (parts.length >= 3) {
-      try {
-        if (parts[0].length == 4) { // YYYY MM DD
-          return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
-        } else if (parts[2].length == 4) { // DD MM YYYY
-          return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
-        }
-      } catch (_) {}
+      final a = int.tryParse(parts[0]);
+      final b = int.tryParse(parts[1]);
+      final c = int.tryParse(parts[2]);
+      if (a == null || b == null || c == null) return null;
+      if (parts[0].length == 4) return _validDate(a, b, c); // YYYY MM DD
+      if (parts[2].length == 4) {
+        // Day-first is the default (most locales); month-first only when the
+        // first number cannot be a month.
+        if (b > 12 && a <= 12) return _validDate(c, a, b); // MM DD YYYY
+        return _validDate(c, b, a); // DD MM YYYY
+      }
     }
     return null;
+  }
+
+  static DateTime? _validDate(int year, int month, int day) {
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+    final d = DateTime(year, month, day);
+    return (d.month == month && d.day == day) ? d : null;
   }
 }
 

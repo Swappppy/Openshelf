@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:drift/drift.dart';
+import 'package:path/path.dart' as p;
 import '../database.dart';
 
 
@@ -10,7 +12,8 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
 
   Future<int> getOrCreateCollection(String name) async {
     final existing = await (select(tags)
-      ..where((t) => t.name.equals(name) & t.type.equals(TagType.collection.name)))
+      ..where((t) => t.name.equals(name) & t.type.equals(TagType.collection.name))
+      ..limit(1))
         .getSingleOrNull();
     if (existing != null) return existing.id;
     return insertTag(TagsCompanion(
@@ -21,7 +24,8 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
 
   Future<int> getOrCreateTag(String name, TagType type) async {
     final existing = await (select(tags)
-      ..where((t) => t.name.equals(name) & t.type.equals(type.name)))
+      ..where((t) => t.name.equals(name) & t.type.equals(type.name))
+      ..limit(1))
         .getSingleOrNull();
     if (existing != null) return existing.id;
     return insertTag(TagsCompanion(
@@ -48,22 +52,29 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
   Future<bool> updateTag(Tag tag) => update(tags).replace(tag);
 
   Future<void> deleteTag(int id) async {
+    String? imagePath;
     await transaction(() async {
       final tag = await (select(tags)..where((t) => t.id.equals(id)))
           .getSingleOrNull();
-      // If deleting a collection, we must clear the references in Books table
-      if (tag != null && tag.type == TagType.collection) {
-        await (update(books)
-          ..where((b) => b.collectionId.equals(tag.id)))
-            .write(const BooksCompanion(
-          collectionId: Value(null),
-        ));
-      }
-      // Remove M:M links
+      if (tag == null) return;
+      // Clear every foreign key that points at this tag (none of them cascade).
+      await (update(books)..where((b) => b.collectionId.equals(id)))
+          .write(const BooksCompanion(collectionId: Value(null)));
+      await (update(books)..where((b) => b.imprintId.equals(id)))
+          .write(const BooksCompanion(imprintId: Value(null)));
+      await (update(db.readingGoals)..where((g) => g.collectionId.equals(id)))
+          .write(const ReadingGoalsCompanion(collectionId: Value(null)));
       await (delete(bookTags)..where((bt) => bt.tagId.equals(id))).go();
-      // Delete the tag itself
+      await (delete(db.shelfTags)..where((st) => st.tagId.equals(id))).go();
       await (delete(tags)..where((t) => t.id.equals(id))).go();
+      imagePath = tag.imagePath;
     });
+    if (imagePath != null && p.basename(p.dirname(imagePath!)) == 'imprints') {
+      try {
+        final f = File(imagePath!);
+        if (await f.exists()) await f.delete();
+      } catch (_) {}
+    }
   }
 
   Future<void> setBookTags(int bookId, List<int> tagIds, {List<(int, int?)>? collections}) async {

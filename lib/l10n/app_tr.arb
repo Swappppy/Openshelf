@@ -1035,5 +1035,16 @@
   "translatorMultiHelpTitle": "Birden fazla çevirmen",
   "translatorMultiHelpContent": "Noktalı virgül (;), eğik çizgi (/) veya virgül (,) ile ayırarak birden fazla çevirmen girebilirsiniz. Otomatik tamamlama her çevirmen için isimler önerecektir.",
   "padlockResetTitle": "Alan kilitlensin mi?",
-  "padlockResetContent": "Bu alanda yapılan değişiklikler kaybolacak. Devam etmek istiyor musunuz?"
+  "padlockResetContent": "Bu alanda yapılan değişiklikler kaybolacak. Devam etmek istiyor musunuz?",
+    "storageDbMoveSuccess": "Veritabanı başarıyla taşındı. Uygulama yeniden başlatılıyor...",
+    "storageDbErrorNotWritable": "Seçilen klasöre yazılamıyor. Farklı bir konum deneyin.",
+    "storageDbErrorNeedsAllFiles": "Seçilen klasöre yazılamıyor. Android 11+ sürümlerinde harici klasörleri kullanmak için depolama ayarlarında \"Tüm dosyalara erişim\" seçeneğini etkinleştirin.",
+    "storageDbErrorSameFolder": "Veritabanı zaten seçilen klasörde.",
+    "storageDbErrorSourceMissing": "Mevcut veritabanı dosyası bulunamadı.",
+    "storageDbErrorCloseFailed": "Veritabanı güvenli şekilde kapatılamadı. Hiçbir şey taşınmadı; lütfen tekrar deneyin.",
+    "storageDbErrorCopyFailed": "Veritabanı kopyalanamadı. Verileriniz değiştirilmedi. Uygulama yeniden başlatılıyor...",
+    "storageCoversMoved": "Taşınan kapaklar: {count}",
+    "dbMissingTitle": "Kitaplık bulunamadı",
+    "dbMissingBody": "Kitaplık veritabanı özel klasörde bulunamadı:\n{path}\n\nÇıkarılabilir bir depolamadaysa yeniden bağlayıp tekrar deneyin. Varsayılan konuma da dönebilirsiniz; orada bulunan kitaplık açılır ya da boş bir kitaplık oluşturulur.",
+    "dbMissingUseDefault": "Varsayılan konumu kullan"
 }

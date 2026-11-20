@@ -3744,6 +3744,72 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Se perderán los cambios introducidos en este campo. ¿Deseas continuar?'**
   String get padlockResetContent;
+
+  /// No description provided for @storageDbMoveSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Base de datos movida correctamente. Reiniciando la aplicación...'**
+  String get storageDbMoveSuccess;
+
+  /// No description provided for @storageDbErrorNotWritable.
+  ///
+  /// In es, this message translates to:
+  /// **'No se puede escribir en la carpeta seleccionada. Prueba con otra ubicación.'**
+  String get storageDbErrorNotWritable;
+
+  /// No description provided for @storageDbErrorNeedsAllFiles.
+  ///
+  /// In es, this message translates to:
+  /// **'No se puede escribir en la carpeta seleccionada. En Android 11 o superior, activa «Acceso a todos los archivos» en los ajustes de almacenamiento para usar carpetas externas.'**
+  String get storageDbErrorNeedsAllFiles;
+
+  /// No description provided for @storageDbErrorSameFolder.
+  ///
+  /// In es, this message translates to:
+  /// **'La base de datos ya está en la carpeta seleccionada.'**
+  String get storageDbErrorSameFolder;
+
+  /// No description provided for @storageDbErrorSourceMissing.
+  ///
+  /// In es, this message translates to:
+  /// **'No se ha encontrado el archivo de la base de datos actual.'**
+  String get storageDbErrorSourceMissing;
+
+  /// No description provided for @storageDbErrorCloseFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cerrar la base de datos de forma segura. No se ha movido nada; inténtalo de nuevo.'**
+  String get storageDbErrorCloseFailed;
+
+  /// No description provided for @storageDbErrorCopyFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al copiar la base de datos. Tus datos no han cambiado. Reiniciando la aplicación...'**
+  String get storageDbErrorCopyFailed;
+
+  /// Snackbar tras mover las portadas a otra carpeta
+  ///
+  /// In es, this message translates to:
+  /// **'Portadas movidas: {count}'**
+  String storageCoversMoved(int count);
+
+  /// No description provided for @dbMissingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Biblioteca no encontrada'**
+  String get dbMissingTitle;
+
+  /// Pantalla de recuperación cuando no existe la base de datos en la carpeta personalizada
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontró la base de datos de la biblioteca en la carpeta personalizada:\n{path}\n\nSi está en un almacenamiento extraíble, conéctalo y reintenta. También puedes volver a la ubicación predeterminada; allí se abrirá la biblioteca existente o se creará una vacía.'**
+  String dbMissingBody(String path);
+
+  /// No description provided for @dbMissingUseDefault.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar ubicación predeterminada'**
+  String get dbMissingUseDefault;
 }
 
 class _AppLocalizationsDelegate

@@ -25,37 +25,33 @@ final allShelvesProvider = StreamProvider<List<Shelf>>((ref) {
   return db.shelfDao.watchAllShelves();
 });
 
-/// Provider for shelves with calculated book counts
+/// Provider for shelves with calculated book counts.
+///
+/// Instead of keeping one live filtered query per shelf (each of which re-ran
+/// on every single write, e.g. N shelves x 500 writes during an import), this
+/// listens to the relevant tables once, debounces bursts of writes, and then
+/// recomputes all counts in one pass. Stale recomputations are dropped.
 final allShelvesWithStatsProvider = StreamProvider<List<(Shelf, int, int)>>((ref) {
   final db = ref.watch(databaseProvider);
-  
-  // Observamos el ajuste para que el stream se reconstruya al activar/desactivar la automatización
   ref.watch(appSettingsProvider.select((s) => s.autoNoCoverShelf));
-  
-  // Observamos el cambio en la lista de estanterías
-  return db.shelfDao.watchAllShelves().switchMap((list) {
-    if (list.isEmpty) return Stream.value([]);
-    
-    final streams = list.map((shelf) {
-      // Optimizamos la detección de filtros de etiquetas
-      final bool hasTagRelatedFilters = shelf.id > 0 && (shelf.filterTagIds != null || 
-                                       shelf.filterCollectionIds != null || 
-                                       shelf.filterImprintIds != null);
 
-      Stream<List<Tag>> tagsStream = hasTagRelatedFilters 
-          ? db.shelfDao.watchTagsForShelf(shelf.id) 
-          : Stream.value([]);
+  final changes = db
+      .tableUpdates(TableUpdateQuery.onAllTables([db.books, db.bookTags, db.tags, db.shelves, db.shelfTags]))
+      .debounceTime(const Duration(milliseconds: 250))
+      .startWith(const <TableUpdate>{});
 
-      return tagsStream.switchMap((shelfTags) {
-        return _watchFiltered(db, shelf, shelfTags).map((books) {
-          final readCount = books.where((b) => b.status == ReadingStatus.read).length;
-          return (shelf, books.length, readCount);
-        });
-      });
-    }).toList();
-    
-    return CombineLatestStream.list(streams);
-  });
+  return changes.switchMap((_) => Stream.fromFuture(() async {
+        final shelves = await db.shelfDao.watchAllShelves().first;
+        final result = <(Shelf, int, int)>[];
+        for (final shelf in shelves) {
+          final hasTagRelatedFilters = shelf.id > 0 &&
+              (shelf.filterTagIds != null || shelf.filterCollectionIds != null || shelf.filterImprintIds != null);
+          final shelfTags = hasTagRelatedFilters ? await db.shelfDao.watchTagsForShelf(shelf.id).first : <Tag>[];
+          final books = await _watchFiltered(db, shelf, shelfTags).first;
+          result.add((shelf, books.length, books.where((b) => b.status == ReadingStatus.read).length));
+        }
+        return result;
+      }()));
 });
 
 /// Specific provider for books within a dynamic shelf

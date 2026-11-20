@@ -2032,4 +2032,48 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Es perdran els canvis introduïts en aquest camp. Vols continuar?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Base de dades moguda correctament. Reiniciant l\'aplicació...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'No es pot escriure a la carpeta seleccionada. Prova una altra ubicació.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'No es pot escriure a la carpeta seleccionada. A Android 11 o superior, activa «Accés a tots els fitxers» a la configuració d\'emmagatzematge per fer servir carpetes externes.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'La base de dades ja és a la carpeta seleccionada.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'No s\'ha trobat el fitxer de la base de dades actual.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'No s\'ha pogut tancar la base de dades de manera segura. No s\'ha mogut res; torna-ho a provar.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Error en copiar la base de dades. Les teves dades no han canviat. Reiniciant l\'aplicació...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Portades mogudes: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Biblioteca no trobada';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'No s\'ha trobat la base de dades de la biblioteca a la carpeta personalitzada:\n$path\n\nSi és en un emmagatzematge extraïble, connecta\'l i torna-ho a provar. També pots tornar a la ubicació predeterminada, que obrirà la biblioteca existent o en crearà una de buida.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Fes servir la ubicació predeterminada';
 }

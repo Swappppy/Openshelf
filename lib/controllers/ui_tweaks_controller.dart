@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import '../services/cover_service.dart';
 import 'database_provider.dart';
 import 'shelf_automation_controller.dart';
@@ -20,9 +21,10 @@ class UiTweaksController {
       // 1. Clear database tables first (ensures UI reflects emptiness quickly)
       await db.clearAllData();
       
-      // 2. Safely clear known media files
-      final docDir = await CoverService.getCoverDirectory();
-      
+      // 2. Safely clear known media files (covers may live in a custom folder)
+      final docDir = await getApplicationDocumentsDirectory();
+      final coverDir = await CoverService.getCoverDirectory();
+
       if (await docDir.exists()) {
         // Delete imprints directory if it exists
         final imprintDir = Directory(p.join(docDir.path, 'imprints'));
@@ -32,22 +34,14 @@ class UiTweaksController {
             return imprintDir; // Return the entity to satisfy catchError type
           });
         }
-
-        // List files asynchronously to avoid freezing the UI
-        final entities = await docDir.list().toList();
-        for (final entity in entities) {
-          final fileName = p.basename(entity.path);
-          
-          // CRITICAL: Only delete files that match our naming patterns and ARE NOT the database
-          // Pattern 1: Legacy covers (just timestamp.jpg)
-          // Pattern 2: New covers (cover_timestamp.jpg)
-          final isCover = entity is File && 
-              fileName.endsWith('.jpg') && 
-              (fileName.startsWith('cover_') || RegExp(r'^\d+\.jpg$').hasMatch(fileName));
-          
-          final isNotDatabase = !fileName.contains('openshelf_db.sqlite');
-
-          if (isCover && isNotDatabase) {
+      }
+      // Only delete files whose names match what CoverService creates, so a
+      // user-chosen covers folder never loses unrelated files.
+      for (final dir in {docDir.path, coverDir.path}) {
+        final d = Directory(dir);
+        if (!await d.exists()) continue;
+        for (final entity in await d.list().toList()) {
+          if (entity is File && CoverService.managedCoverName.hasMatch(p.basename(entity.path))) {
             await entity.delete().catchError((e) => entity);
           }
         }

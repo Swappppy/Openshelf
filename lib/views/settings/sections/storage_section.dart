@@ -9,6 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../controllers/app_settings_controller.dart';
 import '../../../controllers/database_provider.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../services/cover_service.dart';
+import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../services/permission_service.dart';
 import '../../../widgets/os_permission_dialog.dart';
@@ -75,12 +78,19 @@ class _StorageSectionState extends ConsumerState<StorageSection> {
                   if (_isMigrating) return;
                   if (!await _checkAndRequestStorage(context)) return;
                   final result = await FilePicker.getDirectoryPath();
-                  if (result == null) return;
-                  
+                  if (result == null || !context.mounted) return;
+
                   setState(() => _isMigrating = true);
+                  final messenger = ScaffoldMessenger.of(context);
+                  final l10n = context.l10n;
                   try {
-                    await _StorageMigrationHelper.migrateCovers(coversPath, result);
+                    // Only covers referenced by books are moved (and their paths
+                    // updated); nothing else in the old folder is touched.
+                    final moved = await CoverService.relocateCovers(ref.read(databaseProvider), result);
                     await controller.setCoversPath(result);
+                    messenger.showSnackBar(SnackBar(content: Text(l10n.storageCoversMoved(moved))));
+                  } catch (e) {
+                    messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric(e.toString()))));
                   } finally {
                     if (mounted) setState(() => _isMigrating = false);
                   }
@@ -177,24 +187,12 @@ class _PathTile extends StatelessWidget {
   }
 }
 
-class _StorageMigrationHelper {
-  static Future<void> migrateCovers(String? oldPath, String newPath) async {
-    final sourceDir = oldPath != null
-        ? Directory(oldPath)
-        : Directory(p.join(
-        (await getApplicationDocumentsDirectory()).path, 'covers'));
-    if (!await sourceDir.exists()) return;
-    final destDir = Directory(newPath);
-    if (!await destDir.exists()) await destDir.create(recursive: true);
-    await for (final file in sourceDir.list()) {
-      if (file is File) {
-        final dest = File(p.join(newPath, p.basename(file.path)));
-        await file.copy(dest.path);
-        await file.delete();
-      }
-    }
-  }
+class _DbMoveException implements Exception {
+  final String Function(AppLocalizations l10n) message;
+  _DbMoveException(this.message);
+}
 
+class _StorageMigrationHelper {
   static void showDbMoveWarning(
       BuildContext context, WidgetRef ref, String newPath, Function(bool) onMigrating) {
     showDialog(
@@ -223,105 +221,88 @@ class _StorageMigrationHelper {
   }
 
   static Future<void> migrateDb(BuildContext context, WidgetRef ref, String newPath) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final errorColor = Theme.of(context).colorScheme.error;
+    final activeIcon = ref.read(appSettingsProvider).activeIconName;
+    void show(String text, {bool error = false}) => messenger.showSnackBar(
+          SnackBar(content: Text(text), backgroundColor: error ? errorColor : null, duration: const Duration(seconds: 3)),
+        );
+
+    var dbClosed = false;
+    File? partial;
     try {
-      debugPrint('StorageSection: Starting DB migration to $newPath');
-      
-      final testFile = File(p.join(newPath, '.write_test'));
+      // 1. Validate the destination before touching the open database.
       try {
+        final testFile = File(p.join(newPath, '.write_test'));
         await testFile.writeAsString('test');
         await testFile.delete();
       } catch (e) {
         debugPrint('StorageSection: Destination not writable: $e');
-        final isAndroid11Plus = Platform.isAndroid && 
-            (await DeviceInfoPlugin().androidInfo).version.sdkInt >= 30;
-        
-        if (isAndroid11Plus) {
-          final granted = await PermissionService.isManageExternalStorageGranted();
-          if (!granted) {
-            throw Exception('Selected directory is not writable. On Android 11+, you might need to enable "All Files Access" in Storage settings to use external folders.');
-          }
-        }
-        throw Exception('Selected directory is not writable ($e). Try a different location.');
+        final needsAllFiles = Platform.isAndroid &&
+            (await DeviceInfoPlugin().androidInfo).version.sdkInt >= 30 &&
+            !await PermissionService.isManageExternalStorageGranted();
+        throw _DbMoveException((l) => needsAllFiles ? l.storageDbErrorNeedsAllFiles : l.storageDbErrorNotWritable);
       }
 
-      final appDir = await getApplicationDocumentsDirectory();
-      final currentDb = File(p.join(appDir.path, 'openshelf_db.sqlite'));
-      
       final prefs = await SharedPreferences.getInstance();
-      final oldCustomPath = prefs.getString('app_db_path');
-      final sourceFile = oldCustomPath != null && oldCustomPath.isNotEmpty
-          ? File(p.join(oldCustomPath, 'openshelf_db.sqlite'))
-          : currentDb;
+      final oldCustomPath = prefs.getString(AppDatabase.customPathPrefKey);
+      final sourceDir = oldCustomPath != null && oldCustomPath.isNotEmpty
+          ? oldCustomPath
+          : (await getApplicationDocumentsDirectory()).path;
+      final sourceFile = File(p.join(sourceDir, AppDatabase.fileName));
+      final dest = File(p.join(newPath, AppDatabase.fileName));
 
-      debugPrint('StorageSection: Source DB: ${sourceFile.path}');
-      final dest = File(p.join(newPath, 'openshelf_db.sqlite'));
-      debugPrint('StorageSection: Destination DB: ${dest.path}');
+      if (p.equals(sourceFile.path, dest.path)) throw _DbMoveException((l) => l.storageDbErrorSameFolder);
+      if (!await sourceFile.exists()) throw _DbMoveException((l) => l.storageDbErrorSourceMissing);
 
-      if (sourceFile.path == dest.path) {
-        throw Exception('The database is already in the selected folder.');
-      }
-
-      if (!await sourceFile.exists()) {
-        throw Exception('Source database file not found at ${sourceFile.path}');
-      }
-
-      debugPrint('StorageSection: Closing database connection...');
+      // 2. The database must be fully closed, otherwise the copy may be
+      //    inconsistent. If closing fails, abort without copying anything.
       try {
-        await ref.read(databaseProvider).close().timeout(const Duration(seconds: 2));
-        debugPrint('StorageSection: Database connection closed successfully.');
+        await ref.read(databaseProvider).close().timeout(const Duration(seconds: 5));
+        dbClosed = true;
       } catch (e) {
-        debugPrint('StorageSection: Database close timed out or failed ($e). Proceeding with copy...');
+        debugPrint('StorageSection: Database close failed: $e');
+        throw _DbMoveException((l) => l.storageDbErrorCloseFailed);
       }
-      
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      debugPrint('StorageSection: Copying file...');
-      await sourceFile.copy(dest.path);
-      debugPrint('StorageSection: Main DB file copied.');
-      
-      await _copyOptionalFile('${sourceFile.path}-wal', '${dest.path}-wal');
-      await _copyOptionalFile('${sourceFile.path}-shm', '${dest.path}-shm');
-      
-      debugPrint('StorageSection: Updating settings in SharedPreferences...');
+
+      // 3. Copy to a temporary name, verify, then rename into place so an
+      //    interrupted copy never leaves a truncated database behind.
+      partial = File('${dest.path}.partial');
+      await sourceFile.copy(partial.path);
+      if (await partial.length() != await sourceFile.length()) {
+        throw Exception('size mismatch after copy');
+      }
+      for (final suffix in ['-wal', '-shm', '-journal']) {
+        final extra = File('${dest.path}$suffix');
+        if (await extra.exists()) await extra.delete();
+        final src = File('${sourceFile.path}$suffix');
+        if (await src.exists()) await src.copy(extra.path);
+      }
+      await partial.rename(dest.path);
+      partial = null;
+
+      // 4. Only now point the app at the new location. The old file is kept
+      //    as a fallback copy.
       await ref.read(appSettingsProvider.notifier).setDbPath(newPath);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Database moved successfully. Restarting app...'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-
-      debugPrint('StorageSection: Migration complete. Triggering restart...');
-      await Future.delayed(const Duration(seconds: 2));
-      
-      final activeIcon = ref.read(appSettingsProvider).activeIconName;
-      await PermissionService.restartApp(activeIcon);
+      show(l10n.storageDbMoveSuccess);
+    } on _DbMoveException catch (e) {
+      show(e.message(l10n), error: true);
+      if (!dbClosed) return;
     } catch (e) {
       debugPrint('StorageSection: Migration error: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+      show(dbClosed ? l10n.storageDbErrorCopyFailed : l10n.errorGeneric(e.toString()), error: true);
+      if (!dbClosed) return;
+    } finally {
+      if (partial != null) {
+        try { await partial.delete(); } catch (_) {}
       }
     }
-  }
 
-  static Future<void> _copyOptionalFile(String sourcePath, String destPath) async {
-    final source = File(sourcePath);
-    if (await source.exists()) {
-      try {
-        await source.copy(destPath);
-        debugPrint('StorageSection: Copied optional file: $sourcePath');
-      } catch (e) {
-        debugPrint('StorageSection: Failed to copy optional file $sourcePath: $e');
-      }
-    }
+    // The connection is closed at this point, so the app must restart to
+    // reopen the database (at the new location on success, the old one otherwise).
+    await Future.delayed(const Duration(seconds: 2));
+    await PermissionService.restartApp(activeIcon);
   }
 }
 

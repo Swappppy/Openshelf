@@ -1035,5 +1035,16 @@
   "translatorMultiHelpTitle": "Mitu tõlkijat",
   "translatorMultiHelpContent": "Saate sisestada mitu tõlkijat, eraldades need semikooloni (;), kaldkriipsu (/) või komaga (,). Automaattäitmine soovitab nimesid iga tõlkija jaoks.",
   "padlockResetTitle": "Kas lukustada väli?",
-  "padlockResetContent": "Selle välja muudatused lähevad kaotsi. Kas soovite jätkata?"
+  "padlockResetContent": "Selle välja muudatused lähevad kaotsi. Kas soovite jätkata?",
+    "storageDbMoveSuccess": "Andmebaas teisaldati edukalt. Rakendus taaskäivitub...",
+    "storageDbErrorNotWritable": "Valitud kausta ei saa kirjutada. Proovi teist asukohta.",
+    "storageDbErrorNeedsAllFiles": "Valitud kausta ei saa kirjutada. Android 11+ puhul luba välistes kaustades kasutamiseks salvestusseadetes „Juurdepääs kõigile failidele“.",
+    "storageDbErrorSameFolder": "Andmebaas on juba valitud kaustas.",
+    "storageDbErrorSourceMissing": "Praegust andmebaasifaili ei leitud.",
+    "storageDbErrorCloseFailed": "Andmebaasi ei õnnestunud turvaliselt sulgeda. Midagi ei teisaldatud; proovi uuesti.",
+    "storageDbErrorCopyFailed": "Andmebaasi kopeerimine ebaõnnestus. Sinu andmeid ei muudetud. Rakendus taaskäivitub...",
+    "storageCoversMoved": "Teisaldatud kaaned: {count}",
+    "dbMissingTitle": "Raamatukogu ei leitud",
+    "dbMissingBody": "Raamatukogu andmebaasi ei leitud kohandatud kaustast:\n{path}\n\nKui see asub eemaldataval andmekandjal, ühenda see uuesti ja proovi uuesti. Võid ka naasta vaikeasukohta, kus avatakse seal olev raamatukogu või luuakse tühi.",
+    "dbMissingUseDefault": "Kasuta vaikeasukohta"
 }

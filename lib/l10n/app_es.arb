@@ -1964,5 +1964,32 @@
   "translatorMultiHelpTitle": "Múltiples traductores",
   "translatorMultiHelpContent": "Puedes indicar múltiples traductores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada traductor.",
   "padlockResetTitle": "¿Bloquear campo?",
-  "padlockResetContent": "Se perderán los cambios introducidos en este campo. ¿Deseas continuar?"
+  "padlockResetContent": "Se perderán los cambios introducidos en este campo. ¿Deseas continuar?",
+  "storageDbMoveSuccess": "Base de datos movida correctamente. Reiniciando la aplicación...",
+  "storageDbErrorNotWritable": "No se puede escribir en la carpeta seleccionada. Prueba con otra ubicación.",
+  "storageDbErrorNeedsAllFiles": "No se puede escribir en la carpeta seleccionada. En Android 11 o superior, activa «Acceso a todos los archivos» en los ajustes de almacenamiento para usar carpetas externas.",
+  "storageDbErrorSameFolder": "La base de datos ya está en la carpeta seleccionada.",
+  "storageDbErrorSourceMissing": "No se ha encontrado el archivo de la base de datos actual.",
+  "storageDbErrorCloseFailed": "No se pudo cerrar la base de datos de forma segura. No se ha movido nada; inténtalo de nuevo.",
+  "storageDbErrorCopyFailed": "Error al copiar la base de datos. Tus datos no han cambiado. Reiniciando la aplicación...",
+  "storageCoversMoved": "Portadas movidas: {count}",
+  "@storageCoversMoved": {
+    "description": "Snackbar tras mover las portadas a otra carpeta",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dbMissingTitle": "Biblioteca no encontrada",
+  "dbMissingBody": "No se encontró la base de datos de la biblioteca en la carpeta personalizada:\n{path}\n\nSi está en un almacenamiento extraíble, conéctalo y reintenta. También puedes volver a la ubicación predeterminada; allí se abrirá la biblioteca existente o se creará una vacía.",
+  "@dbMissingBody": {
+    "description": "Pantalla de recuperación cuando no existe la base de datos en la carpeta personalizada",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "dbMissingUseDefault": "Usar ubicación predeterminada"
 }

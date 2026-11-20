@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+. See backup_rules.xml for why only the database file is included. -->
 <data-extraction-rules>
     <cloud-backup>
         <include domain="sharedpref" path="."/>
-        <include domain="database" path="."/>
+        <include domain="root" path="app_flutter/openshelf_db.sqlite"/>
     </cloud-backup>
     <device-transfer>
         <include domain="sharedpref" path="."/>
-        <include domain="database" path="."/>
+        <include domain="root" path="app_flutter/"/>
     </device-transfer>
 </data-extraction-rules>

@@ -2036,4 +2036,48 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Änderungen an diesem Feld gehen verloren. Möchten Sie fortfahren?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Datenbank erfolgreich verschoben. App wird neu gestartet...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Der ausgewählte Ordner ist nicht beschreibbar. Wähle einen anderen Ort.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Der ausgewählte Ordner ist nicht beschreibbar. Aktiviere ab Android 11 „Zugriff auf alle Dateien“ in den Speichereinstellungen, um externe Ordner zu verwenden.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'Die Datenbank befindet sich bereits im ausgewählten Ordner.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Die aktuelle Datenbankdatei wurde nicht gefunden.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Die Datenbank konnte nicht sicher geschlossen werden. Es wurde nichts verschoben; bitte versuche es erneut.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Kopieren der Datenbank fehlgeschlagen. Deine Daten wurden nicht verändert. App wird neu gestartet...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Verschobene Cover: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Bibliothek nicht gefunden';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'Die Bibliotheksdatenbank wurde im benutzerdefinierten Ordner nicht gefunden:\n$path\n\nWenn sie sich auf einem Wechseldatenträger befindet, schließe ihn wieder an und versuche es erneut. Du kannst auch zum Standardort zurückkehren; dort wird die vorhandene Bibliothek geöffnet oder eine leere angelegt.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Standardort verwenden';
 }

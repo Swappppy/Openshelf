@@ -2036,4 +2036,48 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Les modifications apportées à ce champ seront perdues. Voulez-vous continuer ?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Base de données déplacée avec succès. Redémarrage de l\'application...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Le dossier sélectionné n\'est pas accessible en écriture. Essayez un autre emplacement.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Le dossier sélectionné n\'est pas accessible en écriture. Sur Android 11+, activez « Accès à tous les fichiers » dans les paramètres de stockage pour utiliser des dossiers externes.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'La base de données se trouve déjà dans le dossier sélectionné.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Le fichier de la base de données actuelle est introuvable.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'La base de données n\'a pas pu être fermée en toute sécurité. Rien n\'a été déplacé ; veuillez réessayer.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'La copie de la base de données a échoué. Vos données n\'ont pas été modifiées. Redémarrage de l\'application...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Couvertures déplacées : $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Bibliothèque introuvable';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'La base de données de la bibliothèque est introuvable dans le dossier personnalisé :\n$path\n\nSi elle se trouve sur un stockage amovible, reconnectez-le et réessayez. Vous pouvez aussi revenir à l\'emplacement par défaut, qui ouvrira la bibliothèque qui s\'y trouve ou en créera une vide.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Utiliser l\'emplacement par défaut';
 }

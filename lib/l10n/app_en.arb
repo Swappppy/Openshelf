@@ -1029,5 +1029,16 @@
   "translatorMultiHelpTitle": "Multiple translators",
   "translatorMultiHelpContent": "You can specify multiple translators separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each translator.",
   "padlockResetTitle": "Lock field?",
-  "padlockResetContent": "Changes made to this field will be lost. Do you want to continue?"
+  "padlockResetContent": "Changes made to this field will be lost. Do you want to continue?",
+  "storageDbMoveSuccess": "Database moved successfully. Restarting app...",
+  "storageDbErrorNotWritable": "The selected folder is not writable. Try a different location.",
+  "storageDbErrorNeedsAllFiles": "The selected folder is not writable. On Android 11+, enable \"All files access\" in Storage settings to use external folders.",
+  "storageDbErrorSameFolder": "The database is already in the selected folder.",
+  "storageDbErrorSourceMissing": "The current database file could not be found.",
+  "storageDbErrorCloseFailed": "The database could not be closed safely. Nothing was moved; please try again.",
+  "storageDbErrorCopyFailed": "Copying the database failed. Your data was not changed. Restarting app...",
+  "storageCoversMoved": "Covers moved: {count}",
+  "dbMissingTitle": "Library not found",
+  "dbMissingBody": "The library database was not found in the custom folder:\n{path}\n\nIf it is on removable storage, reconnect it and retry. You can also switch back to the default location, which opens the library stored there or starts an empty one.",
+  "dbMissingUseDefault": "Use default location"
 }

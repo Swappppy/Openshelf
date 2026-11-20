@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 and lower. The library database lives in app_flutter/ (Flutter's
+     documents directory), which is under the "root" domain, not "database".
+     Cover images are deliberately excluded: Auto Backup has a 25 MB quota and the
+     whole backup is skipped if it is exceeded. Use the in-app ZIP backup for covers. -->
 <full-backup-content>
     <include domain="sharedpref" path="."/>
-    <include domain="database" path="."/>
+    <include domain="root" path="app_flutter/openshelf_db.sqlite"/>
 </full-backup-content>

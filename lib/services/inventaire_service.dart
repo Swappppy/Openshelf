@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'http_utils.dart';
 import 'package:collection/collection.dart';
 import '../models/book_search_result.dart';
 import 'book_search_service.dart';
@@ -12,7 +13,7 @@ class InventaireService {
   static const _entitiesPath = '/api/entities/by-uris';
   static const _timeout = Duration(seconds: 10);
   static const _headers = {
-    'User-Agent': 'Openshelf/1.0.0 (https://github.com/ftena/openshelf)',
+    'User-Agent': kUserAgent,
     'Accept': 'application/json',
   };
 

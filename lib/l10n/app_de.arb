@@ -644,5 +644,16 @@
   "translatorMultiHelpTitle": "Mehrere Übersetzer",
   "translatorMultiHelpContent": "Sie können mehrere Übersetzer eingeben, getrennt durch Semikolon (;), Schrägstrich (/) oder Komma (,). Die Autovervollständigung schlägt Namen für jeden Übersetzer vor.",
   "padlockResetTitle": "Feld sperren?",
-  "padlockResetContent": "Änderungen an diesem Feld gehen verloren. Möchten Sie fortfahren?"
+  "padlockResetContent": "Änderungen an diesem Feld gehen verloren. Möchten Sie fortfahren?",
+    "storageDbMoveSuccess": "Datenbank erfolgreich verschoben. App wird neu gestartet...",
+    "storageDbErrorNotWritable": "Der ausgewählte Ordner ist nicht beschreibbar. Wähle einen anderen Ort.",
+    "storageDbErrorNeedsAllFiles": "Der ausgewählte Ordner ist nicht beschreibbar. Aktiviere ab Android 11 „Zugriff auf alle Dateien“ in den Speichereinstellungen, um externe Ordner zu verwenden.",
+    "storageDbErrorSameFolder": "Die Datenbank befindet sich bereits im ausgewählten Ordner.",
+    "storageDbErrorSourceMissing": "Die aktuelle Datenbankdatei wurde nicht gefunden.",
+    "storageDbErrorCloseFailed": "Die Datenbank konnte nicht sicher geschlossen werden. Es wurde nichts verschoben; bitte versuche es erneut.",
+    "storageDbErrorCopyFailed": "Kopieren der Datenbank fehlgeschlagen. Deine Daten wurden nicht verändert. App wird neu gestartet...",
+    "storageCoversMoved": "Verschobene Cover: {count}",
+    "dbMissingTitle": "Bibliothek nicht gefunden",
+    "dbMissingBody": "Die Bibliotheksdatenbank wurde im benutzerdefinierten Ordner nicht gefunden:\n{path}\n\nWenn sie sich auf einem Wechseldatenträger befindet, schließe ihn wieder an und versuche es erneut. Du kannst auch zum Standardort zurückkehren; dort wird die vorhandene Bibliothek geöffnet oder eine leere angelegt.",
+    "dbMissingUseDefault": "Standardort verwenden"
 }

@@ -1029,5 +1029,16 @@
   "translatorMultiHelpTitle": "Múltiples tradutores",
   "translatorMultiHelpContent": "Você pode informar múltiplos tradutores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada tradutor.",
   "padlockResetTitle": "Bloquear campo?",
-  "padlockResetContent": "As alterações feitas neste campo serão perdidas. Deseja continuar?"
+  "padlockResetContent": "As alterações feitas neste campo serão perdidas. Deseja continuar?",
+  "storageDbMoveSuccess": "Base de dados movida com sucesso. A reiniciar a aplicação...",
+  "storageDbErrorNotWritable": "Não é possível escrever na pasta selecionada. Experimente outra localização.",
+  "storageDbErrorNeedsAllFiles": "Não é possível escrever na pasta selecionada. No Android 11+, ative «Acesso a todos os ficheiros» nas definições de armazenamento para usar pastas externas.",
+  "storageDbErrorSameFolder": "A base de dados já está na pasta selecionada.",
+  "storageDbErrorSourceMissing": "Não foi possível encontrar o ficheiro da base de dados atual.",
+  "storageDbErrorCloseFailed": "Não foi possível fechar a base de dados em segurança. Nada foi movido; tente novamente.",
+  "storageDbErrorCopyFailed": "Falha ao copiar a base de dados. Os seus dados não foram alterados. A reiniciar a aplicação...",
+  "storageCoversMoved": "Capas movidas: {count}",
+  "dbMissingTitle": "Biblioteca não encontrada",
+  "dbMissingBody": "A base de dados da biblioteca não foi encontrada na pasta personalizada:\n{path}\n\nSe estiver num armazenamento amovível, volte a ligá-lo e tente novamente. Também pode voltar à localização predefinida, que abrirá a biblioteca aí existente ou criará uma vazia.",
+  "dbMissingUseDefault": "Usar localização predefinida"
 }

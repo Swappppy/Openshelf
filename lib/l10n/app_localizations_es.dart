@@ -2027,4 +2027,48 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Se perderán los cambios introducidos en este campo. ¿Deseas continuar?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Base de datos movida correctamente. Reiniciando la aplicación...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'No se puede escribir en la carpeta seleccionada. Prueba con otra ubicación.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'No se puede escribir en la carpeta seleccionada. En Android 11 o superior, activa «Acceso a todos los archivos» en los ajustes de almacenamiento para usar carpetas externas.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'La base de datos ya está en la carpeta seleccionada.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'No se ha encontrado el archivo de la base de datos actual.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'No se pudo cerrar la base de datos de forma segura. No se ha movido nada; inténtalo de nuevo.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Error al copiar la base de datos. Tus datos no han cambiado. Reiniciando la aplicación...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Portadas movidas: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Biblioteca no encontrada';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'No se encontró la base de datos de la biblioteca en la carpeta personalizada:\n$path\n\nSi está en un almacenamiento extraíble, conéctalo y reintenta. También puedes volver a la ubicación predeterminada; allí se abrirá la biblioteca existente o se creará una vacía.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Usar ubicación predeterminada';
 }

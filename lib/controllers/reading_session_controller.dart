@@ -20,12 +20,26 @@ class ReadingSessionController {
     required Map<int, int> newSegProgress,
     PaginationConfig? newConfig,
     required String Function(int) sectionLabelGetter,
+  }) => _db.transaction(() => _updatePageProgress(
+        book: book,
+        newPage: newPage,
+        newSegProgress: newSegProgress,
+        newConfig: newConfig,
+        sectionLabelGetter: sectionLabelGetter,
+      ));
+
+  Future<void> _updatePageProgress({
+    required Book book,
+    required int newPage,
+    required Map<int, int> newSegProgress,
+    PaginationConfig? newConfig,
+    required String Function(int) sectionLabelGetter,
   }) async {
     final total = book.totalPages ?? 0;
     final oldStatus = book.status;
 
     // Get current completed reads from history
-    final history = await _db.readHistoryDao.watchHistoryForBook(book.id).first;
+    final history = await _db.readHistoryDao.getHistoryForBook(book.id);
     final completedReads = history.where((h) => h.finishedAt != null).length;
     
     // Determine which session we are updating based on status
@@ -57,12 +71,16 @@ class ReadingSessionController {
     int targetPage = newTotalRead; // Use the sum of pages read in the session
 
     if (newTotalRead == 0) {
-      newStatus = ReadingStatus.wantToRead;
-      newFinishedAt = null;
-      newStartedAt = null;
-
-      // Delete the session we just reset to 0 in ReadHistory
+      // Resetting progress to 0 undoes the session being edited. The book then
+      // reflects whatever reads remain (e.g. an earlier completed read keeps
+      // it as "read") instead of always becoming "want to read".
       await _db.readHistoryDao.deleteReadByNumber(book.id, sessionIdx);
+      final remaining = await _db.readHistoryDao.getHistoryForBook(book.id);
+      final derived = _stateFromHistory(book, remaining);
+      newStatus = derived.status;
+      newStartedAt = derived.startedAt;
+      newFinishedAt = derived.finishedAt;
+      targetPage = derived.currentPage;
     } else if (allSegmentsFinished) {
       // Automatic completion: Transition to 'Read' status
       if (oldStatus != ReadingStatus.read) {
@@ -190,7 +208,7 @@ class ReadingSessionController {
     List<int>? selectedIndices,
     required String Function(int) sectionLabelGetter,
   }) async {
-    final history = await _db.readHistoryDao.watchHistoryForBook(book.id).first;
+    final history = await _db.readHistoryDao.getHistoryForBook(book.id);
     final int newReadNumber = history.isEmpty 
         ? 1 
         : history.map((h) => h.readNumber).reduce((a, b) => a > b ? a : b) + 1;
@@ -282,61 +300,39 @@ class ReadingSessionController {
     ));
   }
 
-  Future<void> deleteHistoryEntry(Book book, int readNumber) async {
-    // Delete the entry
-    await _db.readHistoryDao.deleteReadByNumber(book.id, readNumber);
-    
-    // Renumber subsequent entries
-    final remainingHistory = await _db.readHistoryDao.watchHistoryForBook(book.id).first;
-    
-    ReadHistoryData? lastFinished;
-    ReadHistoryData? ongoing;
+  Future<void> deleteHistoryEntry(Book book, int readNumber) => _db.transaction(() async {
+        await _db.readHistoryDao.deleteReadByNumber(book.id, readNumber);
 
-    for (int i = 0; i < remainingHistory.length; i++) {
-      final h = remainingHistory[i];
-      final newNumber = i + 1;
-      
-      if (h.readNumber != newNumber) {
-        await _db.readHistoryDao.updateRead(h.copyWith(readNumber: newNumber));
-      }
-      
-      if (h.finishedAt != null) {
-        lastFinished = h;
-      } else {
-        ongoing = h;
-      }
-    }
+        // Renumber subsequent entries
+        final remaining = await _db.readHistoryDao.getHistoryForBook(book.id);
+        for (int i = 0; i < remaining.length; i++) {
+          if (remaining[i].readNumber != i + 1) {
+            await _db.readHistoryDao.updateRead(remaining[i].copyWith(readNumber: i + 1));
+          }
+        }
 
-    // Update the book's status based on remaining history
-    ReadingStatus newStatus = book.status;
-    int newCurrentPage = 0;
-    DateTime? newStartedAt;
-    DateTime? newFinishedAt;
+        final derived = _stateFromHistory(book, remaining);
+        await _db.bookDao.updateBook(book.copyWith(
+          status: derived.status,
+          currentPage: Value(derived.currentPage),
+          startedAt: Value(derived.startedAt),
+          finishedAt: Value(derived.finishedAt),
+        ));
+      });
 
+  /// Book status implied by its reading history: an unfinished read means
+  /// "reading", otherwise the last finished read means "read", otherwise
+  /// "want to read".
+  ({ReadingStatus status, int currentPage, DateTime? startedAt, DateTime? finishedAt}) _stateFromHistory(
+      Book book, List<ReadHistoryData> history) {
+    final ongoing = history.lastWhereOrNull((h) => h.finishedAt == null);
     if (ongoing != null) {
-      newStatus = ReadingStatus.reading;
-      newStartedAt = ongoing.startedAt;
-      newFinishedAt = null;
-      newCurrentPage = ongoing.progress;
-    } else if (lastFinished != null) {
-      newStatus = ReadingStatus.read;
-      newStartedAt = lastFinished.startedAt;
-      newFinishedAt = lastFinished.finishedAt;
-      newCurrentPage = book.totalPages ?? 0;
-    } else {
-      newStatus = ReadingStatus.wantToRead;
-      newStartedAt = null;
-      newFinishedAt = null;
-      newCurrentPage = 0;
+      return (status: ReadingStatus.reading, currentPage: ongoing.progress, startedAt: ongoing.startedAt, finishedAt: null);
     }
-
-    final updated = book.copyWith(
-      status: newStatus,
-      currentPage: Value(newCurrentPage),
-      startedAt: Value(newStartedAt),
-      finishedAt: Value(newFinishedAt),
-    );
-    
-    await _db.bookDao.updateBook(updated);
+    final lastFinished = history.lastWhereOrNull((h) => h.finishedAt != null);
+    if (lastFinished != null) {
+      return (status: ReadingStatus.read, currentPage: book.totalPages ?? 0, startedAt: lastFinished.startedAt, finishedAt: lastFinished.finishedAt);
+    }
+    return (status: ReadingStatus.wantToRead, currentPage: 0, startedAt: null, finishedAt: null);
   }
 }

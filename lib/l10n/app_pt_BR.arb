@@ -1029,5 +1029,16 @@
   "translatorMultiHelpTitle": "Múltiples tradutores",
   "translatorMultiHelpContent": "Você pode informar múltiplos tradutores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada tradutor.",
   "padlockResetTitle": "Bloquear campo?",
-  "padlockResetContent": "As alterações feitas neste campo serão perdidas. Deseja continuar?"
+  "padlockResetContent": "As alterações feitas neste campo serão perdidas. Deseja continuar?",
+  "storageDbMoveSuccess": "Banco de dados movido com sucesso. Reiniciando o app...",
+  "storageDbErrorNotWritable": "Não é possível gravar na pasta selecionada. Tente outro local.",
+  "storageDbErrorNeedsAllFiles": "Não é possível gravar na pasta selecionada. No Android 11+, ative \"Acesso a todos os arquivos\" nas configurações de armazenamento para usar pastas externas.",
+  "storageDbErrorSameFolder": "O banco de dados já está na pasta selecionada.",
+  "storageDbErrorSourceMissing": "Não foi possível encontrar o arquivo do banco de dados atual.",
+  "storageDbErrorCloseFailed": "Não foi possível fechar o banco de dados com segurança. Nada foi movido; tente novamente.",
+  "storageDbErrorCopyFailed": "Falha ao copiar o banco de dados. Seus dados não foram alterados. Reiniciando o app...",
+  "storageCoversMoved": "Capas movidas: {count}",
+  "dbMissingTitle": "Biblioteca não encontrada",
+  "dbMissingBody": "O banco de dados da biblioteca não foi encontrado na pasta personalizada:\n{path}\n\nSe ele estiver em um armazenamento removível, reconecte-o e tente novamente. Você também pode voltar ao local padrão, que abrirá a biblioteca existente ou criará uma vazia.",
+  "dbMissingUseDefault": "Usar local padrão"
 }

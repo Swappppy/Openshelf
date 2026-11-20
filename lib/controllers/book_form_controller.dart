@@ -210,6 +210,9 @@ class BookFormController {
     if (existingBook != null) {
       bookId = existingBook.id;
       await (_db.update(_db.books)..where((b) => b.id.equals(bookId))).write(companion);
+      if (existingBook.coverPath != null && existingBook.coverPath != coverPath) {
+        await CoverService.deleteUnreferencedCovers(_db, [existingBook.coverPath]);
+      }
 
       if (currentPage > (existingBook.currentPage ?? 0)) {
         await ref.read(readingLogControllerProvider.notifier).logPages(bookId, currentPage - (existingBook.currentPage ?? 0));

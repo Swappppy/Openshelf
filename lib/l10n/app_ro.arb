@@ -1035,5 +1035,16 @@
   "translatorMultiHelpTitle": "Traducători multipli",
   "translatorMultiHelpContent": "Puteți introduce mai mulți traducători separați prin punct și virgulă (;), bară (/) sau virgulă (,). Autocompletarea va sugera nume pentru fiecare traducător.",
   "padlockResetTitle": "Blocați câmpul?",
-  "padlockResetContent": "Modificările aduse acestui câmp se vor pierde. Doriți să continuați?"
+  "padlockResetContent": "Modificările aduse acestui câmp se vor pierde. Doriți să continuați?",
+    "storageDbMoveSuccess": "Baza de date a fost mutată cu succes. Se repornește aplicația...",
+    "storageDbErrorNotWritable": "Folderul selectat nu poate fi scris. Încearcă altă locație.",
+    "storageDbErrorNeedsAllFiles": "Folderul selectat nu poate fi scris. Pe Android 11+, activează „Acces la toate fișierele” în setările de stocare pentru a folosi foldere externe.",
+    "storageDbErrorSameFolder": "Baza de date se află deja în folderul selectat.",
+    "storageDbErrorSourceMissing": "Fișierul bazei de date curente nu a fost găsit.",
+    "storageDbErrorCloseFailed": "Baza de date nu a putut fi închisă în siguranță. Nu s-a mutat nimic; încearcă din nou.",
+    "storageDbErrorCopyFailed": "Copierea bazei de date a eșuat. Datele tale nu au fost modificate. Se repornește aplicația...",
+    "storageCoversMoved": "Coperți mutate: {count}",
+    "dbMissingTitle": "Biblioteca nu a fost găsită",
+    "dbMissingBody": "Baza de date a bibliotecii nu a fost găsită în folderul personalizat:\n{path}\n\nDacă se află pe un suport amovibil, reconectează-l și încearcă din nou. Poți reveni și la locația implicită, unde se va deschide biblioteca existentă sau se va crea una goală.",
+    "dbMissingUseDefault": "Folosește locația implicită"
 }

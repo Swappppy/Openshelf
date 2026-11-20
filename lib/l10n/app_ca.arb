@@ -1029,5 +1029,16 @@
   "translatorMultiHelpTitle": "Múltiples traductors",
   "translatorMultiHelpContent": "Pots indicar múltiples traductors separant-los amb punt i coma (;), barra (/) o coma (,). L'autocompletat et suggerirà noms individuals per a cada traductor.",
   "padlockResetTitle": "Bloquejar camp?",
-  "padlockResetContent": "Es perdran els canvis introduïts en aquest camp. Vols continuar?"
+  "padlockResetContent": "Es perdran els canvis introduïts en aquest camp. Vols continuar?",
+  "storageDbMoveSuccess": "Base de dades moguda correctament. Reiniciant l'aplicació...",
+  "storageDbErrorNotWritable": "No es pot escriure a la carpeta seleccionada. Prova una altra ubicació.",
+  "storageDbErrorNeedsAllFiles": "No es pot escriure a la carpeta seleccionada. A Android 11 o superior, activa «Accés a tots els fitxers» a la configuració d'emmagatzematge per fer servir carpetes externes.",
+  "storageDbErrorSameFolder": "La base de dades ja és a la carpeta seleccionada.",
+  "storageDbErrorSourceMissing": "No s'ha trobat el fitxer de la base de dades actual.",
+  "storageDbErrorCloseFailed": "No s'ha pogut tancar la base de dades de manera segura. No s'ha mogut res; torna-ho a provar.",
+  "storageDbErrorCopyFailed": "Error en copiar la base de dades. Les teves dades no han canviat. Reiniciant l'aplicació...",
+  "storageCoversMoved": "Portades mogudes: {count}",
+  "dbMissingTitle": "Biblioteca no trobada",
+  "dbMissingBody": "No s'ha trobat la base de dades de la biblioteca a la carpeta personalitzada:\n{path}\n\nSi és en un emmagatzematge extraïble, connecta'l i torna-ho a provar. També pots tornar a la ubicació predeterminada, que obrirà la biblioteca existent o en crearà una de buida.",
+  "dbMissingUseDefault": "Fes servir la ubicació predeterminada"
 }

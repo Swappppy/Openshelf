@@ -2025,4 +2025,48 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Le modifiche apportate a questo campo andranno perse. Vuoi continuare?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Database spostato correttamente. Riavvio dell\'app...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'La cartella selezionata non è scrivibile. Prova un\'altra posizione.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'La cartella selezionata non è scrivibile. Su Android 11+, attiva \"Accesso a tutti i file\" nelle impostazioni di archiviazione per usare cartelle esterne.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'Il database si trova già nella cartella selezionata.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Impossibile trovare il file del database attuale.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Impossibile chiudere il database in modo sicuro. Non è stato spostato nulla; riprova.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Copia del database non riuscita. I tuoi dati non sono stati modificati. Riavvio dell\'app...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Copertine spostate: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Libreria non trovata';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'Il database della libreria non è stato trovato nella cartella personalizzata:\n$path\n\nSe si trova su una memoria rimovibile, ricollegala e riprova. Puoi anche tornare alla posizione predefinita, che aprirà la libreria presente o ne creerà una vuota.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Usa la posizione predefinita';
 }

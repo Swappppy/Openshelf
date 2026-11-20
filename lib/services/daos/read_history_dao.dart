@@ -10,6 +10,9 @@ class ReadHistoryDao extends DatabaseAccessor<AppDatabase> with _$ReadHistoryDao
   Stream<List<ReadHistoryData>> watchHistoryForBook(int bookId) =>
       (select(readHistory)..where((h) => h.bookId.equals(bookId))..orderBy([(h) => OrderingTerm(expression: h.readNumber, mode: OrderingMode.asc)])).watch();
 
+  Future<List<ReadHistoryData>> getHistoryForBook(int bookId) =>
+      (select(readHistory)..where((h) => h.bookId.equals(bookId))..orderBy([(h) => OrderingTerm(expression: h.readNumber, mode: OrderingMode.asc)])).get();
+
   Stream<List<ReadHistoryData>> watchAllHistory() => select(readHistory).watch();
 
   Future<int> insertRead(ReadHistoryCompanion entry) => into(readHistory).insert(entry);
@@ -20,7 +23,7 @@ class ReadHistoryDao extends DatabaseAccessor<AppDatabase> with _$ReadHistoryDao
       (delete(readHistory)..where((h) => h.bookId.equals(bookId) & h.readNumber.equals(readNumber))).go();
 
   Future<ReadHistoryData?> getRead(int bookId, int readNumber) =>
-      (select(readHistory)..where((h) => h.bookId.equals(bookId) & h.readNumber.equals(readNumber))).getSingleOrNull();
+      (select(readHistory)..where((h) => h.bookId.equals(bookId) & h.readNumber.equals(readNumber))..limit(1)).getSingleOrNull();
 
   Future<void> deleteHistoryForBook(int bookId) =>
       (delete(readHistory)..where((h) => h.bookId.equals(bookId))).go();

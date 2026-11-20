@@ -1952,4 +1952,48 @@ class AppLocalizationsBe extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Змены ў гэтым полі будуць страчаны. Працягнуць?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'База даных перамешчана. Перазапуск праграмы...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Выбраная тэчка недаступная для запісу. Абярыце іншае месца.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Выбраная тэчка недаступная для запісу. На Android 11+ уключыце «Доступ да ўсіх файлаў» у наладах сховішча, каб выкарыстоўваць знешнія тэчкі.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'База даных ужо знаходзіцца ў выбранай тэчцы.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Файл бягучай базы даных не знойдзены.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Не ўдалося бяспечна закрыць базу даных. Нічога не перамешчана; паспрабуйце яшчэ раз.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Не ўдалося скапіраваць базу даных. Вашы даныя не змяніліся. Перазапуск праграмы...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Перамешчана вокладак: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Бібліятэка не знойдзена';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'База даных бібліятэкі не знойдзена ў выбранай тэчцы:\n$path\n\nКалі яна на здымным носьбіце, падключыце яго і паўтарыце спробу. Таксама можна вярнуцца да размяшчэння па змаўчанні: адкрыецца бібліятэка, што там захоўваецца, або будзе створана пустая.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Выкарыстоўваць размяшчэнне па змаўчанні';
 }

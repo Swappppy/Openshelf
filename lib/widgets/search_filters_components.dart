@@ -631,7 +631,7 @@ class EntityPickerValue extends ConsumerWidget {
                   return Text(entity.name, style: const TextStyle(fontSize: 10), overflow: TextOverflow.ellipsis);
                 },
                 loading: () => const SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2)),
-                error: (_, _) => const Text('Error', style: TextStyle(fontSize: 10)),
+                error: (_, _) => const Icon(Icons.error_outline, size: 12),
               ),
             ),
             const Icon(Icons.arrow_drop_down, size: 16),

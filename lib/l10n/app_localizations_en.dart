@@ -2014,4 +2014,48 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Changes made to this field will be lost. Do you want to continue?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Database moved successfully. Restarting app...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'The selected folder is not writable. Try a different location.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'The selected folder is not writable. On Android 11+, enable \"All files access\" in Storage settings to use external folders.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'The database is already in the selected folder.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'The current database file could not be found.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'The database could not be closed safely. Nothing was moved; please try again.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Copying the database failed. Your data was not changed. Restarting app...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Covers moved: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Library not found';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'The library database was not found in the custom folder:\n$path\n\nIf it is on removable storage, reconnect it and retry. You can also switch back to the default location, which opens the library stored there or starts an empty one.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Use default location';
 }

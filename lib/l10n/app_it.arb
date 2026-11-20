@@ -1029,5 +1029,16 @@
   "translatorMultiHelpTitle": "Traduttori multipli",
   "translatorMultiHelpContent": "Puoi inserire più traduttori separandoli con un punto e virgola (;), una barra (/) o una virgola (,). Il completamento automatico suggerirà i nomi per ogni traduttore.",
   "padlockResetTitle": "Bloccare il campo?",
-  "padlockResetContent": "Le modifiche apportate a questo campo andranno perse. Vuoi continuare?"
+  "padlockResetContent": "Le modifiche apportate a questo campo andranno perse. Vuoi continuare?",
+  "storageDbMoveSuccess": "Database spostato correttamente. Riavvio dell'app...",
+  "storageDbErrorNotWritable": "La cartella selezionata non è scrivibile. Prova un'altra posizione.",
+  "storageDbErrorNeedsAllFiles": "La cartella selezionata non è scrivibile. Su Android 11+, attiva \"Accesso a tutti i file\" nelle impostazioni di archiviazione per usare cartelle esterne.",
+  "storageDbErrorSameFolder": "Il database si trova già nella cartella selezionata.",
+  "storageDbErrorSourceMissing": "Impossibile trovare il file del database attuale.",
+  "storageDbErrorCloseFailed": "Impossibile chiudere il database in modo sicuro. Non è stato spostato nulla; riprova.",
+  "storageDbErrorCopyFailed": "Copia del database non riuscita. I tuoi dati non sono stati modificati. Riavvio dell'app...",
+  "storageCoversMoved": "Copertine spostate: {count}",
+  "dbMissingTitle": "Libreria non trovata",
+  "dbMissingBody": "Il database della libreria non è stato trovato nella cartella personalizzata:\n{path}\n\nSe si trova su una memoria rimovibile, ricollegala e riprova. Puoi anche tornare alla posizione predefinita, che aprirà la libreria presente o ne creerà una vuota.",
+  "dbMissingUseDefault": "Usa la posizione predefinita"
 }

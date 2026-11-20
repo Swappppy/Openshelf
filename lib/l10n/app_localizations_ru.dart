@@ -404,7 +404,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statusReading => 'Чтение';
 
   @override
-  String get statusRead => 'Читаю';
+  String get statusRead => 'Прочитано';
 
   @override
   String get statusAbandoned => 'Брошено';
@@ -630,7 +630,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shelfReading => 'Чтение';
 
   @override
-  String get shelfRead => 'Читаю';
+  String get shelfRead => 'Прочитано';
 
   @override
   String booksReadProgress(int readCount, int totalCount) {
@@ -729,7 +729,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shelfOptionDelete => 'Удалить';
 
   @override
-  String get shelfStatusLabelReading => 'Читаю';
+  String get shelfStatusLabelReading => 'Прочитано';
 
   @override
   String get shelfStatusLabelRead => 'Прочитанные';
@@ -2025,4 +2025,48 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Изменения в этом поле будут утеряны. Продолжить?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'База данных перемещена. Перезапуск приложения...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Выбранная папка недоступна для записи. Выберите другое место.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Выбранная папка недоступна для записи. На Android 11+ включите «Доступ ко всем файлам» в настройках хранилища, чтобы использовать внешние папки.';
+
+  @override
+  String get storageDbErrorSameFolder =>
+      'База данных уже находится в выбранной папке.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Файл текущей базы данных не найден.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Не удалось безопасно закрыть базу данных. Ничего не перемещено; попробуйте ещё раз.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Не удалось скопировать базу данных. Ваши данные не изменены. Перезапуск приложения...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Перемещено обложек: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Библиотека не найдена';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'База данных библиотеки не найдена в выбранной папке:\n$path\n\nЕсли она на съёмном носителе, подключите его и повторите попытку. Также можно вернуться к расположению по умолчанию: откроется находящаяся там библиотека или будет создана пустая.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Использовать расположение по умолчанию';
 }

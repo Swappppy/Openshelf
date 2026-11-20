@@ -1962,4 +1962,47 @@ class AppLocalizationsEt extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Selle välja muudatused lähevad kaotsi. Kas soovite jätkata?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Andmebaas teisaldati edukalt. Rakendus taaskäivitub...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Valitud kausta ei saa kirjutada. Proovi teist asukohta.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Valitud kausta ei saa kirjutada. Android 11+ puhul luba välistes kaustades kasutamiseks salvestusseadetes „Juurdepääs kõigile failidele“.';
+
+  @override
+  String get storageDbErrorSameFolder => 'Andmebaas on juba valitud kaustas.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Praegust andmebaasifaili ei leitud.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Andmebaasi ei õnnestunud turvaliselt sulgeda. Midagi ei teisaldatud; proovi uuesti.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Andmebaasi kopeerimine ebaõnnestus. Sinu andmeid ei muudetud. Rakendus taaskäivitub...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Teisaldatud kaaned: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Raamatukogu ei leitud';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'Raamatukogu andmebaasi ei leitud kohandatud kaustast:\n$path\n\nKui see asub eemaldataval andmekandjal, ühenda see uuesti ja proovi uuesti. Võid ka naasta vaikeasukohta, kus avatakse seal olev raamatukogu või luuakse tühi.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Kasuta vaikeasukohta';
 }

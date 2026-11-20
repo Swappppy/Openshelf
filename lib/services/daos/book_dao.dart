@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:rxdart/rxdart.dart';
 import '../database.dart';
+import '../cover_service.dart';
 import '../../models/search_filters.dart';
 
 part 'book_dao.g.dart';
@@ -51,7 +52,10 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
     });
   }
 
-  Future<void> deleteBook(int id, {bool pruneEnabled = true, List<int>? excludedIds}) async {
+  Future<void> deleteBook(int id, {required bool pruneEnabled, List<int>? excludedIds}) async {
+    final cover = await (selectOnly(books)..addColumns([books.coverPath])..where(books.id.equals(id)))
+        .map((r) => r.read(books.coverPath))
+        .getSingleOrNull();
     await transaction(() async {
       // 1. Get tags before they are deleted by cascade or manual delete
       final linked = await (select(bookTags)
@@ -75,13 +79,14 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         candidateIds: tagIds,
       );
     });
+    await CoverService.deleteUnreferencedCovers(db, [cover]);
   }
 
   Future<Book?> getBook(int id) =>
       (select(books)..where((b) => b.id.equals(id))).getSingleOrNull();
 
   Future<Book?> getBookByIsbn(String isbn) =>
-      (select(books)..where((b) => b.isbn.equals(isbn))).getSingleOrNull();
+      (select(books)..where((b) => b.isbn.equals(isbn))..limit(1)).getSingleOrNull();
 
   Stream<List<(Book, int?)>> watchBooksByCollectionWithNumbers(int collectionId) {
     final query = select(books).join([
@@ -99,7 +104,8 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
     final query = select(books)
       ..where((b) =>
           b.title.lower().equals(title.toLowerCase()) &
-          b.author.lower().equals(author.toLowerCase()));
+          b.author.lower().equals(author.toLowerCase()))
+      ..limit(1);
     final match = await query.getSingleOrNull();
     return match != null;
   }
@@ -416,8 +422,11 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
   }
 
   /// Deletes multiple books in a single transaction with orphan tag pruning.
-  Future<void> bulkDeleteBooks(List<int> ids, {bool pruneEnabled = true, List<int>? excludedIds}) async {
+  Future<void> bulkDeleteBooks(List<int> ids, {required bool pruneEnabled, List<int>? excludedIds}) async {
     if (ids.isEmpty) return;
+    final covers = await (selectOnly(books)..addColumns([books.coverPath])..where(books.id.isIn(ids)))
+        .map((r) => r.read(books.coverPath))
+        .get();
     await transaction(() async {
       final allTagIds = <int>{};
       for (final id in ids) {
@@ -438,10 +447,11 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         candidateIds: allTagIds.toList(),
       );
     });
+    await CoverService.deleteUnreferencedCovers(db, covers);
   }
 
   /// Applies bulk edits to a list of book IDs for specified unlocked fields.
-  Future<void> bulkUpdateBooks(List<int> bookIds, BulkEditData data) async {
+  Future<void> bulkUpdateBooks(List<int> bookIds, BulkEditData data, {required bool pruneEnabled, List<int>? excludedIds}) async {
     if (bookIds.isEmpty || !data.hasAnyFieldToUpdate) return;
 
     await transaction(() async {
@@ -561,6 +571,8 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
 
       if (candidateTagIds.isNotEmpty) {
         await db.tagDao.pruneOrphanTags(
+          enabled: pruneEnabled,
+          excludedIds: excludedIds,
           candidateIds: candidateTagIds.toList(),
         );
       }

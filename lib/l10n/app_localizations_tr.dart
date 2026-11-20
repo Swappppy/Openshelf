@@ -1963,4 +1963,47 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get padlockResetContent =>
       'Bu alanda yapılan değişiklikler kaybolacak. Devam etmek istiyor musunuz?';
+
+  @override
+  String get storageDbMoveSuccess =>
+      'Veritabanı başarıyla taşındı. Uygulama yeniden başlatılıyor...';
+
+  @override
+  String get storageDbErrorNotWritable =>
+      'Seçilen klasöre yazılamıyor. Farklı bir konum deneyin.';
+
+  @override
+  String get storageDbErrorNeedsAllFiles =>
+      'Seçilen klasöre yazılamıyor. Android 11+ sürümlerinde harici klasörleri kullanmak için depolama ayarlarında \"Tüm dosyalara erişim\" seçeneğini etkinleştirin.';
+
+  @override
+  String get storageDbErrorSameFolder => 'Veritabanı zaten seçilen klasörde.';
+
+  @override
+  String get storageDbErrorSourceMissing =>
+      'Mevcut veritabanı dosyası bulunamadı.';
+
+  @override
+  String get storageDbErrorCloseFailed =>
+      'Veritabanı güvenli şekilde kapatılamadı. Hiçbir şey taşınmadı; lütfen tekrar deneyin.';
+
+  @override
+  String get storageDbErrorCopyFailed =>
+      'Veritabanı kopyalanamadı. Verileriniz değiştirilmedi. Uygulama yeniden başlatılıyor...';
+
+  @override
+  String storageCoversMoved(int count) {
+    return 'Taşınan kapaklar: $count';
+  }
+
+  @override
+  String get dbMissingTitle => 'Kitaplık bulunamadı';
+
+  @override
+  String dbMissingBody(String path) {
+    return 'Kitaplık veritabanı özel klasörde bulunamadı:\n$path\n\nÇıkarılabilir bir depolamadaysa yeniden bağlayıp tekrar deneyin. Varsayılan konuma da dönebilirsiniz; orada bulunan kitaplık açılır ya da boş bir kitaplık oluşturulur.';
+  }
+
+  @override
+  String get dbMissingUseDefault => 'Varsayılan konumu kullan';
 }

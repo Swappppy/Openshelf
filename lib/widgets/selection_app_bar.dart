@@ -6,6 +6,7 @@ import '../l10n/l10n_extension.dart';
 import '../views/book_form/book_form_view.dart';
 import '../views/book_form/bulk_edit_view.dart';
 import 'library_app_bar.dart';
+import '../controllers/app_settings_controller.dart';
 
 /// Contextual Top App Bar displayed when books are selected in multi-select mode.
 class SelectionAppBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -137,7 +138,12 @@ class SelectionAppBar extends ConsumerWidget implements PreferredSizeWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      await ref.read(databaseProvider).bookDao.bulkDeleteBooks(bookIds);
+      final settings = ref.read(appSettingsProvider);
+      await ref.read(databaseProvider).bookDao.bulkDeleteBooks(
+        bookIds,
+        pruneEnabled: settings.pruneOrphanCategories,
+        excludedIds: settings.excludedCategoriesFromPruning,
+      );
       ref.read(bookSelectionProvider.notifier).clear();
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.bulkDeleteSuccess(count))),
