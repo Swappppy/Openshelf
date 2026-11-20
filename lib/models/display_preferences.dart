@@ -15,8 +15,24 @@ const _defaultSortOrder = [
   'imprint',
   'publishYear',
   'createdAt',
+  'finishedAt',
   'rating',
 ];
+
+/// Default direction per library sort criterion (true = ascending).
+const _defaultSortDirections = {
+  'title': true, 'author': true, 'publisher': true,
+  'collection': true, 'imprint': true, 'publishYear': true,
+  'createdAt': true, 'finishedAt': false, 'rating': false,
+};
+
+/// Saved sort settings predate newer criteria: keep the user's order, drop
+/// unknown entries and append criteria added since.
+List<String> _mergeSortOrder(List<String>? saved) {
+  if (saved == null) return [..._defaultSortOrder];
+  final known = saved.where(_defaultSortOrder.contains).toList();
+  return [...known, ..._defaultSortOrder.where((c) => !known.contains(c))];
+}
 
 /// Default sorting for different organization tabs in Shelves view.
 const _defaultShelfSortOrder = ['name', 'count', 'progress'];
@@ -84,11 +100,7 @@ class DisplayPreferences {
     
     // Library
     this.sortOrder = const [..._defaultSortOrder],
-    this.sortDirections = const {
-      'title': true, 'author': true, 'publisher': true, 
-      'collection': true, 'imprint': true, 'publishYear': true, 
-      'createdAt': true, 'rating': false,
-    },
+    this.sortDirections = _defaultSortDirections,
     this.emptyAtEnd = true,
 
     // Shelves context
@@ -152,11 +164,10 @@ class DisplayPreferences {
       showYear: json['showYear'] as bool? ?? true,
       showSpacer: json['showSpacer'] as bool? ?? true,
       showGridInfo: json['showGridInfo'] as bool? ?? true,
-      sortOrder: (json['sortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultSortOrder],
-      sortDirections: (json['sortDirections'] as Map<String, dynamic>?)?.cast<String, bool>() ?? const {
-        'title': true, 'author': true, 'publisher': true, 
-        'collection': true, 'imprint': true, 'publishYear': true, 
-        'createdAt': true, 'rating': false,
+      sortOrder: _mergeSortOrder((json['sortOrder'] as List<dynamic>?)?.cast<String>()),
+      sortDirections: {
+        ..._defaultSortDirections,
+        ...?(json['sortDirections'] as Map<String, dynamic>?)?.cast<String, bool>(),
       },
       emptyAtEnd: json['emptyAtEnd'] as bool? ?? true,
       shelfSortOrder: (json['shelfSortOrder'] as List<dynamic>?)?.cast<String>() ?? [..._defaultShelfSortOrder],

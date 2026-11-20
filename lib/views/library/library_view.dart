@@ -199,6 +199,7 @@ class _LibraryScreenState extends ConsumerState<_LibraryScreen> {
                     'imprint': l10n.managementImprints,
                     'publishYear': l10n.fieldYear,
                     'createdAt': l10n.bookDetailFieldAdded,
+                    'finishedAt': l10n.bookDetailFieldFinished,
                     'rating': l10n.fieldRating,
                   },
                   onReorder: controller.reorderSort,
