@@ -2080,6 +2080,10 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'A data de conclusão é obrigatória quando marcado como Lido';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Eliminar esta entrada do histórico de posse?';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -4155,4 +4159,8 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get bookFormFinishDateRequired =>
       'A data de conclusão é obrigatória quando marcado como Lido';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Excluir esta entrada do histórico de posse?';
 }

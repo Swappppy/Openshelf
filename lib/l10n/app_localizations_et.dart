@@ -2009,4 +2009,8 @@ class AppLocalizationsEt extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'Lõpetamise kuupäev on kohustuslik, kui olek on Loetud';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Kas kustutada see kirje omandiajaloost?';
 }

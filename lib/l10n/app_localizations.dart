@@ -3816,6 +3816,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'La fecha de finalización es obligatoria cuando el libro está marcado como Leído'**
   String get bookFormFinishDateRequired;
+
+  /// No description provided for @ownershipEventDeleteConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar esta entrada del historial de propiedad?'**
+  String get ownershipEventDeleteConfirm;
 }
 
 class _AppLocalizationsDelegate

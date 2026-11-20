@@ -1992,5 +1992,6 @@
     }
   },
   "dbMissingUseDefault": "Usar ubicación predeterminada",
-  "bookFormFinishDateRequired": "La fecha de finalización es obligatoria cuando el libro está marcado como Leído"
+  "bookFormFinishDateRequired": "La fecha de finalización es obligatoria cuando el libro está marcado como Leído",
+  "ownershipEventDeleteConfirm": "¿Eliminar esta entrada del historial de propiedad?"
 }

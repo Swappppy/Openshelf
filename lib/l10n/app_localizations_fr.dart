@@ -2084,4 +2084,8 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'La date de fin est obligatoire lorsque le statut est Lu';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Supprimer cette entrée de l\'historique de possession ?';
 }

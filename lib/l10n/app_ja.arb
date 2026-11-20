@@ -1047,5 +1047,6 @@
     "dbMissingTitle": "ライブラリが見つかりません",
     "dbMissingBody": "カスタムフォルダーにライブラリのデータベースが見つかりません:\n{path}\n\nリムーバブルストレージにある場合は、接続し直して再試行してください。既定の場所に戻すこともできます。その場合は既定の場所にあるライブラリが開くか、空のライブラリが作成されます。",
     "dbMissingUseDefault": "既定の場所を使用",
-    "bookFormFinishDateRequired": "読了に設定する場合、読了日は必須です"
+    "bookFormFinishDateRequired": "読了に設定する場合、読了日は必須です",
+    "ownershipEventDeleteConfirm": "この所有履歴の項目を削除しますか？"
 }

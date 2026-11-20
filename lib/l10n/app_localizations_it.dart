@@ -2073,4 +2073,8 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'La data di fine è obbligatoria quando è segnato come Letto';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Eliminare questa voce dalla cronologia di possesso?';
 }

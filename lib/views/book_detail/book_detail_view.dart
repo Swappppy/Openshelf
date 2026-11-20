@@ -17,6 +17,7 @@ import 'widgets/book_header.dart';
 import 'widgets/main_tab.dart';
 import 'widgets/details_tab.dart';
 import 'widgets/new_reading_bottom_sheet.dart';
+import 'widgets/ownership_event_sheet.dart';
 import '../../controllers/read_history_controller.dart';
 import '../../controllers/app_settings_controller.dart';
 
@@ -285,6 +286,53 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     );
   }
 
+  void _showOwnershipOptions(OwnershipLogData entry) {
+    final db = ref.read(databaseProvider);
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: Text(context.l10n.edit),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final edited = await OwnershipEventSheet.show(context, entry);
+                if (edited != null) await db.ownershipDao.editEvent(edited);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: Text(context.l10n.delete),
+              onTap: () {
+                Navigator.pop(ctx);
+                showDialog(
+                  context: context,
+                  builder: (ctx2) => AlertDialog(
+                    title: Text(context.l10n.delete),
+                    content: Text(context.l10n.ownershipEventDeleteConfirm),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx2), child: Text(context.l10n.cancel)),
+                      FilledButton(
+                        onPressed: () {
+                          db.ownershipDao.removeEvent(entry);
+                          Navigator.pop(ctx2);
+                        },
+                        child: Text(context.l10n.delete),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final book = widget.book;
@@ -351,6 +399,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
                   onTapNotes: () => _showNotesEditor(context),
                   onStartNewReading: _showStartNewReadingDialog,
                   onLongPressHistory: _showHistoryOptions,
+                  onLongPressOwnership: _showOwnershipOptions,
                 ),
               ],
             ),

@@ -1047,5 +1047,6 @@
     "dbMissingTitle": "Raamatukogu ei leitud",
     "dbMissingBody": "Raamatukogu andmebaasi ei leitud kohandatud kaustast:\n{path}\n\nKui see asub eemaldataval andmekandjal, ühenda see uuesti ja proovi uuesti. Võid ka naasta vaikeasukohta, kus avatakse seal olev raamatukogu või luuakse tühi.",
     "dbMissingUseDefault": "Kasuta vaikeasukohta",
-    "bookFormFinishDateRequired": "Lõpetamise kuupäev on kohustuslik, kui olek on Loetud"
+    "bookFormFinishDateRequired": "Lõpetamise kuupäev on kohustuslik, kui olek on Loetud",
+    "ownershipEventDeleteConfirm": "Kas kustutada see kirje omandiajaloost?"
 }

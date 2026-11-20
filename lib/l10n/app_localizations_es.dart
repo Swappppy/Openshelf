@@ -2075,4 +2075,8 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'La fecha de finalización es obligatoria cuando el libro está marcado como Leído';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      '¿Eliminar esta entrada del historial de propiedad?';
 }

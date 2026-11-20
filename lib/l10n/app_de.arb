@@ -656,5 +656,6 @@
     "dbMissingTitle": "Bibliothek nicht gefunden",
     "dbMissingBody": "Die Bibliotheksdatenbank wurde im benutzerdefinierten Ordner nicht gefunden:\n{path}\n\nWenn sie sich auf einem Wechseldatenträger befindet, schließe ihn wieder an und versuche es erneut. Du kannst auch zum Standardort zurückkehren; dort wird die vorhandene Bibliothek geöffnet oder eine leere angelegt.",
     "dbMissingUseDefault": "Standardort verwenden",
-    "bookFormFinishDateRequired": "Das Enddatum ist erforderlich, wenn als Gelesen markiert"
+    "bookFormFinishDateRequired": "Das Enddatum ist erforderlich, wenn als Gelesen markiert",
+    "ownershipEventDeleteConfirm": "Diesen Eintrag aus dem Besitzverlauf löschen?"
 }

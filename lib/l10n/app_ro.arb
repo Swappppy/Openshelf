@@ -1047,5 +1047,6 @@
     "dbMissingTitle": "Biblioteca nu a fost găsită",
     "dbMissingBody": "Baza de date a bibliotecii nu a fost găsită în folderul personalizat:\n{path}\n\nDacă se află pe un suport amovibil, reconectează-l și încearcă din nou. Poți reveni și la locația implicită, unde se va deschide biblioteca existentă sau se va crea una goală.",
     "dbMissingUseDefault": "Folosește locația implicită",
-    "bookFormFinishDateRequired": "Data finalizării este obligatorie când este marcat ca Citit"
+    "bookFormFinishDateRequired": "Data finalizării este obligatorie când este marcat ca Citit",
+    "ownershipEventDeleteConfirm": "Ștergeți această intrare din istoricul de proprietate?"
 }

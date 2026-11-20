@@ -2084,4 +2084,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'Das Enddatum ist erforderlich, wenn als Gelesen markiert';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Diesen Eintrag aus dem Besitzverlauf löschen?';
 }

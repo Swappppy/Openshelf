@@ -2000,4 +2000,8 @@ class AppLocalizationsBe extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'Дата заканчэння абавязковая, калі статус «Прачытана»';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Выдаліць гэты запіс з гісторыі валодання?';
 }

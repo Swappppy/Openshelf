@@ -1041,5 +1041,6 @@
   "dbMissingTitle": "Biblioteca no trobada",
   "dbMissingBody": "No s'ha trobat la base de dades de la biblioteca a la carpeta personalitzada:\n{path}\n\nSi és en un emmagatzematge extraïble, connecta'l i torna-ho a provar. També pots tornar a la ubicació predeterminada, que obrirà la biblioteca existent o en crearà una de buida.",
   "dbMissingUseDefault": "Fes servir la ubicació predeterminada",
-  "bookFormFinishDateRequired": "La data de finalització és obligatòria quan el llibre està marcat com a Llegit"
+  "bookFormFinishDateRequired": "La data de finalització és obligatòria quan el llibre està marcat com a Llegit",
+  "ownershipEventDeleteConfirm": "Vols eliminar aquesta entrada de l'historial de propietat?"
 }

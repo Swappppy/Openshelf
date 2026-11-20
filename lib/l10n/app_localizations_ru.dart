@@ -2073,4 +2073,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'Дата окончания обязательна, если статус «Прочитано»';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Удалить эту запись из истории владения?';
 }

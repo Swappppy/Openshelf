@@ -19,12 +19,14 @@ class DetailsTab extends ConsumerWidget {
   final VoidCallback onTapNotes;
   final VoidCallback onStartNewReading;
   final Function(ReadHistoryData) onLongPressHistory;
+  final Function(OwnershipLogData) onLongPressOwnership;
   const DetailsTab({
     super.key,
     required this.book,
     required this.onTapNotes,
     required this.onStartNewReading,
     required this.onLongPressHistory,
+    required this.onLongPressOwnership,
   });
 
   @override
@@ -453,6 +455,7 @@ class DetailsTab extends ConsumerWidget {
                           ListTile(
                             dense: true,
                             visualDensity: VisualDensity.compact,
+                            onLongPress: () => onLongPressOwnership(item),
                             title: Text(
                               item.eventType.label(context),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),

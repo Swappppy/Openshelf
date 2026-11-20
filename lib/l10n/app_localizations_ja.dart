@@ -2000,4 +2000,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bookFormFinishDateRequired => '読了に設定する場合、読了日は必須です';
+
+  @override
+  String get ownershipEventDeleteConfirm => 'この所有履歴の項目を削除しますか？';
 }

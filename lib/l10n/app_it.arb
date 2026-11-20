@@ -1041,5 +1041,6 @@
   "dbMissingTitle": "Libreria non trovata",
   "dbMissingBody": "Il database della libreria non è stato trovato nella cartella personalizzata:\n{path}\n\nSe si trova su una memoria rimovibile, ricollegala e riprova. Puoi anche tornare alla posizione predefinita, che aprirà la libreria presente o ne creerà una vuota.",
   "dbMissingUseDefault": "Usa la posizione predefinita",
-  "bookFormFinishDateRequired": "La data di fine è obbligatoria quando è segnato come Letto"
+  "bookFormFinishDateRequired": "La data di fine è obbligatoria quando è segnato come Letto",
+  "ownershipEventDeleteConfirm": "Eliminare questa voce dalla cronologia di possesso?"
 }

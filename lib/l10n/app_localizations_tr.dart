@@ -2010,4 +2010,7 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'Okundu olarak işaretlendiğinde bitiş tarihi zorunludur';
+
+  @override
+  String get ownershipEventDeleteConfirm => 'Bu sahiplik kaydı silinsin mi?';
 }

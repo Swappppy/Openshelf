@@ -1047,5 +1047,6 @@
     "dbMissingTitle": "Kitaplık bulunamadı",
     "dbMissingBody": "Kitaplık veritabanı özel klasörde bulunamadı:\n{path}\n\nÇıkarılabilir bir depolamadaysa yeniden bağlayıp tekrar deneyin. Varsayılan konuma da dönebilirsiniz; orada bulunan kitaplık açılır ya da boş bir kitaplık oluşturulur.",
     "dbMissingUseDefault": "Varsayılan konumu kullan",
-    "bookFormFinishDateRequired": "Okundu olarak işaretlendiğinde bitiş tarihi zorunludur"
+    "bookFormFinishDateRequired": "Okundu olarak işaretlendiğinde bitiş tarihi zorunludur",
+    "ownershipEventDeleteConfirm": "Bu sahiplik kaydı silinsin mi?"
 }

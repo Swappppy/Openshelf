@@ -2080,4 +2080,8 @@ class AppLocalizationsCa extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'La data de finalització és obligatòria quan el llibre està marcat com a Llegit';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Vols eliminar aquesta entrada de l\'historial de propietat?';
 }

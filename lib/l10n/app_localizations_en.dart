@@ -2062,4 +2062,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'Finish date is required when marked as Read';
+
+  @override
+  String get ownershipEventDeleteConfirm => 'Delete this ownership entry?';
 }

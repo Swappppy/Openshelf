@@ -2010,4 +2010,8 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get bookFormFinishDateRequired =>
       'Data finalizării este obligatorie când este marcat ca Citit';
+
+  @override
+  String get ownershipEventDeleteConfirm =>
+      'Ștergeți această intrare din istoricul de proprietate?';
 }
