@@ -76,11 +76,17 @@ class OpenLibraryService {
         // demand by WorkEditionsView when the user opens a work.
         final resolved = docs.map((doc) {
           final res = _parseDoc(doc, preferredLanguage: preferredLanguage);
-          if (res.openLibraryWorkKey == null || (res.editionCount ?? 0) <= 1) return res;
+          if (res.openLibraryWorkKey == null) return res;
 
           final editions = doc['editions'];
           final edDocs = editions is Map ? editions['docs'] as List? : null;
           if (edDocs == null || edDocs.isEmpty) return res;
+
+          // A single-edition work: its data already is that edition's, so only
+          // the edition key is added.
+          if ((res.editionCount ?? 0) <= 1) {
+            return res.copyWith(openLibraryEditionKey: _editionKey(edDocs.first['key']));
+          }
 
           final top = _parseEmbeddedEdition(
             edDocs.first,
@@ -106,6 +112,7 @@ class OpenLibraryService {
             publishYear: top.publishYear,
             pageCount: top.pageCount,
             format: top.format,
+            openLibraryEditionKey: top.openLibraryEditionKey,
             editionCount: editionCount,
           );
         }).toList();
@@ -126,10 +133,30 @@ class OpenLibraryService {
   }
 
   /// Looks up a book by its ISBN.
+  ///
+  /// The search response does not carry the work description, which the
+  /// ISBN scanner needs because it saves the book without a review step, so
+  /// it is fetched here with one extra request (one book, not a result list).
   static Future<BookSearchResult?> getByIsbn(String isbn, {String? preferredLanguage, http.Client? client}) async {
     final results = await searchStructured(BookSearchQuery(isbn: isbn), preferredLanguage: preferredLanguage, client: client);
     if (results.isEmpty) return null;
-    return results.first;
+    final result = results.first;
+    final workKey = result.openLibraryWorkKey;
+    if (result.description != null || workKey == null) return result;
+    final description = await _fetchWorkDescription(workKey, client: client);
+    return description != null ? result.copyWith(description: description) : result;
+  }
+
+  static Future<String?> _fetchWorkDescription(String workKey, {http.Client? client}) async {
+    try {
+      final uri = Uri.https(_host, '${_cleanWorkKey(workKey)}.json');
+      final response = await (client ?? sharedHttpClient).get(uri, headers: _headers).timeout(const Duration(seconds: 10));
+      if (response.statusCode != 200) return null;
+      return _parseDescription(json.decode(response.body)['description']);
+    } catch (e) {
+      debugPrint('Open Library Work Description Error ($workKey): $e');
+      return null;
+    }
   }
 
   /// Fetches editions for a given Open Library work key (e.g. "/works/OL46241W" or "OL46241W").
@@ -241,6 +268,7 @@ class OpenLibraryService {
             categories: workSubjects ?? const [],
             source: 'Open Library',
             openLibraryWorkKey: cleanKey,
+            openLibraryEditionKey: _editionKey(entry['key']),
             format: format,
           ));
         }
@@ -471,7 +499,14 @@ class OpenLibraryService {
       pageCount: _parsePageCount(ed['number_of_pages_median'] ?? ed['number_of_pages']),
       format: _parseBookFormat(physicalFormatRaw),
       source: 'Open Library',
+      openLibraryEditionKey: _editionKey(ed['key']),
     );
+  }
+
+  /// Returns [raw] if it is a valid edition key ("/books/OL…M"), else null.
+  static String? _editionKey(dynamic raw) {
+    final key = raw?.toString();
+    return key != null && RegExp(r'^/books/OL\d+M$').hasMatch(key) ? key : null;
   }
 
   static BookSearchResult _parseDoc(dynamic doc, {String? preferredLanguage}) {

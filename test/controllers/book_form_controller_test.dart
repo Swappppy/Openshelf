@@ -311,4 +311,25 @@ void main() {
       expect(goalProgress, 0);
     });
   });
+
+  group('resolveEditionKey', () {
+    const key = '/books/OL7353617M';
+
+    test('keeps the link when the ISBN is unchanged (formatting ignored)', () {
+      expect(BookFormController.resolveEditionKey(key: key, originalIsbn: '978-0-14-044913-6', newIsbn: '9780140449136'), key);
+    });
+
+    test('drops the link when the ISBN is replaced or removed', () {
+      expect(BookFormController.resolveEditionKey(key: key, originalIsbn: '9780140449136', newIsbn: '9788491050292'), isNull);
+      expect(BookFormController.resolveEditionKey(key: key, originalIsbn: '9780140449136', newIsbn: ''), isNull);
+    });
+
+    test('keeps the link when an ISBN is added to a record that had none', () {
+      expect(BookFormController.resolveEditionKey(key: key, originalIsbn: null, newIsbn: '9780140449136'), key);
+    });
+
+    test('no key stays no key', () {
+      expect(BookFormController.resolveEditionKey(key: null, originalIsbn: '978', newIsbn: '978'), isNull);
+    });
+  });
 }

@@ -67,7 +67,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 32;
+  int get schemaVersion => 33;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -297,6 +297,10 @@ class AppDatabase extends _$AppDatabase {
             }
           }
         });
+      }
+
+      if (from < 33) {
+        await _addColumnIfMissing(m, books, books.openLibraryEditionKey);
       }
 
       await customStatement('PRAGMA foreign_keys = ON');

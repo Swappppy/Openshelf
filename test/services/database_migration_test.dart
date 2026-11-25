@@ -18,11 +18,11 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  for (final from in GeneratedHelper.versions.where((v) => v < 32)) {
+  for (final from in GeneratedHelper.versions.where((v) => v < 33)) {
     test('upgrade from released schema v$from produces the current schema', () async {
       final connection = await verifier.startAt(from);
       final db = AppDatabase(connection);
-      await verifier.migrateAndValidate(db, 32);
+      await verifier.migrateAndValidate(db, 33);
       await db.close();
     });
   }
@@ -42,7 +42,7 @@ void main() {
     raw.execute("INSERT INTO reading_log (id, book_id, date, pages_read) VALUES (3, 2, 1609545600, 50)");
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 32);
+    await verifier.migrateAndValidate(db, 33);
 
     final logs1 = await (db.select(db.readingLog)..where((l) => l.bookId.equals(1))).get();
     expect(logs1.single.isBackfill, true);
@@ -66,7 +66,7 @@ void main() {
     raw.execute('INSERT INTO book_tags (book_id, tag_id) VALUES (1, 1)');
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 32);
+    await verifier.migrateAndValidate(db, 33);
 
     final book = await (db.select(db.books)..where((b) => b.id.equals(1))).getSingle();
     expect(book.title, 'Dune');
@@ -88,7 +88,7 @@ void main() {
         "VALUES (1, 'B', 'A', 'reading', 0, '{\"1\": 120, \"2\": 30}')");
 
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 32);
+    await verifier.migrateAndValidate(db, 33);
 
     final history = await (db.select(db.readHistory)..orderBy([(h) => OrderingTerm(expression: h.readNumber)])).get();
     expect(history.map((h) => (h.readNumber, h.progress)), [(1, 120), (2, 30)]);

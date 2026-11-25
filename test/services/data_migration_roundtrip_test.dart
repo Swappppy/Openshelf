@@ -105,6 +105,7 @@ void main() {
         title: 'Book', author: 'Author', isbn: const Value('978'), status: ReadingStatus.read,
         originalTitle: const Value('Orig'), originalLanguage: const Value('en'), description: const Value('Desc'),
         ownershipStatus: const Value(OwnershipStatus.borrowed), copies: const Value(3),
+        openLibraryEditionKey: const Value('/books/OL7353617M'),
       ));
       await db.tagDao.setBookTags(bookId, [cat], collections: [(colA, 1), (colB, 7)]);
       await db.bookDao.setBookImprint(bookId, imp);
@@ -139,6 +140,7 @@ void main() {
       final b = (await db2.select(db2.books).get()).single;
       expect((b.originalTitle, b.originalLanguage, b.description, b.ownershipStatus, b.copies),
           ('Orig', 'en', 'Desc', OwnershipStatus.borrowed, 3));
+      expect(b.openLibraryEditionKey, '/books/OL7353617M');
       final cols = await db2.tagDao.watchCollectionsForBook(b.id).first;
       expect(cols.map((c) => (c.$1.name, c.$2)).toSet(), {('Saga A', 1), ('Saga B', 7)});
       expect((await db2.tagDao.watchTagsForBook(b.id).first).single.name, 'Sci-Fi');

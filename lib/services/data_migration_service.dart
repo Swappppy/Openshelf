@@ -123,6 +123,8 @@ class DataMigrationService {
       'collectionId', 'imprintId', 'paginationConfig',
       // v2
       'originalTitle', 'originalLanguage', 'description', 'ownershipStatus', 'copies', 'collections',
+      // v2 (schema 33+)
+      'openLibraryEditionKey',
     ]];
 
     for (final b in books) {
@@ -152,6 +154,7 @@ class DataMigrationService {
         b.paginationConfig != null ? jsonEncode(b.paginationConfig!.toJson()) : null,
         b.originalTitle, b.originalLanguage, b.description, b.ownershipStatus?.name, b.copies,
         collections.isEmpty ? null : jsonEncode(collections),
+        b.openLibraryEditionKey,
       ]);
     }
     return Csv().encode(rows);
@@ -713,6 +716,8 @@ class DataMigrationService {
       collectionId: const Value.absent(),
       imprintId: const Value.absent(),
       paginationConfig: pagination != null ? Value(pagination) : const Value.absent(),
+      // Older backups lack the column: leave an existing link untouched.
+      openLibraryEditionKey: s('openLibraryEditionKey') != null ? Value(s('openLibraryEditionKey')) : const Value.absent(),
     );
   }
 

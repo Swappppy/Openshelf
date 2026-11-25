@@ -598,6 +598,9 @@ class BookSearchService {
       categories: categories.toList(),
       source: results.first.source,
       openLibraryWorkKey: openLibraryWorkKey,
+      // Merged records share one ISBN, so any Open Library edition key in the
+      // group points to this same edition.
+      openLibraryEditionKey: results.map((r) => r.openLibraryEditionKey).nonNulls.firstOrNull,
       inventaireWorkUri: inventaireWorkUri,
       editionCount: maxEditionCount,
       format: bestFormat,

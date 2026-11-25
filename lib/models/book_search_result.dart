@@ -28,6 +28,10 @@ class BookSearchResult {
   /// Optional Work Key for Open Library deep edition lookups (e.g. "/works/OL46241W")
   final String? openLibraryWorkKey;
 
+  /// Open Library key of this exact edition (e.g. "/books/OL7353617M"), when
+  /// the data came from that edition. Stored on the book as an internal link.
+  final String? openLibraryEditionKey;
+
   /// Number of known editions for this work (e.g. from Open Library).
   final int? editionCount;
 
@@ -52,6 +56,7 @@ class BookSearchResult {
     required this.source,
     this.inventaireWorkUri,
     this.openLibraryWorkKey,
+    this.openLibraryEditionKey,
     this.editionCount,
     this.format,
   });
@@ -74,6 +79,7 @@ class BookSearchResult {
     String? source,
     String? inventaireWorkUri,
     String? openLibraryWorkKey,
+    String? openLibraryEditionKey,
     int? editionCount,
     BookFormat? format,
   }) {
@@ -95,6 +101,7 @@ class BookSearchResult {
       source: source ?? this.source,
       inventaireWorkUri: inventaireWorkUri ?? this.inventaireWorkUri,
       openLibraryWorkKey: openLibraryWorkKey ?? this.openLibraryWorkKey,
+      openLibraryEditionKey: openLibraryEditionKey ?? this.openLibraryEditionKey,
       editionCount: editionCount ?? this.editionCount,
       format: format ?? this.format,
     );
@@ -118,6 +125,7 @@ class BookSearchResult {
       bookFormat: Value(format),
       status: ReadingStatus.wantToRead,
       publishYear: Value(publishYear),
+      openLibraryEditionKey: Value(openLibraryEditionKey),
     );
   }
 }

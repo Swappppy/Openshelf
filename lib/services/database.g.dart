@@ -672,6 +672,17 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _openLibraryEditionKeyMeta =
+      const VerificationMeta('openLibraryEditionKey');
+  @override
+  late final GeneratedColumn<String> openLibraryEditionKey =
+      GeneratedColumn<String>(
+        'open_library_edition_key',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -704,6 +715,7 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     copies,
     paginationConfig,
     createdAt,
+    openLibraryEditionKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -898,6 +910,15 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('open_library_edition_key')) {
+      context.handle(
+        _openLibraryEditionKeyMeta,
+        openLibraryEditionKey.isAcceptableOrUnknown(
+          data['open_library_edition_key']!,
+          _openLibraryEditionKeyMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1035,6 +1056,10 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      openLibraryEditionKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}open_library_edition_key'],
+      ),
     );
   }
 
@@ -1092,6 +1117,12 @@ class Book extends DataClass implements Insertable<Book> {
   final int copies;
   final PaginationConfig? paginationConfig;
   final DateTime createdAt;
+
+  /// Open Library edition key (e.g. "/books/OL7353617M") of the edition this
+  /// book was added from. Internal link, never shown in the UI: it lets a
+  /// future contribution target the exact edition and allows exact metadata
+  /// refreshes. Cleared when the user changes the ISBN.
+  final String? openLibraryEditionKey;
   const Book({
     required this.id,
     required this.title,
@@ -1123,6 +1154,7 @@ class Book extends DataClass implements Insertable<Book> {
     required this.copies,
     this.paginationConfig,
     required this.createdAt,
+    this.openLibraryEditionKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1215,6 +1247,9 @@ class Book extends DataClass implements Insertable<Book> {
       );
     }
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || openLibraryEditionKey != null) {
+      map['open_library_edition_key'] = Variable<String>(openLibraryEditionKey);
+    }
     return map;
   }
 
@@ -1296,6 +1331,9 @@ class Book extends DataClass implements Insertable<Book> {
           ? const Value.absent()
           : Value(paginationConfig),
       createdAt: Value(createdAt),
+      openLibraryEditionKey: openLibraryEditionKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(openLibraryEditionKey),
     );
   }
 
@@ -1341,6 +1379,9 @@ class Book extends DataClass implements Insertable<Book> {
         json['paginationConfig'],
       ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      openLibraryEditionKey: serializer.fromJson<String?>(
+        json['openLibraryEditionKey'],
+      ),
     );
   }
   @override
@@ -1383,6 +1424,9 @@ class Book extends DataClass implements Insertable<Book> {
         paginationConfig,
       ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'openLibraryEditionKey': serializer.toJson<String?>(
+        openLibraryEditionKey,
+      ),
     };
   }
 
@@ -1417,6 +1461,7 @@ class Book extends DataClass implements Insertable<Book> {
     int? copies,
     Value<PaginationConfig?> paginationConfig = const Value.absent(),
     DateTime? createdAt,
+    Value<String?> openLibraryEditionKey = const Value.absent(),
   }) => Book(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -1460,6 +1505,9 @@ class Book extends DataClass implements Insertable<Book> {
         ? paginationConfig.value
         : this.paginationConfig,
     createdAt: createdAt ?? this.createdAt,
+    openLibraryEditionKey: openLibraryEditionKey.present
+        ? openLibraryEditionKey.value
+        : this.openLibraryEditionKey,
   );
   Book copyWithCompanion(BooksCompanion data) {
     return Book(
@@ -1521,6 +1569,9 @@ class Book extends DataClass implements Insertable<Book> {
           ? data.paginationConfig.value
           : this.paginationConfig,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      openLibraryEditionKey: data.openLibraryEditionKey.present
+          ? data.openLibraryEditionKey.value
+          : this.openLibraryEditionKey,
     );
   }
 
@@ -1556,7 +1607,8 @@ class Book extends DataClass implements Insertable<Book> {
           ..write('finishedAt: $finishedAt, ')
           ..write('copies: $copies, ')
           ..write('paginationConfig: $paginationConfig, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('openLibraryEditionKey: $openLibraryEditionKey')
           ..write(')'))
         .toString();
   }
@@ -1593,6 +1645,7 @@ class Book extends DataClass implements Insertable<Book> {
     copies,
     paginationConfig,
     createdAt,
+    openLibraryEditionKey,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -1627,7 +1680,8 @@ class Book extends DataClass implements Insertable<Book> {
           other.finishedAt == this.finishedAt &&
           other.copies == this.copies &&
           other.paginationConfig == this.paginationConfig &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.openLibraryEditionKey == this.openLibraryEditionKey);
 }
 
 class BooksCompanion extends UpdateCompanion<Book> {
@@ -1661,6 +1715,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
   final Value<int> copies;
   final Value<PaginationConfig?> paginationConfig;
   final Value<DateTime> createdAt;
+  final Value<String?> openLibraryEditionKey;
   const BooksCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -1692,6 +1747,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.copies = const Value.absent(),
     this.paginationConfig = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.openLibraryEditionKey = const Value.absent(),
   });
   BooksCompanion.insert({
     this.id = const Value.absent(),
@@ -1724,6 +1780,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.copies = const Value.absent(),
     this.paginationConfig = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.openLibraryEditionKey = const Value.absent(),
   }) : title = Value(title),
        author = Value(author),
        status = Value(status);
@@ -1758,6 +1815,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Expression<int>? copies,
     Expression<String>? paginationConfig,
     Expression<DateTime>? createdAt,
+    Expression<String>? openLibraryEditionKey,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1790,6 +1848,8 @@ class BooksCompanion extends UpdateCompanion<Book> {
       if (copies != null) 'copies': copies,
       if (paginationConfig != null) 'pagination_config': paginationConfig,
       if (createdAt != null) 'created_at': createdAt,
+      if (openLibraryEditionKey != null)
+        'open_library_edition_key': openLibraryEditionKey,
     });
   }
 
@@ -1824,6 +1884,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Value<int>? copies,
     Value<PaginationConfig?>? paginationConfig,
     Value<DateTime>? createdAt,
+    Value<String?>? openLibraryEditionKey,
   }) {
     return BooksCompanion(
       id: id ?? this.id,
@@ -1856,6 +1917,8 @@ class BooksCompanion extends UpdateCompanion<Book> {
       copies: copies ?? this.copies,
       paginationConfig: paginationConfig ?? this.paginationConfig,
       createdAt: createdAt ?? this.createdAt,
+      openLibraryEditionKey:
+          openLibraryEditionKey ?? this.openLibraryEditionKey,
     );
   }
 
@@ -1960,6 +2023,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (openLibraryEditionKey.present) {
+      map['open_library_edition_key'] = Variable<String>(
+        openLibraryEditionKey.value,
+      );
+    }
     return map;
   }
 
@@ -1995,7 +2063,8 @@ class BooksCompanion extends UpdateCompanion<Book> {
           ..write('finishedAt: $finishedAt, ')
           ..write('copies: $copies, ')
           ..write('paginationConfig: $paginationConfig, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('openLibraryEditionKey: $openLibraryEditionKey')
           ..write(')'))
         .toString();
   }
@@ -6876,6 +6945,7 @@ typedef $$BooksTableCreateCompanionBuilder =
       Value<int> copies,
       Value<PaginationConfig?> paginationConfig,
       Value<DateTime> createdAt,
+      Value<String?> openLibraryEditionKey,
     });
 typedef $$BooksTableUpdateCompanionBuilder =
     BooksCompanion Function({
@@ -6909,6 +6979,7 @@ typedef $$BooksTableUpdateCompanionBuilder =
       Value<int> copies,
       Value<PaginationConfig?> paginationConfig,
       Value<DateTime> createdAt,
+      Value<String?> openLibraryEditionKey,
     });
 
 final class $$BooksTableReferences
@@ -7172,6 +7243,11 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get openLibraryEditionKey => $composableBuilder(
+    column: $table.openLibraryEditionKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7471,6 +7547,11 @@ class $$BooksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get openLibraryEditionKey => $composableBuilder(
+    column: $table.openLibraryEditionKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$TagsTableOrderingComposer get collectionId {
     final $$TagsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -7639,6 +7720,11 @@ class $$BooksTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get openLibraryEditionKey => $composableBuilder(
+    column: $table.openLibraryEditionKey,
+    builder: (column) => column,
+  );
 
   $$TagsTableAnnotationComposer get collectionId {
     final $$TagsTableAnnotationComposer composer = $composerBuilder(
@@ -7853,6 +7939,7 @@ class $$BooksTableTableManager
                 Value<PaginationConfig?> paginationConfig =
                     const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> openLibraryEditionKey = const Value.absent(),
               }) => BooksCompanion(
                 id: id,
                 title: title,
@@ -7884,6 +7971,7 @@ class $$BooksTableTableManager
                 copies: copies,
                 paginationConfig: paginationConfig,
                 createdAt: createdAt,
+                openLibraryEditionKey: openLibraryEditionKey,
               ),
           createCompanionCallback:
               ({
@@ -7918,6 +8006,7 @@ class $$BooksTableTableManager
                 Value<PaginationConfig?> paginationConfig =
                     const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> openLibraryEditionKey = const Value.absent(),
               }) => BooksCompanion.insert(
                 id: id,
                 title: title,
@@ -7949,6 +8038,7 @@ class $$BooksTableTableManager
                 copies: copies,
                 paginationConfig: paginationConfig,
                 createdAt: createdAt,
+                openLibraryEditionKey: openLibraryEditionKey,
               ),
           withReferenceMapper: (p0) => p0
               .map(

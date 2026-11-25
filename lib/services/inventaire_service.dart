@@ -412,7 +412,9 @@ LIMIT 5000
       // Edition URIs per work, keeping SPARQL order (preferred language first).
       final urisByWork = <String, List<String>>{};
       for (final b in bindings) {
-        final workIri = b['work']?['value'] as String?;
+        // With a single work the ?work binding is redundant; tolerate its absence.
+        final workIri = (b['work']?['value'] as String?) ??
+            (ids.length == 1 ? 'http://www.wikidata.org/entity/${ids.single}' : null);
         final editionIri = b['edition']?['value'] as String?;
         if (workIri == null || editionIri == null) continue;
         final workId = workIri.substring(workIri.lastIndexOf('/') + 1);
@@ -464,7 +466,9 @@ LIMIT 5000
 
   static String _editionIriToUri(String uri) {
     if (uri.startsWith('https://inventaire.io/entity/')) {
-      return uri.replaceFirst('https://inventaire.io/entity/', '');
+      // Same entity namespace as the http form: a bare hash is an inv: URI.
+      final rest = uri.replaceFirst('https://inventaire.io/entity/', '');
+      return rest.contains(':') ? rest : 'inv:$rest';
     }
     if (uri.startsWith('http://inventaire.io/entity/')) {
       return 'inv:${uri.replaceFirst('http://inventaire.io/entity/', '')}';

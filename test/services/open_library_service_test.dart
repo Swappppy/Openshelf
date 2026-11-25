@@ -117,7 +117,7 @@ void main() {
       expect(englishEd.pageCount, 256);
     });
 
-    test('getByIsbn forwards first sorted edition when work key has multiple editions', () async {
+    test('getByIsbn uses the matching edition embedded in the search response', () async {
       final searchResponse = {
         'docs': [
           {
@@ -125,6 +125,19 @@ void main() {
             'title': 'I, Robot',
             'author_name': ['Isaac Asimov'],
             'edition_count': 10,
+            'number_of_pages_median': 256,
+            'editions': {
+              'numFound': 1,
+              'docs': [
+                {
+                  'key': '/books/OL7353617M',
+                  'title': 'I, Robot',
+                  'publisher': ['Spectra'],
+                  'isbn': ['0553294385', '9780553294385'],
+                  'cover_i': 999,
+                }
+              ],
+            },
           }
         ]
       };
@@ -169,6 +182,13 @@ void main() {
       expect(result.description, 'Work synopsis from Open Library.');
       expect(result.pageCount, 256);
       expect(result.publisher, 'Spectra');
+      expect(result.openLibraryEditionKey, '/books/OL7353617M');
+      expect(result.coverUrl, 'https://covers.openlibrary.org/b/id/999-L.jpg');
+      // The edition list is no longer fetched for each search result.
+      verifyNever(() => mockClient.get(
+            Uri.https('openlibrary.org', '/works/OL123W/editions.json', {'limit': '100'}),
+            headers: any(named: 'headers'),
+          ));
     });
   });
 }

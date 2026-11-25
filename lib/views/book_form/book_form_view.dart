@@ -472,6 +472,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         collections: collections,
         personName: _personNameCtrl.text.trim().isNotEmpty ? _personNameCtrl.text.trim() : null,
         unknownAuthorLabel: l10n.unknownAuthor,
+        // Internal link to the Open Library edition; never shown in the UI.
+        openLibraryEditionKey: BookFormController.resolveEditionKey(
+          key: widget.existingBook?.openLibraryEditionKey ?? widget.prefill?.openLibraryEditionKey,
+          originalIsbn: widget.existingBook != null ? widget.existingBook!.isbn : widget.prefill?.isbn,
+          newIsbn: _isbnCtrl.text.trim(),
+        ),
       );
 
       if (mounted) {

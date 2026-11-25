@@ -117,6 +117,22 @@ class BookFormController {
     );
   }
 
+  /// Decides which Open Library edition key a saved book keeps. The link is
+  /// dropped when the user replaces the ISBN the edition was matched with
+  /// (the book is then a different edition); adding an ISBN to a record that
+  /// had none, or editing any other field, keeps it.
+  static String? resolveEditionKey({
+    required String? key,
+    required String? originalIsbn,
+    required String? newIsbn,
+  }) {
+    if (key == null) return null;
+    String clean(String? s) => s?.replaceAll(RegExp(r'[^0-9Xx]'), '').toUpperCase() ?? '';
+    final before = clean(originalIsbn);
+    if (before.isEmpty) return key;
+    return clean(newIsbn) == before ? key : null;
+  }
+
   Future<int> saveBook({
     Book? existingBook,
     required String title,
@@ -152,6 +168,7 @@ class BookFormController {
     required List<(int, int?)> collections,
     required String? personName,
     required String unknownAuthorLabel,
+    String? openLibraryEditionKey,
   }) async {
     // 1. Sanitize Pagination Config
     PaginationConfig? finalConfig = paginationConfig;
@@ -206,6 +223,7 @@ class BookFormController {
       startedAt: Value(startedAt),
       finishedAt: Value(effectiveFinishedAt),
       imprintId: Value(imprintId),
+      openLibraryEditionKey: Value(openLibraryEditionKey),
     );
 
     int bookId;

@@ -38,6 +38,12 @@ class Books extends Table {
   IntColumn get copies => integer().withDefault(const Constant(1))();
   TextColumn get paginationConfig => text().nullable().map(const PaginationConfigConverter())();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  /// Open Library edition key (e.g. "/books/OL7353617M") of the edition this
+  /// book was added from. Internal link, never shown in the UI: it lets a
+  /// future contribution target the exact edition and allows exact metadata
+  /// refreshes. Cleared when the user changes the ISBN.
+  TextColumn get openLibraryEditionKey => text().nullable()();
 }
 
 /// Many-to-Many relationship between Books and Tags
