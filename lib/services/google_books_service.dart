@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'http_utils.dart';
 import '../models/book_search_result.dart';
 import 'book_search_service.dart';
 
@@ -54,7 +55,7 @@ class GoogleBooksService {
     String? publisher,
     http.Client? client,
   }) async {
-    final httpClient = client ?? http.Client();
+    final httpClient = client ?? sharedHttpClient;
 
     final cleanTitle = title?.trim();
     final cleanAuthor = author?.trim();
@@ -137,7 +138,7 @@ class GoogleBooksService {
 
     if (queryParts.isEmpty) return [];
 
-    final httpClient = client ?? http.Client();
+    final httpClient = client ?? sharedHttpClient;
 
     final results = await _executeApiQuery(
       queryParts.join(' '),
@@ -188,7 +189,9 @@ class GoogleBooksService {
         if (response.statusCode == 200) {
           return response;
         }
-        if (response.statusCode == 503 || response.statusCode == 500 || response.statusCode == 429) {
+        // 429 means quota/rate limit: retrying within a second only burns more
+        // quota, so it is returned as-is. Transient 5xx errors are retried.
+        if (response.statusCode == 503 || response.statusCode == 500) {
           debugPrint('Google Books API HTTP ${response.statusCode} (Attempt ${i + 1}/${maxRetries + 1}) for $uri');
           if (i < maxRetries) {
             await Future.delayed(Duration(milliseconds: 350 * (i + 1)));
@@ -270,7 +273,7 @@ class GoogleBooksService {
       final uri = Uri.https(_host, _path, queryParams);
       debugPrint('Google Books: ISBN Lookup $uri');
 
-      final httpClient = client ?? http.Client();
+      final httpClient = client ?? sharedHttpClient;
       final response = await _getWithRetry(uri, client: httpClient);
       if (response == null) return null;
 

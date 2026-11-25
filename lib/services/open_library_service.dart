@@ -62,7 +62,7 @@ class OpenLibraryService {
 
       final uri = Uri.https(_host, _searchPath, params);
       debugPrint('Open Library: Searching $uri');
-      final httpClient = client ?? http.Client();
+      final httpClient = client ?? sharedHttpClient;
       final response = await httpClient.get(uri, headers: _headers).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -151,7 +151,7 @@ class OpenLibraryService {
         cleanKey = cleanKey.substring(0, cleanKey.length - 1);
       }
 
-      final httpClient = client ?? http.Client();
+      final httpClient = client ?? sharedHttpClient;
 
       final workUri = Uri.https(_host, '$cleanKey.json');
       final editionsUri = Uri.https(_host, '$cleanKey/editions.json', {'limit': '100'});

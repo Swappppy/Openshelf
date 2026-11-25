@@ -20,6 +20,13 @@ Map<String, String> headersFor(Uri uri) => {
           : kUserAgent,
     };
 
+/// App-wide HTTP client for metadata providers. Reusing one client keeps
+/// connections alive between requests (no new TCP/TLS handshake per call)
+/// and avoids leaking a client per request. It lives as long as the app,
+/// so it is intentionally never closed. Callers may still pass their own
+/// client (e.g. in tests).
+final http.Client sharedHttpClient = http.Client();
+
 /// Downloads [url] with a timeout and a hard size cap, so a slow or
 /// malicious server cannot hang the UI or exhaust memory.
 ///
