@@ -11,8 +11,14 @@ import 'book_search_service.dart';
 class OpenLibraryService {
   static const _host = 'openlibrary.org';
   static const _searchPath = '/search.json';
+  /// Edition sub-fields requested inside search.json (one best edition per work).
+  static const _editionFields =
+      'editions,editions.key,editions.title,editions.subtitle,editions.isbn,editions.publisher,'
+      'editions.language,editions.cover_i,editions.publish_date,editions.number_of_pages_median,'
+      'editions.physical_format';
+
   static const _headers = {
-    'User-Agent': kUserAgent,
+    'User-Agent': kOpenLibraryUserAgent,
     'Accept': 'application/json',
   };
 
@@ -25,8 +31,16 @@ class OpenLibraryService {
     try {
       final Map<String, String> params = {
         'limit': '40',
-        'fields': 'key,title,subtitle,author_name,isbn,publisher,first_publish_year,cover_i,number_of_pages_median,number_of_pages,description,edition_count,language,subject,physical_format',
+        'fields': 'key,title,subtitle,author_name,isbn,publisher,first_publish_year,cover_i,number_of_pages_median,number_of_pages,description,edition_count,language,subject,physical_format,$_editionFields',
       };
+
+      // Biases the edition picked for each work towards the user's language
+      // (it does not exclude works without such an edition).
+      if (preferredLanguage != null && preferredLanguage.length >= 2) {
+        params['lang'] = preferredLanguage.substring(0, 2).toLowerCase();
+      }
+
+      final bool hasPublisherFilter = query.publisher != null && query.publisher!.trim().isNotEmpty;
 
       if (query.hasIsbn) {
         params['isbn'] = query.isbn!;
@@ -35,7 +49,7 @@ class OpenLibraryService {
         final qParts = [
           if (query.hasTitle) query.title!,
           if (query.hasAuthor) query.author!,
-          if (query.publisher != null && query.publisher!.isNotEmpty) query.publisher!,
+          if (hasPublisherFilter) 'publisher:"${query.publisher!.trim().replaceAll('"', '')}"',
           if (!query.hasTitle && !query.hasAuthor && query.rawQuery != null) query.rawQuery!,
         ];
         if (qParts.isEmpty) return [];
@@ -56,57 +70,45 @@ class OpenLibraryService {
         final docs = data['docs'] as List?;
         if (docs == null) return [];
 
-        final rawResults = docs.map((doc) => _parseDoc(doc, preferredLanguage: preferredLanguage)).toList();
+        // Each work already carries its most relevant edition for this query
+        // (ISBN, publisher and language are forwarded by Open Library), so no
+        // extra request per result is needed. Full edition lists are loaded on
+        // demand by WorkEditionsView when the user opens a work.
+        final resolved = docs.map((doc) {
+          final res = _parseDoc(doc, preferredLanguage: preferredLanguage);
+          if (res.openLibraryWorkKey == null || (res.editionCount ?? 0) <= 1) return res;
 
-        final resolved = await Future.wait(rawResults.map((res) async {
-          if (res.openLibraryWorkKey != null && (res.editionCount ?? 0) > 1) {
-            try {
-              final editions = await getEditionsByWork(
-                res.openLibraryWorkKey!,
-                preferredLanguage: preferredLanguage,
-                baseAuthors: res.authors,
-                client: httpClient,
-              );
+          final editions = doc['editions'];
+          final edDocs = editions is Map ? editions['docs'] as List? : null;
+          if (edDocs == null || edDocs.isEmpty) return res;
 
-              var filteredEditions = editions;
-              final bool hasPublisherFilter = query.publisher != null && query.publisher!.trim().isNotEmpty;
+          final top = _parseEmbeddedEdition(
+            edDocs.first,
+            targetIsbn: query.hasIsbn ? query.isbn : null,
+            targetPublisher: hasPublisherFilter ? query.publisher : null,
+            preferredLanguage: preferredLanguage,
+          );
 
-              if (hasPublisherFilter) {
-                filteredEditions = editions
-                    .where((ed) => BookSearchService.matchesPublisher(ed.publisher, query.publisher!))
-                    .toList();
-              }
+          // Without a publisher filter the count is the work's edition_count, as before.
+          // With one, it is the number of editions Open Library matched for that publisher.
+          final matchedCount = editions is Map ? editions['numFound'] : null;
+          final int? editionCount = hasPublisherFilter
+              ? (matchedCount is int ? matchedCount : res.editionCount)
+              : res.editionCount;
 
-              if (filteredEditions.isNotEmpty) {
-                // If query is by ISBN, locate the exact edition matching the requested ISBN
-                BookSearchResult topEdition = filteredEditions.first;
-                if (query.hasIsbn) {
-                  final targetIsbnClean = query.isbn!.replaceAll(RegExp(r'[^0-9X]'), '');
-                  final exactMatch = filteredEditions.firstWhereOrNull((e) =>
-                    e.isbn != null && e.isbn!.replaceAll(RegExp(r'[^0-9X]'), '') == targetIsbnClean
-                  );
-                  if (exactMatch != null) {
-                    topEdition = exactMatch;
-                  }
-                }
-
-                final int realEditionCount = hasPublisherFilter
-                    ? filteredEditions.length
-                    : (res.editionCount ?? editions.length);
-
-                return topEdition.copyWith(
-                  openLibraryWorkKey: res.openLibraryWorkKey,
-                  editionCount: realEditionCount,
-                  description: topEdition.description ?? res.description,
-                  pageCount: topEdition.pageCount ?? res.pageCount,
-                );
-              }
-            } catch (e) {
-              debugPrint('Error resolving Open Library work edition: $e');
-            }
-          }
-          return res;
-        }));
+          return res.copyWith(
+            title: top.title.isNotEmpty ? top.title : null,
+            subtitle: top.subtitle,
+            isbn: top.isbn,
+            language: top.language,
+            publisher: top.publisher,
+            coverUrl: top.coverUrl,
+            publishYear: top.publishYear,
+            pageCount: top.pageCount,
+            format: top.format,
+            editionCount: editionCount,
+          );
+        }).toList();
 
         return resolved;
       } else {
@@ -376,6 +378,67 @@ class OpenLibraryService {
     if (norm.contains('rum') || norm.contains('ron')) return 'ro';
     if (norm.contains('tur')) return 'tr';
     return null;
+  }
+
+  /// Parses an edition doc embedded in a search.json work result. Only the
+  /// edition-specific fields are filled; the caller merges them over the work.
+  static BookSearchResult _parseEmbeddedEdition(
+    dynamic ed, {
+    String? targetIsbn,
+    String? targetPublisher,
+    String? preferredLanguage,
+  }) {
+    String clean(String s) => s.replaceAll(RegExp(r'[^0-9X]'), '');
+
+    final isbns = (ed['isbn'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[];
+    String? isbn;
+    if (targetIsbn != null) {
+      final target = clean(targetIsbn);
+      isbn = isbns.firstWhereOrNull((i) => clean(i) == target);
+    }
+    isbn ??= isbns.firstWhereOrNull((i) => clean(i).length == 13) ?? isbns.firstOrNull;
+
+    final coverId = ed['cover_i'];
+    final coverUrl = (coverId is int && coverId > 0)
+        ? 'https://covers.openlibrary.org/b/id/$coverId-L.jpg'
+        : null;
+
+    String? language;
+    final prefPrefix = (preferredLanguage != null && preferredLanguage.length >= 2)
+        ? preferredLanguage.substring(0, 2).toLowerCase()
+        : null;
+    for (final langItem in (ed['language'] as List?) ?? const []) {
+      final code = _openLibraryLangToCode(langItem?.toString());
+      if (code == null) continue;
+      language ??= code;
+      if (prefPrefix != null && code.startsWith(prefPrefix)) {
+        language = code;
+        break;
+      }
+    }
+
+    final publishers = (ed['publisher'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[];
+    final publisher = (targetPublisher != null
+            ? publishers.firstWhereOrNull((p) => BookSearchService.matchesPublisher(p, targetPublisher))
+            : null) ??
+        publishers.firstOrNull;
+
+    final physicalFormatRaw = (ed['physical_format'] as List?)?.firstOrNull?.toString() ?? ed['physical_format']?.toString();
+    final publishDate = (ed['publish_date'] as List?)?.firstOrNull?.toString() ?? ed['publish_date']?.toString();
+
+    return BookSearchResult(
+      title: ed['title']?.toString() ?? '',
+      subtitle: ed['subtitle']?.toString(),
+      authors: const [],
+      isbn: isbn,
+      language: language,
+      publisher: publisher,
+      coverUrl: coverUrl,
+      publishYear: _parsePublishYear(publishDate),
+      pageCount: _parsePageCount(ed['number_of_pages_median'] ?? ed['number_of_pages']),
+      format: _parseBookFormat(physicalFormatRaw),
+      source: 'Open Library',
+    );
   }
 
   static BookSearchResult _parseDoc(dynamic doc, {String? preferredLanguage}) {

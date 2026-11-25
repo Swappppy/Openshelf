@@ -9,6 +9,17 @@ const String kUserAgent = 'Openshelf (+https://github.com/Swappppy/Openshelf)';
 
 const Map<String, String> kDefaultHeaders = {'User-Agent': kUserAgent};
 
+/// User-Agent sent only to Open Library (including its covers host). Its API
+/// guidelines ask for a contact email, which is not shared with other providers.
+const String kOpenLibraryUserAgent = 'Openshelf (openshelf@tuta.com)';
+
+/// Request headers for [uri], choosing the provider-specific User-Agent.
+Map<String, String> headersFor(Uri uri) => {
+      'User-Agent': uri.host.endsWith('openlibrary.org')
+          ? kOpenLibraryUserAgent
+          : kUserAgent,
+    };
+
 /// Downloads [url] with a timeout and a hard size cap, so a slow or
 /// malicious server cannot hang the UI or exhaust memory.
 ///
@@ -26,7 +37,7 @@ Future<Uint8List?> downloadBytes(
 
   final c = client ?? http.Client();
   try {
-    final request = http.Request('GET', uri)..headers.addAll(kDefaultHeaders);
+    final request = http.Request('GET', uri)..headers.addAll(headersFor(uri));
     final response = await c.send(request).timeout(timeout);
     if (response.statusCode != 200) return null;
 
