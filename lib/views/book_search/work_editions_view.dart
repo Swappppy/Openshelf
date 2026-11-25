@@ -133,10 +133,10 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
         ? edition.copyWith(authors: widget.workResult.authors)
         : edition;
 
-    // Attach original title from work if not already present
-    if (finalResult.originalTitle == null && widget.workResult.title.isNotEmpty && widget.workResult.title != finalResult.title) {
-      finalResult = finalResult.copyWith(originalTitle: widget.workResult.title);
-    } else if (finalResult.originalTitle == null && widget.workResult.originalTitle != null) {
+    // Original title only when the work states one explicitly. The work
+    // card's title is itself an edition title (often in the user's language),
+    // so a mismatch with the chosen edition says nothing about the original.
+    if (finalResult.originalTitle == null && widget.workResult.originalTitle != null) {
       finalResult = finalResult.copyWith(originalTitle: widget.workResult.originalTitle);
     }
 
@@ -145,10 +145,7 @@ class _WorkEditionsViewState extends ConsumerState<WorkEditionsView> {
       finalResult = finalResult.copyWith(description: widget.workResult.description);
     }
 
-    // Attach pageCount from work if edition pageCount is missing
-    if (finalResult.pageCount == null && widget.workResult.pageCount != null) {
-      finalResult = finalResult.copyWith(pageCount: widget.workResult.pageCount);
-    }
+    // Page count is edition-specific: it is not borrowed from another edition.
 
     Navigator.push(
       context,

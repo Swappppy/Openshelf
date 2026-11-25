@@ -269,30 +269,57 @@ class BookSearchService {
       }
     }
 
-    // 4. Synthesis: Merge each peer group into a synthesized winner.
+    // 4. Synthesis. Fields are merged only across records of the SAME edition
+    //    (same ISBN), where each provider fills gaps of the others. Peers that
+    //    are different editions of the same work (title + author match) are
+    //    not blended into a fictitious record: the best-ranked one represents
+    //    the group and the others only contribute their providers' work keys
+    //    and the largest edition count, so the editions view can query them.
     final finalResults = <BookSearchResult>[];
     for (final group in groups) {
-      group.sort((a, b) => calculateRankScore(b, query, preferredLanguage: preferredLanguage)
-          .compareTo(calculateRankScore(a, query, preferredLanguage: preferredLanguage)));
-
+      // `scored` was already sorted by rank, and groups keep that order.
+      final representative = group.first;
       if (group.length == 1) {
-        finalResults.add(group.first);
-      } else {
-        final merged = mergeResults(
-          group,
-          query: query.rawQuery ?? query.title ?? '',
-          isIsbn: query.hasIsbn,
-          preferredLanguage: preferredLanguage,
-        );
-        if (merged != null) {
-          finalResults.add(merged);
-        } else {
-          finalResults.add(group.first);
-        }
+        finalResults.add(representative);
+        continue;
       }
+
+      final repIsbn = _cleanIsbn(representative.isbn);
+      final sameEdition = repIsbn.isEmpty
+          ? <BookSearchResult>[representative]
+          : group.where((r) => _cleanIsbn(r.isbn) == repIsbn).toList();
+
+      final base = sameEdition.length > 1
+          ? (mergeResults(
+                sameEdition,
+                query: query.hasIsbn ? query.isbn! : (query.rawQuery ?? query.title ?? ''),
+                isIsbn: query.hasIsbn,
+                preferredLanguage: preferredLanguage,
+              ) ??
+              representative)
+          : representative;
+
+      finalResults.add(_withProviderKeys(base, group));
     }
 
     return finalResults;
+  }
+
+  static String _cleanIsbn(String? isbn) => isbn?.replaceAll(RegExp(r'[^0-9X]'), '') ?? '';
+
+  /// Keeps [base]'s data and adds the work keys and largest edition count
+  /// found anywhere in [group].
+  static BookSearchResult _withProviderKeys(BookSearchResult base, List<BookSearchResult> group) {
+    int? maxEditionCount = base.editionCount;
+    for (final r in group) {
+      final c = r.editionCount;
+      if (c != null && (maxEditionCount == null || c > maxEditionCount)) maxEditionCount = c;
+    }
+    return base.copyWith(
+      openLibraryWorkKey: base.openLibraryWorkKey ?? group.map((r) => r.openLibraryWorkKey).nonNulls.firstOrNull,
+      inventaireWorkUri: base.inventaireWorkUri ?? group.map((r) => r.inventaireWorkUri).nonNulls.firstOrNull,
+      editionCount: maxEditionCount,
+    );
   }
 
   /// Queries specified providers using a structured query object (blocking until all done).
@@ -525,12 +552,10 @@ class BookSearchService {
       bestTitle = results.first.title;
     }
 
-    // Original title: if there's an original work title different from bestTitle, record it
-    String? originalTitle;
-    final otherTitle = titles.firstWhereOrNull((t) => t != bestTitle && _normalize(t) != _normalize(bestTitle));
-    if (otherTitle != null) {
-      originalTitle = otherTitle;
-    }
+    // The original title is taken only from a provider that states it.
+    // A different title in the group is usually just a variant of the same
+    // one (e.g. a series suffix), so it is never guessed from that.
+    final originalTitle = results.map((r) => r.originalTitle).nonNulls.firstOrNull;
 
     T? mostFrequent<T>(Map<T, int> freqMap) {
       if (freqMap.isEmpty) return null;
@@ -542,7 +567,12 @@ class BookSearchService {
     final bestPublisher = mostFrequent(publishers);
     final bestYear = mostFrequent(years);
     final bestPageCount = mostFrequent(pages);
-    final bestLanguage = prefLang ?? mostFrequent(languages);
+    // Prefer the user's language only if one of the merged editions is in it
+    // (the title is chosen the same way); never assign it blindly.
+    final prefLanguageMatch = prefLang == null
+        ? null
+        : languages.keys.firstWhereOrNull((l) => l.toLowerCase().startsWith(prefLang));
+    final bestLanguage = prefLanguageMatch ?? mostFrequent(languages);
 
     final bestDesc = descriptions.fold<String?>(
       null,

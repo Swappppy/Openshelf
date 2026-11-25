@@ -86,73 +86,73 @@ class BookshelfImportService {
         final rating = (ratingRaw != null && ratingRaw > 5) ? (ratingRaw / 2) : ratingRaw;
 
         final companion = _rowToCompanion(row, rating: rating);
-        final bookId = await _db.bookDao.insertBook(companion);
+        // One transaction per row: a failure never leaves a half-imported book,
+        // and batching the writes makes large imports much faster.
+        await _db.transaction(() async {
+          final bookId = await _db.bookDao.insertBook(companion);
 
-        // Auto-create history if reading or read
-        final status = companion.status.value;
-        if (status == ReadingStatus.reading || status == ReadingStatus.read) {
-          final startedAt = companion.startedAt.value;
-          final finishedAt = companion.finishedAt.value;
-          final total = companion.totalPages.value ?? 0;
-          final current = companion.currentPage.value ?? 0;
-          final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
+          // Auto-create history if reading or read
+          final status = companion.status.value;
+          if (status == ReadingStatus.reading || status == ReadingStatus.read) {
+            final startedAt = companion.startedAt.value;
+            final finishedAt = companion.finishedAt.value;
+            final total = companion.totalPages.value ?? 0;
+            final current = companion.currentPage.value ?? 0;
+            final progress = status == ReadingStatus.read ? (total > 0 ? total : current) : current;
           
-          final Map<int, int> distributedProgress = (companion.paginationConfig.value?.segments.isNotEmpty ?? false)
-              ? PaginationHelper.distributePhysicalPage(progress, companion.paginationConfig.value!.segments)
-              : {0: progress};
+            final Map<int, int> distributedProgress = (companion.paginationConfig.value?.segments.isNotEmpty ?? false)
+                ? PaginationHelper.distributePhysicalPage(progress, companion.paginationConfig.value!.segments)
+                : {0: progress};
 
-          await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
-            bookId: bookId,
-            readNumber: 1,
-            startedAt: Value(startedAt),
-            finishedAt: Value(finishedAt),
-            progress: Value(progress),
-            segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
-          ));
-
-          if (progress > 0) {
-            final logDate = finishedAt ?? startedAt ?? companion.createdAt.value;
-            final dateOnly = DateTime(logDate.year, logDate.month, logDate.day);
-            await _db.logDao.insertLog(ReadingLogCompanion.insert(
+            await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
               bookId: bookId,
-              date: dateOnly,
-              pagesRead: progress,
-              readNumber: const Value(1),
-              isBackfill: const Value(true),
+              readNumber: 1,
+              startedAt: Value(startedAt),
+              finishedAt: Value(finishedAt),
+              progress: Value(progress),
+              segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
             ));
+
+            if (progress > 0) {
+              final logDate = finishedAt ?? startedAt ?? companion.createdAt.value;
+              final dateOnly = DateTime(logDate.year, logDate.month, logDate.day);
+              await _db.logDao.insertLog(ReadingLogCompanion.insert(
+                bookId: bookId,
+                date: dateOnly,
+                pagesRead: progress,
+                readNumber: const Value(1),
+                isBackfill: const Value(true),
+              ));
+            }
           }
-        }
 
-        // Gather Tags and Collections
-        final tagIds = <int>[];
-        final collections = <(int, int?)>[];
+          // Gather Tags and Collections
+          final tagIds = <int>[];
+          final collections = <(int, int?)>[];
 
-        // 1. Categories
-        final catsRaw = _str(row, _colCategories).nullIfEmpty();
-        if (catsRaw != null) {
-          final names = catsRaw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
-          for (final name in names) {
-            tagIds.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
+          // 1. Categories
+          final catsRaw = _str(row, _colCategories).nullIfEmpty();
+          if (catsRaw != null) {
+            final names = catsRaw.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+            for (final name in names) {
+              tagIds.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
+            }
           }
-        }
 
-        // 2. Collection (Series)
-        final collName = _str(row, _colSeries).nullIfEmpty();
-        if (collName != null) {
-          final id = await ImportExportUtils.getOrCreateTag(_db, collName, TagType.collection);
-          final vol = ImportExportUtils.parseInt(_str(row, _colVolume));
-          collections.add((id, vol));
-        }
+          // 2. Collection (Series)
+          final collName = _str(row, _colSeries).nullIfEmpty();
+          if (collName != null) {
+            final id = await ImportExportUtils.getOrCreateTag(_db, collName, TagType.collection);
+            final vol = ImportExportUtils.parseInt(_str(row, _colVolume));
+            collections.add((id, vol));
+          }
 
-        // Sync to BookTags
-        await _db.tagDao.setBookTags(bookId, tagIds, collections: collections);
+          // Sync to BookTags
+          await _db.tagDao.setBookTags(bookId, tagIds, collections: collections);
 
-        // Link Imprint (Publisher) - still One-to-One
-        final publisher = _str(row, _colPublisher).nullIfEmpty();
-        if (publisher != null) {
-          final id = await ImportExportUtils.getOrCreateTag(_db, publisher, TagType.imprint);
-          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(imprintId: Value(id)));
-        }
+          // The publisher is stored as free text in `publisher`. Imprints are
+          // curated manually (logo, colour) and are never created on import.
+        });
 
         imported++;
       } catch (e) {

@@ -141,15 +141,7 @@ class OpenLibraryService {
     http.Client? client,
   }) async {
     try {
-      String cleanKey = workKey.trim();
-      if (cleanKey.contains('/works/')) {
-        cleanKey = cleanKey.substring(cleanKey.indexOf('/works/'));
-      } else if (!cleanKey.startsWith('/works/')) {
-        cleanKey = '/works/${cleanKey.replaceAll(RegExp(r'^/+'), '')}';
-      }
-      if (cleanKey.endsWith('/')) {
-        cleanKey = cleanKey.substring(0, cleanKey.length - 1);
-      }
+      final cleanKey = _cleanWorkKey(workKey);
 
       final httpClient = client ?? sharedHttpClient;
 
@@ -288,6 +280,47 @@ class OpenLibraryService {
       debugPrint('Open Library Editions Error ($workKey): $e');
     }
     return [];
+  }
+
+  /// Normalizes "OL46241W", "/works/OL46241W" or a full URL to "/works/OL46241W".
+  static String _cleanWorkKey(String workKey) {
+    var cleanKey = workKey.trim();
+    if (cleanKey.contains('/works/')) {
+      cleanKey = cleanKey.substring(cleanKey.indexOf('/works/'));
+    } else if (!cleanKey.startsWith('/works/')) {
+      cleanKey = '/works/${cleanKey.replaceAll(RegExp(r'^/+'), '')}';
+    }
+    if (cleanKey.endsWith('/')) {
+      cleanKey = cleanKey.substring(0, cleanKey.length - 1);
+    }
+    return cleanKey;
+  }
+
+  /// Every cover of every edition of [workKey], with one request (the work
+  /// record itself is not needed). Used by the cover search.
+  static Future<List<String>> getEditionCoverUrls(String workKey, {http.Client? client}) async {
+    try {
+      final cleanKey = _cleanWorkKey(workKey);
+      final uri = Uri.https(_host, '$cleanKey/editions.json', {'limit': '100'});
+      debugPrint('Open Library: Fetching edition covers for $cleanKey');
+      final response = await (client ?? sharedHttpClient).get(uri, headers: _headers).timeout(const Duration(seconds: 12));
+      if (response.statusCode != 200) return [];
+
+      final entries = (json.decode(response.body)['entries'] as List?) ?? const [];
+      final urls = <String>[];
+      for (final entry in entries) {
+        for (final id in (entry['covers'] as List?) ?? const []) {
+          if (id is int && id > 0) {
+            final url = 'https://covers.openlibrary.org/b/id/$id-L.jpg';
+            if (!urls.contains(url)) urls.add(url);
+          }
+        }
+      }
+      return urls;
+    } catch (e) {
+      debugPrint('Open Library Edition Covers Error ($workKey): $e');
+      return [];
+    }
   }
 
   static int _compareByLanguage(BookSearchResult a, BookSearchResult b, String? preferredLanguage) {

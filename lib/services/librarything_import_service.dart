@@ -88,27 +88,38 @@ class LibrarythingImportService {
         }
 
         final companion = _rowToCompanion(raw, title: title, author: authorInfo.primary, translator: authorInfo.translator, isbn: isbn);
-        final bookId = await _db.bookDao.insertBook(companion);
+        // One transaction per row: a failure never leaves a half-imported book,
+        // and batching the writes makes large imports much faster.
+        await _db.transaction(() async {
+          final bookId = await _db.bookDao.insertBook(companion);
 
-        // Series -> single-value "collection" (mirrors the pattern used by
-        // the Bookshelf importer: set the free-text name on the row AND
-        // resolve/create the matching collection tag for filtering).
-        final seriesName = _flattenToStrings(raw['series']).firstOrNull;
-        if (seriesName != null) {
-          final id = await ImportExportUtils.getOrCreateTag(_db, seriesName, TagType.collection);
-          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId)))
-              .write(BooksCompanion(collectionId: Value(id)));
-        }
-
-        // Collections (LT's own libraries) + genre -> category tags
-        final tagNames = _extractTagNames(raw);
-        if (tagNames.isNotEmpty) {
-          final ids = <int>[];
-          for (final name in tagNames) {
-            ids.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
+          // Series -> single-value "collection" (mirrors the pattern used by
+          // the Bookshelf importer: set the free-text name on the row AND
+          // resolve/create the matching collection tag for filtering).
+          final seriesName = _flattenToStrings(raw['series']).firstOrNull;
+          int? seriesId;
+          if (seriesName != null) {
+            seriesId = await ImportExportUtils.getOrCreateTag(_db, seriesName, TagType.collection);
+            await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId)))
+                .write(BooksCompanion(collectionId: Value(seriesId)));
           }
-          await _db.tagDao.setBookTags(bookId, ids);
-        }
+
+          // Collections (LT's own libraries) + genre -> category tags
+          // The series is linked in book_tags too: collection views and the
+          // backup read collection membership from there, not from collectionId.
+          final tagNames = _extractTagNames(raw);
+          if (tagNames.isNotEmpty || seriesId != null) {
+            final ids = <int>[];
+            for (final name in tagNames) {
+              ids.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
+            }
+            await _db.tagDao.setBookTags(
+              bookId,
+              ids,
+              collections: seriesId != null ? [(seriesId, null)] : null,
+            );
+          }
+        });
 
         imported++;
       } catch (e) {

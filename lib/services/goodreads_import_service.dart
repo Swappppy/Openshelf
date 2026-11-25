@@ -101,82 +101,85 @@ class GoodreadsImportService {
         }
 
         final companion = _rowToCompanion(row, colIndex, isbn13: isbn13, isbn10: isbn10);
-        final bookId = await _db.bookDao.insertBook(companion);
+        // One transaction per row: a failure never leaves a half-imported book,
+        // and batching the writes makes large imports much faster.
+        await _db.transaction(() async {
+          final bookId = await _db.bookDao.insertBook(companion);
 
-        // Link History
-        final totalPages = ImportExportUtils.parseInt(_str(row, colIndex, _colPageCount));
-        final readCount = ImportExportUtils.parseInt(_str(row, colIndex, _colReadCount)) ?? 0;
-        final finishedAt = ImportExportUtils.parseDate(_str(row, colIndex, _colDateRead));
-        final createdAt = ImportExportUtils.parseDate(_str(row, colIndex, _colDateAdded)) ?? DateTime.now();
+          // Link History
+          final totalPages = ImportExportUtils.parseInt(_str(row, colIndex, _colPageCount));
+          // Older exports report Read Count 0 for books on the "read" shelf;
+          // they still need one finished read so history and stats agree.
+          final rawReadCount = ImportExportUtils.parseInt(_str(row, colIndex, _colReadCount)) ?? 0;
+          final readCount = (rawReadCount == 0 && companion.status.value == ReadingStatus.read) ? 1 : rawReadCount;
+          final finishedAt = ImportExportUtils.parseDate(_str(row, colIndex, _colDateRead));
+          final createdAt = ImportExportUtils.parseDate(_str(row, colIndex, _colDateAdded)) ?? DateTime.now();
 
-        if (readCount > 0) {
-          for (int n = 1; n <= readCount; n++) {
-            final progress = totalPages ?? 0;
-            final finishedDate = n == readCount ? (finishedAt ?? createdAt) : createdAt;
+          if (readCount > 0) {
+            for (int n = 1; n <= readCount; n++) {
+              final progress = totalPages ?? 0;
+              final finishedDate = n == readCount ? (finishedAt ?? createdAt) : createdAt;
             
+              final Map<int, int> distributedProgress = (companion.paginationConfig.value?.segments.isNotEmpty ?? false)
+                  ? PaginationHelper.distributePhysicalPage(progress, companion.paginationConfig.value!.segments)
+                  : {0: progress};
+
+              await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+                bookId: bookId,
+                readNumber: n,
+                startedAt: Value(createdAt),
+                finishedAt: Value(finishedDate),
+                progress: Value(progress),
+                segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
+              ));
+
+              if (progress > 0) {
+                final dateOnly = DateTime(finishedDate.year, finishedDate.month, finishedDate.day);
+                await _db.logDao.insertLog(ReadingLogCompanion.insert(
+                  bookId: bookId,
+                  date: dateOnly,
+                  pagesRead: progress,
+                  readNumber: Value(n),
+                  isBackfill: const Value(true),
+                ));
+              }
+            }
+          } else if (companion.status.value == ReadingStatus.reading) {
             final Map<int, int> distributedProgress = (companion.paginationConfig.value?.segments.isNotEmpty ?? false)
-                ? PaginationHelper.distributePhysicalPage(progress, companion.paginationConfig.value!.segments)
-                : {0: progress};
+                ? PaginationHelper.distributePhysicalPage(1, companion.paginationConfig.value!.segments)
+                : {0: 1};
 
             await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
               bookId: bookId,
-              readNumber: n,
+              readNumber: 1,
               startedAt: Value(createdAt),
-              finishedAt: Value(finishedDate),
-              progress: Value(progress),
+              progress: const Value(1),
               segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
             ));
 
-            if (progress > 0) {
-              final dateOnly = DateTime(finishedDate.year, finishedDate.month, finishedDate.day);
-              await _db.logDao.insertLog(ReadingLogCompanion.insert(
-                bookId: bookId,
-                date: dateOnly,
-                pagesRead: progress,
-                readNumber: Value(n),
-                isBackfill: const Value(true),
-              ));
+            final dateOnly = DateTime(createdAt.year, createdAt.month, createdAt.day);
+            await _db.logDao.insertLog(ReadingLogCompanion.insert(
+              bookId: bookId,
+              date: dateOnly,
+              pagesRead: 1,
+              readNumber: const Value(1),
+              isBackfill: const Value(false),
+            ));
+          }
+
+          // The publisher is stored as free text in `publisher`. Imprints are
+          // curated manually (logo, colour) and are never created on import.
+
+          // Shelves as tags
+          final shelfNames = _str(row, colIndex, _colBookshelves).nullIfEmpty()?.split(',').map((s) => s.trim()) ?? [];
+          final ids = <int>[];
+          for (final name in shelfNames) {
+            if (name.isNotEmpty && !_exclusiveShelfNames.contains(name.toLowerCase())) {
+              ids.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
             }
           }
-        } else if (companion.status.value == ReadingStatus.reading) {
-          final Map<int, int> distributedProgress = (companion.paginationConfig.value?.segments.isNotEmpty ?? false)
-              ? PaginationHelper.distributePhysicalPage(1, companion.paginationConfig.value!.segments)
-              : {0: 1};
-
-          await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
-            bookId: bookId,
-            readNumber: 1,
-            startedAt: Value(createdAt),
-            progress: const Value(1),
-            segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
-          ));
-
-          final dateOnly = DateTime(createdAt.year, createdAt.month, createdAt.day);
-          await _db.logDao.insertLog(ReadingLogCompanion.insert(
-            bookId: bookId,
-            date: dateOnly,
-            pagesRead: 1,
-            readNumber: const Value(1),
-            isBackfill: const Value(false),
-          ));
-        }
-
-        // Link Imprint (Publisher)
-        final publisher = _str(row, colIndex, _colPublisher).nullIfEmpty();
-        if (publisher != null) {
-          final id = await ImportExportUtils.getOrCreateTag(_db, publisher, TagType.imprint);
-          await (_db.bookDao.update(_db.bookDao.books)..where((b) => b.id.equals(bookId))).write(BooksCompanion(imprintId: Value(id)));
-        }
-
-        // Shelves as tags
-        final shelfNames = _str(row, colIndex, _colBookshelves).nullIfEmpty()?.split(',').map((s) => s.trim()) ?? [];
-        final ids = <int>[];
-        for (final name in shelfNames) {
-          if (name.isNotEmpty && !_exclusiveShelfNames.contains(name.toLowerCase())) {
-            ids.add(await ImportExportUtils.getOrCreateTag(_db, name, TagType.tag));
-          }
-        }
-        if (ids.isNotEmpty) await _db.tagDao.setBookTags(bookId, ids);
+          if (ids.isNotEmpty) await _db.tagDao.setBookTags(bookId, ids);
+        });
 
         imported++;
       } catch (e) {

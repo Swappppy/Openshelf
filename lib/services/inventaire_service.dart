@@ -51,107 +51,9 @@ class InventaireService {
     if (query.trim().isEmpty) return [];
 
     try {
-      final uri = Uri.https(_host, _searchPath, {
-        'search': query.trim(),
-        'types': 'works',
-        'limit': '$limit',
-        ...?preferredLanguage != null ? {'language': preferredLanguage} : null,
-      });
-
-      debugPrint('Inventaire: Searching $uri');
       final httpClient = client ?? sharedHttpClient;
-      final response = await httpClient.get(uri, headers: _headers).timeout(_timeout);
-      if (response.statusCode != 200) {
-        debugPrint('Inventaire Search Error: HTTP ${response.statusCode}');
-        return [];
-      }
-
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
-      final results = body['results'] as List<dynamic>? ?? [];
-
-      final rawResults = results.map((item) {
-        final labels = item['labels'] as Map<String, dynamic>?;
-        String title = item['label'] as String? ?? 'Unknown Title';
-        
-        if (preferredLanguage != null && labels != null && labels.containsKey(preferredLanguage)) {
-          title = labels[preferredLanguage];
-        }
-        
-        // Try to get author from claims/entities first
-        List<String> authors = [];
-        final claims = item['claims'] as Map<String, dynamic>?;
-        final entities = item['entities'] as Map<String, dynamic>?;
-        if (claims != null && entities != null) {
-          final authorIds = (claims['P50'] ?? claims['wdt:P50']) as List<dynamic>?;
-          if (authorIds != null && authorIds.isNotEmpty) {
-            for (final id in authorIds) {
-              final authorEntity = entities[id];
-              if (authorEntity != null) {
-                final aLabels = authorEntity['labels'] as Map<String, dynamic>? ?? {};
-                String? aName;
-                if (preferredLanguage != null && aLabels.containsKey(preferredLanguage)) {
-                  aName = aLabels[preferredLanguage];
-                } else {
-                  aName = authorEntity['label'] as String?;
-                }
-                if (aName != null) authors.add(aName);
-              }
-            }
-          }
-        }
-
-        // Fallback to description cleanup for authors
-        if (authors.isEmpty) {
-          var desc = item['description'] as String? ?? '';
-          if (desc.isNotEmpty) {
-            desc = desc.replaceFirst(RegExp(r'^(book|novel|work|essay|story|biography|collection|play|poem|edited) by ', caseSensitive: false), '');
-            authors.add(desc);
-          }
-        }
-        
-        if (authors.isEmpty) authors.add('Unknown Author');
-        
-        // Resolve Image
-        String? coverUrl = _resolveImageUrl(item['image']);
-        if (coverUrl == null && claims != null) {
-          final imageClaims = [
-            claims['P18'], claims['wdt:P18'],
-            claims['P336'], claims['wdt:P336']
-          ];
-          for (final claim in imageClaims) {
-            if (claim is List && claim.isNotEmpty) {
-              coverUrl = _resolveImageUrl(claim.first);
-              if (coverUrl != null) break;
-            }
-          }
-        }
-        
-        // Resolve Subtitle (P1680)
-        String? subtitle;
-        if (claims != null) {
-          final subtitleIds = (claims['P1680'] ?? claims['wdt:P1680']) as List<dynamic>?;
-          if (subtitleIds != null && subtitleIds.isNotEmpty) {
-            subtitle = _extractValue(subtitleIds.first);
-          }
-        }
-
-        final rawUri = item['uri'] as String?;
-        final workUri = rawUri != null ? 'wd:${_cleanWorkWdId(rawUri)}' : null;
-
-        return BookSearchResult(
-          title: title,
-          subtitle: subtitle,
-          authors: authors,
-          isbn: null,
-          publisher: null,
-          publishYear: null,
-          pageCount: null,
-          coverUrl: coverUrl,
-          description: item['description'] as String?,
-          source: 'Inventaire',
-          inventaireWorkUri: workUri,
-        );
-      }).toList();
+      final rawResults = await _searchWorks(query, limit: limit, preferredLanguage: preferredLanguage, client: httpClient);
+      if (rawResults.isEmpty) return [];
 
       // Resolve top edition and edition count for every work in one batch
       // (one SPARQL query plus sequential entity batches of 50), instead of
@@ -196,12 +98,169 @@ class InventaireService {
     }
   }
 
+  /// Searches works and returns each one with ALL its editions, resolved in
+  /// one batched lookup (see [_getEditionsForWorks]). Used by the cover
+  /// search, which needs every edition's cover, not just the top one.
+  static Future<List<({BookSearchResult work, List<BookSearchResult> editions})>> searchWorksWithEditions(
+    String query, {
+    int limit = 10,
+    String? preferredLanguage,
+    http.Client? client,
+  }) async {
+    if (query.trim().isEmpty) return [];
+    try {
+      final httpClient = client ?? sharedHttpClient;
+      final works = await _searchWorks(query, limit: limit, preferredLanguage: preferredLanguage, client: httpClient);
+      if (works.isEmpty) return [];
+      final byWork = await _getEditionsForWorks(
+        works.map((w) => w.inventaireWorkUri).whereType<String>().toList(),
+        preferredLanguage: preferredLanguage,
+        client: httpClient,
+      );
+      return [
+        for (final w in works)
+          (
+            work: w,
+            editions: w.inventaireWorkUri == null
+                ? const <BookSearchResult>[]
+                : (byWork[_cleanWorkWdId(w.inventaireWorkUri!)] ?? const <BookSearchResult>[]),
+          ),
+      ];
+    } catch (e) {
+      debugPrint('Inventaire Search (with editions) Error: $e');
+      return [];
+    }
+  }
+
+  /// Raw work search: one request, no edition resolution.
+  static Future<List<BookSearchResult>> _searchWorks(
+    String query, {
+    required int limit,
+    String? preferredLanguage,
+    required http.Client client,
+  }) async {
+    final uri = Uri.https(_host, _searchPath, {
+      'search': query.trim(),
+      'types': 'works',
+      'limit': '$limit',
+      ...?preferredLanguage != null ? {'language': preferredLanguage} : null,
+    });
+
+    debugPrint('Inventaire: Searching $uri');
+    final response = await client.get(uri, headers: _headers).timeout(_timeout);
+    if (response.statusCode != 200) {
+      debugPrint('Inventaire Search Error: HTTP ${response.statusCode}');
+      return [];
+    }
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final results = body['results'] as List<dynamic>? ?? [];
+
+    final rawResults = results.map((item) {
+      final labels = item['labels'] as Map<String, dynamic>?;
+      String title = item['label'] as String? ?? 'Unknown Title';
+      
+      if (preferredLanguage != null && labels != null && labels.containsKey(preferredLanguage)) {
+        title = labels[preferredLanguage];
+      }
+      
+      // Try to get author from claims/entities first
+      List<String> authors = [];
+      final claims = item['claims'] as Map<String, dynamic>?;
+      final entities = item['entities'] as Map<String, dynamic>?;
+      if (claims != null && entities != null) {
+        final authorIds = (claims['P50'] ?? claims['wdt:P50']) as List<dynamic>?;
+        if (authorIds != null && authorIds.isNotEmpty) {
+          for (final id in authorIds) {
+            final authorEntity = entities[id];
+            if (authorEntity != null) {
+              final aLabels = authorEntity['labels'] as Map<String, dynamic>? ?? {};
+              String? aName;
+              if (preferredLanguage != null && aLabels.containsKey(preferredLanguage)) {
+                aName = aLabels[preferredLanguage];
+              } else {
+                aName = authorEntity['label'] as String?;
+              }
+              if (aName != null) authors.add(aName);
+            }
+          }
+        }
+      }
+
+      // Fallback to description cleanup for authors
+      if (authors.isEmpty) {
+        var desc = item['description'] as String? ?? '';
+        if (desc.isNotEmpty) {
+          desc = desc.replaceFirst(RegExp(r'^(book|novel|work|essay|story|biography|collection|play|poem|edited) by ', caseSensitive: false), '');
+          authors.add(desc);
+        }
+      }
+      
+      if (authors.isEmpty) authors.add('Unknown Author');
+      
+      // Resolve Image
+      String? coverUrl = _resolveImageUrl(item['image']);
+      if (coverUrl == null && claims != null) {
+        final imageClaims = [
+          claims['P18'], claims['wdt:P18'],
+          claims['P336'], claims['wdt:P336']
+        ];
+        for (final claim in imageClaims) {
+          if (claim is List && claim.isNotEmpty) {
+            coverUrl = _resolveImageUrl(claim.first);
+            if (coverUrl != null) break;
+          }
+        }
+      }
+      
+      // Resolve Subtitle (P1680)
+      String? subtitle;
+      if (claims != null) {
+        final subtitleIds = (claims['P1680'] ?? claims['wdt:P1680']) as List<dynamic>?;
+        if (subtitleIds != null && subtitleIds.isNotEmpty) {
+          subtitle = _extractValue(subtitleIds.first);
+        }
+      }
+
+      final rawUri = item['uri'] as String?;
+      final workUri = rawUri != null ? 'wd:${_cleanWorkWdId(rawUri)}' : null;
+
+      return BookSearchResult(
+        title: title,
+        subtitle: subtitle,
+        authors: authors,
+        isbn: null,
+        publisher: null,
+        publishYear: null,
+        pageCount: null,
+        coverUrl: coverUrl,
+        description: item['description'] as String?,
+        source: 'Inventaire',
+        inventaireWorkUri: workUri,
+      );
+    }).toList();
+
+    return rawResults;
+  }
+
   /// Looks up a book by its ISBN via the entities endpoint.
   static Future<BookSearchResult?> getByIsbn(
     String isbn, {
     String? preferredLanguage,
     http.Client? client,
   }) async {
+    final found = await getByIsbnWithEditions(isbn, preferredLanguage: preferredLanguage, client: client);
+    return found.result;
+  }
+
+  /// Like [getByIsbn], but also returns every edition of the book's work,
+  /// which the lookup fetches anyway (used by the cover search).
+  static Future<({BookSearchResult? result, List<BookSearchResult> editions})> getByIsbnWithEditions(
+    String isbn, {
+    String? preferredLanguage,
+    http.Client? client,
+  }) async {
+    const none = (result: null, editions: <BookSearchResult>[]);
     try {
       final cleanIsbn = isbn.replaceAll(RegExp(r'[^0-9X]'), '');
       final uri = Uri.https(_host, _entitiesPath, {
@@ -214,12 +273,12 @@ class InventaireService {
       final response = await httpClient.get(uri, headers: _headers).timeout(_timeout);
       if (response.statusCode != 200) {
         debugPrint('Inventaire ISBN Error: HTTP ${response.statusCode} - ${response.body}');
-        return null;
+        return none;
       }
 
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       final entities = body['entities'] as Map<String, dynamic>?;
-      if (entities == null || entities.isEmpty) return null;
+      if (entities == null || entities.isEmpty) return none;
 
       final mainEntity = entities.values.firstWhere(
         (e) => e['type'] == 'edition',
@@ -244,20 +303,23 @@ class InventaireService {
           );
           final targetEdition = exactMatch ?? result;
 
-          return targetEdition.copyWith(
-            isbn: cleanIsbn,
-            inventaireWorkUri: result.inventaireWorkUri,
-            editionCount: editions.length,
-            description: targetEdition.description ?? result.description,
-            coverUrl: targetEdition.coverUrl ?? result.coverUrl,
+          return (
+            result: targetEdition.copyWith(
+              isbn: cleanIsbn,
+              inventaireWorkUri: result.inventaireWorkUri,
+              editionCount: editions.length,
+              description: targetEdition.description ?? result.description,
+              coverUrl: targetEdition.coverUrl ?? result.coverUrl,
+            ),
+            editions: editions,
           );
         }
       }
 
-      return result;
+      return (result: result, editions: const <BookSearchResult>[]);
     } catch (e) {
       debugPrint('Inventaire ISBN Error: $e');
-      return null;
+      return none;
     }
   }
 
@@ -703,13 +765,6 @@ LIMIT 5000
     if (claim is String) return claim;
     if (claim is Map) return claim['value']?.toString();
     return claim?.toString();
-  }
-
-  static Future<List<dynamic>> searchCovers(String query) async {
-    final results = await search(query, limit: 10);
-    return results
-        .where((r) => r.coverUrl != null)
-        .toList();
   }
 
   /// Maps BCP-47 language codes to Wikidata entity URIs (wdt:P407 values).

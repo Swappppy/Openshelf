@@ -58,15 +58,10 @@ class _SearchHistoryViewState extends ConsumerState<SearchHistoryView> {
 
         final book = results.first;
         final insertedBook = book.toCompanion();
-        final id = await db.bookDao.insertBook(insertedBook);
+        await db.bookDao.insertBook(insertedBook);
 
-        if (book.categories.isNotEmpty) {
-          final tagIds = <int>[];
-          for (final cat in book.categories) {
-            tagIds.add(await db.tagDao.getOrCreateCategory(cat));
-          }
-          await db.tagDao.setBookTags(id, tagIds);
-        }
+        // Provider subjects are not turned into categories: categories are
+        // the user's own tags, and this book is saved without review.
 
         await historyDao.updateEntry(item.copyWith(
           status: 'success',

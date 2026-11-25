@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:collection/collection.dart';
 import '../models/app_settings.dart';
 import '../models/book_search_query.dart';
 import '../models/book_search_result.dart';
@@ -44,166 +43,161 @@ class CoverSearchService {
     }
 
     Future<void> runSearch() async {
+      // One round per provider instead of repeating near-identical searches:
+      //  1. ISBN lookup (exact edition) on every provider.
+      //  2. One text search per provider, skipped where the ISBN lookup already
+      //     identified the work, since the work's editions are then fetched
+      //     directly and give more covers than any text search.
+      // Depth comes from fetching ALL editions of the matched works (Open
+      // Library editions.json, Inventaire batched editions), not from issuing
+      // more searches.
+      final cleanIsbn = isbn?.replaceAll(RegExp(r'[^0-9X]'), '') ?? '';
+      final hasIsbn = cleanIsbn.isNotEmpty;
+      final cleanTitle = title?.trim() ?? '';
+      final hasTitle = cleanTitle.isNotEmpty;
+      final cleanAuthor = author?.trim() ?? '';
+      final cleanPublisher = publisher?.trim() ?? '';
+
+      String? olWorkKey;
+      var inventaireWorkFound = false;
+
+      bool authorMatches(BookSearchResult r) {
+        if (cleanAuthor.isEmpty) return true;
+        final surname = _normalize(cleanAuthor.split(' ').last);
+        if (surname.isEmpty) return true;
+        final haystack = _normalize('${r.authors.join(' ')} ${r.description ?? ''}');
+        return haystack.contains(surname);
+      }
+
       try {
-        // 1. ISBN Search (Specific high-confidence lookup as primary)
-        if (isbn != null) {
-          if (isCancelled) return;
-          debugPrint('CoverSearch: Step 1 (ISBN) - ISBN: "$isbn"');
+        // ---- 1. ISBN ----
+        if (hasIsbn) {
+          debugPrint('CoverSearch: ISBN round - "$cleanIsbn"');
           for (final server in servers) {
             if (isCancelled) return;
             try {
               switch (server) {
                 case BookSearchServer.googleBooks:
-                  final res = await GoogleBooksService.getByIsbn(isbn, apiKey: apiKey, preferredLanguage: preferredLanguage);
-                  if (res?.coverUrl != null && _isRelevant(res!.title, title ?? '')) {
+                  final res = await GoogleBooksService.getByIsbn(cleanIsbn, apiKey: apiKey, preferredLanguage: preferredLanguage);
+                  if (res?.coverUrl != null && _isRelevant(res!.title, cleanTitle)) {
                     addCandidate(res.coverUrl!, 'Google Books');
                   }
                   break;
                 case BookSearchServer.openLibrary:
-                  final res = await OpenLibraryService.getByIsbn(isbn);
-                  if (res?.coverUrl != null && _isRelevant(res!.title, title ?? '')) {
-                    addCandidate(res.coverUrl!, 'Open Library');
+                  final res = await OpenLibraryService.getByIsbn(cleanIsbn, preferredLanguage: preferredLanguage);
+                  if (res != null && _isRelevant(res.title, cleanTitle)) {
+                    if (res.coverUrl != null) addCandidate(res.coverUrl!, 'Open Library');
+                    olWorkKey = res.openLibraryWorkKey;
                   }
                   break;
                 case BookSearchServer.inventaire:
-                  final res = await InventaireService.getByIsbn(isbn, preferredLanguage: preferredLanguage);
-                  if (res?.coverUrl != null && _isRelevant(res!.title, title ?? '')) {
-                    addCandidate(res.coverUrl!, 'Inventaire');
+                  final found = await InventaireService.getByIsbnWithEditions(cleanIsbn, preferredLanguage: preferredLanguage);
+                  final res = found.result;
+                  if (res != null && _isRelevant(res.title, cleanTitle)) {
+                    if (res.coverUrl != null) addCandidate(res.coverUrl!, 'Inventaire');
+                    for (final ed in found.editions) {
+                      if (isCancelled) return;
+                      if (ed.coverUrl != null) addCandidate(ed.coverUrl!, 'Inventaire (Ed.)');
+                    }
+                    inventaireWorkFound = res.inventaireWorkUri != null;
                   }
                   break;
               }
             } catch (e) {
-              debugPrint('CoverSearch: ISBN Error from ${server.name}: $e');
+              debugPrint('CoverSearch: ISBN error from ${server.name}: $e');
             }
           }
         }
 
-        // 2. Precise Text Search (Title + Publisher)
-        if (title != null && publisher != null && publisher.isNotEmpty) {
+        // ---- 2. One text search per provider ----
+        for (final server in servers) {
           if (isCancelled) return;
-          final query = '"$title" $publisher';
-          debugPrint('CoverSearch: Step 2 (Precise Title+Publisher) - Query: "$query"');
-
-          for (final server in servers) {
-            if (isCancelled) return;
-            try {
-              List<BookSearchResult> results = [];
-              switch (server) {
-                case BookSearchServer.googleBooks:
-                  results = await GoogleBooksService.search(
-                    query,
-                    apiKey: apiKey,
-                    preferredLanguage: preferredLanguage,
-                    title: title,
-                    publisher: publisher,
-                  );
-                  break;
-                case BookSearchServer.openLibrary:
-                  results = await OpenLibraryService.search(query);
-                  break;
-                case BookSearchServer.inventaire:
-                  results = await InventaireService.search(query, preferredLanguage: preferredLanguage);
-                  break;
-              }
-              for (final res in results) {
-                if (isCancelled) return;
-                if (res.coverUrl != null && _isRelevant(res.title, title)) {
-                  addCandidate(res.coverUrl!, server.name);
-                }
-              }
-            } catch (e) {
-              debugPrint('CoverSearch: Error in precise search for ${server.name}: $e');
-            }
-          }
-        }
-
-        // 3. Specific Text Search (Title + Author) - Primary or Fallback
-        if (title != null) {
-          if (isCancelled) return;
-          final queryParts = [
-            '"$title"',
-            if (author != null && author.isNotEmpty) author,
-          ];
-          final query = queryParts.join(' ');
-          debugPrint('CoverSearch: Step 3 (Specific Title+Author) - Query: "$query"');
-
-          for (final server in servers) {
-            if (isCancelled) return;
-            try {
-              List<BookSearchResult> results = [];
-              switch (server) {
-                case BookSearchServer.googleBooks:
-                  results = await GoogleBooksService.search(
-                    query,
-                    apiKey: apiKey,
-                    preferredLanguage: preferredLanguage,
-                    title: title,
-                    author: author,
-                  );
-                  break;
-                case BookSearchServer.openLibrary:
-                  results = await OpenLibraryService.search(query);
-                  break;
-                case BookSearchServer.inventaire:
-                  results = await InventaireService.search(query, preferredLanguage: preferredLanguage);
-                  break;
-              }
-              for (final res in results) {
-                if (isCancelled) return;
-                if (res.coverUrl != null && _isRelevant(res.title, title)) {
-                  addCandidate(res.coverUrl!, server.name);
-                }
-              }
-            } catch (e) {
-              debugPrint('CoverSearch: Error in specific search for ${server.name}: $e');
-            }
-          }
-        }
-
-        // 4. Inventaire editions fallback
-        if (title != null && servers.contains(BookSearchServer.inventaire)) {
-          if (isCancelled) return;
-          debugPrint('CoverSearch: Step 4 (Inventaire Deep Dive)');
           try {
-            final works = await InventaireService.search(title, preferredLanguage: preferredLanguage, limit: 10);
-
-            final candidateWorks = works.where((w) => w.inventaireWorkUri != null).toList();
-
-            int scoreWork(BookSearchResult w) {
-              int score = 0;
-              if (_isRelevant(w.title, title)) score += 10;
-              if (author != null && author.isNotEmpty) {
-                final surname = _normalize(author.trim().split(' ').last);
-                final desc = _normalize(w.description ?? '');
-                if (desc.contains(surname)) score += 20;
-              }
-              return score;
-            }
-
-            candidateWorks.sort((a, b) => scoreWork(b).compareTo(scoreWork(a)));
-
-            final bestWork = candidateWorks.firstOrNull;
-            final bestScore = bestWork != null ? scoreWork(bestWork) : 0;
-            final workUri = bestWork?.inventaireWorkUri;
-
-            if (bestScore < 20) {
-              debugPrint('CoverSearch: Step 4 skipped - best score $bestScore too low for "${bestWork?.title}"');
-            } else if (workUri != null) {
-              if (isCancelled) return;
-              debugPrint('CoverSearch: Step 4 - Using work "$workUri" (${bestWork!.title}) with score $bestScore');
-              final editions = await InventaireService.getEditionsByWork(
-                workUri,
-                preferredLanguage: preferredLanguage,
-              );
-              for (final ed in editions) {
-                if (isCancelled) return;
-                if (ed.coverUrl != null) {
-                  addCandidate(ed.coverUrl!, 'Inventaire (Ed.)');
+            switch (server) {
+              case BookSearchServer.googleBooks:
+                // Google has no work grouping, so its text search is the only
+                // way to reach other editions. Title + author with up to 40
+                // results already includes the publisher's edition unless the
+                // result set is saturated; only then is the publisher added.
+                if (!hasTitle) break;
+                debugPrint('CoverSearch: Google text round');
+                final results = await GoogleBooksService.search(
+                  cleanTitle,
+                  apiKey: apiKey,
+                  preferredLanguage: preferredLanguage,
+                  title: cleanTitle,
+                  author: cleanAuthor.isNotEmpty ? cleanAuthor : null,
+                );
+                for (final res in results) {
+                  if (isCancelled) return;
+                  if (res.coverUrl != null && _isRelevant(res.title, cleanTitle)) addCandidate(res.coverUrl!, 'Google Books');
                 }
-              }
+                if (results.length >= 40 && cleanPublisher.isNotEmpty) {
+                  if (isCancelled) return;
+                  final narrowed = await GoogleBooksService.search(
+                    cleanTitle,
+                    apiKey: apiKey,
+                    preferredLanguage: preferredLanguage,
+                    title: cleanTitle,
+                    publisher: cleanPublisher,
+                  );
+                  for (final res in narrowed) {
+                    if (isCancelled) return;
+                    if (res.coverUrl != null && _isRelevant(res.title, cleanTitle)) addCandidate(res.coverUrl!, 'Google Books');
+                  }
+                }
+                break;
+
+              case BookSearchServer.openLibrary:
+                if (olWorkKey == null && hasTitle) {
+                  debugPrint('CoverSearch: Open Library text round');
+                  final results = await OpenLibraryService.searchStructured(
+                    BookSearchQuery(title: cleanTitle, author: cleanAuthor.isNotEmpty ? cleanAuthor : null),
+                    preferredLanguage: preferredLanguage,
+                  );
+                  for (final res in results) {
+                    if (isCancelled) return;
+                    if (!_isRelevant(res.title, cleanTitle)) continue;
+                    if (res.coverUrl != null) addCandidate(res.coverUrl!, 'Open Library');
+                    if (olWorkKey == null && res.openLibraryWorkKey != null && authorMatches(res)) {
+                      olWorkKey = res.openLibraryWorkKey;
+                    }
+                  }
+                }
+                final workKey = olWorkKey;
+                if (workKey != null) {
+                  if (isCancelled) return;
+                  for (final url in await OpenLibraryService.getEditionCoverUrls(workKey)) {
+                    if (isCancelled) return;
+                    addCandidate(url, 'Open Library (Ed.)');
+                  }
+                }
+                break;
+
+              case BookSearchServer.inventaire:
+                if (inventaireWorkFound || !hasTitle) break;
+                debugPrint('CoverSearch: Inventaire text round');
+                final works = await InventaireService.searchWorksWithEditions(
+                  cleanTitle,
+                  preferredLanguage: preferredLanguage,
+                  limit: 10,
+                );
+                for (final entry in works) {
+                  if (isCancelled) return;
+                  if (!_isRelevant(entry.work.title, cleanTitle)) continue;
+                  if (entry.work.coverUrl != null) addCandidate(entry.work.coverUrl!, 'Inventaire');
+                  // Edition covers only for works by the right author, so a
+                  // homonymous work does not flood the picker.
+                  if (!authorMatches(entry.work)) continue;
+                  for (final ed in entry.editions) {
+                    if (isCancelled) return;
+                    if (ed.coverUrl != null) addCandidate(ed.coverUrl!, 'Inventaire (Ed.)');
+                  }
+                }
+                break;
             }
           } catch (e) {
-            debugPrint('CoverSearch: Step 4 Error: $e');
+            debugPrint('CoverSearch: text error from ${server.name}: $e');
           }
         }
       } finally {
