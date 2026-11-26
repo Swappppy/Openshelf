@@ -194,6 +194,16 @@ class CoverService {
     }
   }
 
+  /// Ratios offered when cropping a cover (#60): portrait 2:3 (the usual
+  /// cover, and a 4x6" print), landscape 3:2, square 1:1 (audiobooks) and
+  /// free. Neither uCrop nor TOCropView has a portrait 2:3 preset built in.
+  static final List<CropAspectRatioPresetData> _coverRatios = [
+    const _Ratio2x3(),
+    CropAspectRatioPreset.ratio3x2,
+    CropAspectRatioPreset.square,
+    CropAspectRatioPreset.original,
+  ];
+
   /// Provides a standard UI for cropping book covers (usually 2:3 ratio).
   static Future<String?> cropCover(String path, {
     required String title,
@@ -214,13 +224,15 @@ class CoverService {
             toolbarTitle: title,
             toolbarColor: Colors.black,
             toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
+            aspectRatioPresets: _coverRatios,
+            initAspectRatio: const _Ratio2x3(),
             lockAspectRatio: false,
           ),
           IOSUiSettings(
             title: title,
             doneButtonTitle: doneButtonTitle,
             cancelButtonTitle: cancelButtonTitle,
+            aspectRatioPresets: _coverRatios,
           ),
         ],
       );
@@ -453,4 +465,15 @@ class CoverService {
       debugPrint('Error deleting imprint image: $e');
     }
   }
+}
+
+/// Portrait 2:3 crop preset (the plugin only ships the landscape 3:2).
+class _Ratio2x3 implements CropAspectRatioPresetData {
+  const _Ratio2x3();
+
+  @override
+  (int, int)? get data => (2, 3);
+
+  @override
+  String get name => '2:3';
 }
