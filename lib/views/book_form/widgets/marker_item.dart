@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
+import '../../../utils/media_progress.dart';
 
 class MarkerItem extends StatefulWidget {
   final int index;
@@ -13,6 +14,9 @@ class MarkerItem extends StatefulWidget {
   final ValueChanged<String> onLabelChanged;
   final ValueChanged<String> onVisualPageChanged;
 
+  /// Audiobook markers: the position is a time (`hh:mm`).
+  final bool timeMode;
+
   const MarkerItem({
     super.key,
     required this.index,
@@ -24,6 +28,7 @@ class MarkerItem extends StatefulWidget {
     required this.onDelete,
     required this.onLabelChanged,
     required this.onVisualPageChanged,
+    this.timeMode = false,
   });
 
   @override
@@ -38,7 +43,7 @@ class _MarkerItemState extends State<MarkerItem> {
   void initState() {
     super.initState();
     _labelCtrl = TextEditingController(text: widget.marker.label);
-    _pageCtrl = TextEditingController(text: widget.useVisual ? widget.visualPage : widget.marker.physicalPage.toString());
+    _pageCtrl = TextEditingController(text: _positionText());
   }
 
   @override
@@ -48,7 +53,7 @@ class _MarkerItemState extends State<MarkerItem> {
       _labelCtrl.text = widget.marker.label;
     }
     
-    final expectedPageText = widget.useVisual ? widget.visualPage : widget.marker.physicalPage.toString();
+    final expectedPageText = _positionText();
     if (_pageCtrl.text.toUpperCase() != expectedPageText.toUpperCase()) {
       _pageCtrl.text = expectedPageText;
     }
@@ -59,6 +64,11 @@ class _MarkerItemState extends State<MarkerItem> {
     _labelCtrl.dispose();
     _pageCtrl.dispose();
     super.dispose();
+  }
+
+  String _positionText() {
+    if (widget.timeMode) return formatDuration(widget.marker.physicalPage - 1);
+    return widget.useVisual ? widget.visualPage : widget.marker.physicalPage.toString();
   }
 
   @override
@@ -96,17 +106,20 @@ class _MarkerItemState extends State<MarkerItem> {
                   child: TextFormField(
                     controller: _pageCtrl,
                     decoration: InputDecoration(
-                      labelText: widget.useVisual ? context.l10n.paginationVisualPage : context.l10n.paginationStartPhysical, 
+                      labelText: widget.timeMode
+                          ? context.l10n.audioAnchorMarker
+                          : (widget.useVisual ? context.l10n.paginationVisualPage : context.l10n.paginationStartPhysical),
                       isDense: true, 
                       border: const OutlineInputBorder(), 
-                      hintText: context.l10n.paginationVisualPageHint
+                      hintText: widget.timeMode ? 'hh:mm' : context.l10n.paginationVisualPageHint,
+                      suffixText: widget.timeMode ? durationUnit : null,
                     ),
                     keyboardType: TextInputType.text,
                     onChanged: widget.onVisualPageChanged,
                   ),
                 ),
                 const SizedBox(width: 12),
-                Column(
+                if (!widget.timeMode) Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(context.l10n.paginationPhysicalLabel(widget.marker.physicalPage), style: const TextStyle(fontSize: 10, color: Colors.grey)),

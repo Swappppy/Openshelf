@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../services/database.dart';
 import '../../../utils/pagination_helper.dart';
 import '../../../l10n/l10n_extension.dart';
+import '../../../utils/media_progress.dart';
 import 'pagination_color_picker.dart';
 
 class SegmentItem extends StatefulWidget {
@@ -17,6 +18,11 @@ class SegmentItem extends StatefulWidget {
   final ValueChanged<int> onOffsetChanged;
   final VoidCallback onToggleRestartNumbering;
 
+  /// Audiobook sections: the range is a time span (seconds with the page
+  /// convention `startPhysical = startSecond + 1`) and page numbering
+  /// options do not apply.
+  final bool timeMode;
+
   const SegmentItem({
     super.key,
     required this.index,
@@ -30,6 +36,7 @@ class SegmentItem extends StatefulWidget {
     required this.onTypeChanged,
     required this.onOffsetChanged,
     required this.onToggleRestartNumbering,
+    this.timeMode = false,
   });
 
   @override
@@ -109,7 +116,9 @@ class _SegmentItemState extends State<SegmentItem> {
               onToggleRestartNumbering: widget.onToggleRestartNumbering,
               totalPages: widget.totalPages,
               isFirst: index == 0,
+              timeMode: widget.timeMode,
             ),
+            if (!widget.timeMode) ...[
             const SizedBox(height: 12),
             Row(
               children: [
@@ -137,6 +146,7 @@ class _SegmentItemState extends State<SegmentItem> {
                 ),
               ],
             ),
+            ],
           ],
         ),
       ),
@@ -224,6 +234,7 @@ class _SegmentRangeInput extends StatefulWidget {
   final bool useVisual;
   final ValueChanged<PaginationSegment> onChanged;
   final VoidCallback onToggleRestartNumbering;
+  final bool timeMode;
 
   const _SegmentRangeInput({
     required this.index,
@@ -233,6 +244,7 @@ class _SegmentRangeInput extends StatefulWidget {
     required this.totalPages,
     required this.isFirst,
     required this.useVisual,
+    this.timeMode = false,
   });
 
   @override
@@ -273,7 +285,10 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
     final trimmed = _startCtrl.text.trim();
     int phys = 0;
     if (trimmed.isNotEmpty) {
-      if (widget.useVisual) {
+      if (widget.timeMode) {
+        final seconds = parseDuration(trimmed);
+        phys = seconds == null ? 0 : seconds + 1;
+      } else if (widget.useVisual) {
         phys = PaginationHelper.getPhysicalFromVisualInSegment(trimmed, s);
       } else {
         phys = int.tryParse(trimmed) ?? 0;
@@ -294,7 +309,9 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
     final trimmed = _endCtrl.text.trim();
     int phys = 0;
     if (trimmed.isNotEmpty) {
-      if (widget.useVisual) {
+      if (widget.timeMode) {
+        phys = parseDuration(trimmed) ?? 0;
+      } else if (widget.useVisual) {
         phys = PaginationHelper.getPhysicalFromVisualInSegment(trimmed, s);
       } else {
         phys = int.tryParse(trimmed) ?? 0;
@@ -309,6 +326,7 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
   }
 
   String _getStartText() {
+    if (widget.timeMode) return formatDuration(widget.segment.startPhysical - 1);
     if (widget.useVisual) {
       return PaginationHelper.getVisualPageInSegment(widget.segment.startPhysical, widget.segment);
     }
@@ -316,6 +334,7 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
   }
 
   String _getEndText() {
+    if (widget.timeMode) return formatDuration(widget.segment.endPhysical);
     if (widget.useVisual) {
       return PaginationHelper.getVisualPageInSegment(widget.segment.endPhysical, widget.segment);
     }
@@ -369,12 +388,17 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
                   focusNode: _startFocusNode,
                   enabled: widget.isFirst,
                   decoration: InputDecoration(
-                    labelText: widget.useVisual ? context.l10n.paginationStartVisual : context.l10n.paginationStartPhysical,
+                    labelText: widget.timeMode
+                        ? context.l10n.audioSectionStart
+                        : (widget.useVisual ? context.l10n.paginationStartVisual : context.l10n.paginationStartPhysical),
                     isDense: true,
                     border: const OutlineInputBorder(),
                     filled: !widget.isFirst,
+                    suffixText: widget.timeMode ? durationUnit : null,
                   ),
-                  keyboardType: widget.useVisual ? TextInputType.text : TextInputType.number,
+                  keyboardType: widget.timeMode
+                      ? TextInputType.datetime
+                      : (widget.useVisual ? TextInputType.text : TextInputType.number),
                   onFieldSubmitted: (_) => _commitStart(),
                 ),
               ),
@@ -384,16 +408,21 @@ class _SegmentRangeInputState extends State<_SegmentRangeInput> {
                   controller: _endCtrl,
                   focusNode: _endFocusNode,
                   decoration: InputDecoration(
-                    labelText: widget.useVisual ? context.l10n.paginationEndVisual : context.l10n.paginationEndPhysical,
+                    labelText: widget.timeMode
+                        ? context.l10n.audioSectionEnd
+                        : (widget.useVisual ? context.l10n.paginationEndVisual : context.l10n.paginationEndPhysical),
                     isDense: true,
                     border: const OutlineInputBorder(),
+                    suffixText: widget.timeMode ? durationUnit : null,
                   ),
-                  keyboardType: widget.useVisual ? TextInputType.text : TextInputType.number,
+                  keyboardType: widget.timeMode
+                      ? TextInputType.datetime
+                      : (widget.useVisual ? TextInputType.text : TextInputType.number),
                   onFieldSubmitted: (_) => _commitEnd(),
                 ),
               ),
-              const SizedBox(width: 8),
-              Tooltip(
+              if (!widget.timeMode) const SizedBox(width: 8),
+              if (!widget.timeMode) Tooltip(
                 message: context.l10n.paginationRestartFromZero,
                 child: InkWell(
                   onTap: widget.onToggleRestartNumbering,

@@ -6,6 +6,8 @@ import '../../l10n/l10n_extension.dart';
 import 'widgets/marker_item.dart';
 import 'widgets/pagination_color_picker.dart';
 import 'widgets/segment_item.dart';
+import '../../utils/media_progress.dart';
+import '../../utils/time_map.dart';
 
 class AdvancedPaginationView extends StatefulWidget {
   final PaginationConfig initialConfig;
@@ -13,12 +15,22 @@ class AdvancedPaginationView extends StatefulWidget {
   final int totalPages;
   final OnSavePaginationConfig onSave;
 
+  /// Audio duration of a mixed book. When set, each section and marker also
+  /// shows its audio position: derived (hint) or anchored (typed value).
+  final int? audioDuration;
+
+  /// Audiobook sections: [totalPages] is the duration in seconds and ranges
+  /// and markers are edited as times. Page-only options are hidden.
+  final bool timeMode;
+
   const AdvancedPaginationView({
     super.key,
     required this.initialConfig,
     this.initialSegmentProgress,
     required this.totalPages,
     required this.onSave,
+    this.audioDuration,
+    this.timeMode = false,
   });
 
   @override
@@ -59,7 +71,8 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
     setState(() {
       _segments.add(PaginationSegment(
         startPhysical: firstAvailable,
-        endPhysical: firstAvailable + 9, // Default to a 10-page block
+        // Default block: 10 pages, or 30 minutes for audio sections.
+        endPhysical: firstAvailable + (widget.timeMode ? 1799 : 9),
         type: PageNumberingType.arabic,
         color: null,
       ));
@@ -237,8 +250,8 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
               Expanded(
                 child: _buildSectionHeader(context.l10n.paginationBlocksSegments, Icons.view_column_outlined),
               ),
-              Text(context.l10n.paginationVisualMode, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-              Transform.scale(
+              if (!widget.timeMode) Text(context.l10n.paginationVisualMode, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+              if (!widget.timeMode) Transform.scale(
                 scale: 0.8,
                 child: Switch(
                   value: _useVisual,
@@ -265,12 +278,14 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
               onReorderItem: _onReorderSegments,
               itemBuilder: (context, index) {
                 final segment = _segments[index];
-                return SegmentItem(
+                final map = _timeMap;
+                final item = SegmentItem(
                   key: ValueKey('segment_${segment.startPhysical}_${segment.endPhysical}_$index'),
                   index: index,
                   segment: segment,
                   totalPages: widget.totalPages,
                   useVisual: _useVisual,
+                  timeMode: widget.timeMode,
                   onColorTap: (c) => setState(() => _segments[index] = segment.copyWith(color: c, clearColor: c == null)),
                   onDelete: () {
                     setState(() {
@@ -299,6 +314,11 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
                   onTypeChanged: (type) => _updateSegment(index, segment.copyWith(type: type)),
                   onOffsetChanged: (v) => _updateSegment(index, segment.copyWith(offset: v)),
                   onToggleRestartNumbering: () => _handleToggleRestartNumbering(index),
+                );
+                if (map == null) return item;
+                return Column(
+                  key: ValueKey('segment_col_${segment.startPhysical}_${segment.endPhysical}_$index'),
+                  children: [item, _segmentAnchors(index, segment, map)],
                 );
               },
             ),
@@ -368,7 +388,7 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       }
     } catch (_) {}
     
-    return MarkerItem(
+    final item = MarkerItem(
       index: index,
       marker: marker,
       visualPage: visualPage,
@@ -377,11 +397,140 @@ class _AdvancedPaginationViewState extends State<AdvancedPaginationView> {
       onColorTap: () => showPaginationColorPicker(context, marker.color, (c) => setState(() => _markers[index] = marker.copyWith(color: c, clearColor: c == null))),
       onDelete: () => setState(() => _markers.removeAt(index)),
       onLabelChanged: (v) => setState(() => _markers[index] = marker.copyWith(label: v)),
+      timeMode: widget.timeMode,
       onVisualPageChanged: (v) {
         final trimmed = v.trim();
         if (trimmed.isEmpty) return;
+        if (widget.timeMode) {
+          final seconds = parseDuration(trimmed);
+          if (seconds != null) setState(() => _markers[index] = marker.copyWith(physicalPage: seconds + 1));
+          return;
+        }
         final phys = PaginationHelper.getPhysicalFromVisual(trimmed, PaginationConfig(segments: _segments));
         setState(() => _markers[index] = marker.copyWith(physicalPage: phys));
+      },
+    );
+    final map = _timeMap;
+    if (map == null) return item;
+    return Column(children: [
+      item,
+      Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+        child: _AnchorField(
+          key: ValueKey('marker_anchor_$index'),
+          label: context.l10n.audioAnchorMarker,
+          anchor: marker.seconds,
+          derived: map.toSeconds(marker.physicalPage - 1),
+          onChanged: (v) => setState(() => _markers[index] =
+              v == null ? marker.copyWith(clearSeconds: true) : marker.copyWith(seconds: v)),
+        ),
+      ),
+    ]);
+  }
+
+  /// Page/time correspondence of the sections being edited (mixed books).
+  TimeMap? get _timeMap {
+    final duration = widget.audioDuration ?? 0;
+    if (duration <= 0 || widget.totalPages <= 0) return null;
+    return TimeMap(totalPages: widget.totalPages, duration: duration, segments: _segments, markers: _markers);
+  }
+
+  Widget _segmentAnchors(int index, PaginationSegment segment, TimeMap map) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: _AnchorField(
+              key: ValueKey('segment_anchor_start_$index'),
+              label: context.l10n.audioAnchorStart,
+              anchor: segment.startSeconds,
+              derived: map.toSeconds(segment.startPhysical - 1),
+              onChanged: (v) => setState(() => _segments[index] =
+                  v == null ? segment.copyWith(clearStartSeconds: true) : segment.copyWith(startSeconds: v)),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _AnchorField(
+              key: ValueKey('segment_anchor_end_$index'),
+              label: context.l10n.audioAnchorEnd,
+              anchor: segment.endSeconds,
+              derived: map.toSeconds(segment.endPhysical),
+              onChanged: (v) => setState(() => _segments[index] =
+                  v == null ? segment.copyWith(clearEndSeconds: true) : segment.copyWith(endSeconds: v)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Audio position of a section boundary or marker. Empty shows the derived
+/// value as a grey hint; typing a time sets an anchor; clearing removes it.
+class _AnchorField extends StatefulWidget {
+  final String label;
+  final int? anchor;
+  final int derived;
+  final ValueChanged<int?> onChanged;
+
+  const _AnchorField({
+    super.key,
+    required this.label,
+    required this.anchor,
+    required this.derived,
+    required this.onChanged,
+  });
+
+  @override
+  State<_AnchorField> createState() => _AnchorFieldState();
+}
+
+class _AnchorFieldState extends State<_AnchorField> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.anchor != null ? formatDuration(widget.anchor!) : '');
+  final _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) return;
+      final seconds = parseDuration(_controller.text);
+      if (seconds != null) _controller.text = formatDuration(seconds);
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      keyboardType: TextInputType.datetime,
+      decoration: InputDecoration(
+        isDense: true,
+        labelText: widget.label,
+        hintText: formatDuration(widget.derived),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixText: durationUnit,
+        prefixIcon: const Icon(Icons.headphones_outlined, size: 18),
+        border: const OutlineInputBorder(),
+      ),
+      onChanged: (text) {
+        if (text.trim().isEmpty) {
+          widget.onChanged(null);
+          return;
+        }
+        final seconds = parseDuration(text);
+        if (seconds != null) widget.onChanged(seconds);
       },
     );
   }

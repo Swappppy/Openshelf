@@ -4,6 +4,8 @@ import 'package:collection/collection.dart';
 import '../services/database.dart';
 import 'database_provider.dart';
 import 'reading_log_controller.dart';
+import '../utils/pagination_helper.dart';
+import '../utils/time_map.dart';
 
 final readingSessionControllerProvider = Provider((ref) => ReadingSessionController(ref));
 
@@ -14,18 +16,24 @@ class ReadingSessionController {
   AppDatabase get _db => ref.read(databaseProvider);
 
   /// Updates the book's current page and intelligently adjusts reading status.
+  ///
+  /// [startAt] (mixed mode) is where this reading session started, in pages
+  /// already covered. The stretch before it was covered by the other medium,
+  /// so only `newPage - startAt` is logged, as a run starting at [startAt].
   Future<void> updatePageProgress({
     required Book book,
     required int newPage,
     required Map<int, int> newSegProgress,
     PaginationConfig? newConfig,
     required String Function(int) sectionLabelGetter,
+    int? startAt,
   }) => _db.transaction(() => _updatePageProgress(
         book: book,
         newPage: newPage,
         newSegProgress: newSegProgress,
         newConfig: newConfig,
         sectionLabelGetter: sectionLabelGetter,
+        startAt: startAt,
       ));
 
   Future<void> _updatePageProgress({
@@ -34,6 +42,7 @@ class ReadingSessionController {
     required Map<int, int> newSegProgress,
     PaginationConfig? newConfig,
     required String Function(int) sectionLabelGetter,
+    int? startAt,
   }) async {
     final total = book.totalPages ?? 0;
     final oldStatus = book.status;
@@ -53,6 +62,13 @@ class ReadingSessionController {
     int oldTotalRead = currentHistoryEntry?.progress ?? 0;
     int newTotalRead = newPage; // Already calculated in SegmentedPagePicker if segments exist
 
+    // Mixed mode: the read is finished while EITHER medium is at its end.
+    final audioDone = await _audioFinished(book, currentHistoryEntry);
+    final hasAudio = (currentHistoryEntry?.audioProgress ?? 0) > 0;
+    // Where this session's run starts (see [startAt]); a start beyond the
+    // new page is ignored and treated as a normal correction.
+    final runStart = (startAt != null && startAt <= newTotalRead) ? startAt : oldTotalRead;
+
     bool allSegmentsFinished;
     if (activeConfig.segments.isNotEmpty) {
       allSegmentsFinished = activeConfig.segments.asMap().entries.every((entry) {
@@ -70,7 +86,7 @@ class ReadingSessionController {
     DateTime? newStartedAt = book.startedAt;
     int targetPage = newTotalRead; // Use the sum of pages read in the session
 
-    if (newTotalRead == 0) {
+    if (newTotalRead == 0 && !hasAudio) {
       // Resetting progress to 0 undoes the session being edited. The book then
       // reflects whatever reads remain (e.g. an earlier completed read keeps
       // it as "read") instead of always becoming "want to read".
@@ -105,11 +121,18 @@ class ReadingSessionController {
             segmentProgress: Value(newSegProgress),
           ));
         }
+      } else if (currentHistoryEntry != null && book.mediaType == MediaType.both) {
+        // Already finished by the audio side: just record the pages.
+        await _db.readHistoryDao.updateRead(currentHistoryEntry.copyWith(
+          progress: newTotalRead,
+          segmentProgress: Value(newSegProgress),
+        ));
       }
     } else {
       if (oldStatus == ReadingStatus.read) {
-        // If we were at 100% and reduced progress in ANY section
-        if (newTotalRead < total) {
+        // If we were at 100% and reduced progress in ANY section. In mixed
+        // mode the read stays finished while the audio is complete.
+        if (newTotalRead < total && !audioDone) {
           newStatus = ReadingStatus.reading;
           newFinishedAt = null;
 
@@ -121,6 +144,12 @@ class ReadingSessionController {
                segmentProgress: Value(newSegProgress),
              ));
           }
+        } else if (audioDone && currentHistoryEntry != null) {
+          // Still finished (audio complete); the page pointer just moves.
+          await _db.readHistoryDao.updateRead(currentHistoryEntry.copyWith(
+            progress: newTotalRead,
+            segmentProgress: Value(newSegProgress),
+          ));
         }
       } else if (oldStatus == ReadingStatus.wantToRead || oldStatus == ReadingStatus.abandoned || oldStatus == ReadingStatus.paused || (oldStatus == ReadingStatus.reading && oldTotalRead == 0)) {
         // If we move from 0 (or inactive status) to something in any section, start the reading session logic
@@ -177,8 +206,23 @@ class ReadingSessionController {
 
     await _db.bookDao.updateBook(updated);
 
-    // Use the delta of true total read pages for the log
-    if (newTotalRead != oldTotalRead) {
+    if (book.mediaType == MediaType.both) {
+      // Mixed mode: one run per changed section, at its real position, so
+      // the two media stay complementary even with sections read out of order.
+      final segs = activeConfig.segments;
+      await _logRuns(
+        book.id,
+        sessionIdx,
+        ReadingMedium.text,
+        sectionRuns(
+          sections: segs.isEmpty ? [(0, total)] : [for (final s in segs) (s.startPhysical - 1, s.endPhysical)],
+          oldProgress: segs.isEmpty ? {0: oldTotalRead} : (currentHistoryEntry?.segmentProgress ?? const {}),
+          newProgress: segs.isEmpty ? {0: newTotalRead} : newSegProgress,
+          startAt: startAt,
+        ),
+        (i) => segs.isEmpty ? null : (segs[i].label ?? sectionLabelGetter(i + 1)),
+      );
+    } else if (newTotalRead != runStart) {
       // Determine which sections changed
       final changedSectionLabels = <String>[];
       if (activeConfig.segments.isNotEmpty && book.paginationConfig != null) {
@@ -197,29 +241,49 @@ class ReadingSessionController {
 
       await ref.read(readingLogControllerProvider.notifier).logPages(
         book.id, 
-        newTotalRead - oldTotalRead,
+        newTotalRead - runStart,
         sections: changedSectionLabels.isEmpty ? null : changedSectionLabels,
         readNumber: sessionIdx,
-        startPosition: oldTotalRead,
+        startPosition: runStart,
       );
     }
   }
 
-  /// Audio counterpart of [updatePageProgress]: moves the audio pointer of the
-  /// active read to [newPosition] seconds (of [duration]) and adjusts status,
-  /// history and the listening log the same way pages do.
+  /// Audio counterpart of [updatePageProgress]. [newSegProgress] holds the
+  /// seconds covered from the start of each audio section (see
+  /// `audioSegmentsFor`; a single section for a plain audiobook), and status,
+  /// history and the listening log follow the same rules as pages.
+  ///
+  /// [startAt] (mixed mode) is where this listening session started, as an
+  /// absolute second; see [updatePageProgress].
   Future<void> updateAudioProgress({
     required Book book,
-    required int newPosition,
+    required Map<int, int> newSegProgress,
     required int duration,
+    int? startAt,
+    String Function(int)? sectionLabelGetter,
   }) => _db.transaction(() async {
-        final position = newPosition.clamp(0, duration > 0 ? duration : newPosition);
+        final audioConfig = (await _db.audiobookInfoDao.getForBook(book.id))?.paginationConfig;
+        final sections = audioSegmentsFor(book, duration, audioConfig: audioConfig);
+        final bounds = [for (final s in sections) (s.startPhysical - 1, s.endPhysical)];
+        final lengths = [for (final b in bounds) b.$2 - b.$1];
+        final segProgress = {
+          for (var i = 0; i < sections.length; i++) i: (newSegProgress[i] ?? 0).clamp(0, lengths[i] < 0 ? 0 : lengths[i]),
+        };
+        final position = segProgress.values.fold(0, (a, b) => a + b);
+        final allFull = duration > 0 && [for (var i = 0; i < lengths.length; i++) segProgress[i]! >= lengths[i]].every((f) => f);
+
         final oldStatus = book.status;
         final history = await _db.readHistoryDao.getHistoryForBook(book.id);
         final completedReads = history.where((h) => h.finishedAt != null).length;
         final sessionIdx = (oldStatus == ReadingStatus.read) ? (completedReads > 0 ? completedReads : 1) : completedReads + 1;
         final entry = history.firstWhereOrNull((h) => h.readNumber == sessionIdx);
         final oldPosition = entry?.audioProgress ?? 0;
+        final oldSegProgress = entry?.audioSegmentProgress ?? (sections.length == 1 ? {0: oldPosition} : const <int, int>{});
+        // Mixed mode: the reading side may already complete the read.
+        final pagesDone = book.mediaType == MediaType.both &&
+            (book.totalPages ?? 0) > 0 &&
+            (entry?.progress ?? 0) >= book.totalPages!;
 
         var newStatus = oldStatus;
         DateTime? newStartedAt = book.startedAt;
@@ -232,24 +296,26 @@ class ReadingSessionController {
           newStatus = derived.status;
           newStartedAt = derived.startedAt;
           newFinishedAt = derived.finishedAt;
-        } else if (duration > 0 && position >= duration) {
+        } else if (allFull) {
           if (oldStatus != ReadingStatus.read) {
             newStatus = ReadingStatus.read;
             newFinishedAt = DateTime.now();
           }
           newStartedAt ??= DateTime.now();
-          await _upsertAudioRead(book.id, sessionIdx, entry, position,
+          await _upsertAudioRead(book.id, sessionIdx, entry, position, segProgress,
               startedAt: newStartedAt, finishedAt: newFinishedAt);
         } else {
-          if (oldStatus == ReadingStatus.read) {
+          if (pagesDone) {
+            // Finished by the reading side; the audio pointer just moves.
+          } else if (oldStatus == ReadingStatus.read) {
             newStatus = ReadingStatus.reading;
             newFinishedAt = null;
           } else if (oldStatus != ReadingStatus.reading || oldPosition == 0) {
             newStatus = ReadingStatus.reading;
           }
           newStartedAt ??= DateTime.now();
-          await _upsertAudioRead(book.id, sessionIdx, entry, position,
-              startedAt: newStartedAt, finishedAt: null);
+          await _upsertAudioRead(book.id, sessionIdx, entry, position, segProgress,
+              startedAt: newStartedAt, finishedAt: pagesDone ? entry?.finishedAt : null);
         }
 
         await _db.bookDao.updateBook(book.copyWith(
@@ -258,22 +324,55 @@ class ReadingSessionController {
           finishedAt: Value(newFinishedAt),
         ));
 
-        if (position != oldPosition) {
-          await ref.read(readingLogControllerProvider.notifier).logPages(
-            book.id,
-            position - oldPosition,
-            readNumber: sessionIdx,
-            medium: ReadingMedium.audio,
-            startPosition: oldPosition,
-          );
-        }
+        await _logRuns(
+          book.id,
+          sessionIdx,
+          ReadingMedium.audio,
+          sectionRuns(sections: bounds, oldProgress: oldSegProgress, newProgress: segProgress, startAt: startAt),
+          (i) => sections.length == 1 ? null : (sections[i].label ?? sectionLabelGetter?.call(i + 1)),
+        );
       });
 
+  /// Logs each run as its own entry (see `sectionRuns`). Decreases carry no
+  /// start, so they reduce the latest entry instead of creating a run.
+  Future<void> _logRuns(int bookId, int readNumber, ReadingMedium medium,
+      List<({int start, int delta, int section})> runs, String? Function(int section) label) async {
+    for (final r in runs) {
+      final l = label(r.section);
+      await ref.read(readingLogControllerProvider.notifier).logPages(
+        bookId,
+        r.delta,
+        sections: l == null ? null : [l],
+        readNumber: readNumber,
+        medium: medium,
+        startPosition: r.delta > 0 ? r.start : null,
+      );
+    }
+  }
+
+  /// Whether the audio side of [entry] is complete (mixed mode only).
+  Future<bool> _audioFinished(Book book, ReadHistoryData? entry) async {
+    if (book.mediaType != MediaType.both || entry == null) return false;
+    final duration = (await _db.audiobookInfoDao.getForBook(book.id))?.durationSeconds ?? 0;
+    return duration > 0 && entry.audioProgress >= duration;
+  }
+
+  /// Latest log entry of the active read of [book]: its medium decides
+  /// whether a new session needs a starting point, and where it ended feeds
+  /// the suggested start (mixed mode).
+  Future<ReadingLogData?> lastEntryOfActiveRead(Book book) async {
+    final history = await _db.readHistoryDao.getHistoryForBook(book.id);
+    final completedReads = history.where((h) => h.finishedAt != null).length;
+    final readNumber = PaginationHelper.getActiveSessionNumber(book.status, completedReads);
+    return _db.logDao.lastEntryForRead(book.id, readNumber);
+  }
+
   Future<void> _upsertAudioRead(int bookId, int readNumber, ReadHistoryData? entry, int position,
-      {DateTime? startedAt, DateTime? finishedAt}) async {
+      Map<int, int> segProgress, {DateTime? startedAt, DateTime? finishedAt}) async {
     if (entry != null) {
       await _db.readHistoryDao.updateRead(entry.copyWith(
         audioProgress: position,
+        audioSegmentProgress: Value(segProgress),
         finishedAt: Value(finishedAt),
         startedAt: Value(entry.startedAt ?? startedAt),
       ));
@@ -284,6 +383,7 @@ class ReadingSessionController {
         startedAt: Value(startedAt),
         finishedAt: Value(finishedAt),
         audioProgress: Value(position),
+        audioSegmentProgress: Value(segProgress),
       ));
     }
   }
@@ -301,8 +401,9 @@ class ReadingSessionController {
     final bookId = book.id;
     final config = book.paginationConfig;
 
-    if (book.mediaType == MediaType.audio) {
-      // A new listen starts at 0:00:00; progress is logged as it advances.
+    if (book.mediaType != MediaType.reading) {
+      // A new listen (or mixed read) starts at zero in both media; progress
+      // is logged as it advances, in whichever medium comes first.
       await _db.bookDao.updateBook(book.copyWith(
         status: ReadingStatus.reading,
         startedAt: Value(now),

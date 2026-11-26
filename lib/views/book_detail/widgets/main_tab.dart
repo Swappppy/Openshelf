@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../utils/pagination_helper.dart';
-import '../../../widgets/segmented_progress_bar.dart';
 import '../../../controllers/read_history_controller.dart';
 import '../../../controllers/books_controller.dart';
 import '../../../widgets/tag_chip.dart';
@@ -16,17 +15,24 @@ import '../../../models/extensions/reading_status_ext.dart';
 import '../../../models/extensions/book_format_ext.dart';
 import '../../shelves/shelf_books_view.dart';
 import '../../../utils/media_progress.dart';
+import '../../../utils/time_map.dart';
 import '../../../controllers/audiobook_info_provider.dart';
+import '../../../controllers/reading_log_controller.dart';
+import '../../../widgets/mixed_progress_bars.dart';
 
 class MainTab extends StatelessWidget {
   final Book book;
   final VoidCallback onTapPages;
+
+  /// Mixed mode: registers listening progress (pages use [onTapPages]).
+  final VoidCallback? onTapAudio;
   final Function(int) onTapSection;
 
   const MainTab({
     super.key,
     required this.book,
     required this.onTapPages,
+    this.onTapAudio,
     required this.onTapSection,
   });
 
@@ -164,9 +170,11 @@ class MainTab extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  SectionHeader(label: book.mediaType == MediaType.audio
-                      ? context.l10n.audioProgressTitle
-                      : context.l10n.bookDetailFieldPages),
+                  SectionHeader(label: switch (book.mediaType) {
+                    MediaType.audio => context.l10n.audioProgressTitle,
+                    MediaType.both => context.l10n.fieldReadingProgress,
+                    MediaType.reading => context.l10n.bookDetailFieldPages,
+                  }),
                   const SizedBox(width: 4),
                   Icon(
                     Icons.edit_outlined,
@@ -178,16 +186,64 @@ class MainTab extends StatelessWidget {
               const SizedBox(height: 4),
               Consumer(builder: (context, ref, _) {
                 final historyAsync = ref.watch(readHistoryProvider(book.id));
+                final info = ref.watch(audiobookInfoProvider(book.id)).value;
+                final logs = ref.watch(bookLogsProvider(book.id)).value ?? const <ReadingLogData>[];
                 if (book.mediaType == MediaType.audio) {
-                  final info = ref.watch(audiobookInfoProvider(book.id)).value;
-                  final progress = MediaProgress.audio(book, historyAsync.value ?? const [], info);
-                  return _AudioProgressRow(progress: progress, status: book.status);
+                  // Plain audiobook: one audio bar with its own sections and
+                  // markers (same badges), and the same sections tile.
+                  final history = historyAsync.value ?? const <ReadHistoryData>[];
+                  final audioConfig = info?.paginationConfig;
+                  final duration = info?.durationSeconds ?? 0;
+                  final hasStructure = audioConfig != null &&
+                      (audioConfig.segments.length > 1 || audioConfig.markers.isNotEmpty);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: MixedProgressBars(
+                          book: book,
+                          history: history,
+                          text: null,
+                          textCaption: '',
+                          audio: MediaProgress.audio(book, history, info),
+                          onTapText: onTapPages,
+                          showText: false,
+                          audioConfig: audioConfig,
+                        ),
+                      ),
+                      if (hasStructure && duration > 0) ...[
+                        const SizedBox(height: 16),
+                        _MarkersAndSegmentsTile(
+                          book: book,
+                          history: history,
+                          onTapSection: (_) => onTapPages(),
+                          audioDuration: duration,
+                          audioConfig: audioConfig,
+                        ),
+                      ],
+                    ],
+                  );
                 }
                 return historyAsync.when(
                   loading: () => const SizedBox.shrink(),
                   error: (_, _) => const Text('—'),
                   data: (history) {
-                    final totalRead = PaginationHelper.getTotalReadPages(book, history);
+                    final mixed = book.mediaType == MediaType.both;
+                    final totalRead = mixed
+                        ? (MediaProgress.text(book, history)?.current ?? 0)
+                        : PaginationHelper.getTotalReadPages(book, history);
+                    // Mixed mode: each bar paints the runs of its own medium;
+                    // the gaps are what the other medium covered.
+                    final readNumber = PaginationHelper.getActiveSessionNumber(
+                        book.status, history.where((h) => h.finishedAt != null).length);
+                    final textRuns = mixed
+                        ? coveredRuns(logs: logs, readNumber: readNumber, medium: ReadingMedium.text, pointer: totalRead)
+                        : null;
+                    final audioProgress = mixed ? MediaProgress.audio(book, history, info) : null;
+                    final audioRuns = audioProgress == null
+                        ? null
+                        : coveredRuns(logs: logs, readNumber: readNumber, medium: ReadingMedium.audio, pointer: audioProgress.current);
                     final totalPages = book.totalPages ?? 0;
                     final useVisual = book.paginationConfig?.useVisualMode ?? false;
                     final completedReads = history.where((h) => h.finishedAt != null).length;
@@ -207,41 +263,36 @@ class MainTab extends StatelessWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (book.totalPages != null) ...[
-                          if (book.paginationConfig?.markers.isNotEmpty ?? false)
-                            const SizedBox(height: 55),
-                          const SizedBox(height: 8),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: SegmentedProgressBar(
-                                  book: book,
-                                  history: history,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '$currentText / $totalText',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                  ),
-                                  Text(
-                                    '${(totalPages > 0 ? (totalRead / totalPages * 100) : 0).toStringAsFixed(0)}%',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.outline,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ] else
+                        // Mixed: both bars stacked, aligned, with shared markers.
+                        if (mixed)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: MixedProgressBars(
+                              book: book,
+                              history: history,
+                              text: MediaProgress.text(book, history),
+                              audio: audioProgress,
+                              textRuns: textRuns,
+                              audioRuns: audioRuns,
+                              textCaption: '$currentText / $totalText',
+                              onTapText: onTapPages,
+                              onTapAudio: onTapAudio ?? onTapPages,
+                            ),
+                          )
+                        else if (book.totalPages != null)
+                          // Reading books: the same bar and marker badges, one row.
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: MixedProgressBars(
+                              book: book,
+                              history: history,
+                              text: MediaProgress(totalRead, totalPages, ReadingMedium.text),
+                              textCaption: '$currentText / $totalText',
+                              onTapText: onTapPages,
+                              showAudio: false,
+                            ),
+                          )
+                        else
                           Text('—', style: Theme.of(context).textTheme.bodyLarge),
 
                         if (book.paginationConfig != null &&
@@ -252,8 +303,10 @@ class MainTab extends StatelessWidget {
                             book: book,
                             history: history,
                             onTapSection: onTapSection,
+                            audioDuration: mixed ? info?.durationSeconds : null,
                           ),
                         ],
+
                       ],
                     );
                   },
@@ -313,11 +366,21 @@ class _MarkersAndSegmentsTile extends StatefulWidget {
   final List<ReadHistoryData> history;
   final Function(int) onTapSection;
 
+  /// Mixed books: the audio duration, to list the sections in time too.
+  final int? audioDuration;
+
+  /// Plain audiobooks: their own sections and markers, in seconds.
+  final PaginationConfig? audioConfig;
+
   const _MarkersAndSegmentsTile({
     required this.book,
     required this.history,
     required this.onTapSection,
+    this.audioDuration,
+    this.audioConfig,
   });
+
+  bool get _audioOnly => book.mediaType == MediaType.audio;
 
   @override
   State<_MarkersAndSegmentsTile> createState() => _MarkersAndSegmentsTileState();
@@ -341,12 +404,19 @@ class _MarkersAndSegmentsTileState extends State<_MarkersAndSegmentsTile> {
 
   @override
   Widget build(BuildContext context) {
-    final segments = widget.book.paginationConfig?.segments ?? [];
-    final markers = widget.book.paginationConfig?.markers ?? [];
+    // A plain audiobook lists only its own (time) sections and markers.
+    final segments = widget._audioOnly ? const <PaginationSegment>[] : (widget.book.paginationConfig?.segments ?? []);
+    final markers = widget._audioOnly
+        ? (widget.audioConfig?.markers ?? const <PaginationMarker>[])
+        : (widget.book.paginationConfig?.markers ?? []);
+    final audioSectionCount = widget._audioOnly ? (widget.audioConfig?.segments.length ?? 0) : segments.length;
     final colorScheme = Theme.of(context).colorScheme;
 
     final pages = <Widget>[];
+    // Paper sections, then the same sections in the audio, then markers.
+    final duration = widget.audioDuration ?? 0;
     if (segments.length > 1) pages.add(_buildSegmentsPage(context, segments));
+    if (audioSectionCount > 1 && duration > 0) pages.add(_buildAudioSectionsPage(context, duration));
     if (markers.isNotEmpty) pages.add(_buildMarkersPage(context, markers));
 
     if (pages.isEmpty) return const SizedBox.shrink();
@@ -490,6 +560,60 @@ class _MarkersAndSegmentsTileState extends State<_MarkersAndSegmentsTile> {
     );
   }
 
+  /// The book's sections in the audio: time range and listening progress.
+  Widget _buildAudioSectionsPage(BuildContext context, int duration) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final book = widget.book;
+    final sections = audioSegmentsFor(book, duration, audioConfig: widget.audioConfig);
+    final completed = widget.history.where((h) => h.finishedAt != null).length;
+    final active = PaginationHelper.getActiveSessionNumber(book.status, completed);
+    final progress = widget.history.firstWhereOrNull((h) => h.readNumber == active)?.audioSegmentProgress ?? const {};
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      itemCount: sections.length,
+      separatorBuilder: (_, _) => Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+      itemBuilder: (context, i) {
+        final s = sections[i];
+        final start = s.startPhysical - 1;
+        final length = s.endPhysical - start;
+        final covered = (progress[i] ?? 0).clamp(0, length < 0 ? 0 : length);
+        final color = s.color != null ? Color(int.parse('0xFF${s.color}')) : colorScheme.primary.withValues(alpha: 0.2);
+        return IntrinsicHeight(
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+              ),
+              Expanded(
+                child: ListTile(
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  leading: Icon(Icons.headphones_outlined, size: 16, color: colorScheme.outline),
+                  title: Text(
+                    s.label ?? context.l10n.paginationSectionLabel(i + 1),
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text('${formatDuration(start)} – ${formatDuration(s.endPhysical)} $durationUnit',
+                      style: const TextStyle(fontSize: 11)),
+                  trailing: Text(
+                    '${(length > 0 ? covered / length * 100 : 0).toStringAsFixed(0)}%',
+                    style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildMarkersPage(BuildContext context, List<PaginationMarker> markers) {
     final book = widget.book;
 
@@ -498,66 +622,45 @@ class _MarkersAndSegmentsTileState extends State<_MarkersAndSegmentsTile> {
       itemCount: markers.length,
       itemBuilder: (context, i) {
         final m = markers[i];
+        final color = m.color != null ? Color(int.parse('0xFF${m.color}')) : Theme.of(context).colorScheme.secondary;
+        final page = '${context.l10n.paginationCurrentPageShort} ${PaginationHelper.getVisualPage(m.physicalPage, book.paginationConfig)}';
+        final duration = widget.audioDuration ?? 0;
+        // Plain audiobooks store markers in seconds; mixed ones translate pages.
+        final time = widget._audioOnly
+            ? m.physicalPage - 1
+            : duration > 0 && (book.totalPages ?? 0) > 0
+            ? TimeMap(
+                totalPages: book.totalPages!,
+                duration: duration,
+                segments: book.paginationConfig?.segments ?? const [],
+                markers: markers,
+              ).markerSeconds(m)
+            : null;
         return ListTile(
-          leading: Icon(
-            Icons.location_on_outlined,
-            size: 16,
-            color: m.color != null ? Color(int.parse('0xFF${m.color}')) : null,
+          // Same number as the badge drawn over the bars.
+          leading: CircleAvatar(
+            radius: 10,
+            backgroundColor: color,
+            child: Text(
+              '${i + 1}',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: ThemeData.estimateBrightnessForColor(color) == Brightness.dark ? Colors.white : Colors.black,
+              ),
+            ),
           ),
           title: Text(m.label, style: const TextStyle(fontSize: 13)),
           trailing: Text(
-            '${context.l10n.paginationCurrentPageShort} ${PaginationHelper.getVisualPage(m.physicalPage, book.paginationConfig)}',
+            widget._audioOnly
+                ? '${formatDuration(time!)} $durationUnit'
+                : (time == null ? page : '$page · ${formatDuration(time)} $durationUnit'),
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           visualDensity: VisualDensity.compact,
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         );
       },
-    );
-  }
-}
-
-/// Listening progress of an audiobook: a plain bar plus `h:mm / h:mm` and %.
-class _AudioProgressRow extends StatelessWidget {
-  final MediaProgress? progress;
-  final ReadingStatus status;
-
-  const _AudioProgressRow({required this.progress, required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final p = progress;
-    if (p == null) return Text('—', style: Theme.of(context).textTheme.bodyLarge);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: LinearProgressIndicator(
-              value: p.fraction,
-              minHeight: 6,
-              borderRadius: BorderRadius.circular(3),
-              backgroundColor: colorScheme.surfaceContainerHighest,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${formatDuration(p.current)} / ${formatDuration(p.total)} $durationUnit',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              Text(
-                '${(p.fraction * 100).toStringAsFixed(0)}%',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

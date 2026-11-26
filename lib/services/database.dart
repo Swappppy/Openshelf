@@ -70,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 34;
+  int get schemaVersion => 35;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -314,6 +314,10 @@ class AppDatabase extends _$AppDatabase {
         await _addColumnIfMissing(m, readHistory, readHistory.audioProgress);
         await _addColumnIfMissing(m, readHistory, readHistory.audioSegmentProgress);
         await m.createTable(audiobookInfo);
+      }
+      if (from < 35) {
+        // Own sections/markers for plain audiobooks.
+        await _addColumnIfMissing(m, audiobookInfo, audiobookInfo.paginationConfig);
       }
 
       await customStatement('PRAGMA foreign_keys = ON');

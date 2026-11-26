@@ -72,6 +72,12 @@ class PaginationSegment {
   final String? color;
   final bool restartNumbering;
 
+  /// Mixed mode: where this section starts/ends in the audio, in seconds.
+  /// Null means "derived" from the pages by interpolation between the
+  /// nearest known anchors (see TimeMap); a value is an anchor set by the user.
+  final int? startSeconds;
+  final int? endSeconds;
+
   PaginationSegment({
     required this.startPhysical,
     required this.endPhysical,
@@ -80,6 +86,8 @@ class PaginationSegment {
     this.label,
     this.color,
     this.restartNumbering = false,
+    this.startSeconds,
+    this.endSeconds,
   });
 
   PaginationSegment copyWith({
@@ -92,6 +100,10 @@ class PaginationSegment {
     bool? restartNumbering,
     bool clearLabel = false,
     bool clearColor = false,
+    int? startSeconds,
+    int? endSeconds,
+    bool clearStartSeconds = false,
+    bool clearEndSeconds = false,
   }) {
     return PaginationSegment(
       startPhysical: startPhysical ?? this.startPhysical,
@@ -101,6 +113,8 @@ class PaginationSegment {
       label: clearLabel ? null : (label ?? this.label),
       color: clearColor ? null : (color ?? this.color),
       restartNumbering: restartNumbering ?? this.restartNumbering,
+      startSeconds: clearStartSeconds ? null : (startSeconds ?? this.startSeconds),
+      endSeconds: clearEndSeconds ? null : (endSeconds ?? this.endSeconds),
     );
   }
 
@@ -112,6 +126,8 @@ class PaginationSegment {
     'label': label,
     'color': color,
     'restartNumbering': restartNumbering,
+    if (startSeconds != null) 'startSeconds': startSeconds,
+    if (endSeconds != null) 'endSeconds': endSeconds,
   };
 
   factory PaginationSegment.fromJson(Map<String, dynamic> json) {
@@ -123,6 +139,8 @@ class PaginationSegment {
       label: json['label'],
       color: json['color'],
       restartNumbering: json['restartNumbering'] ?? false,
+      startSeconds: json['startSeconds'],
+      endSeconds: json['endSeconds'],
     );
   }
 }
@@ -132,16 +150,21 @@ class PaginationMarker {
   final String label;
   final String? color;
 
+  /// Mixed mode: audio position anchor in seconds; null = derived from the page.
+  final int? seconds;
+
   PaginationMarker({
     required this.physicalPage,
     required this.label,
     this.color,
+    this.seconds,
   });
 
   Map<String, dynamic> toJson() => {
     'physicalPage': physicalPage,
     'label': label,
     'color': color,
+    if (seconds != null) 'seconds': seconds,
   };
 
   PaginationMarker copyWith({
@@ -149,11 +172,14 @@ class PaginationMarker {
     String? label,
     String? color,
     bool clearColor = false,
+    int? seconds,
+    bool clearSeconds = false,
   }) {
     return PaginationMarker(
       physicalPage: physicalPage ?? this.physicalPage,
       label: label ?? this.label,
       color: clearColor ? null : (color ?? this.color),
+      seconds: clearSeconds ? null : (seconds ?? this.seconds),
     );
   }
 
@@ -161,6 +187,7 @@ class PaginationMarker {
     physicalPage: json['physicalPage'],
     label: json['label'],
     color: json['color'],
+    seconds: json['seconds'],
   );
 }
 

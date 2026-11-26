@@ -31,10 +31,19 @@ class ReadingLogController extends Notifier<void> {
               l.isBackfill.equals(backfill) &
               l.medium.equalsValue(medium) &
               (readNumber != null ? l.readNumber.equals(readNumber) : l.readNumber.isNull()))
+          ..orderBy([(l) => OrderingTerm.desc(l.id)])
           ..limit(1))
         .getSingleOrNull();
 
-    if (existing != null) {
+    // Same-day entries are merged only when this one continues where the
+    // previous one ended. A jump (e.g. resuming after the other medium
+    // covered a stretch) starts a new entry, so each row stays one run.
+    final continues = existing == null ||
+        startPosition == null ||
+        existing.startPosition == null ||
+        startPosition == existing.startPosition! + existing.pagesRead;
+
+    if (existing != null && continues) {
       final newPages = (existing.pagesRead + delta).clamp(0, 999999);
       
       // Merge section labels
@@ -136,4 +145,9 @@ final dailyReadingProvider = StreamProvider<Map<DateTime, int>>((ref) {
     }
     return daily;
   });
+});
+
+/// Log entries of one book (used to draw covered runs in mixed mode).
+final bookLogsProvider = StreamProvider.family<List<ReadingLogData>, int>((ref, bookId) {
+  return ref.watch(databaseProvider).logDao.watchLogForBook(bookId);
 });

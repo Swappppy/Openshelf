@@ -2124,4 +2124,63 @@ class AppLocalizationsIt extends AppLocalizations {
   String audioProgress(String current, String total, String percent) {
     return '$current / $total · $percent%';
   }
+
+  @override
+  String get fieldAudioPublisher => 'Editorial del audio';
+
+  @override
+  String get fieldAudioIdentifier => 'ISBN / ASIN del audio';
+
+  @override
+  String get mixedStartTitle => '¿Dónde empiezas?';
+
+  @override
+  String get mixedStartPage => 'Página de inicio';
+
+  @override
+  String get mixedStartPosition => 'Posición de inicio';
+
+  @override
+  String mixedLastAudio(String position) {
+    return 'Último audio: $position';
+  }
+
+  @override
+  String mixedLastPage(String page) {
+    return 'Última página leída: $page';
+  }
+
+  @override
+  String get mixedOverlapWarning =>
+      'Empiezas antes de donde lo dejaste en este medio: ese tramo se contará una sola vez.';
+
+  @override
+  String get mixedSkip => 'Seguir donde lo dejé';
+
+  @override
+  String get mixedContinue => 'Continuar';
+
+  @override
+  String get mixedInvalidPage => 'Introduce una página válida';
+
+  @override
+  String get mixedSuggested => 'Estimación según las secciones';
+
+  @override
+  String get audioAnchorStart => 'Inicio en audio';
+
+  @override
+  String get audioAnchorEnd => 'Fin en audio';
+
+  @override
+  String get audioAnchorMarker => 'Posición en audio';
+
+  @override
+  String get audioSectionStart => 'Inicio';
+
+  @override
+  String get audioSectionEnd => 'Fin';
+
+  @override
+  String get audioSectionsButton => 'Secciones';
 }

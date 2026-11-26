@@ -4,6 +4,8 @@ import '../utils/pagination_helper.dart';
 import '../l10n/l10n_extension.dart';
 import 'page_picker.dart';
 import 'roman_page_picker.dart';
+import 'time_picker_wheel.dart';
+import '../utils/media_progress.dart';
 
 class SegmentedPagePicker extends StatefulWidget {
   final int totalPages;
@@ -422,3 +424,123 @@ class _SegmentCarouselIndicators extends StatelessWidget {
   }
 }
 
+/// Listening counterpart of [SegmentedPagePicker]: a carousel with one time
+/// wheel per section. [sections] use seconds with the page convention
+/// (`startPhysical = startSecond + 1`), see `audioSegmentsFor`; progress maps
+/// hold the seconds covered from each section's start.
+class SegmentedTimePicker extends StatefulWidget {
+  final List<PaginationSegment> sections;
+  final Map<int, int> initialSegmentProgress;
+  final int? initialSegmentIndex;
+  final String saveLabel;
+  final void Function(Map<int, int> segmentProgress) onSave;
+
+  const SegmentedTimePicker({
+    super.key,
+    required this.sections,
+    required this.initialSegmentProgress,
+    required this.saveLabel,
+    required this.onSave,
+    this.initialSegmentIndex,
+  });
+
+  @override
+  State<SegmentedTimePicker> createState() => _SegmentedTimePickerState();
+}
+
+class _SegmentedTimePickerState extends State<SegmentedTimePicker> {
+  late final Map<int, int> _progress = Map<int, int>.from(widget.initialSegmentProgress);
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    final int initial = widget.initialSegmentIndex ?? _firstIncompleteSection();
+    _pageController = PageController(initialPage: initial.clamp(0, widget.sections.length - 1).toInt());
+  }
+
+  /// First section not yet complete, like the page picker (0 if all are).
+  int _firstIncompleteSection() {
+    for (var i = 0; i < widget.sections.length; i++) {
+      final s = widget.sections[i];
+      if ((_progress[i] ?? 0) < s.endPhysical - s.startPhysical + 1) return i;
+    }
+    return 0;
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _SegmentCarouselIndicators(
+          pageController: _pageController,
+          totalSegments: widget.sections.length,
+        ),
+        Flexible(
+          child: SizedBox(
+            height: 290,
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: widget.sections.length,
+              itemBuilder: (context, index) {
+                final s = widget.sections[index];
+                final base = s.startPhysical - 1;
+                final end = s.endPhysical < base ? base : s.endPhysical;
+                final covered = (_progress[index] ?? 0).clamp(0, end - base);
+                return Column(
+                  children: [
+                    if (widget.sections.length > 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          s.label ?? context.l10n.paginationSectionLabel(index + 1),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Center(
+                        child: TimePickerWheel(
+                          // Absolute positions, as the player shows them.
+                          initialValue: base + covered,
+                          minValue: base,
+                          maxValue: end,
+                          onChanged: (value) => setState(() => _progress[index] = value - base),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${formatDuration(base + covered)} / ${formatDuration(end)} $durationUnit',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        FilledButton(
+          onPressed: () => widget.onSave({
+            for (var i = 0; i < widget.sections.length; i++) i: _progress[i] ?? 0,
+          }),
+          child: Text(widget.saveLabel),
+        ),
+      ],
+    );
+  }
+}

@@ -11,6 +11,7 @@ import 'shelf_automation_controller.dart';
 import 'reading_log_controller.dart';
 import 'app_settings_controller.dart';
 import '../utils/pagination_helper.dart';
+import '../utils/time_map.dart';
 
 final bookFormControllerProvider = Provider((ref) => BookFormController(ref));
 
@@ -178,6 +179,9 @@ class BookFormController {
     String? platform,
     int? audioDurationSeconds,
     int? audioPositionSeconds,
+    String? audioPublisher,
+    String? audioIdentifier,
+    PaginationConfig? audioPaginationConfig,
   }) async {
     // 1. Sanitize Pagination Config
     PaginationConfig? finalConfig = paginationConfig;
@@ -199,6 +203,25 @@ class BookFormController {
         markers: finalConfig.markers.where((m) => m.physicalPage <= totalPages).toList(),
         useVisualMode: finalConfig.useVisualMode,
       );
+    }
+
+    // Switching media carries the sections over, so none of that work is lost:
+    // mixed -> audio translates the shared page sections (with their anchors)
+    // into the audiobook's own; audio -> mixed builds page sections from the
+    // audio ones (exact times become anchors) when the pages have none.
+    var audioConfig = audioPaginationConfig;
+    final previousType = existingBook?.mediaType;
+    final duration = audioDurationSeconds ?? 0;
+    if (previousType == MediaType.both && mediaType == MediaType.audio &&
+        (finalConfig?.segments.isNotEmpty ?? false) && totalPages > 0 && duration > 0) {
+      audioConfig = audioConfigFromPages(
+        existingBook!.copyWith(paginationConfig: Value(finalConfig), totalPages: Value(totalPages)),
+        duration,
+      );
+    } else if (previousType == MediaType.audio && mediaType == MediaType.both &&
+        (audioConfig?.segments.isNotEmpty ?? false) && (finalConfig?.segments.isEmpty ?? true) &&
+        totalPages > 0 && duration > 0) {
+      finalConfig = pageConfigFromAudio(audioConfig!, totalPages: totalPages, duration: duration);
     }
 
     final effectiveFinishedAt = status == ReadingStatus.read ? (finishedAt ?? DateTime.now()) : finishedAt;
@@ -389,9 +412,12 @@ class BookFormController {
         narrator: Value(narrator),
         platform: Value(platform),
         durationSeconds: Value(audioDurationSeconds),
+        publisher: Value(audioPublisher),
+        identifier: Value(audioIdentifier),
+        paginationConfig: audioConfig != null ? Value(audioConfig) : const Value.absent(),
       ));
     }
-    if (mediaType == MediaType.audio && audioPositionSeconds != null) {
+    if (mediaType != MediaType.reading && audioPositionSeconds != null) {
       await _syncAudioPosition(
         bookId: bookId,
         status: status,
@@ -399,6 +425,7 @@ class BookFormController {
         duration: audioDurationSeconds,
         finishedAt: effectiveFinishedAt,
         startedAt: startedAt,
+        mediaType: mediaType,
       );
     }
 
@@ -414,16 +441,33 @@ class BookFormController {
     required int? duration,
     required DateTime? finishedAt,
     required DateTime? startedAt,
+    required MediaType mediaType,
   }) async {
     final history = await _db.readHistoryDao.getHistoryForBook(bookId);
     final completedReads = history.where((h) => h.finishedAt != null).length;
     final activeNum = PaginationHelper.getActiveSessionNumber(status, completedReads);
     final entry = history.firstWhereOrNull((h) => h.readNumber == activeNum);
-    final target = (status == ReadingStatus.read && (duration ?? 0) > 0) ? duration! : position;
+    // A finished audiobook is fully listened; a finished mixed book may have
+    // been completed by reading, so its audio pointer stays as typed.
+    final target = (mediaType == MediaType.audio && status == ReadingStatus.read && (duration ?? 0) > 0)
+        ? duration!
+        : position;
     final old = entry?.audioProgress ?? 0;
 
+    // The form edits a single position: spread it over the audio sections in
+    // order, as the page form does with page sections.
+    final book = await _db.bookDao.getBook(bookId);
+    final audioConfig = (await _db.audiobookInfoDao.getForBook(bookId))?.paginationConfig;
+    final sections = book != null && (duration ?? 0) > 0
+        ? audioSegmentsFor(book, duration!, audioConfig: audioConfig)
+        : const <PaginationSegment>[];
+    final segProgress = sections.isEmpty ? null : PaginationHelper.distributePhysicalPage(target, sections);
+
     if (entry != null) {
-      await _db.readHistoryDao.updateRead(entry.copyWith(audioProgress: target));
+      await _db.readHistoryDao.updateRead(entry.copyWith(
+        audioProgress: target,
+        audioSegmentProgress: Value(segProgress),
+      ));
     } else if (target > 0 || status == ReadingStatus.reading || status == ReadingStatus.read) {
       await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
         bookId: bookId,
@@ -431,6 +475,7 @@ class BookFormController {
         startedAt: Value(startedAt ?? DateTime.now()),
         finishedAt: Value(status == ReadingStatus.read ? finishedAt : null),
         audioProgress: Value(target),
+        audioSegmentProgress: Value(segProgress),
       ));
     }
 

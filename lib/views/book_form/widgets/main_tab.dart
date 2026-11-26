@@ -43,6 +43,12 @@ class MainTab extends ConsumerWidget {
   final TextEditingController platformCtrl;
   final TextEditingController durationCtrl;
   final TextEditingController audioPositionCtrl;
+  final TextEditingController audioPublisherCtrl;
+  final TextEditingController audioIdentifierCtrl;
+
+  /// Own sections/markers of a plain audiobook (edited in time mode).
+  final PaginationConfig? audioPaginationConfig;
+  final ValueChanged<PaginationConfig> onAudioPaginationChanged;
 
   const MainTab({
     super.key,
@@ -75,9 +81,17 @@ class MainTab extends ConsumerWidget {
     required this.platformCtrl,
     required this.durationCtrl,
     required this.audioPositionCtrl,
+    required this.audioPublisherCtrl,
+    required this.audioIdentifierCtrl,
+    this.audioPaginationConfig,
+    required this.onAudioPaginationChanged,
   });
 
-  bool get _isAudio => mediaType == MediaType.audio;
+  /// Page fields apply to reading and mixed books; audio fields to audio and
+  /// mixed ones. Hidden fields keep their values.
+  bool get _showPages => mediaType != MediaType.audio;
+  bool get _showAudio => mediaType != MediaType.reading;
+  bool get _isMixed => mediaType == MediaType.both;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -212,34 +226,7 @@ class MainTab extends ConsumerWidget {
         // --- Reading Progress Section ---
         // Audio books track time instead of pages. The page fields stay in
         // the form state (hidden, not cleared) so switching back keeps them.
-        if (_isAudio) ...[
-          SectionHeader(label: context.l10n.fieldReadingProgress),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: DurationFormField(
-                  controller: durationCtrl,
-                  label: context.l10n.fieldDuration,
-                  icon: Icons.timer_outlined,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: DurationFormField(
-                  controller: audioPositionCtrl,
-                  label: context.l10n.fieldAudioPosition,
-                  icon: Icons.headphones_outlined,
-                  extraValidator: (seconds) {
-                    final total = parseDuration(durationCtrl.text);
-                    return total != null && seconds > total ? context.l10n.audioPositionBeyondDuration : null;
-                  },
-                ),
-              ),
-            ],
-          ),
-        ] else ...[
+        if (_showPages) ...[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -256,6 +243,8 @@ class MainTab extends ConsumerWidget {
                         initialSegmentProgress: initialSegmentProgress,
                         totalPages: total,
                         onSave: onPaginationConfigChanged,
+                        // Mixed books edit the audio positions of the same sections.
+                        audioDuration: _isMixed ? parseDuration(durationCtrl.text) : null,
                       ),
                     ),
                   );
@@ -289,6 +278,63 @@ class MainTab extends ConsumerWidget {
             ],
           ),
         ],
+        if (_showAudio) ...[
+          if (_isMixed) const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SectionHeader(label: _isMixed ? context.l10n.audioProgressTitle : context.l10n.fieldReadingProgress),
+              // Plain audiobooks have their own sections (mixed books share
+              // the page ones, edited with the page pagination).
+              if (!_isMixed)
+                TextButton.icon(
+                  onPressed: () {
+                    final duration = parseDuration(durationCtrl.text) ?? 0;
+                    if (duration <= 0) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AdvancedPaginationView(
+                          initialConfig: audioPaginationConfig ?? PaginationConfig(),
+                          totalPages: duration,
+                          timeMode: true,
+                          onSave: (cfg, _) => onAudioPaginationChanged(cfg),
+                        ),
+                      ),
+                    );
+                  },
+                  style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                  icon: const Icon(Icons.settings_suggest_outlined, size: 16),
+                  label: Text(context.l10n.paginationAdvancedButton, style: const TextStyle(fontSize: 12)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: DurationFormField(
+                  controller: durationCtrl,
+                  label: context.l10n.fieldDuration,
+                  icon: Icons.timer_outlined,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: DurationFormField(
+                  controller: audioPositionCtrl,
+                  label: context.l10n.fieldAudioPosition,
+                  icon: Icons.headphones_outlined,
+                  extraValidator: (seconds) {
+                    final total = parseDuration(durationCtrl.text);
+                    return total != null && seconds > total ? context.l10n.audioPositionBeyondDuration : null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
         // --- Status Section ---
         const SizedBox(height: 24),
         SectionHeader(label: context.l10n.sectionReadingStatus),
@@ -301,7 +347,9 @@ class MainTab extends ConsumerWidget {
         const SizedBox(height: 12),
         MediaTypeSelector(selected: mediaType, onChanged: onMediaTypeChanged),
         const SizedBox(height: 12),
-        if (_isAudio) ...[
+        if (_showPages) FormatSelector(selected: format, onChanged: onFormatChanged),
+        if (_showAudio) ...[
+          if (_showPages) const SizedBox(height: 16),
           DelimitedAutocompleteFormField(
             controller: narratorCtrl,
             label: context.l10n.fieldNarrator,
@@ -318,8 +366,24 @@ class MainTab extends ConsumerWidget {
             icon: Icons.apps_outlined,
             optionsBuilder: (q) => audioDao.getDistinctPlatforms(q),
           ),
-        ] else
-          FormatSelector(selected: format, onChanged: onFormatChanged),
+          // In mixed mode the main publisher/ISBN describe the reading
+          // edition; these describe the audio one.
+          if (_isMixed) ...[
+            const SizedBox(height: 12),
+            DelimitedAutocompleteFormField(
+              controller: audioPublisherCtrl,
+              label: context.l10n.fieldAudioPublisher,
+              icon: Icons.business_outlined,
+              optionsBuilder: (q) => bookDao.getDistinctPublishers(q),
+            ),
+            const SizedBox(height: 12),
+            FormFieldWidget(
+              controller: audioIdentifierCtrl,
+              label: context.l10n.fieldAudioIdentifier,
+              icon: Icons.qr_code_outlined,
+            ),
+          ],
+        ],
         const SizedBox(height: 24),
 
         // --- Rating Section ---

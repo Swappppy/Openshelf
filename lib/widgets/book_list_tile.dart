@@ -262,21 +262,25 @@ class BookListTile extends ConsumerWidget {
                   const Spacer(),
 
                   // Progress bar and percentage text
-                  if (prefs.showProgress && book.mediaType == MediaType.audio)
+                  // Audio and mixed books: the medium that has advanced further.
+                  if (prefs.showProgress && book.mediaType != MediaType.reading)
                     Consumer(builder: (context, ref, _) {
                       final history = ref.watch(readHistoryProvider(book.id)).value ?? const <ReadHistoryData>[];
                       final info = ref.watch(audiobookInfoProvider(book.id)).value;
-                      final progress = MediaProgress.audio(book, history, info);
+                      final progress = MediaProgress.forCard(book, history, info);
                       if (progress == null) return const SizedBox.shrink();
                       return _ProgressBar(
                         current: progress.current,
                         total: progress.total,
                         status: book.status,
-                        text: context.l10n.audioProgress(
-                          formatDuration(progress.current),
-                          '${formatDuration(progress.total)} $durationUnit',
-                          (progress.fraction * 100).toStringAsFixed(0),
-                        ),
+                        config: progress.isAudio ? null : book.paginationConfig,
+                        text: progress.isAudio
+                            ? context.l10n.audioProgress(
+                                formatDuration(progress.current),
+                                '${formatDuration(progress.total)} $durationUnit',
+                                (progress.fraction * 100).toStringAsFixed(0),
+                              )
+                            : null,
                       );
                     })
                   else if (prefs.showProgress &&

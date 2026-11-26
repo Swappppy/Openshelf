@@ -43,8 +43,8 @@ class BookGridCard extends ConsumerWidget {
 
     return historyAsync.maybeWhen(
       data: (history) {
-        final percent = book.mediaType == MediaType.audio
-            ? (MediaProgress.audio(book, history, ref.watch(audiobookInfoProvider(book.id)).value)?.fraction ?? 0.0)
+        final percent = book.mediaType != MediaType.reading
+            ? (MediaProgress.forCard(book, history, ref.watch(audiobookInfoProvider(book.id)).value)?.fraction ?? 0.0)
             : (book.totalPages != null && book.totalPages! > 0)
                 ? PaginationHelper.getTotalReadPages(book, history) / book.totalPages!
                 : 0.0;

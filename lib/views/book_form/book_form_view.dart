@@ -51,7 +51,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   late final TextEditingController _platformCtrl;
   late final TextEditingController _durationCtrl;
   late final TextEditingController _audioPositionCtrl;
+  late final TextEditingController _audioPublisherCtrl;
+  late final TextEditingController _audioIdentifierCtrl;
   MediaType _mediaType = MediaType.reading;
+  PaginationConfig? _audioPaginationConfig;
 
   ReadingStatus _status = ReadingStatus.wantToRead;
   OwnershipStatus? _ownershipStatus;
@@ -102,6 +105,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _platformCtrl = TextEditingController();
     _durationCtrl = TextEditingController();
     _audioPositionCtrl = TextEditingController();
+    _audioPublisherCtrl = TextEditingController();
+    _audioIdentifierCtrl = TextEditingController();
     _mediaType = b?.mediaType ?? MediaType.reading;
         
     if (b != null) {
@@ -166,6 +171,8 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _platformCtrl.dispose();
     _durationCtrl.dispose();
     _audioPositionCtrl.dispose();
+    _audioPublisherCtrl.dispose();
+    _audioIdentifierCtrl.dispose();
     super.dispose();
   }
 
@@ -499,7 +506,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         narrator: _narratorCtrl.text.trim().isEmpty ? null : _narratorCtrl.text.trim(),
         platform: _platformCtrl.text.trim().isEmpty ? null : _platformCtrl.text.trim(),
         audioDurationSeconds: parseDuration(_durationCtrl.text),
-        audioPositionSeconds: _mediaType == MediaType.audio ? (parseDuration(_audioPositionCtrl.text) ?? 0) : null,
+        audioPositionSeconds: _mediaType != MediaType.reading ? (parseDuration(_audioPositionCtrl.text) ?? 0) : null,
+        audioPublisher: _audioPublisherCtrl.text.trim().isEmpty ? null : _audioPublisherCtrl.text.trim(),
+        audioIdentifier: _audioIdentifierCtrl.text.trim().isEmpty ? null : _audioIdentifierCtrl.text.trim(),
+        audioPaginationConfig: _audioPaginationConfig,
       );
 
       if (mounted) {
@@ -523,6 +533,9 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     if (audio != null) {
       _narratorCtrl.text = audio.narrator ?? '';
       _platformCtrl.text = audio.platform ?? '';
+      _audioPublisherCtrl.text = audio.publisher ?? '';
+      _audioIdentifierCtrl.text = audio.identifier ?? '';
+      _audioPaginationConfig = audio.paginationConfig;
       if (audio.durationSeconds != null) _durationCtrl.text = formatDuration(audio.durationSeconds!);
     }
     final audioProgress = MediaProgress.audio(widget.existingBook!, audioHistory, audio);
@@ -670,6 +683,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                 platformCtrl: _platformCtrl,
                 durationCtrl: _durationCtrl,
                 audioPositionCtrl: _audioPositionCtrl,
+                audioPublisherCtrl: _audioPublisherCtrl,
+                audioIdentifierCtrl: _audioIdentifierCtrl,
+                audioPaginationConfig: _audioPaginationConfig,
+                onAudioPaginationChanged: (cfg) => setState(() => _audioPaginationConfig = cfg),
                 onPaginationConfigChanged: (PaginationConfig cfg, Map<int, int>? segProgress) {
                   setState(() {
                     _paginationConfig = cfg;

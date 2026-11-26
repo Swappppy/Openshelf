@@ -3906,6 +3906,114 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{current} / {total} · {percent}%'**
   String audioProgress(String current, String total, String percent);
+
+  /// No description provided for @fieldAudioPublisher.
+  ///
+  /// In es, this message translates to:
+  /// **'Editorial del audio'**
+  String get fieldAudioPublisher;
+
+  /// No description provided for @fieldAudioIdentifier.
+  ///
+  /// In es, this message translates to:
+  /// **'ISBN / ASIN del audio'**
+  String get fieldAudioIdentifier;
+
+  /// No description provided for @mixedStartTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Dónde empiezas?'**
+  String get mixedStartTitle;
+
+  /// No description provided for @mixedStartPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Página de inicio'**
+  String get mixedStartPage;
+
+  /// No description provided for @mixedStartPosition.
+  ///
+  /// In es, this message translates to:
+  /// **'Posición de inicio'**
+  String get mixedStartPosition;
+
+  /// No description provided for @mixedLastAudio.
+  ///
+  /// In es, this message translates to:
+  /// **'Último audio: {position}'**
+  String mixedLastAudio(String position);
+
+  /// No description provided for @mixedLastPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Última página leída: {page}'**
+  String mixedLastPage(String page);
+
+  /// No description provided for @mixedOverlapWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'Empiezas antes de donde lo dejaste en este medio: ese tramo se contará una sola vez.'**
+  String get mixedOverlapWarning;
+
+  /// No description provided for @mixedSkip.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguir donde lo dejé'**
+  String get mixedSkip;
+
+  /// No description provided for @mixedContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get mixedContinue;
+
+  /// No description provided for @mixedInvalidPage.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce una página válida'**
+  String get mixedInvalidPage;
+
+  /// No description provided for @mixedSuggested.
+  ///
+  /// In es, this message translates to:
+  /// **'Estimación según las secciones'**
+  String get mixedSuggested;
+
+  /// No description provided for @audioAnchorStart.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio en audio'**
+  String get audioAnchorStart;
+
+  /// No description provided for @audioAnchorEnd.
+  ///
+  /// In es, this message translates to:
+  /// **'Fin en audio'**
+  String get audioAnchorEnd;
+
+  /// No description provided for @audioAnchorMarker.
+  ///
+  /// In es, this message translates to:
+  /// **'Posición en audio'**
+  String get audioAnchorMarker;
+
+  /// No description provided for @audioSectionStart.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio'**
+  String get audioSectionStart;
+
+  /// No description provided for @audioSectionEnd.
+  ///
+  /// In es, this message translates to:
+  /// **'Fin'**
+  String get audioSectionEnd;
+
+  /// No description provided for @audioSectionsButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Secciones'**
+  String get audioSectionsButton;
 }
 
 class _AppLocalizationsDelegate

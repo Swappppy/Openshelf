@@ -13,6 +13,7 @@ import '../book_form/book_form_view.dart';
 import '../../l10n/l10n_extension.dart';
 import '../../utils/pagination_helper.dart';
 import '../../widgets/segmented_page_picker.dart';
+import '../../utils/time_map.dart';
 import 'widgets/book_header.dart';
 import 'widgets/main_tab.dart';
 import 'widgets/details_tab.dart';
@@ -78,7 +79,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     super.dispose();
   }
 
-  void _showPagePicker(BuildContext context, {int? initialSegmentIndex}) async {
+  void _showPagePicker(BuildContext context, {int? initialSegmentIndex, int? startAt}) async {
     final book = widget.book;
     if (book.totalPages == null) return;
 
@@ -90,7 +91,20 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
 
     if (!context.mounted) return;
 
-    final Map<int, int> initialSegProgress = activeSession?.segmentProgress ?? {};
+    // Mixed mode: a session that resumes after the other medium starts at
+    // [startAt] (pages covered). Only the section containing it moves there;
+    // the others keep their own progress (sections may be read out of order).
+    final segments = book.paginationConfig?.segments ?? const <PaginationSegment>[];
+    final Map<int, int> initialSegProgress = Map<int, int>.from(activeSession?.segmentProgress ?? const {});
+    if (startAt != null && segments.isNotEmpty) {
+      // A start on a boundary belongs to the section that begins there (you
+      // finished one section in the other medium and continue with the next).
+      final k = _sectionAt(startAt, segments);
+      if (k >= 0) {
+        initialSegProgress[k] = startAt - (segments[k].startPhysical - 1);
+        initialSegmentIndex ??= k;
+      }
+    }
 
     showModalBottomSheet(
       context: context,
@@ -103,7 +117,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
         child: SegmentedPagePicker(
           totalPages: book.totalPages!,
           status: book.status,
-          initialProgress: activeSession?.progress ?? 0,
+          initialProgress: startAt ?? activeSession?.progress ?? 0,
           initialSegmentProgress: initialSegProgress,
           initialSegmentIndex: initialSegmentIndex,
           config: book.paginationConfig,
@@ -113,6 +127,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
               newPage: phys,
               newSegProgress: newSegProgress,
               newConfig: newConfig,
+              startAt: startAt,
               sectionLabelGetter: (idx) => context.l10n.paginationSectionLabel(idx),
             );
             if (ctx.mounted) Navigator.pop(ctx);
@@ -123,7 +138,7 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
   }
 
   /// Listening progress: the user types the position shown by the player.
-  Future<void> _showAudioPicker(BuildContext context) async {
+  Future<void> _showAudioPicker(BuildContext context, {int? startAt}) async {
     final book = widget.book;
     final db = ref.read(databaseProvider);
     final info = await db.audiobookInfoDao.getForBook(book.id);
@@ -136,9 +151,23 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       return;
     }
 
-    final current = MediaProgress.audio(book, history, info)?.current ?? 0;
-    final ctrl = TextEditingController(text: formatDuration(current));
-    final formKey = GlobalKey<FormState>();
+    // Sections shared with the pages in a mixed book; an audiobook's own.
+    final sections = audioSegmentsFor(book, duration, audioConfig: info?.paginationConfig);
+    final completed = history.where((h) => h.finishedAt != null).length;
+    final active = PaginationHelper.getActiveSessionNumber(book.status, completed);
+    final entry = history.firstWhereOrNull((h) => h.readNumber == active);
+    final initial = Map<int, int>.from(entry?.audioSegmentProgress ??
+        (sections.length == 1
+            ? {0: MediaProgress.audio(book, history, info)?.current ?? 0}
+            : PaginationHelper.distributePhysicalPage(entry?.audioProgress ?? 0, sections)));
+    int? initialIndex;
+    if (startAt != null) {
+      final k = _sectionAt(startAt, sections);
+      if (k >= 0) {
+        initial[k] = startAt - (sections[k].startPhysical - 1);
+        initialIndex = k;
+      }
+    }
 
     await showModalBottomSheet(
       context: context,
@@ -146,47 +175,187 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => Padding(
+      builder: (ctx) => Container(
         padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(ctx.l10n.audioProgressTitle, style: Theme.of(ctx).textTheme.titleMedium),
-              const SizedBox(height: 4),
-              Text('${ctx.l10n.fieldDuration}: ${formatDuration(duration)} $durationUnit',
-                  style: Theme.of(ctx).textTheme.bodySmall),
-              const SizedBox(height: 16),
-              DurationFormField(
-                controller: ctrl,
-                label: ctx.l10n.fieldAudioPosition,
-                icon: Icons.headphones_outlined,
-                isRequired: true,
-                autofocus: true,
-                extraValidator: (seconds) =>
-                    seconds > duration ? ctx.l10n.audioPositionBeyondDuration : null,
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () async {
-                  if (!formKey.currentState!.validate()) return;
-                  await ref.read(readingSessionControllerProvider).updateAudioProgress(
-                    book: book,
-                    newPosition: parseDuration(ctrl.text)!,
-                    duration: duration,
-                  );
-                  if (ctx.mounted) Navigator.pop(ctx);
-                },
-                child: Text(ctx.l10n.save),
-              ),
-            ],
-          ),
+        child: SegmentedTimePicker(
+          sections: sections,
+          initialSegmentProgress: initial,
+          initialSegmentIndex: initialIndex,
+          saveLabel: ctx.l10n.paginationSaveProgress,
+          onSave: (segProgress) async {
+            await ref.read(readingSessionControllerProvider).updateAudioProgress(
+              book: book,
+              newSegProgress: segProgress,
+              duration: duration,
+              startAt: startAt,
+              sectionLabelGetter: (idx) => context.l10n.paginationSectionLabel(idx),
+            );
+            if (ctx.mounted) Navigator.pop(ctx);
+          },
         ),
       ),
     );
-    ctrl.dispose();
+  }
+
+  /// Mixed mode: starts a progress entry in [medium]. When the previous
+  /// entry of this read was in the other medium, asks where this session
+  /// starts, so the two media cover complementary stretches.
+  Future<void> _beginSession(ReadingMedium medium, {int? initialSegmentIndex}) async {
+    final book = widget.book;
+    final last = await ref.read(readingSessionControllerProvider).lastEntryOfActiveRead(book);
+    int? startAt;
+    if (last != null && last.medium != medium) {
+      if (!mounted) return;
+      // Where the other medium stopped, if known, to suggest a start.
+      final lastEnd = last.startPosition != null ? last.startPosition! + last.pagesRead : null;
+      final answer = await _askStartPosition(medium, otherMediumEnd: lastEnd);
+      if (answer == null) return; // dismissed: nothing is logged
+      startAt = answer.start; // null: continue from this medium's own pointer
+    }
+    if (!mounted) return;
+    if (medium == ReadingMedium.text) {
+      _showPagePicker(context, initialSegmentIndex: initialSegmentIndex, startAt: startAt);
+    } else {
+      await _showAudioPicker(context, startAt: startAt);
+    }
+  }
+
+  /// Asks where a session in [medium] starts. Returns null when dismissed,
+  /// `(start: null)` to continue from the medium's own pointer.
+  ///
+  /// With [otherMediumEnd] (where the other medium stopped, in its units) the
+  /// field is prefilled with that position translated through the shared
+  /// sections ([TimeMap]); it is only a suggestion the user can overwrite.
+  Future<({int? start})?> _askStartPosition(ReadingMedium medium, {int? otherMediumEnd}) async {
+    final book = widget.book;
+    final db = ref.read(databaseProvider);
+    final history = await db.readHistoryDao.getHistoryForBook(book.id);
+    final info = await db.audiobookInfoDao.getForBook(book.id);
+    if (!mounted) return null;
+
+    final completed = history.where((h) => h.finishedAt != null).length;
+    final active = PaginationHelper.getActiveSessionNumber(book.status, completed);
+    final entry = history.firstWhereOrNull((h) => h.readNumber == active);
+    final pagePointer = entry?.progress ?? 0;
+    final audioPointer = entry?.audioProgress ?? 0;
+    final config = book.paginationConfig;
+    final useVisual = config?.useVisualMode ?? false;
+    final ownPointer = medium == ReadingMedium.text ? pagePointer : audioPointer;
+
+    // Start in the medium's own units: pages already covered (page - 1) or seconds.
+    int? parseStart(String text) {
+      if (medium == ReadingMedium.audio) return parseDuration(text);
+      final page = useVisual && config != null
+          ? PaginationHelper.getPhysicalFromVisual(text.trim(), config)
+          : int.tryParse(text.trim());
+      if (page == null || page < 1 || page > (book.totalPages ?? page)) return null;
+      return page - 1;
+    }
+
+    final formKey = GlobalKey<FormState>();
+    String suggestion = '';
+    final duration = info?.durationSeconds ?? 0;
+    if (otherMediumEnd != null && duration > 0 && (book.totalPages ?? 0) > 0) {
+      final map = TimeMap(
+        totalPages: book.totalPages!,
+        duration: duration,
+        segments: config?.segments ?? const [],
+        markers: config?.markers ?? const [],
+      );
+      if (medium == ReadingMedium.text) {
+        final page = (map.toPages(otherMediumEnd) + 1).clamp(1, book.totalPages!);
+        suggestion = useVisual && config != null ? PaginationHelper.getVisualPage(page, config) : '$page';
+      } else {
+        suggestion = formatDuration(map.toSeconds(otherMediumEnd));
+      }
+    }
+
+    final otherMedium = medium == ReadingMedium.text
+        ? context.l10n.mixedLastAudio('${formatDuration(audioPointer)} $durationUnit')
+        : context.l10n.mixedLastPage(useVisual && config != null
+            ? PaginationHelper.getVisualPageForProgress(pagePointer, config)
+            : pagePointer.toString());
+
+    final result = await showDialog<({int? start})>(
+      context: context,
+      builder: (_) => _OwnedController(
+        initialText: suggestion,
+        builder: (_, ctrl) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          final candidate = parseStart(ctrl.text);
+          final overlaps = candidate != null && candidate < ownPointer;
+          return AlertDialog(
+            title: Text(ctx.l10n.mixedStartTitle),
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(otherMedium, style: Theme.of(ctx).textTheme.bodySmall),
+                  const SizedBox(height: 16),
+                  if (medium == ReadingMedium.audio)
+                    DurationFormField(
+                      controller: ctrl,
+                      label: ctx.l10n.mixedStartPosition,
+                      helperText: suggestion.isNotEmpty ? ctx.l10n.mixedSuggested : null,
+                      icon: Icons.headphones_outlined,
+                      isRequired: true,
+                      autofocus: true,
+                      onChanged: (_) => setDialogState(() {}),
+                      extraValidator: (seconds) => (info?.durationSeconds ?? 0) > 0 && seconds > info!.durationSeconds!
+                          ? ctx.l10n.audioPositionBeyondDuration
+                          : null,
+                    )
+                  else
+                    TextFormField(
+                      controller: ctrl,
+                      autofocus: true,
+                      keyboardType: useVisual ? TextInputType.text : TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: ctx.l10n.mixedStartPage,
+                        helperText: suggestion.isNotEmpty ? ctx.l10n.mixedSuggested : null,
+                        prefixIcon: const Icon(Icons.menu_book_outlined),
+                        border: const OutlineInputBorder(),
+                      ),
+                      onChanged: (_) => setDialogState(() {}),
+                      validator: (v) => parseStart(v ?? '') == null ? ctx.l10n.mixedInvalidPage : null,
+                    ),
+                  if (overlaps) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.info_outline, size: 16, color: Theme.of(ctx).colorScheme.tertiary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(ctx.l10n.mixedOverlapWarning, style: Theme.of(ctx).textTheme.bodySmall),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, (start: null)),
+                child: Text(ctx.l10n.mixedSkip),
+              ),
+              FilledButton(
+                onPressed: () {
+                  if (!formKey.currentState!.validate()) return;
+                  Navigator.pop(ctx, (start: parseStart(ctrl.text)));
+                },
+                child: Text(ctx.l10n.mixedContinue),
+              ),
+            ],
+          );
+        },
+      ),
+      ),
+    );
+    return result;
   }
 
   void _showNotesEditor(BuildContext context) {
@@ -460,10 +629,15 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
               children: [
                 MainTab(
                   book: book,
-                  onTapPages: () => widget.book.mediaType == MediaType.audio
-                      ? _showAudioPicker(context)
-                      : _showPagePicker(context),
-                  onTapSection: (idx) => _showPagePicker(context, initialSegmentIndex: idx),
+                  onTapPages: () => switch (widget.book.mediaType) {
+                    MediaType.audio => _showAudioPicker(context),
+                    MediaType.both => _beginSession(ReadingMedium.text),
+                    MediaType.reading => _showPagePicker(context),
+                  },
+                  onTapAudio: () => _beginSession(ReadingMedium.audio),
+                  onTapSection: (idx) => widget.book.mediaType == MediaType.both
+                      ? _beginSession(ReadingMedium.text, initialSegmentIndex: idx)
+                      : _showPagePicker(context, initialSegmentIndex: idx),
                 ),
                 DetailsTab(
                   book: book,
@@ -536,3 +710,39 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
     );
   }
 }
+
+/// Owns a [TextEditingController] for the lifetime of a dialog or sheet.
+/// Disposing it right after `showDialog` returns is too early: the route is
+/// still animating out and its fields still use the controller.
+class _OwnedController extends StatefulWidget {
+  final String initialText;
+  final Widget Function(BuildContext context, TextEditingController controller) builder;
+
+  const _OwnedController({this.initialText = '', required this.builder});
+
+  @override
+  State<_OwnedController> createState() => _OwnedControllerState();
+}
+
+class _OwnedControllerState extends State<_OwnedController> {
+  late final TextEditingController _controller = TextEditingController(text: widget.initialText);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _controller);
+}
+
+/// Index of the section that contains position [at] (covered units, so a
+/// section spans `[startPhysical - 1, endPhysical]`). On a boundary the
+/// section that starts there wins; the very end belongs to the last section.
+int _sectionAt(int at, List<PaginationSegment> sections) {
+  final starting = sections.indexWhere((s) => at >= s.startPhysical - 1 && at < s.endPhysical);
+  if (starting >= 0) return starting;
+  return sections.lastIndexWhere((s) => at >= s.startPhysical - 1 && at <= s.endPhysical);
+}
+

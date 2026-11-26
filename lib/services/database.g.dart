@@ -6523,6 +6523,18 @@ class $AudiobookInfoTable extends AudiobookInfo
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<PaginationConfig?, String>
+  paginationConfig =
+      GeneratedColumn<String>(
+        'pagination_config',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<PaginationConfig?>(
+        $AudiobookInfoTable.$converterpaginationConfign,
+      );
+  @override
   List<GeneratedColumn> get $columns => [
     bookId,
     narrator,
@@ -6530,6 +6542,7 @@ class $AudiobookInfoTable extends AudiobookInfo
     durationSeconds,
     publisher,
     identifier,
+    paginationConfig,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6615,6 +6628,12 @@ class $AudiobookInfoTable extends AudiobookInfo
         DriftSqlType.string,
         data['${effectivePrefix}identifier'],
       ),
+      paginationConfig: $AudiobookInfoTable.$converterpaginationConfign.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}pagination_config'],
+        ),
+      ),
     );
   }
 
@@ -6622,6 +6641,11 @@ class $AudiobookInfoTable extends AudiobookInfo
   $AudiobookInfoTable createAlias(String alias) {
     return $AudiobookInfoTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<PaginationConfig, String> $converterpaginationConfig =
+      const PaginationConfigConverter();
+  static TypeConverter<PaginationConfig?, String?> $converterpaginationConfign =
+      NullAwareTypeConverter.wrap($converterpaginationConfig);
 }
 
 class AudiobookInfoData extends DataClass
@@ -6636,6 +6660,12 @@ class AudiobookInfoData extends DataClass
 
   /// ISBN or ASIN of the audio edition.
   final String? identifier;
+
+  /// Sections and markers of a plain audiobook, in seconds with the page
+  /// convention (`startPhysical = startSecond + 1`). Kept apart from the
+  /// book's page pagination, which stays hidden (not deleted) in audio mode.
+  /// Mixed books share the page sections instead (with time anchors).
+  final PaginationConfig? paginationConfig;
   const AudiobookInfoData({
     required this.bookId,
     this.narrator,
@@ -6643,6 +6673,7 @@ class AudiobookInfoData extends DataClass
     this.durationSeconds,
     this.publisher,
     this.identifier,
+    this.paginationConfig,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6662,6 +6693,11 @@ class AudiobookInfoData extends DataClass
     }
     if (!nullToAbsent || identifier != null) {
       map['identifier'] = Variable<String>(identifier);
+    }
+    if (!nullToAbsent || paginationConfig != null) {
+      map['pagination_config'] = Variable<String>(
+        $AudiobookInfoTable.$converterpaginationConfign.toSql(paginationConfig),
+      );
     }
     return map;
   }
@@ -6684,6 +6720,9 @@ class AudiobookInfoData extends DataClass
       identifier: identifier == null && nullToAbsent
           ? const Value.absent()
           : Value(identifier),
+      paginationConfig: paginationConfig == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paginationConfig),
     );
   }
 
@@ -6699,6 +6738,9 @@ class AudiobookInfoData extends DataClass
       durationSeconds: serializer.fromJson<int?>(json['durationSeconds']),
       publisher: serializer.fromJson<String?>(json['publisher']),
       identifier: serializer.fromJson<String?>(json['identifier']),
+      paginationConfig: serializer.fromJson<PaginationConfig?>(
+        json['paginationConfig'],
+      ),
     );
   }
   @override
@@ -6711,6 +6753,9 @@ class AudiobookInfoData extends DataClass
       'durationSeconds': serializer.toJson<int?>(durationSeconds),
       'publisher': serializer.toJson<String?>(publisher),
       'identifier': serializer.toJson<String?>(identifier),
+      'paginationConfig': serializer.toJson<PaginationConfig?>(
+        paginationConfig,
+      ),
     };
   }
 
@@ -6721,6 +6766,7 @@ class AudiobookInfoData extends DataClass
     Value<int?> durationSeconds = const Value.absent(),
     Value<String?> publisher = const Value.absent(),
     Value<String?> identifier = const Value.absent(),
+    Value<PaginationConfig?> paginationConfig = const Value.absent(),
   }) => AudiobookInfoData(
     bookId: bookId ?? this.bookId,
     narrator: narrator.present ? narrator.value : this.narrator,
@@ -6730,6 +6776,9 @@ class AudiobookInfoData extends DataClass
         : this.durationSeconds,
     publisher: publisher.present ? publisher.value : this.publisher,
     identifier: identifier.present ? identifier.value : this.identifier,
+    paginationConfig: paginationConfig.present
+        ? paginationConfig.value
+        : this.paginationConfig,
   );
   AudiobookInfoData copyWithCompanion(AudiobookInfoCompanion data) {
     return AudiobookInfoData(
@@ -6743,6 +6792,9 @@ class AudiobookInfoData extends DataClass
       identifier: data.identifier.present
           ? data.identifier.value
           : this.identifier,
+      paginationConfig: data.paginationConfig.present
+          ? data.paginationConfig.value
+          : this.paginationConfig,
     );
   }
 
@@ -6754,7 +6806,8 @@ class AudiobookInfoData extends DataClass
           ..write('platform: $platform, ')
           ..write('durationSeconds: $durationSeconds, ')
           ..write('publisher: $publisher, ')
-          ..write('identifier: $identifier')
+          ..write('identifier: $identifier, ')
+          ..write('paginationConfig: $paginationConfig')
           ..write(')'))
         .toString();
   }
@@ -6767,6 +6820,7 @@ class AudiobookInfoData extends DataClass
     durationSeconds,
     publisher,
     identifier,
+    paginationConfig,
   );
   @override
   bool operator ==(Object other) =>
@@ -6777,7 +6831,8 @@ class AudiobookInfoData extends DataClass
           other.platform == this.platform &&
           other.durationSeconds == this.durationSeconds &&
           other.publisher == this.publisher &&
-          other.identifier == this.identifier);
+          other.identifier == this.identifier &&
+          other.paginationConfig == this.paginationConfig);
 }
 
 class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
@@ -6787,6 +6842,7 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
   final Value<int?> durationSeconds;
   final Value<String?> publisher;
   final Value<String?> identifier;
+  final Value<PaginationConfig?> paginationConfig;
   const AudiobookInfoCompanion({
     this.bookId = const Value.absent(),
     this.narrator = const Value.absent(),
@@ -6794,6 +6850,7 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
     this.durationSeconds = const Value.absent(),
     this.publisher = const Value.absent(),
     this.identifier = const Value.absent(),
+    this.paginationConfig = const Value.absent(),
   });
   AudiobookInfoCompanion.insert({
     this.bookId = const Value.absent(),
@@ -6802,6 +6859,7 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
     this.durationSeconds = const Value.absent(),
     this.publisher = const Value.absent(),
     this.identifier = const Value.absent(),
+    this.paginationConfig = const Value.absent(),
   });
   static Insertable<AudiobookInfoData> custom({
     Expression<int>? bookId,
@@ -6810,6 +6868,7 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
     Expression<int>? durationSeconds,
     Expression<String>? publisher,
     Expression<String>? identifier,
+    Expression<String>? paginationConfig,
   }) {
     return RawValuesInsertable({
       if (bookId != null) 'book_id': bookId,
@@ -6818,6 +6877,7 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
       if (durationSeconds != null) 'duration_seconds': durationSeconds,
       if (publisher != null) 'publisher': publisher,
       if (identifier != null) 'identifier': identifier,
+      if (paginationConfig != null) 'pagination_config': paginationConfig,
     });
   }
 
@@ -6828,6 +6888,7 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
     Value<int?>? durationSeconds,
     Value<String?>? publisher,
     Value<String?>? identifier,
+    Value<PaginationConfig?>? paginationConfig,
   }) {
     return AudiobookInfoCompanion(
       bookId: bookId ?? this.bookId,
@@ -6836,6 +6897,7 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
       durationSeconds: durationSeconds ?? this.durationSeconds,
       publisher: publisher ?? this.publisher,
       identifier: identifier ?? this.identifier,
+      paginationConfig: paginationConfig ?? this.paginationConfig,
     );
   }
 
@@ -6860,6 +6922,13 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
     if (identifier.present) {
       map['identifier'] = Variable<String>(identifier.value);
     }
+    if (paginationConfig.present) {
+      map['pagination_config'] = Variable<String>(
+        $AudiobookInfoTable.$converterpaginationConfign.toSql(
+          paginationConfig.value,
+        ),
+      );
+    }
     return map;
   }
 
@@ -6871,7 +6940,8 @@ class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
           ..write('platform: $platform, ')
           ..write('durationSeconds: $durationSeconds, ')
           ..write('publisher: $publisher, ')
-          ..write('identifier: $identifier')
+          ..write('identifier: $identifier, ')
+          ..write('paginationConfig: $paginationConfig')
           ..write(')'))
         .toString();
   }
@@ -12825,6 +12895,7 @@ typedef $$AudiobookInfoTableCreateCompanionBuilder =
       Value<int?> durationSeconds,
       Value<String?> publisher,
       Value<String?> identifier,
+      Value<PaginationConfig?> paginationConfig,
     });
 typedef $$AudiobookInfoTableUpdateCompanionBuilder =
     AudiobookInfoCompanion Function({
@@ -12834,6 +12905,7 @@ typedef $$AudiobookInfoTableUpdateCompanionBuilder =
       Value<int?> durationSeconds,
       Value<String?> publisher,
       Value<String?> identifier,
+      Value<PaginationConfig?> paginationConfig,
     });
 
 final class $$AudiobookInfoTableReferences
@@ -12897,6 +12969,12 @@ class $$AudiobookInfoTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnWithTypeConverterFilters<PaginationConfig?, PaginationConfig, String>
+  get paginationConfig => $composableBuilder(
+    column: $table.paginationConfig,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
   $$BooksTableFilterComposer get bookId {
     final $$BooksTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -12955,6 +13033,11 @@ class $$AudiobookInfoTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get paginationConfig => $composableBuilder(
+    column: $table.paginationConfig,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BooksTableOrderingComposer get bookId {
     final $$BooksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -13004,6 +13087,12 @@ class $$AudiobookInfoTableAnnotationComposer
 
   GeneratedColumn<String> get identifier => $composableBuilder(
     column: $table.identifier,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<PaginationConfig?, String>
+  get paginationConfig => $composableBuilder(
+    column: $table.paginationConfig,
     builder: (column) => column,
   );
 
@@ -13065,6 +13154,8 @@ class $$AudiobookInfoTableTableManager
                 Value<int?> durationSeconds = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> identifier = const Value.absent(),
+                Value<PaginationConfig?> paginationConfig =
+                    const Value.absent(),
               }) => AudiobookInfoCompanion(
                 bookId: bookId,
                 narrator: narrator,
@@ -13072,6 +13163,7 @@ class $$AudiobookInfoTableTableManager
                 durationSeconds: durationSeconds,
                 publisher: publisher,
                 identifier: identifier,
+                paginationConfig: paginationConfig,
               ),
           createCompanionCallback:
               ({
@@ -13081,6 +13173,8 @@ class $$AudiobookInfoTableTableManager
                 Value<int?> durationSeconds = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> identifier = const Value.absent(),
+                Value<PaginationConfig?> paginationConfig =
+                    const Value.absent(),
               }) => AudiobookInfoCompanion.insert(
                 bookId: bookId,
                 narrator: narrator,
@@ -13088,6 +13182,7 @@ class $$AudiobookInfoTableTableManager
                 durationSeconds: durationSeconds,
                 publisher: publisher,
                 identifier: identifier,
+                paginationConfig: paginationConfig,
               ),
           withReferenceMapper: (p0) => p0
               .map(

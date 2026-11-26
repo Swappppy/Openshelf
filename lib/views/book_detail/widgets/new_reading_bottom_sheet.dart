@@ -41,8 +41,9 @@ class _NewReadingBottomSheetState extends ConsumerState<NewReadingBottomSheet> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    // Page sections do not apply to an audiobook (its pages are hidden data).
-    final segments = widget.book.mediaType == MediaType.audio
+    // Section rereads apply to reading books only (an audiobook's pages are
+    // hidden data; mixed reads start at zero in both media).
+    final segments = widget.book.mediaType != MediaType.reading
         ? const <PaginationSegment>[]
         : (widget.book.paginationConfig?.segments ?? []);
 

@@ -26,6 +26,14 @@ class LogDao extends DatabaseAccessor<AppDatabase> with _$LogDaoMixin {
     await query.write(ReadingLogCompanion(date: Value(dateOnly)));
   }
 
+  /// Most recent entry of a read, or null if it has none.
+  Future<ReadingLogData?> lastEntryForRead(int bookId, int readNumber) =>
+      (select(readingLog)
+            ..where((l) => l.bookId.equals(bookId) & l.readNumber.equals(readNumber))
+            ..orderBy([(l) => OrderingTerm.desc(l.id)])
+            ..limit(1))
+          .getSingleOrNull();
+
   Future<void> deleteForRead(int bookId, int readNumber) async {
     await (delete(readingLog)
           ..where((l) => l.bookId.equals(bookId) & l.readNumber.equals(readNumber)))

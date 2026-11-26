@@ -128,6 +128,8 @@ class DataMigrationService {
       'openLibraryEditionKey',
       // v2 (schema 34+)
       'mediaType', 'narrator', 'platform', 'durationSeconds', 'audioPublisher', 'audioIdentifier',
+      // v2 (schema 35+)
+      'audioPaginationConfig',
     ]];
 
     for (final b in books) {
@@ -161,6 +163,7 @@ class DataMigrationService {
         b.mediaType.name,
         audioByBook[b.id]?.narrator, audioByBook[b.id]?.platform, audioByBook[b.id]?.durationSeconds,
         audioByBook[b.id]?.publisher, audioByBook[b.id]?.identifier,
+        audioByBook[b.id]?.paginationConfig != null ? jsonEncode(audioByBook[b.id]!.paginationConfig!.toJson()) : null,
       ]);
     }
     return Csv().encode(rows);
@@ -583,7 +586,14 @@ class DataMigrationService {
       final narrator = get('narrator'), platform = get('platform');
       final duration = ImportExportUtils.parseInt(get('durationSeconds'));
       final audioPublisher = get('audioPublisher'), audioIdentifier = get('audioIdentifier');
-      if ([narrator, platform, duration, audioPublisher, audioIdentifier].any((v) => v != null)) {
+      PaginationConfig? audioPagination;
+      final rawAudioPagination = get('audioPaginationConfig');
+      if (rawAudioPagination != null) {
+        try {
+          audioPagination = PaginationConfig.fromJson(jsonDecode(rawAudioPagination));
+        } catch (_) {}
+      }
+      if ([narrator, platform, duration, audioPublisher, audioIdentifier, audioPagination].any((v) => v != null)) {
         await _db.audiobookInfoDao.upsert(AudiobookInfoCompanion(
           bookId: Value(bookId),
           narrator: Value(narrator),
@@ -591,6 +601,7 @@ class DataMigrationService {
           durationSeconds: Value(duration),
           publisher: Value(audioPublisher),
           identifier: Value(audioIdentifier),
+          paginationConfig: Value(audioPagination),
         ));
       }
 

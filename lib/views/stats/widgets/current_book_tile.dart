@@ -32,7 +32,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
   }
 
   /// [r] must be the ref of the widget being built (a Consumer's ref).
-  static MediaProgress? _audioProgress(WidgetRef r, Book book) => MediaProgress.audio(
+  static MediaProgress? _audioProgress(WidgetRef r, Book book) => MediaProgress.forCard(
         book,
         r.watch(readHistoryProvider(book.id)).value ?? const <ReadHistoryData>[],
         r.watch(audiobookInfoProvider(book.id)).value,
@@ -40,9 +40,9 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
 
   /// `h:mm` captions for an audiobook, or null for a reading book.
   static ({String current, String total})? _audioTexts(WidgetRef r, Book book) {
-    if (book.mediaType != MediaType.audio) return null;
+    if (book.mediaType == MediaType.reading) return null;
     final p = _audioProgress(r, book);
-    if (p == null) return null;
+    if (p == null || !p.isAudio) return null; // mixed, ahead in pages: page captions
     return (current: formatDuration(p.current), total: '${formatDuration(p.total)} $durationUnit');
   }
 
@@ -73,7 +73,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                 final book = readingBooks[index];
 
                 return Consumer(builder: (context, ref, _) {
-                final progress = book.mediaType == MediaType.audio
+                final progress = book.mediaType != MediaType.reading
                     ? (_audioProgress(ref, book)?.fraction ?? 0.0)
                     : (book.currentPage ?? 0) / (book.totalPages ?? 1);
 

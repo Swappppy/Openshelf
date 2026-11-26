@@ -143,8 +143,7 @@ class FormatSelector extends StatelessWidget {
   }
 }
 
-/// Reading / audio selector. Mixed mode (`both`) is not offered until it is
-/// implemented, but a book already stored as `both` still shows it.
+/// Reading / audio / both selector.
 class MediaTypeSelector extends StatelessWidget {
   final MediaType selected;
   final ValueChanged<MediaType> onChanged;
@@ -153,7 +152,7 @@ class MediaTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final options = [MediaType.reading, MediaType.audio, if (selected == MediaType.both) MediaType.both];
+    const options = MediaType.values;
     return SegmentedButton<MediaType>(
       segments: [
         for (final t in options)
@@ -175,6 +174,8 @@ class DurationFormField extends StatefulWidget {
   final IconData? icon;
   final bool isRequired;
   final bool autofocus;
+  final ValueChanged<String>? onChanged;
+  final String? helperText;
 
   /// Extra validation on the parsed value (in seconds); returns an error or null.
   final String? Function(int seconds)? extraValidator;
@@ -187,6 +188,8 @@ class DurationFormField extends StatefulWidget {
     this.extraValidator,
     this.isRequired = false,
     this.autofocus = false,
+    this.onChanged,
+    this.helperText,
   });
 
   @override
@@ -225,10 +228,12 @@ class _DurationFormFieldState extends State<DurationFormField> {
       decoration: InputDecoration(
         labelText: widget.label,
         hintText: 'hh:mm',
+        helperText: widget.helperText,
         suffixText: durationUnit,
         prefixIcon: widget.icon != null ? Icon(widget.icon) : null,
         border: const OutlineInputBorder(),
       ),
+      onChanged: widget.onChanged,
       onFieldSubmitted: (_) => _normalize(),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
