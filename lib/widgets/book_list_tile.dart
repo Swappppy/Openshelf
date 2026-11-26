@@ -9,6 +9,8 @@ import '../controllers/books_controller.dart';
 import '../l10n/l10n_extension.dart';
 
 import '../utils/pagination_helper.dart';
+import '../utils/media_progress.dart';
+import '../controllers/audiobook_info_provider.dart';
 
 /// A comprehensive list tile for displaying book information in the Library list view.
 /// Supports reorderable fields, custom status highlighting, and progress bars.
@@ -260,7 +262,24 @@ class BookListTile extends ConsumerWidget {
                   const Spacer(),
 
                   // Progress bar and percentage text
-                  if (prefs.showProgress &&
+                  if (prefs.showProgress && book.mediaType == MediaType.audio)
+                    Consumer(builder: (context, ref, _) {
+                      final history = ref.watch(readHistoryProvider(book.id)).value ?? const <ReadHistoryData>[];
+                      final info = ref.watch(audiobookInfoProvider(book.id)).value;
+                      final progress = MediaProgress.audio(book, history, info);
+                      if (progress == null) return const SizedBox.shrink();
+                      return _ProgressBar(
+                        current: progress.current,
+                        total: progress.total,
+                        status: book.status,
+                        text: context.l10n.audioProgress(
+                          formatDuration(progress.current),
+                          '${formatDuration(progress.total)} $durationUnit',
+                          (progress.fraction * 100).toStringAsFixed(0),
+                        ),
+                      );
+                    })
+                  else if (prefs.showProgress &&
                       book.totalPages != null &&
                       book.totalPages! > 0)
                     Consumer(builder: (context, ref, _) {
@@ -385,11 +404,15 @@ class _ProgressBar extends StatelessWidget {
   final ReadingStatus status;
   final PaginationConfig? config;
 
+  /// Replaces the page-based caption (used for audiobooks).
+  final String? text;
+
   const _ProgressBar({
     required this.current,
     required this.total,
     required this.status,
     this.config,
+    this.text,
   });
 
   @override
@@ -416,7 +439,7 @@ class _ProgressBar extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          context.l10n.pageProgress(
+          text ?? context.l10n.pageProgress(
             currentText,
             totalText,
             (percent * 100).toStringAsFixed(0),

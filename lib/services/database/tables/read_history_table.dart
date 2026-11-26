@@ -12,4 +12,9 @@ class ReadHistory extends Table {
   TextColumn get sections => text().nullable().map(const StringListConverter())();
   IntColumn get progress => integer().withDefault(const Constant(0))();
   TextColumn get segmentProgress => text().nullable().map(const IntMapConverter())();
+
+  /// Audio pointer of this read, in seconds. Kept separate from [progress]
+  /// (pages) so a book can switch media without losing either.
+  IntColumn get audioProgress => integer().withDefault(const Constant(0))();
+  TextColumn get audioSegmentProgress => text().nullable().map(const IntMapConverter())();
 }

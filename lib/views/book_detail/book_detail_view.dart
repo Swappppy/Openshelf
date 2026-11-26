@@ -17,6 +17,8 @@ import 'widgets/book_header.dart';
 import 'widgets/main_tab.dart';
 import 'widgets/details_tab.dart';
 import 'widgets/new_reading_bottom_sheet.dart';
+import '../../utils/media_progress.dart';
+import '../book_form/widgets/form_components.dart' show DurationFormField;
 import 'widgets/ownership_event_sheet.dart';
 import '../../controllers/read_history_controller.dart';
 import '../../controllers/app_settings_controller.dart';
@@ -118,6 +120,73 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
         ),
       ),
     );
+  }
+
+  /// Listening progress: the user types the position shown by the player.
+  Future<void> _showAudioPicker(BuildContext context) async {
+    final book = widget.book;
+    final db = ref.read(databaseProvider);
+    final info = await db.audiobookInfoDao.getForBook(book.id);
+    final history = await db.readHistoryDao.getHistoryForBook(book.id);
+    if (!context.mounted) return;
+
+    final duration = info?.durationSeconds ?? 0;
+    if (duration <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.audioDurationMissing)));
+      return;
+    }
+
+    final current = MediaProgress.audio(book, history, info)?.current ?? 0;
+    final ctrl = TextEditingController(text: formatDuration(current));
+    final formKey = GlobalKey<FormState>();
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(ctx.l10n.audioProgressTitle, style: Theme.of(ctx).textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text('${ctx.l10n.fieldDuration}: ${formatDuration(duration)} $durationUnit',
+                  style: Theme.of(ctx).textTheme.bodySmall),
+              const SizedBox(height: 16),
+              DurationFormField(
+                controller: ctrl,
+                label: ctx.l10n.fieldAudioPosition,
+                icon: Icons.headphones_outlined,
+                isRequired: true,
+                autofocus: true,
+                extraValidator: (seconds) =>
+                    seconds > duration ? ctx.l10n.audioPositionBeyondDuration : null,
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () async {
+                  if (!formKey.currentState!.validate()) return;
+                  await ref.read(readingSessionControllerProvider).updateAudioProgress(
+                    book: book,
+                    newPosition: parseDuration(ctrl.text)!,
+                    duration: duration,
+                  );
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+                child: Text(ctx.l10n.save),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    ctrl.dispose();
   }
 
   void _showNotesEditor(BuildContext context) {
@@ -391,7 +460,9 @@ class _BookDetailScaffoldState extends ConsumerState<_BookDetailScaffold>
               children: [
                 MainTab(
                   book: book,
-                  onTapPages: () => _showPagePicker(context),
+                  onTapPages: () => widget.book.mediaType == MediaType.audio
+                      ? _showAudioPicker(context)
+                      : _showPagePicker(context),
                   onTapSection: (idx) => _showPagePicker(context, initialSegmentIndex: idx),
                 ),
                 DetailsTab(

@@ -113,6 +113,7 @@ class DataMigrationService {
     final books = await _db.select(_db.books).get();
     final tagsById = await _tagsById();
     final linksByBook = groupBy(await _db.select(_db.bookTags).get(), (BookTag bt) => bt.bookId);
+    final audioByBook = {for (final a in await _db.select(_db.audiobookInfo).get()) a.bookId: a};
 
     final rows = <List<dynamic>>[[
       'id', 'title', 'subtitle', 'author', 'isbn', 'language', 'translator',
@@ -125,6 +126,8 @@ class DataMigrationService {
       'originalTitle', 'originalLanguage', 'description', 'ownershipStatus', 'copies', 'collections',
       // v2 (schema 33+)
       'openLibraryEditionKey',
+      // v2 (schema 34+)
+      'mediaType', 'narrator', 'platform', 'durationSeconds', 'audioPublisher', 'audioIdentifier',
     ]];
 
     for (final b in books) {
@@ -155,6 +158,9 @@ class DataMigrationService {
         b.originalTitle, b.originalLanguage, b.description, b.ownershipStatus?.name, b.copies,
         collections.isEmpty ? null : jsonEncode(collections),
         b.openLibraryEditionKey,
+        b.mediaType.name,
+        audioByBook[b.id]?.narrator, audioByBook[b.id]?.platform, audioByBook[b.id]?.durationSeconds,
+        audioByBook[b.id]?.publisher, audioByBook[b.id]?.identifier,
       ]);
     }
     return Csv().encode(rows);
@@ -234,7 +240,8 @@ class DataMigrationService {
   Future<String> exportHistoryToCsv() async {
     final history = await _db.select(_db.readHistory).get();
     final rows = <List<dynamic>>[[
-      'bookId', 'readNumber', 'startedAt', 'finishedAt', 'sections', 'progress', 'segmentProgress'
+      'bookId', 'readNumber', 'startedAt', 'finishedAt', 'sections', 'progress', 'segmentProgress',
+      'audioProgress', 'audioSegmentProgress',
     ]];
     for (final h in history) {
       rows.add([
@@ -245,6 +252,8 @@ class DataMigrationService {
         h.sections != null ? jsonEncode(h.sections) : null,
         h.progress,
         h.segmentProgress != null ? jsonEncode(h.segmentProgress!.map((k, v) => MapEntry(k.toString(), v))) : null,
+        h.audioProgress,
+        h.audioSegmentProgress != null ? jsonEncode(h.audioSegmentProgress!.map((k, v) => MapEntry(k.toString(), v))) : null,
       ]);
     }
     return Csv().encode(rows);
@@ -252,9 +261,9 @@ class DataMigrationService {
 
   Future<String> exportLogsToCsv() async {
     final logs = await _db.select(_db.readingLog).get();
-    final rows = <List<dynamic>>[['bookId', 'date', 'pagesRead', 'sections', 'readNumber', 'isBackfill']];
+    final rows = <List<dynamic>>[['bookId', 'date', 'pagesRead', 'sections', 'readNumber', 'isBackfill', 'medium', 'startPosition']];
     for (final l in logs) {
-      rows.add([l.bookId, l.date.toIso8601String(), l.pagesRead, l.sections != null ? jsonEncode(l.sections) : null, l.readNumber, l.isBackfill]);
+      rows.add([l.bookId, l.date.toIso8601String(), l.pagesRead, l.sections != null ? jsonEncode(l.sections) : null, l.readNumber, l.isBackfill, l.medium.name, l.startPosition]);
     }
     return Csv().encode(rows);
   }
@@ -570,6 +579,21 @@ class DataMigrationService {
       final oldId = ImportExportUtils.parseInt(get('id'));
       if (oldId != null) bookIdMap?[oldId] = bookId;
 
+      // Audio data (schema 34+ backups).
+      final narrator = get('narrator'), platform = get('platform');
+      final duration = ImportExportUtils.parseInt(get('durationSeconds'));
+      final audioPublisher = get('audioPublisher'), audioIdentifier = get('audioIdentifier');
+      if ([narrator, platform, duration, audioPublisher, audioIdentifier].any((v) => v != null)) {
+        await _db.audiobookInfoDao.upsert(AudiobookInfoCompanion(
+          bookId: Value(bookId),
+          narrator: Value(narrator),
+          platform: Value(platform),
+          durationSeconds: Value(duration),
+          publisher: Value(audioPublisher),
+          identifier: Value(audioIdentifier),
+        ));
+      }
+
       // Standalone CSV import: synthesize a read history entry. In a ZIP
       // restore (bookIdMap != null) history.csv provides the real records.
       final status = comp.status.value;
@@ -662,12 +686,14 @@ class DataMigrationService {
     }
   }
 
-  Future<bool> _logExists(int bookId, DateTime date, {bool isBackfill = false, int? readNumber}) async =>
+  Future<bool> _logExists(int bookId, DateTime date,
+          {bool isBackfill = false, int? readNumber, ReadingMedium medium = ReadingMedium.text}) async =>
       await (_db.select(_db.readingLog)
             ..where((l) =>
                 l.bookId.equals(bookId) &
                 l.date.equals(date) &
                 l.isBackfill.equals(isBackfill) &
+                l.medium.equalsValue(medium) &
                 (readNumber != null ? l.readNumber.equals(readNumber) : l.readNumber.isNull()))
             ..limit(1))
           .getSingleOrNull() !=
@@ -718,6 +744,7 @@ class DataMigrationService {
       paginationConfig: pagination != null ? Value(pagination) : const Value.absent(),
       // Older backups lack the column: leave an existing link untouched.
       openLibraryEditionKey: s('openLibraryEditionKey') != null ? Value(s('openLibraryEditionKey')) : const Value.absent(),
+      mediaType: Value(MediaType.values.firstWhereOrNull((e) => e.name == s('mediaType')) ?? MediaType.reading),
     );
   }
 
@@ -813,6 +840,10 @@ class DataMigrationService {
         segmentProgress: Value(segRaw != null
             ? (jsonDecode(segRaw) as Map).map((k, v) => MapEntry(int.parse(k.toString()), (v as num).toInt()))
             : (progress > 0 ? {0: progress} : null)),
+        audioProgress: Value(ImportExportUtils.parseInt(get('audioProgress')) ?? 0),
+        audioSegmentProgress: Value(get('audioSegmentProgress') != null
+            ? (jsonDecode(get('audioSegmentProgress')!) as Map).map((k, v) => MapEntry(int.parse(k.toString()), (v as num).toInt()))
+            : null),
       ));
     });
   }
@@ -826,7 +857,8 @@ class DataMigrationService {
       final isBackfillRaw = get('isBackfill');
       final isBackfill = isBackfillRaw != null && (isBackfillRaw.toLowerCase() == 'true' || isBackfillRaw == '1');
 
-      if (await _logExists(newBookId, date, isBackfill: isBackfill, readNumber: readNumber)) return;
+      final medium = ReadingMedium.values.firstWhereOrNull((e) => e.name == get('medium')) ?? ReadingMedium.text;
+      if (await _logExists(newBookId, date, isBackfill: isBackfill, readNumber: readNumber, medium: medium)) return;
       final sectionsRaw = get('sections');
       await _db.logDao.insertLog(ReadingLogCompanion.insert(
         bookId: newBookId,
@@ -835,6 +867,8 @@ class DataMigrationService {
         sections: Value(sectionsRaw != null ? (jsonDecode(sectionsRaw) as List).cast<String>() : null),
         readNumber: Value(readNumber),
         isBackfill: Value(isBackfill),
+        medium: Value(medium),
+        startPosition: Value(ImportExportUtils.parseInt(get('startPosition'))),
       ));
     });
   }

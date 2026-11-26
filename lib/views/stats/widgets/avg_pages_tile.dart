@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../controllers/books_controller.dart';
+import '../../../services/database.dart';
 import 'widget_header.dart';
 import '../../../l10n/l10n_extension.dart';
 
@@ -21,7 +22,7 @@ class AvgPagesTile extends ConsumerWidget {
           const Spacer(),
           booksAsync.maybeWhen(
             data: (books) {
-              final booksWithPages = books.where((b) => (b.totalPages ?? 0) > 0).toList();
+              final booksWithPages = books.where((b) => b.mediaType != MediaType.audio && (b.totalPages ?? 0) > 0).toList();
               if (booksWithPages.isEmpty) return const Text('0', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold));
               
               final total = booksWithPages.fold<int>(0, (sum, b) => sum + b.totalPages!);

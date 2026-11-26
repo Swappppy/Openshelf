@@ -9,6 +9,8 @@ import '../../book_detail/book_detail_view.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../utils/pagination_helper.dart';
 import '../../../controllers/read_history_controller.dart';
+import '../../../controllers/audiobook_info_provider.dart';
+import '../../../utils/media_progress.dart';
 import 'widget_header.dart';
 import 'stats_scale_helper.dart';
 
@@ -27,6 +29,21 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  /// [r] must be the ref of the widget being built (a Consumer's ref).
+  static MediaProgress? _audioProgress(WidgetRef r, Book book) => MediaProgress.audio(
+        book,
+        r.watch(readHistoryProvider(book.id)).value ?? const <ReadHistoryData>[],
+        r.watch(audiobookInfoProvider(book.id)).value,
+      );
+
+  /// `h:mm` captions for an audiobook, or null for a reading book.
+  static ({String current, String total})? _audioTexts(WidgetRef r, Book book) {
+    if (book.mediaType != MediaType.audio) return null;
+    final p = _audioProgress(r, book);
+    if (p == null) return null;
+    return (current: formatDuration(p.current), total: '${formatDuration(p.total)} $durationUnit');
   }
 
   @override
@@ -54,7 +71,11 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
               itemCount: readingBooks.length,
               itemBuilder: (context, index) {
                 final book = readingBooks[index];
-                final progress = (book.currentPage ?? 0) / (book.totalPages ?? 1);
+
+                return Consumer(builder: (context, ref, _) {
+                final progress = book.mediaType == MediaType.audio
+                    ? (_audioProgress(ref, book)?.fraction ?? 0.0)
+                    : (book.currentPage ?? 0) / (book.totalPages ?? 1);
 
                 return InkWell(
                   onTap: () => Navigator.push(
@@ -65,6 +86,7 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                       ? _buildCompact(context, book, progress, scale)
                       : _buildWide(context, book, progress, scale),
                 );
+                });
               },
             );
           },
@@ -121,9 +143,10 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                           segmentProgress: activeSession?.segmentProgress,
                         )
                       : currentPhys.toString();
-                  final totalText = (book.totalPages ?? 0).toString();
+                  final audioTexts = _audioTexts(ref, book);
+                  final totalText = audioTexts?.total ?? (book.totalPages ?? 0).toString();
                   return Text(
-                    '${(progress * 100).toInt()}% ($currentText/$totalText)',
+                    '${(progress * 100).toInt()}% (${audioTexts?.current ?? currentText}/$totalText)',
                     style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold),
                   );
                 },
@@ -131,9 +154,10 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                   final currentText = useVisual 
                       ? PaginationHelper.getVisualPageForProgress(book.currentPage ?? 0, book.paginationConfig)
                       : (book.currentPage ?? 0).toString();
-                  final totalText = (book.totalPages ?? 0).toString();
+                  final audioTexts = _audioTexts(ref, book);
+                  final totalText = audioTexts?.total ?? (book.totalPages ?? 0).toString();
                   return Text(
-                    '${(progress * 100).toInt()}% ($currentText/$totalText)',
+                    '${(progress * 100).toInt()}% (${audioTexts?.current ?? currentText}/$totalText)',
                     style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold),
                   );
                 },
@@ -200,11 +224,12 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                               segmentProgress: activeSession?.segmentProgress,
                             )
                           : currentPhys.toString();
-                      final totalText = (book.totalPages ?? 0).toString();
+                      final audioTexts = _audioTexts(ref, book);
+                  final totalText = audioTexts?.total ?? (book.totalPages ?? 0).toString();
 
                       return _ReadingProgressDisplay(
                         progress: progress,
-                        currentText: currentText,
+                        currentText: audioTexts?.current ?? currentText,
                         totalText: totalText,
                         scale: scale,
                       );
@@ -213,11 +238,12 @@ class _CurrentBookTileState extends ConsumerState<CurrentBookTile> {
                       final currentText = useVisual 
                           ? PaginationHelper.getVisualPageForProgress(book.currentPage ?? 0, book.paginationConfig)
                           : (book.currentPage ?? 0).toString();
-                      final totalText = (book.totalPages ?? 0).toString();
+                      final audioTexts = _audioTexts(ref, book);
+                  final totalText = audioTexts?.total ?? (book.totalPages ?? 0).toString();
 
                       return _ReadingProgressDisplay(
                         progress: progress,
-                        currentText: currentText,
+                        currentText: audioTexts?.current ?? currentText,
                         totalText: totalText,
                         scale: scale,
                       );

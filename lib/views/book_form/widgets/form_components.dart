@@ -4,6 +4,8 @@ import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../models/extensions/reading_status_ext.dart';
 import '../../../models/extensions/book_format_ext.dart';
+import '../../../models/extensions/media_type_ext.dart';
+import '../../../utils/media_progress.dart';
 import '../../../models/extensions/ownership_status_ext.dart';
 import '../../../widgets/section_header.dart' as shared;
 
@@ -137,6 +139,105 @@ class FormatSelector extends StatelessWidget {
           onSelected: (_) => onChanged(isSelected ? null : format),
         );
       }).toList(),
+    );
+  }
+}
+
+/// Reading / audio selector. Mixed mode (`both`) is not offered until it is
+/// implemented, but a book already stored as `both` still shows it.
+class MediaTypeSelector extends StatelessWidget {
+  final MediaType selected;
+  final ValueChanged<MediaType> onChanged;
+
+  const MediaTypeSelector({super.key, required this.selected, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [MediaType.reading, MediaType.audio, if (selected == MediaType.both) MediaType.both];
+    return SegmentedButton<MediaType>(
+      segments: [
+        for (final t in options)
+          ButtonSegment(value: t, label: Text(t.label(context)), icon: Icon(t.icon, size: 18)),
+      ],
+      selected: {selected},
+      showSelectedIcon: false,
+      onSelectionChanged: (s) => onChanged(s.first),
+    );
+  }
+}
+
+/// Text field for a duration or position. Accepts `hh:mm`, `h:mm:ss` or a
+/// bare number of hours, and normalizes the text to `hh:mm` when it loses
+/// focus (`10` becomes `10:00`). Shows the hour unit as a suffix.
+class DurationFormField extends StatefulWidget {
+  final TextEditingController controller;
+  final String label;
+  final IconData? icon;
+  final bool isRequired;
+  final bool autofocus;
+
+  /// Extra validation on the parsed value (in seconds); returns an error or null.
+  final String? Function(int seconds)? extraValidator;
+
+  const DurationFormField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.icon,
+    this.extraValidator,
+    this.isRequired = false,
+    this.autofocus = false,
+  });
+
+  @override
+  State<DurationFormField> createState() => _DurationFormFieldState();
+}
+
+class _DurationFormFieldState extends State<DurationFormField> {
+  final _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_normalize);
+  }
+
+  void _normalize() {
+    if (_focusNode.hasFocus) return;
+    final seconds = parseDuration(widget.controller.text);
+    if (seconds != null) widget.controller.text = formatDuration(seconds);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_normalize);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: widget.controller,
+      focusNode: _focusNode,
+      autofocus: widget.autofocus,
+      keyboardType: TextInputType.datetime,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        hintText: 'hh:mm',
+        suffixText: durationUnit,
+        prefixIcon: widget.icon != null ? Icon(widget.icon) : null,
+        border: const OutlineInputBorder(),
+      ),
+      onFieldSubmitted: (_) => _normalize(),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return widget.isRequired ? context.l10n.durationInvalid : null;
+        }
+        final seconds = parseDuration(value);
+        if (seconds == null) return context.l10n.durationInvalid;
+        return widget.extraValidator?.call(seconds);
+      },
     );
   }
 }

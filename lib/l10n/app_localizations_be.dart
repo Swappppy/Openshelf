@@ -1947,6 +1947,13 @@ class AppLocalizationsBe extends AppLocalizations {
       'Вы можаце паказаць некалькі перакладчыкаў, падзяліўшы іх кропкай з коскай (;), слэшам (/) або коскай (,). Аўтазапаўненне прапануе імёны для кожнага перакладчыка.';
 
   @override
+  String get narratorMultiHelpTitle => 'Múltiples narradores';
+
+  @override
+  String get narratorMultiHelpContent =>
+      'Puedes indicar múltiples narradores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada narrador.';
+
+  @override
   String get padlockResetTitle => 'Заблакаваць поле?';
 
   @override
@@ -2004,4 +2011,44 @@ class AppLocalizationsBe extends AppLocalizations {
   @override
   String get ownershipEventDeleteConfirm =>
       'Выдаліць гэты запіс з гісторыі валодання?';
+
+  @override
+  String get mediaTypeReading => 'Lectura';
+
+  @override
+  String get mediaTypeAudio => 'Audiolibro';
+
+  @override
+  String get mediaTypeBoth => 'Ambos';
+
+  @override
+  String get fieldNarrator => 'Narrador';
+
+  @override
+  String get fieldPlatform => 'Plataforma';
+
+  @override
+  String get fieldDuration => 'Duración total';
+
+  @override
+  String get fieldAudioPosition => 'Posición actual';
+
+  @override
+  String get durationInvalid => 'Usa hh:mm o un número de horas';
+
+  @override
+  String get audioPositionBeyondDuration =>
+      'La posición supera la duración total';
+
+  @override
+  String get audioProgressTitle => 'Progreso de escucha';
+
+  @override
+  String get audioDurationMissing =>
+      'Indica la duración total en la ficha del libro para registrar el progreso';
+
+  @override
+  String audioProgress(String current, String total, String percent) {
+    return '$current / $total · $percent%';
+  }
 }

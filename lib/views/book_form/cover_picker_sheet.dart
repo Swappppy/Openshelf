@@ -137,7 +137,7 @@ class _CoverPickerSheetState extends ConsumerState<CoverPickerSheet> {
 
     try {
       // Smart Crop: check if the aspect ratio is already close to 2:3
-      final isGood = await CoverService.isRatioCorrect(previewPath, 2 / 3);
+      final isGood = await CoverService.isCoverRatio(previewPath);
       
       String finalPath;
       if (isGood) {

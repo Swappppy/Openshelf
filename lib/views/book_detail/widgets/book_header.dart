@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/database.dart';
 import '../../../controllers/books_controller.dart';
 import '../../../widgets/tag_chip.dart';
+import '../../../widgets/book_cover.dart';
 import '../../shelves/shelf_books_view.dart';
 
 class BookHeader extends StatelessWidget {
@@ -24,11 +25,15 @@ class BookHeader extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: book.coverPath != null
-                  ? Image.file(
-                File(book.coverPath!),
+                  ? Container(
                 width: 100,
                 height: 150,
-                fit: BoxFit.cover,
+                color: theme.colorScheme.surfaceContainerHighest,
+                child: AdaptiveCoverImage(
+                  image: FileImage(File(book.coverPath!)),
+                  width: 100,
+                  height: 150,
+                ),
               )
                   : const CoverPlaceholder(width: 100, height: 150),
             ),

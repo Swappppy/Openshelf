@@ -2022,6 +2022,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Puedes indicar múltiples traductores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada traductor.';
 
   @override
+  String get narratorMultiHelpTitle => 'Múltiples narradores';
+
+  @override
+  String get narratorMultiHelpContent =>
+      'Puedes indicar múltiples narradores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada narrador.';
+
+  @override
   String get padlockResetTitle => '¿Bloquear campo?';
 
   @override
@@ -2079,4 +2086,44 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get ownershipEventDeleteConfirm =>
       '¿Eliminar esta entrada del historial de propiedad?';
+
+  @override
+  String get mediaTypeReading => 'Lectura';
+
+  @override
+  String get mediaTypeAudio => 'Audiolibro';
+
+  @override
+  String get mediaTypeBoth => 'Ambos';
+
+  @override
+  String get fieldNarrator => 'Narrador';
+
+  @override
+  String get fieldPlatform => 'Plataforma';
+
+  @override
+  String get fieldDuration => 'Duración total';
+
+  @override
+  String get fieldAudioPosition => 'Posición actual';
+
+  @override
+  String get durationInvalid => 'Usa hh:mm o un número de horas';
+
+  @override
+  String get audioPositionBeyondDuration =>
+      'La posición supera la duración total';
+
+  @override
+  String get audioProgressTitle => 'Progreso de escucha';
+
+  @override
+  String get audioDurationMissing =>
+      'Indica la duración total en la ficha del libro para registrar el progreso';
+
+  @override
+  String audioProgress(String current, String total, String percent) {
+    return '$current / $total · $percent%';
+  }
 }

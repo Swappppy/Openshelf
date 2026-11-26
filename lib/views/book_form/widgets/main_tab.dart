@@ -9,7 +9,9 @@ import '../../../widgets/tag_grid_selector.dart';
 
 import '../advanced_pagination_view.dart';
 import '../../../widgets/cover_placeholder.dart';
+import '../../../widgets/book_cover.dart';
 import 'form_components.dart';
+import '../../../utils/media_progress.dart';
 
 class MainTab extends ConsumerWidget {
   final TextEditingController titleCtrl;
@@ -35,6 +37,12 @@ class MainTab extends ConsumerWidget {
   final PaginationConfig? paginationConfig;
   final Map<int, int>? initialSegmentProgress;
   final OnSavePaginationConfig onPaginationConfigChanged;
+  final MediaType mediaType;
+  final ValueChanged<MediaType> onMediaTypeChanged;
+  final TextEditingController narratorCtrl;
+  final TextEditingController platformCtrl;
+  final TextEditingController durationCtrl;
+  final TextEditingController audioPositionCtrl;
 
   const MainTab({
     super.key,
@@ -61,12 +69,21 @@ class MainTab extends ConsumerWidget {
     required this.onPaginationConfigChanged,
     this.paginationConfig,
     this.initialSegmentProgress,
+    required this.mediaType,
+    required this.onMediaTypeChanged,
+    required this.narratorCtrl,
+    required this.platformCtrl,
+    required this.durationCtrl,
+    required this.audioPositionCtrl,
   });
+
+  bool get _isAudio => mediaType == MediaType.audio;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final bookDao = ref.read(databaseProvider).bookDao;
+    final audioDao = ref.read(databaseProvider).audiobookInfoDao;
     final l10n = context.l10n;
 
     return ListView(
@@ -83,12 +100,16 @@ class MainTab extends ConsumerWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: coverPath != null
-                          ? Image.file(
-                        File(coverPath!),
+                          ? Container(
                         width: 100,
                         height: 150,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const CoverPlaceholder(width: 100, height: 150, iconSize: 48),
+                        color: colorScheme.surfaceContainerHighest,
+                        child: AdaptiveCoverImage(
+                          image: FileImage(File(coverPath!)),
+                          width: 100,
+                          height: 150,
+                          errorBuilder: (context, error, stackTrace) => const CoverPlaceholder(width: 100, height: 150, iconSize: 48),
+                        ),
                       )
                           : const CoverPlaceholder(width: 100, height: 150, iconSize: 48),
                     ),
@@ -189,54 +210,85 @@ class MainTab extends ConsumerWidget {
         const SizedBox(height: 24),
 
         // --- Reading Progress Section ---
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SectionHeader(label: context.l10n.fieldReadingProgress),
-            TextButton.icon(
-              onPressed: () {
-                final total = int.tryParse(totalPagesCtrl.text) ?? 0;
-                if (total <= 0) return;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AdvancedPaginationView(
-                      initialConfig: paginationConfig ?? PaginationConfig(),
-                      initialSegmentProgress: initialSegmentProgress,
-                      totalPages: total,
-                      onSave: onPaginationConfigChanged,
+        // Audio books track time instead of pages. The page fields stay in
+        // the form state (hidden, not cleared) so switching back keeps them.
+        if (_isAudio) ...[
+          SectionHeader(label: context.l10n.fieldReadingProgress),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: DurationFormField(
+                  controller: durationCtrl,
+                  label: context.l10n.fieldDuration,
+                  icon: Icons.timer_outlined,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: DurationFormField(
+                  controller: audioPositionCtrl,
+                  label: context.l10n.fieldAudioPosition,
+                  icon: Icons.headphones_outlined,
+                  extraValidator: (seconds) {
+                    final total = parseDuration(durationCtrl.text);
+                    return total != null && seconds > total ? context.l10n.audioPositionBeyondDuration : null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SectionHeader(label: context.l10n.fieldReadingProgress),
+              TextButton.icon(
+                onPressed: () {
+                  final total = int.tryParse(totalPagesCtrl.text) ?? 0;
+                  if (total <= 0) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AdvancedPaginationView(
+                        initialConfig: paginationConfig ?? PaginationConfig(),
+                        initialSegmentProgress: initialSegmentProgress,
+                        totalPages: total,
+                        onSave: onPaginationConfigChanged,
+                      ),
                     ),
-                  ),
-                );
-              },
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-              icon: const Icon(Icons.settings_suggest_outlined, size: 16),
-              label: Text(context.l10n.paginationAdvancedButton, style: const TextStyle(fontSize: 12)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: FormFieldWidget(
-                controller: totalPagesCtrl,
-                label: context.l10n.fieldTotalPages,
-                icon: Icons.menu_book_outlined,
-                keyboardType: TextInputType.number,
+                  );
+                },
+                style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                icon: const Icon(Icons.settings_suggest_outlined, size: 16),
+                label: Text(context.l10n.paginationAdvancedButton, style: const TextStyle(fontSize: 12)),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FormFieldWidget(
-                controller: currentPageCtrl,
-                label: context.l10n.fieldCurrentPage,
-                icon: Icons.bookmark_outline,
-                keyboardType: paginationConfig?.useVisualMode == true ? TextInputType.text : TextInputType.number,
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FormFieldWidget(
+                  controller: totalPagesCtrl,
+                  label: context.l10n.fieldTotalPages,
+                  icon: Icons.menu_book_outlined,
+                  keyboardType: TextInputType.number,
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FormFieldWidget(
+                  controller: currentPageCtrl,
+                  label: context.l10n.fieldCurrentPage,
+                  icon: Icons.bookmark_outline,
+                  keyboardType: paginationConfig?.useVisualMode == true ? TextInputType.text : TextInputType.number,
+                ),
+              ),
+            ],
+          ),
+        ],
         // --- Status Section ---
         const SizedBox(height: 24),
         SectionHeader(label: context.l10n.sectionReadingStatus),
@@ -247,7 +299,27 @@ class MainTab extends ConsumerWidget {
         // --- Format Section ---
         SectionHeader(label: context.l10n.sectionFormat),
         const SizedBox(height: 12),
-        FormatSelector(selected: format, onChanged: onFormatChanged),
+        MediaTypeSelector(selected: mediaType, onChanged: onMediaTypeChanged),
+        const SizedBox(height: 12),
+        if (_isAudio) ...[
+          DelimitedAutocompleteFormField(
+            controller: narratorCtrl,
+            label: context.l10n.fieldNarrator,
+            icon: Icons.record_voice_over_outlined,
+            optionsBuilder: (q) => audioDao.getDistinctNarrators(q),
+            showHelp: true,
+            helpTitle: l10n.narratorMultiHelpTitle,
+            helpContent: l10n.narratorMultiHelpContent,
+          ),
+          const SizedBox(height: 12),
+          DelimitedAutocompleteFormField(
+            controller: platformCtrl,
+            label: context.l10n.fieldPlatform,
+            icon: Icons.apps_outlined,
+            optionsBuilder: (q) => audioDao.getDistinctPlatforms(q),
+          ),
+        ] else
+          FormatSelector(selected: format, onChanged: onFormatChanged),
         const SizedBox(height: 24),
 
         // --- Rating Section ---

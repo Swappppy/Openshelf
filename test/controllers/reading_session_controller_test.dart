@@ -23,7 +23,8 @@ class DelegatingReadingLogController extends ReadingLogController {
   void build() {}
 
   @override
-  Future<void> logPages(int bookId, int delta, {List<String>? sections, DateTime? date, int? readNumber, bool backfill = false}) {
+  Future<void> logPages(int bookId, int delta, {List<String>? sections, DateTime? date, int? readNumber, bool backfill = false,
+      ReadingMedium medium = ReadingMedium.text, int? startPosition}) {
     return mock.logPages(bookId, delta, sections: sections, date: date, readNumber: readNumber, backfill: backfill);
   }
 }

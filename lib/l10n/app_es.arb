@@ -1963,6 +1963,8 @@
   "authorMultiHelpContent": "Puedes indicar múltiples autores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada autor.",
   "translatorMultiHelpTitle": "Múltiples traductores",
   "translatorMultiHelpContent": "Puedes indicar múltiples traductores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada traductor.",
+  "narratorMultiHelpTitle": "Múltiples narradores",
+  "narratorMultiHelpContent": "Puedes indicar múltiples narradores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada narrador.",
   "padlockResetTitle": "¿Bloquear campo?",
   "padlockResetContent": "Se perderán los cambios introducidos en este campo. ¿Deseas continuar?",
   "storageDbMoveSuccess": "Base de datos movida correctamente. Reiniciando la aplicación...",
@@ -1993,5 +1995,18 @@
   },
   "dbMissingUseDefault": "Usar ubicación predeterminada",
   "bookFormFinishDateRequired": "La fecha de finalización es obligatoria cuando el libro está marcado como Leído",
-  "ownershipEventDeleteConfirm": "¿Eliminar esta entrada del historial de propiedad?"
+  "ownershipEventDeleteConfirm": "¿Eliminar esta entrada del historial de propiedad?",
+  "mediaTypeReading": "Lectura",
+  "mediaTypeAudio": "Audiolibro",
+  "mediaTypeBoth": "Ambos",
+  "fieldNarrator": "Narrador",
+  "fieldPlatform": "Plataforma",
+  "fieldDuration": "Duración total",
+  "fieldAudioPosition": "Posición actual",
+  "durationInvalid": "Usa hh:mm o un número de horas",
+  "audioPositionBeyondDuration": "La posición supera la duración total",
+  "audioProgressTitle": "Progreso de escucha",
+  "audioDurationMissing": "Indica la duración total en la ficha del libro para registrar el progreso",
+  "audioProgress": "{current} / {total} · {percent}%",
+  "@audioProgress": {"description": "Listening progress (h:mm of total)", "placeholders": {"current": {"type": "String"}, "total": {"type": "String"}, "percent": {"type": "String"}}}
 }

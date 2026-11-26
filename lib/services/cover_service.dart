@@ -42,7 +42,7 @@ class CoverService {
     if (tempPath == null) return null;
     String? cropped;
     try {
-      if (shouldCrop && !await isRatioCorrect(tempPath, 2 / 3)) {
+      if (shouldCrop && !await isCoverRatio(tempPath)) {
         cropped = await cropCover(
           tempPath,
           title: cropTitle ?? 'Crop Cover',
@@ -83,6 +83,11 @@ class CoverService {
     if (info == null || info.width <= 0 || info.height <= 0) return null;
     return (info.width, info.height);
   }
+
+  /// Accepted cover proportions: 2:3 (most books) and 1:1 (audiobooks and
+  /// some square print editions). Anything else is offered for cropping.
+  static Future<bool> isCoverRatio(String path) async =>
+      await isRatioCorrect(path, 2 / 3) || await isRatioCorrect(path, 1.0);
 
   /// Checks if the image at the given path matches the target aspect ratio.
   static Future<bool> isRatioCorrect(String path, double targetRatio, {double tolerance = 0.1}) async {

@@ -1028,6 +1028,8 @@
   "authorMultiHelpContent": "You can specify multiple authors separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each author.",
   "translatorMultiHelpTitle": "Multiple translators",
   "translatorMultiHelpContent": "You can specify multiple translators separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each translator.",
+  "narratorMultiHelpTitle": "Multiple narrators",
+  "narratorMultiHelpContent": "You can specify multiple narrators separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each narrator.",
   "padlockResetTitle": "Lock field?",
   "padlockResetContent": "Changes made to this field will be lost. Do you want to continue?",
   "storageDbMoveSuccess": "Database moved successfully. Restarting app...",
@@ -1042,5 +1044,17 @@
   "dbMissingBody": "The library database was not found in the custom folder:\n{path}\n\nIf it is on removable storage, reconnect it and retry. You can also switch back to the default location, which opens the library stored there or starts an empty one.",
   "dbMissingUseDefault": "Use default location",
   "bookFormFinishDateRequired": "Finish date is required when marked as Read",
-  "ownershipEventDeleteConfirm": "Delete this ownership entry?"
+  "ownershipEventDeleteConfirm": "Delete this ownership entry?",
+  "mediaTypeReading": "Reading",
+  "mediaTypeAudio": "Audiobook",
+  "mediaTypeBoth": "Both",
+  "fieldNarrator": "Narrator",
+  "fieldPlatform": "Platform",
+  "fieldDuration": "Total duration",
+  "fieldAudioPosition": "Current position",
+  "durationInvalid": "Use hh:mm or a number of hours",
+  "audioPositionBeyondDuration": "Position is beyond the total duration",
+  "audioProgressTitle": "Listening progress",
+  "audioDurationMissing": "Set the total duration in the book form to track progress",
+  "audioProgress": "{current} / {total} · {percent}%"
 }

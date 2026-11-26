@@ -8,6 +8,8 @@ import 'status_chip.dart';
 import 'book_cover.dart';
 
 import '../utils/pagination_helper.dart';
+import '../utils/media_progress.dart';
+import '../controllers/audiobook_info_provider.dart';
 
 /// A compact card displaying a book in the Library grid view.
 /// Features a large cover image with a centered-top focus and a discrete progress indicator.
@@ -41,9 +43,11 @@ class BookGridCard extends ConsumerWidget {
 
     return historyAsync.maybeWhen(
       data: (history) {
-        final percent = (book.totalPages != null && book.totalPages! > 0)
-            ? PaginationHelper.getTotalReadPages(book, history) / book.totalPages!
-            : 0.0;
+        final percent = book.mediaType == MediaType.audio
+            ? (MediaProgress.audio(book, history, ref.watch(audiobookInfoProvider(book.id)).value)?.fraction ?? 0.0)
+            : (book.totalPages != null && book.totalPages! > 0)
+                ? PaginationHelper.getTotalReadPages(book, history) / book.totalPages!
+                : 0.0;
 
         return Card(
           clipBehavior: Clip.antiAlias,

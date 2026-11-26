@@ -19,6 +19,7 @@ import 'daos/stat_dao.dart';
 import 'daos/read_history_dao.dart';
 import 'daos/ownership_dao.dart';
 import 'daos/search_history_dao.dart';
+import 'daos/audiobook_info_dao.dart';
 
 import 'database/converters.dart';
 import 'database/tables/books_table.dart';
@@ -31,6 +32,7 @@ import 'database/tables/stats_table.dart';
 import 'database/tables/read_history_table.dart';
 import 'database/tables/ownership_log_table.dart';
 import 'database/tables/search_history_table.dart';
+import 'database/tables/audiobook_info_table.dart';
 
 export 'database/converters.dart';
 export 'database/tables/books_table.dart';
@@ -43,12 +45,13 @@ export 'database/tables/stats_table.dart';
 export 'database/tables/read_history_table.dart';
 export 'database/tables/ownership_log_table.dart';
 export 'database/tables/search_history_table.dart';
+export 'database/tables/audiobook_info_table.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs, ReadHistory, OwnershipLog, SearchHistory],
-  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao, ReadHistoryDao, OwnershipDao, SearchHistoryDao],
+  tables: [Books, Tags, BookTags, Shelves, ShelfTags, ReadingGoals, ReadingLog, StatWidgetConfigs, ReadHistory, OwnershipLog, SearchHistory, AudiobookInfo],
+  daos: [BookDao, TagDao, ShelfDao, GoalDao, LogDao, StatDao, ReadHistoryDao, OwnershipDao, SearchHistoryDao, AudiobookInfoDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
@@ -67,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 33;
+  int get schemaVersion => 34;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -302,6 +305,16 @@ class AppDatabase extends _$AppDatabase {
       if (from < 33) {
         await _addColumnIfMissing(m, books, books.openLibraryEditionKey);
       }
+      if (from < 34) {
+        // Audiobook support (phase 1). All additive: defaults keep every
+        // existing book, read and log as a reading/text one.
+        await _addColumnIfMissing(m, books, books.mediaType);
+        await _addColumnIfMissing(m, readingLog, readingLog.medium);
+        await _addColumnIfMissing(m, readingLog, readingLog.startPosition);
+        await _addColumnIfMissing(m, readHistory, readHistory.audioProgress);
+        await _addColumnIfMissing(m, readHistory, readHistory.audioSegmentProgress);
+        await m.createTable(audiobookInfo);
+      }
 
       await customStatement('PRAGMA foreign_keys = ON');
     },
@@ -506,6 +519,7 @@ class AppDatabase extends _$AppDatabase {
       await delete(readingGoals).go();
       await delete(readHistory).go();
       await delete(ownershipLog).go();
+      await delete(audiobookInfo).go();
 
       // 3. Delete relationship tables (Many-to-Many)
       await delete(shelfTags).go();

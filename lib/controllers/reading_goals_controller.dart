@@ -24,7 +24,7 @@ final goalProgressProvider = StreamProvider.family<int, int>((ref, goalId) {
           .length);
     } else if (goal.type == 'pages') {
       return db.logDao.watchLogs().map((logs) => logs
-          .where((l) => DayRange.contains(l.date, goal.startDate, goal.endDate))
+          .where((l) => l.medium == ReadingMedium.text && DayRange.contains(l.date, goal.startDate, goal.endDate))
           .fold<int>(0, (sum, l) => sum + l.pagesRead));
     } else if (goal.type == 'shelf' && goal.shelfId != null) {
       // For shelf goals, progress is how many books in that shelf are 'read'

@@ -14,6 +14,8 @@ class ReadingLogController extends Notifier<void> {
     DateTime? date,
     int? readNumber,
     bool backfill = false,
+    ReadingMedium medium = ReadingMedium.text,
+    int? startPosition,
   }) async {
     if (delta == 0) return;
 
@@ -27,6 +29,7 @@ class ReadingLogController extends Notifier<void> {
               l.bookId.equals(bookId) &
               l.date.equals(logDate) &
               l.isBackfill.equals(backfill) &
+              l.medium.equalsValue(medium) &
               (readNumber != null ? l.readNumber.equals(readNumber) : l.readNumber.isNull()))
           ..limit(1))
         .getSingleOrNull();
@@ -64,6 +67,8 @@ class ReadingLogController extends Notifier<void> {
           sections: Value(finalSections),
           readNumber: Value(readNumber),
           isBackfill: Value(backfill),
+          medium: Value(medium),
+          startPosition: Value(startPosition),
         ),
       );
     }
@@ -124,7 +129,8 @@ final dailyReadingProvider = StreamProvider<Map<DateTime, int>>((ref) {
   final db = ref.watch(databaseProvider);
   return db.logDao.watchLogs().map((logs) {
     final Map<DateTime, int> daily = {};
-    for (final l in logs) {
+    // Pages only: audio entries hold seconds.
+    for (final l in logs.where((l) => l.medium == ReadingMedium.text)) {
       final day = DateTime(l.date.year, l.date.month, l.date.day);
       daily[day] = (daily[day] ?? 0) + l.pagesRead;
     }

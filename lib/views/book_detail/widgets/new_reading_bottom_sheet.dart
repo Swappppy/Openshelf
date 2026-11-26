@@ -41,7 +41,10 @@ class _NewReadingBottomSheetState extends ConsumerState<NewReadingBottomSheet> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final segments = widget.book.paginationConfig?.segments ?? [];
+    // Page sections do not apply to an audiobook (its pages are hidden data).
+    final segments = widget.book.mediaType == MediaType.audio
+        ? const <PaginationSegment>[]
+        : (widget.book.paginationConfig?.segments ?? []);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),

@@ -684,6 +684,16 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         requiredDuringInsert: false,
       );
   @override
+  late final GeneratedColumnWithTypeConverter<MediaType, String> mediaType =
+      GeneratedColumn<String>(
+        'media_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(MediaType.reading.name),
+      ).withConverter<MediaType>($BooksTable.$convertermediaType);
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     title,
@@ -716,6 +726,7 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
     paginationConfig,
     createdAt,
     openLibraryEditionKey,
+    mediaType,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1060,6 +1071,12 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
         DriftSqlType.string,
         data['${effectivePrefix}open_library_edition_key'],
       ),
+      mediaType: $BooksTable.$convertermediaType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}media_type'],
+        )!,
+      ),
     );
   }
 
@@ -1084,6 +1101,8 @@ class $BooksTable extends Books with TableInfo<$BooksTable, Book> {
       const PaginationConfigConverter();
   static TypeConverter<PaginationConfig?, String?> $converterpaginationConfign =
       NullAwareTypeConverter.wrap($converterpaginationConfig);
+  static JsonTypeConverter2<MediaType, String, String> $convertermediaType =
+      const EnumNameConverter<MediaType>(MediaType.values);
 }
 
 class Book extends DataClass implements Insertable<Book> {
@@ -1123,6 +1142,9 @@ class Book extends DataClass implements Insertable<Book> {
   /// future contribution target the exact edition and allows exact metadata
   /// refreshes. Cleared when the user changes the ISBN.
   final String? openLibraryEditionKey;
+
+  /// Reading, audio or both. Existing books are `reading`.
+  final MediaType mediaType;
   const Book({
     required this.id,
     required this.title,
@@ -1155,6 +1177,7 @@ class Book extends DataClass implements Insertable<Book> {
     this.paginationConfig,
     required this.createdAt,
     this.openLibraryEditionKey,
+    required this.mediaType,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1250,6 +1273,11 @@ class Book extends DataClass implements Insertable<Book> {
     if (!nullToAbsent || openLibraryEditionKey != null) {
       map['open_library_edition_key'] = Variable<String>(openLibraryEditionKey);
     }
+    {
+      map['media_type'] = Variable<String>(
+        $BooksTable.$convertermediaType.toSql(mediaType),
+      );
+    }
     return map;
   }
 
@@ -1334,6 +1362,7 @@ class Book extends DataClass implements Insertable<Book> {
       openLibraryEditionKey: openLibraryEditionKey == null && nullToAbsent
           ? const Value.absent()
           : Value(openLibraryEditionKey),
+      mediaType: Value(mediaType),
     );
   }
 
@@ -1382,6 +1411,9 @@ class Book extends DataClass implements Insertable<Book> {
       openLibraryEditionKey: serializer.fromJson<String?>(
         json['openLibraryEditionKey'],
       ),
+      mediaType: $BooksTable.$convertermediaType.fromJson(
+        serializer.fromJson<String>(json['mediaType']),
+      ),
     );
   }
   @override
@@ -1427,6 +1459,9 @@ class Book extends DataClass implements Insertable<Book> {
       'openLibraryEditionKey': serializer.toJson<String?>(
         openLibraryEditionKey,
       ),
+      'mediaType': serializer.toJson<String>(
+        $BooksTable.$convertermediaType.toJson(mediaType),
+      ),
     };
   }
 
@@ -1462,6 +1497,7 @@ class Book extends DataClass implements Insertable<Book> {
     Value<PaginationConfig?> paginationConfig = const Value.absent(),
     DateTime? createdAt,
     Value<String?> openLibraryEditionKey = const Value.absent(),
+    MediaType? mediaType,
   }) => Book(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -1508,6 +1544,7 @@ class Book extends DataClass implements Insertable<Book> {
     openLibraryEditionKey: openLibraryEditionKey.present
         ? openLibraryEditionKey.value
         : this.openLibraryEditionKey,
+    mediaType: mediaType ?? this.mediaType,
   );
   Book copyWithCompanion(BooksCompanion data) {
     return Book(
@@ -1572,6 +1609,7 @@ class Book extends DataClass implements Insertable<Book> {
       openLibraryEditionKey: data.openLibraryEditionKey.present
           ? data.openLibraryEditionKey.value
           : this.openLibraryEditionKey,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
     );
   }
 
@@ -1608,7 +1646,8 @@ class Book extends DataClass implements Insertable<Book> {
           ..write('copies: $copies, ')
           ..write('paginationConfig: $paginationConfig, ')
           ..write('createdAt: $createdAt, ')
-          ..write('openLibraryEditionKey: $openLibraryEditionKey')
+          ..write('openLibraryEditionKey: $openLibraryEditionKey, ')
+          ..write('mediaType: $mediaType')
           ..write(')'))
         .toString();
   }
@@ -1646,6 +1685,7 @@ class Book extends DataClass implements Insertable<Book> {
     paginationConfig,
     createdAt,
     openLibraryEditionKey,
+    mediaType,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -1681,7 +1721,8 @@ class Book extends DataClass implements Insertable<Book> {
           other.copies == this.copies &&
           other.paginationConfig == this.paginationConfig &&
           other.createdAt == this.createdAt &&
-          other.openLibraryEditionKey == this.openLibraryEditionKey);
+          other.openLibraryEditionKey == this.openLibraryEditionKey &&
+          other.mediaType == this.mediaType);
 }
 
 class BooksCompanion extends UpdateCompanion<Book> {
@@ -1716,6 +1757,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
   final Value<PaginationConfig?> paginationConfig;
   final Value<DateTime> createdAt;
   final Value<String?> openLibraryEditionKey;
+  final Value<MediaType> mediaType;
   const BooksCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -1748,6 +1790,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.paginationConfig = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.openLibraryEditionKey = const Value.absent(),
+    this.mediaType = const Value.absent(),
   });
   BooksCompanion.insert({
     this.id = const Value.absent(),
@@ -1781,6 +1824,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     this.paginationConfig = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.openLibraryEditionKey = const Value.absent(),
+    this.mediaType = const Value.absent(),
   }) : title = Value(title),
        author = Value(author),
        status = Value(status);
@@ -1816,6 +1860,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Expression<String>? paginationConfig,
     Expression<DateTime>? createdAt,
     Expression<String>? openLibraryEditionKey,
+    Expression<String>? mediaType,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1850,6 +1895,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
       if (createdAt != null) 'created_at': createdAt,
       if (openLibraryEditionKey != null)
         'open_library_edition_key': openLibraryEditionKey,
+      if (mediaType != null) 'media_type': mediaType,
     });
   }
 
@@ -1885,6 +1931,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
     Value<PaginationConfig?>? paginationConfig,
     Value<DateTime>? createdAt,
     Value<String?>? openLibraryEditionKey,
+    Value<MediaType>? mediaType,
   }) {
     return BooksCompanion(
       id: id ?? this.id,
@@ -1919,6 +1966,7 @@ class BooksCompanion extends UpdateCompanion<Book> {
       createdAt: createdAt ?? this.createdAt,
       openLibraryEditionKey:
           openLibraryEditionKey ?? this.openLibraryEditionKey,
+      mediaType: mediaType ?? this.mediaType,
     );
   }
 
@@ -2028,6 +2076,11 @@ class BooksCompanion extends UpdateCompanion<Book> {
         openLibraryEditionKey.value,
       );
     }
+    if (mediaType.present) {
+      map['media_type'] = Variable<String>(
+        $BooksTable.$convertermediaType.toSql(mediaType.value),
+      );
+    }
     return map;
   }
 
@@ -2064,7 +2117,8 @@ class BooksCompanion extends UpdateCompanion<Book> {
           ..write('copies: $copies, ')
           ..write('paginationConfig: $paginationConfig, ')
           ..write('createdAt: $createdAt, ')
-          ..write('openLibraryEditionKey: $openLibraryEditionKey')
+          ..write('openLibraryEditionKey: $openLibraryEditionKey, ')
+          ..write('mediaType: $mediaType')
           ..write(')'))
         .toString();
   }
@@ -3959,6 +4013,27 @@ class $ReadingLogTable extends ReadingLog
     defaultValue: const Constant(false),
   );
   @override
+  late final GeneratedColumnWithTypeConverter<ReadingMedium, String> medium =
+      GeneratedColumn<String>(
+        'medium',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(ReadingMedium.text.name),
+      ).withConverter<ReadingMedium>($ReadingLogTable.$convertermedium);
+  static const VerificationMeta _startPositionMeta = const VerificationMeta(
+    'startPosition',
+  );
+  @override
+  late final GeneratedColumn<int> startPosition = GeneratedColumn<int>(
+    'start_position',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     bookId,
@@ -3967,6 +4042,8 @@ class $ReadingLogTable extends ReadingLog
     sections,
     readNumber,
     isBackfill,
+    medium,
+    startPosition,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4019,6 +4096,15 @@ class $ReadingLogTable extends ReadingLog
         isBackfill.isAcceptableOrUnknown(data['is_backfill']!, _isBackfillMeta),
       );
     }
+    if (data.containsKey('start_position')) {
+      context.handle(
+        _startPositionMeta,
+        startPosition.isAcceptableOrUnknown(
+          data['start_position']!,
+          _startPositionMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4058,6 +4144,16 @@ class $ReadingLogTable extends ReadingLog
         DriftSqlType.bool,
         data['${effectivePrefix}is_backfill'],
       )!,
+      medium: $ReadingLogTable.$convertermedium.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}medium'],
+        )!,
+      ),
+      startPosition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_position'],
+      ),
     );
   }
 
@@ -4070,6 +4166,8 @@ class $ReadingLogTable extends ReadingLog
       const StringListConverter();
   static TypeConverter<List<String>?, String?> $convertersectionsn =
       NullAwareTypeConverter.wrap($convertersections);
+  static JsonTypeConverter2<ReadingMedium, String, String> $convertermedium =
+      const EnumNameConverter<ReadingMedium>(ReadingMedium.values);
 }
 
 class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
@@ -4080,6 +4178,14 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
   final List<String>? sections;
   final int? readNumber;
   final bool isBackfill;
+
+  /// Medium of this entry. For `audio`, [pagesRead] holds seconds listened.
+  /// Page statistics and page goals only aggregate `text` entries.
+  final ReadingMedium medium;
+
+  /// Position (page or second, in this entry's medium) where the entry's
+  /// progress started. Null for entries recorded before schema 34.
+  final int? startPosition;
   const ReadingLogData({
     required this.id,
     required this.bookId,
@@ -4088,6 +4194,8 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
     this.sections,
     this.readNumber,
     required this.isBackfill,
+    required this.medium,
+    this.startPosition,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4105,6 +4213,14 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       map['read_number'] = Variable<int>(readNumber);
     }
     map['is_backfill'] = Variable<bool>(isBackfill);
+    {
+      map['medium'] = Variable<String>(
+        $ReadingLogTable.$convertermedium.toSql(medium),
+      );
+    }
+    if (!nullToAbsent || startPosition != null) {
+      map['start_position'] = Variable<int>(startPosition);
+    }
     return map;
   }
 
@@ -4121,6 +4237,10 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
           ? const Value.absent()
           : Value(readNumber),
       isBackfill: Value(isBackfill),
+      medium: Value(medium),
+      startPosition: startPosition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startPosition),
     );
   }
 
@@ -4137,6 +4257,10 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       sections: serializer.fromJson<List<String>?>(json['sections']),
       readNumber: serializer.fromJson<int?>(json['readNumber']),
       isBackfill: serializer.fromJson<bool>(json['isBackfill']),
+      medium: $ReadingLogTable.$convertermedium.fromJson(
+        serializer.fromJson<String>(json['medium']),
+      ),
+      startPosition: serializer.fromJson<int?>(json['startPosition']),
     );
   }
   @override
@@ -4150,6 +4274,10 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       'sections': serializer.toJson<List<String>?>(sections),
       'readNumber': serializer.toJson<int?>(readNumber),
       'isBackfill': serializer.toJson<bool>(isBackfill),
+      'medium': serializer.toJson<String>(
+        $ReadingLogTable.$convertermedium.toJson(medium),
+      ),
+      'startPosition': serializer.toJson<int?>(startPosition),
     };
   }
 
@@ -4161,6 +4289,8 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
     Value<List<String>?> sections = const Value.absent(),
     Value<int?> readNumber = const Value.absent(),
     bool? isBackfill,
+    ReadingMedium? medium,
+    Value<int?> startPosition = const Value.absent(),
   }) => ReadingLogData(
     id: id ?? this.id,
     bookId: bookId ?? this.bookId,
@@ -4169,6 +4299,10 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
     sections: sections.present ? sections.value : this.sections,
     readNumber: readNumber.present ? readNumber.value : this.readNumber,
     isBackfill: isBackfill ?? this.isBackfill,
+    medium: medium ?? this.medium,
+    startPosition: startPosition.present
+        ? startPosition.value
+        : this.startPosition,
   );
   ReadingLogData copyWithCompanion(ReadingLogCompanion data) {
     return ReadingLogData(
@@ -4183,6 +4317,10 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
       isBackfill: data.isBackfill.present
           ? data.isBackfill.value
           : this.isBackfill,
+      medium: data.medium.present ? data.medium.value : this.medium,
+      startPosition: data.startPosition.present
+          ? data.startPosition.value
+          : this.startPosition,
     );
   }
 
@@ -4195,7 +4333,9 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
           ..write('pagesRead: $pagesRead, ')
           ..write('sections: $sections, ')
           ..write('readNumber: $readNumber, ')
-          ..write('isBackfill: $isBackfill')
+          ..write('isBackfill: $isBackfill, ')
+          ..write('medium: $medium, ')
+          ..write('startPosition: $startPosition')
           ..write(')'))
         .toString();
   }
@@ -4209,6 +4349,8 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
     sections,
     readNumber,
     isBackfill,
+    medium,
+    startPosition,
   );
   @override
   bool operator ==(Object other) =>
@@ -4220,7 +4362,9 @@ class ReadingLogData extends DataClass implements Insertable<ReadingLogData> {
           other.pagesRead == this.pagesRead &&
           other.sections == this.sections &&
           other.readNumber == this.readNumber &&
-          other.isBackfill == this.isBackfill);
+          other.isBackfill == this.isBackfill &&
+          other.medium == this.medium &&
+          other.startPosition == this.startPosition);
 }
 
 class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
@@ -4231,6 +4375,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
   final Value<List<String>?> sections;
   final Value<int?> readNumber;
   final Value<bool> isBackfill;
+  final Value<ReadingMedium> medium;
+  final Value<int?> startPosition;
   const ReadingLogCompanion({
     this.id = const Value.absent(),
     this.bookId = const Value.absent(),
@@ -4239,6 +4385,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     this.sections = const Value.absent(),
     this.readNumber = const Value.absent(),
     this.isBackfill = const Value.absent(),
+    this.medium = const Value.absent(),
+    this.startPosition = const Value.absent(),
   });
   ReadingLogCompanion.insert({
     this.id = const Value.absent(),
@@ -4248,6 +4396,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     this.sections = const Value.absent(),
     this.readNumber = const Value.absent(),
     this.isBackfill = const Value.absent(),
+    this.medium = const Value.absent(),
+    this.startPosition = const Value.absent(),
   }) : bookId = Value(bookId),
        date = Value(date),
        pagesRead = Value(pagesRead);
@@ -4259,6 +4409,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     Expression<String>? sections,
     Expression<int>? readNumber,
     Expression<bool>? isBackfill,
+    Expression<String>? medium,
+    Expression<int>? startPosition,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4268,6 +4420,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
       if (sections != null) 'sections': sections,
       if (readNumber != null) 'read_number': readNumber,
       if (isBackfill != null) 'is_backfill': isBackfill,
+      if (medium != null) 'medium': medium,
+      if (startPosition != null) 'start_position': startPosition,
     });
   }
 
@@ -4279,6 +4433,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     Value<List<String>?>? sections,
     Value<int?>? readNumber,
     Value<bool>? isBackfill,
+    Value<ReadingMedium>? medium,
+    Value<int?>? startPosition,
   }) {
     return ReadingLogCompanion(
       id: id ?? this.id,
@@ -4288,6 +4444,8 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
       sections: sections ?? this.sections,
       readNumber: readNumber ?? this.readNumber,
       isBackfill: isBackfill ?? this.isBackfill,
+      medium: medium ?? this.medium,
+      startPosition: startPosition ?? this.startPosition,
     );
   }
 
@@ -4317,6 +4475,14 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
     if (isBackfill.present) {
       map['is_backfill'] = Variable<bool>(isBackfill.value);
     }
+    if (medium.present) {
+      map['medium'] = Variable<String>(
+        $ReadingLogTable.$convertermedium.toSql(medium.value),
+      );
+    }
+    if (startPosition.present) {
+      map['start_position'] = Variable<int>(startPosition.value);
+    }
     return map;
   }
 
@@ -4329,7 +4495,9 @@ class ReadingLogCompanion extends UpdateCompanion<ReadingLogData> {
           ..write('pagesRead: $pagesRead, ')
           ..write('sections: $sections, ')
           ..write('readNumber: $readNumber, ')
-          ..write('isBackfill: $isBackfill')
+          ..write('isBackfill: $isBackfill, ')
+          ..write('medium: $medium, ')
+          ..write('startPosition: $startPosition')
           ..write(')'))
         .toString();
   }
@@ -4832,6 +5000,30 @@ class $ReadHistoryTable extends ReadHistory
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   ).withConverter<Map<int, int>?>($ReadHistoryTable.$convertersegmentProgressn);
+  static const VerificationMeta _audioProgressMeta = const VerificationMeta(
+    'audioProgress',
+  );
+  @override
+  late final GeneratedColumn<int> audioProgress = GeneratedColumn<int>(
+    'audio_progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<Map<int, int>?, String>
+  audioSegmentProgress =
+      GeneratedColumn<String>(
+        'audio_segment_progress',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<Map<int, int>?>(
+        $ReadHistoryTable.$converteraudioSegmentProgressn,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4842,6 +5034,8 @@ class $ReadHistoryTable extends ReadHistory
     sections,
     progress,
     segmentProgress,
+    audioProgress,
+    audioSegmentProgress,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4892,6 +5086,15 @@ class $ReadHistoryTable extends ReadHistory
         progress.isAcceptableOrUnknown(data['progress']!, _progressMeta),
       );
     }
+    if (data.containsKey('audio_progress')) {
+      context.handle(
+        _audioProgressMeta,
+        audioProgress.isAcceptableOrUnknown(
+          data['audio_progress']!,
+          _audioProgressMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4937,6 +5140,17 @@ class $ReadHistoryTable extends ReadHistory
           data['${effectivePrefix}segment_progress'],
         ),
       ),
+      audioProgress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}audio_progress'],
+      )!,
+      audioSegmentProgress: $ReadHistoryTable.$converteraudioSegmentProgressn
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}audio_segment_progress'],
+            ),
+          ),
     );
   }
 
@@ -4953,6 +5167,12 @@ class $ReadHistoryTable extends ReadHistory
       const IntMapConverter();
   static TypeConverter<Map<int, int>?, String?> $convertersegmentProgressn =
       NullAwareTypeConverter.wrap($convertersegmentProgress);
+  static TypeConverter<Map<int, int>, String> $converteraudioSegmentProgress =
+      const IntMapConverter();
+  static TypeConverter<Map<int, int>?, String?>
+  $converteraudioSegmentProgressn = NullAwareTypeConverter.wrap(
+    $converteraudioSegmentProgress,
+  );
 }
 
 class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
@@ -4964,6 +5184,11 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
   final List<String>? sections;
   final int progress;
   final Map<int, int>? segmentProgress;
+
+  /// Audio pointer of this read, in seconds. Kept separate from [progress]
+  /// (pages) so a book can switch media without losing either.
+  final int audioProgress;
+  final Map<int, int>? audioSegmentProgress;
   const ReadHistoryData({
     required this.id,
     required this.bookId,
@@ -4973,6 +5198,8 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
     this.sections,
     required this.progress,
     this.segmentProgress,
+    required this.audioProgress,
+    this.audioSegmentProgress,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4997,6 +5224,14 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
         $ReadHistoryTable.$convertersegmentProgressn.toSql(segmentProgress),
       );
     }
+    map['audio_progress'] = Variable<int>(audioProgress);
+    if (!nullToAbsent || audioSegmentProgress != null) {
+      map['audio_segment_progress'] = Variable<String>(
+        $ReadHistoryTable.$converteraudioSegmentProgressn.toSql(
+          audioSegmentProgress,
+        ),
+      );
+    }
     return map;
   }
 
@@ -5018,6 +5253,10 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
       segmentProgress: segmentProgress == null && nullToAbsent
           ? const Value.absent()
           : Value(segmentProgress),
+      audioProgress: Value(audioProgress),
+      audioSegmentProgress: audioSegmentProgress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioSegmentProgress),
     );
   }
 
@@ -5037,6 +5276,10 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
       segmentProgress: serializer.fromJson<Map<int, int>?>(
         json['segmentProgress'],
       ),
+      audioProgress: serializer.fromJson<int>(json['audioProgress']),
+      audioSegmentProgress: serializer.fromJson<Map<int, int>?>(
+        json['audioSegmentProgress'],
+      ),
     );
   }
   @override
@@ -5051,6 +5294,10 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
       'sections': serializer.toJson<List<String>?>(sections),
       'progress': serializer.toJson<int>(progress),
       'segmentProgress': serializer.toJson<Map<int, int>?>(segmentProgress),
+      'audioProgress': serializer.toJson<int>(audioProgress),
+      'audioSegmentProgress': serializer.toJson<Map<int, int>?>(
+        audioSegmentProgress,
+      ),
     };
   }
 
@@ -5063,6 +5310,8 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
     Value<List<String>?> sections = const Value.absent(),
     int? progress,
     Value<Map<int, int>?> segmentProgress = const Value.absent(),
+    int? audioProgress,
+    Value<Map<int, int>?> audioSegmentProgress = const Value.absent(),
   }) => ReadHistoryData(
     id: id ?? this.id,
     bookId: bookId ?? this.bookId,
@@ -5074,6 +5323,10 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
     segmentProgress: segmentProgress.present
         ? segmentProgress.value
         : this.segmentProgress,
+    audioProgress: audioProgress ?? this.audioProgress,
+    audioSegmentProgress: audioSegmentProgress.present
+        ? audioSegmentProgress.value
+        : this.audioSegmentProgress,
   );
   ReadHistoryData copyWithCompanion(ReadHistoryCompanion data) {
     return ReadHistoryData(
@@ -5091,6 +5344,12 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
       segmentProgress: data.segmentProgress.present
           ? data.segmentProgress.value
           : this.segmentProgress,
+      audioProgress: data.audioProgress.present
+          ? data.audioProgress.value
+          : this.audioProgress,
+      audioSegmentProgress: data.audioSegmentProgress.present
+          ? data.audioSegmentProgress.value
+          : this.audioSegmentProgress,
     );
   }
 
@@ -5104,7 +5363,9 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
           ..write('finishedAt: $finishedAt, ')
           ..write('sections: $sections, ')
           ..write('progress: $progress, ')
-          ..write('segmentProgress: $segmentProgress')
+          ..write('segmentProgress: $segmentProgress, ')
+          ..write('audioProgress: $audioProgress, ')
+          ..write('audioSegmentProgress: $audioSegmentProgress')
           ..write(')'))
         .toString();
   }
@@ -5119,6 +5380,8 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
     sections,
     progress,
     segmentProgress,
+    audioProgress,
+    audioSegmentProgress,
   );
   @override
   bool operator ==(Object other) =>
@@ -5131,7 +5394,9 @@ class ReadHistoryData extends DataClass implements Insertable<ReadHistoryData> {
           other.finishedAt == this.finishedAt &&
           other.sections == this.sections &&
           other.progress == this.progress &&
-          other.segmentProgress == this.segmentProgress);
+          other.segmentProgress == this.segmentProgress &&
+          other.audioProgress == this.audioProgress &&
+          other.audioSegmentProgress == this.audioSegmentProgress);
 }
 
 class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
@@ -5143,6 +5408,8 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
   final Value<List<String>?> sections;
   final Value<int> progress;
   final Value<Map<int, int>?> segmentProgress;
+  final Value<int> audioProgress;
+  final Value<Map<int, int>?> audioSegmentProgress;
   const ReadHistoryCompanion({
     this.id = const Value.absent(),
     this.bookId = const Value.absent(),
@@ -5152,6 +5419,8 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
     this.sections = const Value.absent(),
     this.progress = const Value.absent(),
     this.segmentProgress = const Value.absent(),
+    this.audioProgress = const Value.absent(),
+    this.audioSegmentProgress = const Value.absent(),
   });
   ReadHistoryCompanion.insert({
     this.id = const Value.absent(),
@@ -5162,6 +5431,8 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
     this.sections = const Value.absent(),
     this.progress = const Value.absent(),
     this.segmentProgress = const Value.absent(),
+    this.audioProgress = const Value.absent(),
+    this.audioSegmentProgress = const Value.absent(),
   }) : bookId = Value(bookId),
        readNumber = Value(readNumber);
   static Insertable<ReadHistoryData> custom({
@@ -5173,6 +5444,8 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
     Expression<String>? sections,
     Expression<int>? progress,
     Expression<String>? segmentProgress,
+    Expression<int>? audioProgress,
+    Expression<String>? audioSegmentProgress,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5183,6 +5456,9 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
       if (sections != null) 'sections': sections,
       if (progress != null) 'progress': progress,
       if (segmentProgress != null) 'segment_progress': segmentProgress,
+      if (audioProgress != null) 'audio_progress': audioProgress,
+      if (audioSegmentProgress != null)
+        'audio_segment_progress': audioSegmentProgress,
     });
   }
 
@@ -5195,6 +5471,8 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
     Value<List<String>?>? sections,
     Value<int>? progress,
     Value<Map<int, int>?>? segmentProgress,
+    Value<int>? audioProgress,
+    Value<Map<int, int>?>? audioSegmentProgress,
   }) {
     return ReadHistoryCompanion(
       id: id ?? this.id,
@@ -5205,6 +5483,8 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
       sections: sections ?? this.sections,
       progress: progress ?? this.progress,
       segmentProgress: segmentProgress ?? this.segmentProgress,
+      audioProgress: audioProgress ?? this.audioProgress,
+      audioSegmentProgress: audioSegmentProgress ?? this.audioSegmentProgress,
     );
   }
 
@@ -5241,6 +5521,16 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
         ),
       );
     }
+    if (audioProgress.present) {
+      map['audio_progress'] = Variable<int>(audioProgress.value);
+    }
+    if (audioSegmentProgress.present) {
+      map['audio_segment_progress'] = Variable<String>(
+        $ReadHistoryTable.$converteraudioSegmentProgressn.toSql(
+          audioSegmentProgress.value,
+        ),
+      );
+    }
     return map;
   }
 
@@ -5254,7 +5544,9 @@ class ReadHistoryCompanion extends UpdateCompanion<ReadHistoryData> {
           ..write('finishedAt: $finishedAt, ')
           ..write('sections: $sections, ')
           ..write('progress: $progress, ')
-          ..write('segmentProgress: $segmentProgress')
+          ..write('segmentProgress: $segmentProgress, ')
+          ..write('audioProgress: $audioProgress, ')
+          ..write('audioSegmentProgress: $audioSegmentProgress')
           ..write(')'))
         .toString();
   }
@@ -6157,6 +6449,434 @@ class SearchHistoryCompanion extends UpdateCompanion<SearchHistoryData> {
   }
 }
 
+class $AudiobookInfoTable extends AudiobookInfo
+    with TableInfo<$AudiobookInfoTable, AudiobookInfoData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AudiobookInfoTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _bookIdMeta = const VerificationMeta('bookId');
+  @override
+  late final GeneratedColumn<int> bookId = GeneratedColumn<int>(
+    'book_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES books (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _narratorMeta = const VerificationMeta(
+    'narrator',
+  );
+  @override
+  late final GeneratedColumn<String> narrator = GeneratedColumn<String>(
+    'narrator',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _platformMeta = const VerificationMeta(
+    'platform',
+  );
+  @override
+  late final GeneratedColumn<String> platform = GeneratedColumn<String>(
+    'platform',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _durationSecondsMeta = const VerificationMeta(
+    'durationSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> durationSeconds = GeneratedColumn<int>(
+    'duration_seconds',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _publisherMeta = const VerificationMeta(
+    'publisher',
+  );
+  @override
+  late final GeneratedColumn<String> publisher = GeneratedColumn<String>(
+    'publisher',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _identifierMeta = const VerificationMeta(
+    'identifier',
+  );
+  @override
+  late final GeneratedColumn<String> identifier = GeneratedColumn<String>(
+    'identifier',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    bookId,
+    narrator,
+    platform,
+    durationSeconds,
+    publisher,
+    identifier,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'audiobook_info';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AudiobookInfoData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('book_id')) {
+      context.handle(
+        _bookIdMeta,
+        bookId.isAcceptableOrUnknown(data['book_id']!, _bookIdMeta),
+      );
+    }
+    if (data.containsKey('narrator')) {
+      context.handle(
+        _narratorMeta,
+        narrator.isAcceptableOrUnknown(data['narrator']!, _narratorMeta),
+      );
+    }
+    if (data.containsKey('platform')) {
+      context.handle(
+        _platformMeta,
+        platform.isAcceptableOrUnknown(data['platform']!, _platformMeta),
+      );
+    }
+    if (data.containsKey('duration_seconds')) {
+      context.handle(
+        _durationSecondsMeta,
+        durationSeconds.isAcceptableOrUnknown(
+          data['duration_seconds']!,
+          _durationSecondsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('publisher')) {
+      context.handle(
+        _publisherMeta,
+        publisher.isAcceptableOrUnknown(data['publisher']!, _publisherMeta),
+      );
+    }
+    if (data.containsKey('identifier')) {
+      context.handle(
+        _identifierMeta,
+        identifier.isAcceptableOrUnknown(data['identifier']!, _identifierMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {bookId};
+  @override
+  AudiobookInfoData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AudiobookInfoData(
+      bookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}book_id'],
+      )!,
+      narrator: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}narrator'],
+      ),
+      platform: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}platform'],
+      ),
+      durationSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_seconds'],
+      ),
+      publisher: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}publisher'],
+      ),
+      identifier: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}identifier'],
+      ),
+    );
+  }
+
+  @override
+  $AudiobookInfoTable createAlias(String alias) {
+    return $AudiobookInfoTable(attachedDatabase, alias);
+  }
+}
+
+class AudiobookInfoData extends DataClass
+    implements Insertable<AudiobookInfoData> {
+  final int bookId;
+  final String? narrator;
+  final String? platform;
+
+  /// Total duration in seconds.
+  final int? durationSeconds;
+  final String? publisher;
+
+  /// ISBN or ASIN of the audio edition.
+  final String? identifier;
+  const AudiobookInfoData({
+    required this.bookId,
+    this.narrator,
+    this.platform,
+    this.durationSeconds,
+    this.publisher,
+    this.identifier,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['book_id'] = Variable<int>(bookId);
+    if (!nullToAbsent || narrator != null) {
+      map['narrator'] = Variable<String>(narrator);
+    }
+    if (!nullToAbsent || platform != null) {
+      map['platform'] = Variable<String>(platform);
+    }
+    if (!nullToAbsent || durationSeconds != null) {
+      map['duration_seconds'] = Variable<int>(durationSeconds);
+    }
+    if (!nullToAbsent || publisher != null) {
+      map['publisher'] = Variable<String>(publisher);
+    }
+    if (!nullToAbsent || identifier != null) {
+      map['identifier'] = Variable<String>(identifier);
+    }
+    return map;
+  }
+
+  AudiobookInfoCompanion toCompanion(bool nullToAbsent) {
+    return AudiobookInfoCompanion(
+      bookId: Value(bookId),
+      narrator: narrator == null && nullToAbsent
+          ? const Value.absent()
+          : Value(narrator),
+      platform: platform == null && nullToAbsent
+          ? const Value.absent()
+          : Value(platform),
+      durationSeconds: durationSeconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationSeconds),
+      publisher: publisher == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publisher),
+      identifier: identifier == null && nullToAbsent
+          ? const Value.absent()
+          : Value(identifier),
+    );
+  }
+
+  factory AudiobookInfoData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AudiobookInfoData(
+      bookId: serializer.fromJson<int>(json['bookId']),
+      narrator: serializer.fromJson<String?>(json['narrator']),
+      platform: serializer.fromJson<String?>(json['platform']),
+      durationSeconds: serializer.fromJson<int?>(json['durationSeconds']),
+      publisher: serializer.fromJson<String?>(json['publisher']),
+      identifier: serializer.fromJson<String?>(json['identifier']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'bookId': serializer.toJson<int>(bookId),
+      'narrator': serializer.toJson<String?>(narrator),
+      'platform': serializer.toJson<String?>(platform),
+      'durationSeconds': serializer.toJson<int?>(durationSeconds),
+      'publisher': serializer.toJson<String?>(publisher),
+      'identifier': serializer.toJson<String?>(identifier),
+    };
+  }
+
+  AudiobookInfoData copyWith({
+    int? bookId,
+    Value<String?> narrator = const Value.absent(),
+    Value<String?> platform = const Value.absent(),
+    Value<int?> durationSeconds = const Value.absent(),
+    Value<String?> publisher = const Value.absent(),
+    Value<String?> identifier = const Value.absent(),
+  }) => AudiobookInfoData(
+    bookId: bookId ?? this.bookId,
+    narrator: narrator.present ? narrator.value : this.narrator,
+    platform: platform.present ? platform.value : this.platform,
+    durationSeconds: durationSeconds.present
+        ? durationSeconds.value
+        : this.durationSeconds,
+    publisher: publisher.present ? publisher.value : this.publisher,
+    identifier: identifier.present ? identifier.value : this.identifier,
+  );
+  AudiobookInfoData copyWithCompanion(AudiobookInfoCompanion data) {
+    return AudiobookInfoData(
+      bookId: data.bookId.present ? data.bookId.value : this.bookId,
+      narrator: data.narrator.present ? data.narrator.value : this.narrator,
+      platform: data.platform.present ? data.platform.value : this.platform,
+      durationSeconds: data.durationSeconds.present
+          ? data.durationSeconds.value
+          : this.durationSeconds,
+      publisher: data.publisher.present ? data.publisher.value : this.publisher,
+      identifier: data.identifier.present
+          ? data.identifier.value
+          : this.identifier,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AudiobookInfoData(')
+          ..write('bookId: $bookId, ')
+          ..write('narrator: $narrator, ')
+          ..write('platform: $platform, ')
+          ..write('durationSeconds: $durationSeconds, ')
+          ..write('publisher: $publisher, ')
+          ..write('identifier: $identifier')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    bookId,
+    narrator,
+    platform,
+    durationSeconds,
+    publisher,
+    identifier,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AudiobookInfoData &&
+          other.bookId == this.bookId &&
+          other.narrator == this.narrator &&
+          other.platform == this.platform &&
+          other.durationSeconds == this.durationSeconds &&
+          other.publisher == this.publisher &&
+          other.identifier == this.identifier);
+}
+
+class AudiobookInfoCompanion extends UpdateCompanion<AudiobookInfoData> {
+  final Value<int> bookId;
+  final Value<String?> narrator;
+  final Value<String?> platform;
+  final Value<int?> durationSeconds;
+  final Value<String?> publisher;
+  final Value<String?> identifier;
+  const AudiobookInfoCompanion({
+    this.bookId = const Value.absent(),
+    this.narrator = const Value.absent(),
+    this.platform = const Value.absent(),
+    this.durationSeconds = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.identifier = const Value.absent(),
+  });
+  AudiobookInfoCompanion.insert({
+    this.bookId = const Value.absent(),
+    this.narrator = const Value.absent(),
+    this.platform = const Value.absent(),
+    this.durationSeconds = const Value.absent(),
+    this.publisher = const Value.absent(),
+    this.identifier = const Value.absent(),
+  });
+  static Insertable<AudiobookInfoData> custom({
+    Expression<int>? bookId,
+    Expression<String>? narrator,
+    Expression<String>? platform,
+    Expression<int>? durationSeconds,
+    Expression<String>? publisher,
+    Expression<String>? identifier,
+  }) {
+    return RawValuesInsertable({
+      if (bookId != null) 'book_id': bookId,
+      if (narrator != null) 'narrator': narrator,
+      if (platform != null) 'platform': platform,
+      if (durationSeconds != null) 'duration_seconds': durationSeconds,
+      if (publisher != null) 'publisher': publisher,
+      if (identifier != null) 'identifier': identifier,
+    });
+  }
+
+  AudiobookInfoCompanion copyWith({
+    Value<int>? bookId,
+    Value<String?>? narrator,
+    Value<String?>? platform,
+    Value<int?>? durationSeconds,
+    Value<String?>? publisher,
+    Value<String?>? identifier,
+  }) {
+    return AudiobookInfoCompanion(
+      bookId: bookId ?? this.bookId,
+      narrator: narrator ?? this.narrator,
+      platform: platform ?? this.platform,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
+      publisher: publisher ?? this.publisher,
+      identifier: identifier ?? this.identifier,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (bookId.present) {
+      map['book_id'] = Variable<int>(bookId.value);
+    }
+    if (narrator.present) {
+      map['narrator'] = Variable<String>(narrator.value);
+    }
+    if (platform.present) {
+      map['platform'] = Variable<String>(platform.value);
+    }
+    if (durationSeconds.present) {
+      map['duration_seconds'] = Variable<int>(durationSeconds.value);
+    }
+    if (publisher.present) {
+      map['publisher'] = Variable<String>(publisher.value);
+    }
+    if (identifier.present) {
+      map['identifier'] = Variable<String>(identifier.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AudiobookInfoCompanion(')
+          ..write('bookId: $bookId, ')
+          ..write('narrator: $narrator, ')
+          ..write('platform: $platform, ')
+          ..write('durationSeconds: $durationSeconds, ')
+          ..write('publisher: $publisher, ')
+          ..write('identifier: $identifier')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6172,6 +6892,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ReadHistoryTable readHistory = $ReadHistoryTable(this);
   late final $OwnershipLogTable ownershipLog = $OwnershipLogTable(this);
   late final $SearchHistoryTable searchHistory = $SearchHistoryTable(this);
+  late final $AudiobookInfoTable audiobookInfo = $AudiobookInfoTable(this);
   late final BookDao bookDao = BookDao(this as AppDatabase);
   late final TagDao tagDao = TagDao(this as AppDatabase);
   late final ShelfDao shelfDao = ShelfDao(this as AppDatabase);
@@ -6183,6 +6904,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final OwnershipDao ownershipDao = OwnershipDao(this as AppDatabase);
   late final SearchHistoryDao searchHistoryDao = SearchHistoryDao(
+    this as AppDatabase,
+  );
+  late final AudiobookInfoDao audiobookInfoDao = AudiobookInfoDao(
     this as AppDatabase,
   );
   @override
@@ -6201,6 +6925,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     readHistory,
     ownershipLog,
     searchHistory,
+    audiobookInfo,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -6245,6 +6970,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('ownership_log', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'books',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('audiobook_info', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -6946,6 +7678,7 @@ typedef $$BooksTableCreateCompanionBuilder =
       Value<PaginationConfig?> paginationConfig,
       Value<DateTime> createdAt,
       Value<String?> openLibraryEditionKey,
+      Value<MediaType> mediaType,
     });
 typedef $$BooksTableUpdateCompanionBuilder =
     BooksCompanion Function({
@@ -6980,6 +7713,7 @@ typedef $$BooksTableUpdateCompanionBuilder =
       Value<PaginationConfig?> paginationConfig,
       Value<DateTime> createdAt,
       Value<String?> openLibraryEditionKey,
+      Value<MediaType> mediaType,
     });
 
 final class $$BooksTableReferences
@@ -7088,6 +7822,24 @@ final class $$BooksTableReferences
     ).filter((f) => f.bookId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_ownershipLogRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$AudiobookInfoTable, List<AudiobookInfoData>>
+  _audiobookInfoRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.audiobookInfo,
+    aliasName: 'books__id__audiobook_info__book_id',
+  );
+
+  $$AudiobookInfoTableProcessedTableManager get audiobookInfoRefs {
+    final manager = $$AudiobookInfoTableTableManager(
+      $_db,
+      $_db.audiobookInfo,
+    ).filter((f) => f.bookId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_audiobookInfoRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7251,6 +8003,12 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnWithTypeConverterFilters<MediaType, MediaType, String> get mediaType =>
+      $composableBuilder(
+        column: $table.mediaType,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
   $$TagsTableFilterComposer get collectionId {
     final $$TagsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -7388,6 +8146,31 @@ class $$BooksTableFilterComposer extends Composer<_$AppDatabase, $BooksTable> {
           }) => $$OwnershipLogTableFilterComposer(
             $db: $db,
             $table: $db.ownershipLog,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> audiobookInfoRefs(
+    Expression<bool> Function($$AudiobookInfoTableFilterComposer f) f,
+  ) {
+    final $$AudiobookInfoTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.audiobookInfo,
+      getReferencedColumn: (t) => t.bookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AudiobookInfoTableFilterComposer(
+            $db: $db,
+            $table: $db.audiobookInfo,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7549,6 +8332,11 @@ class $$BooksTableOrderingComposer
 
   ColumnOrderings<String> get openLibraryEditionKey => $composableBuilder(
     column: $table.openLibraryEditionKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mediaType => $composableBuilder(
+    column: $table.mediaType,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -7726,6 +8514,9 @@ class $$BooksTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumnWithTypeConverter<MediaType, String> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
   $$TagsTableAnnotationComposer get collectionId {
     final $$TagsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -7871,6 +8662,31 @@ class $$BooksTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> audiobookInfoRefs<T extends Object>(
+    Expression<T> Function($$AudiobookInfoTableAnnotationComposer a) f,
+  ) {
+    final $$AudiobookInfoTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.audiobookInfo,
+      getReferencedColumn: (t) => t.bookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AudiobookInfoTableAnnotationComposer(
+            $db: $db,
+            $table: $db.audiobookInfo,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BooksTableTableManager
@@ -7893,6 +8709,7 @@ class $$BooksTableTableManager
             bool readingLogRefs,
             bool readHistoryRefs,
             bool ownershipLogRefs,
+            bool audiobookInfoRefs,
           })
         > {
   $$BooksTableTableManager(_$AppDatabase db, $BooksTable table)
@@ -7940,6 +8757,7 @@ class $$BooksTableTableManager
                     const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String?> openLibraryEditionKey = const Value.absent(),
+                Value<MediaType> mediaType = const Value.absent(),
               }) => BooksCompanion(
                 id: id,
                 title: title,
@@ -7972,6 +8790,7 @@ class $$BooksTableTableManager
                 paginationConfig: paginationConfig,
                 createdAt: createdAt,
                 openLibraryEditionKey: openLibraryEditionKey,
+                mediaType: mediaType,
               ),
           createCompanionCallback:
               ({
@@ -8007,6 +8826,7 @@ class $$BooksTableTableManager
                     const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String?> openLibraryEditionKey = const Value.absent(),
+                Value<MediaType> mediaType = const Value.absent(),
               }) => BooksCompanion.insert(
                 id: id,
                 title: title,
@@ -8039,6 +8859,7 @@ class $$BooksTableTableManager
                 paginationConfig: paginationConfig,
                 createdAt: createdAt,
                 openLibraryEditionKey: openLibraryEditionKey,
+                mediaType: mediaType,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -8056,6 +8877,7 @@ class $$BooksTableTableManager
                 readingLogRefs = false,
                 readHistoryRefs = false,
                 ownershipLogRefs = false,
+                audiobookInfoRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -8064,6 +8886,7 @@ class $$BooksTableTableManager
                     if (readingLogRefs) db.readingLog,
                     if (readHistoryRefs) db.readHistory,
                     if (ownershipLogRefs) db.ownershipLog,
+                    if (audiobookInfoRefs) db.audiobookInfo,
                   ],
                   addJoins:
                       <
@@ -8192,6 +9015,26 @@ class $$BooksTableTableManager
                           referencedColumn: 'book_id',
                           typedResults: items,
                         ),
+                      if (audiobookInfoRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Book,
+                          $BooksTable,
+                          AudiobookInfoData,
+                          $AudiobookInfoTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BooksTableReferences
+                              ._audiobookInfoRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BooksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).audiobookInfoRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'book_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -8219,6 +9062,7 @@ typedef $$BooksTableProcessedTableManager =
         bool readingLogRefs,
         bool readHistoryRefs,
         bool ownershipLogRefs,
+        bool audiobookInfoRefs,
       })
     >;
 typedef $$BookTagsTableCreateCompanionBuilder =
@@ -10220,6 +11064,8 @@ typedef $$ReadingLogTableCreateCompanionBuilder =
       Value<List<String>?> sections,
       Value<int?> readNumber,
       Value<bool> isBackfill,
+      Value<ReadingMedium> medium,
+      Value<int?> startPosition,
     });
 typedef $$ReadingLogTableUpdateCompanionBuilder =
     ReadingLogCompanion Function({
@@ -10230,6 +11076,8 @@ typedef $$ReadingLogTableUpdateCompanionBuilder =
       Value<List<String>?> sections,
       Value<int?> readNumber,
       Value<bool> isBackfill,
+      Value<ReadingMedium> medium,
+      Value<int?> startPosition,
     });
 
 final class $$ReadingLogTableReferences
@@ -10291,6 +11139,17 @@ class $$ReadingLogTableFilterComposer
 
   ColumnFilters<bool> get isBackfill => $composableBuilder(
     column: $table.isBackfill,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ReadingMedium, ReadingMedium, String>
+  get medium => $composableBuilder(
+    column: $table.medium,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get startPosition => $composableBuilder(
+    column: $table.startPosition,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10357,6 +11216,16 @@ class $$ReadingLogTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get medium => $composableBuilder(
+    column: $table.medium,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startPosition => $composableBuilder(
+    column: $table.startPosition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BooksTableOrderingComposer get bookId {
     final $$BooksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -10409,6 +11278,14 @@ class $$ReadingLogTableAnnotationComposer
 
   GeneratedColumn<bool> get isBackfill => $composableBuilder(
     column: $table.isBackfill,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<ReadingMedium, String> get medium =>
+      $composableBuilder(column: $table.medium, builder: (column) => column);
+
+  GeneratedColumn<int> get startPosition => $composableBuilder(
+    column: $table.startPosition,
     builder: (column) => column,
   );
 
@@ -10471,6 +11348,8 @@ class $$ReadingLogTableTableManager
                 Value<List<String>?> sections = const Value.absent(),
                 Value<int?> readNumber = const Value.absent(),
                 Value<bool> isBackfill = const Value.absent(),
+                Value<ReadingMedium> medium = const Value.absent(),
+                Value<int?> startPosition = const Value.absent(),
               }) => ReadingLogCompanion(
                 id: id,
                 bookId: bookId,
@@ -10479,6 +11358,8 @@ class $$ReadingLogTableTableManager
                 sections: sections,
                 readNumber: readNumber,
                 isBackfill: isBackfill,
+                medium: medium,
+                startPosition: startPosition,
               ),
           createCompanionCallback:
               ({
@@ -10489,6 +11370,8 @@ class $$ReadingLogTableTableManager
                 Value<List<String>?> sections = const Value.absent(),
                 Value<int?> readNumber = const Value.absent(),
                 Value<bool> isBackfill = const Value.absent(),
+                Value<ReadingMedium> medium = const Value.absent(),
+                Value<int?> startPosition = const Value.absent(),
               }) => ReadingLogCompanion.insert(
                 id: id,
                 bookId: bookId,
@@ -10497,6 +11380,8 @@ class $$ReadingLogTableTableManager
                 sections: sections,
                 readNumber: readNumber,
                 isBackfill: isBackfill,
+                medium: medium,
+                startPosition: startPosition,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -10921,6 +11806,8 @@ typedef $$ReadHistoryTableCreateCompanionBuilder =
       Value<List<String>?> sections,
       Value<int> progress,
       Value<Map<int, int>?> segmentProgress,
+      Value<int> audioProgress,
+      Value<Map<int, int>?> audioSegmentProgress,
     });
 typedef $$ReadHistoryTableUpdateCompanionBuilder =
     ReadHistoryCompanion Function({
@@ -10932,6 +11819,8 @@ typedef $$ReadHistoryTableUpdateCompanionBuilder =
       Value<List<String>?> sections,
       Value<int> progress,
       Value<Map<int, int>?> segmentProgress,
+      Value<int> audioProgress,
+      Value<Map<int, int>?> audioSegmentProgress,
     });
 
 final class $$ReadHistoryTableReferences
@@ -10999,6 +11888,17 @@ class $$ReadHistoryTableFilterComposer
   ColumnWithTypeConverterFilters<Map<int, int>?, Map<int, int>, String>
   get segmentProgress => $composableBuilder(
     column: $table.segmentProgress,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get audioProgress => $composableBuilder(
+    column: $table.audioProgress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Map<int, int>?, Map<int, int>, String>
+  get audioSegmentProgress => $composableBuilder(
+    column: $table.audioSegmentProgress,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -11070,6 +11970,16 @@ class $$ReadHistoryTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get audioProgress => $composableBuilder(
+    column: $table.audioProgress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get audioSegmentProgress => $composableBuilder(
+    column: $table.audioSegmentProgress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BooksTableOrderingComposer get bookId {
     final $$BooksTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -11128,6 +12038,17 @@ class $$ReadHistoryTableAnnotationComposer
   GeneratedColumnWithTypeConverter<Map<int, int>?, String>
   get segmentProgress => $composableBuilder(
     column: $table.segmentProgress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get audioProgress => $composableBuilder(
+    column: $table.audioProgress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<Map<int, int>?, String>
+  get audioSegmentProgress => $composableBuilder(
+    column: $table.audioSegmentProgress,
     builder: (column) => column,
   );
 
@@ -11191,6 +12112,9 @@ class $$ReadHistoryTableTableManager
                 Value<List<String>?> sections = const Value.absent(),
                 Value<int> progress = const Value.absent(),
                 Value<Map<int, int>?> segmentProgress = const Value.absent(),
+                Value<int> audioProgress = const Value.absent(),
+                Value<Map<int, int>?> audioSegmentProgress =
+                    const Value.absent(),
               }) => ReadHistoryCompanion(
                 id: id,
                 bookId: bookId,
@@ -11200,6 +12124,8 @@ class $$ReadHistoryTableTableManager
                 sections: sections,
                 progress: progress,
                 segmentProgress: segmentProgress,
+                audioProgress: audioProgress,
+                audioSegmentProgress: audioSegmentProgress,
               ),
           createCompanionCallback:
               ({
@@ -11211,6 +12137,9 @@ class $$ReadHistoryTableTableManager
                 Value<List<String>?> sections = const Value.absent(),
                 Value<int> progress = const Value.absent(),
                 Value<Map<int, int>?> segmentProgress = const Value.absent(),
+                Value<int> audioProgress = const Value.absent(),
+                Value<Map<int, int>?> audioSegmentProgress =
+                    const Value.absent(),
               }) => ReadHistoryCompanion.insert(
                 id: id,
                 bookId: bookId,
@@ -11220,6 +12149,8 @@ class $$ReadHistoryTableTableManager
                 sections: sections,
                 progress: progress,
                 segmentProgress: segmentProgress,
+                audioProgress: audioProgress,
+                audioSegmentProgress: audioSegmentProgress,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -11886,6 +12817,345 @@ typedef $$SearchHistoryTableProcessedTableManager =
       SearchHistoryData,
       PrefetchHooks Function()
     >;
+typedef $$AudiobookInfoTableCreateCompanionBuilder =
+    AudiobookInfoCompanion Function({
+      Value<int> bookId,
+      Value<String?> narrator,
+      Value<String?> platform,
+      Value<int?> durationSeconds,
+      Value<String?> publisher,
+      Value<String?> identifier,
+    });
+typedef $$AudiobookInfoTableUpdateCompanionBuilder =
+    AudiobookInfoCompanion Function({
+      Value<int> bookId,
+      Value<String?> narrator,
+      Value<String?> platform,
+      Value<int?> durationSeconds,
+      Value<String?> publisher,
+      Value<String?> identifier,
+    });
+
+final class $$AudiobookInfoTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $AudiobookInfoTable, AudiobookInfoData> {
+  $$AudiobookInfoTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BooksTable _bookIdTable(_$AppDatabase db) =>
+      db.books.createAlias('audiobook_info__book_id__books__id');
+
+  $$BooksTableProcessedTableManager get bookId {
+    final $_column = $_itemColumn<int>('book_id')!;
+
+    final manager = $$BooksTableTableManager(
+      $_db,
+      $_db.books,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bookIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$AudiobookInfoTableFilterComposer
+    extends Composer<_$AppDatabase, $AudiobookInfoTable> {
+  $$AudiobookInfoTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get narrator => $composableBuilder(
+    column: $table.narrator,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get platform => $composableBuilder(
+    column: $table.platform,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get publisher => $composableBuilder(
+    column: $table.publisher,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get identifier => $composableBuilder(
+    column: $table.identifier,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BooksTableFilterComposer get bookId {
+    final $$BooksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableFilterComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AudiobookInfoTableOrderingComposer
+    extends Composer<_$AppDatabase, $AudiobookInfoTable> {
+  $$AudiobookInfoTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get narrator => $composableBuilder(
+    column: $table.narrator,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get platform => $composableBuilder(
+    column: $table.platform,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get publisher => $composableBuilder(
+    column: $table.publisher,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get identifier => $composableBuilder(
+    column: $table.identifier,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BooksTableOrderingComposer get bookId {
+    final $$BooksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableOrderingComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AudiobookInfoTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AudiobookInfoTable> {
+  $$AudiobookInfoTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get narrator =>
+      $composableBuilder(column: $table.narrator, builder: (column) => column);
+
+  GeneratedColumn<String> get platform =>
+      $composableBuilder(column: $table.platform, builder: (column) => column);
+
+  GeneratedColumn<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get publisher =>
+      $composableBuilder(column: $table.publisher, builder: (column) => column);
+
+  GeneratedColumn<String> get identifier => $composableBuilder(
+    column: $table.identifier,
+    builder: (column) => column,
+  );
+
+  $$BooksTableAnnotationComposer get bookId {
+    final $$BooksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.books,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.books,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AudiobookInfoTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AudiobookInfoTable,
+          AudiobookInfoData,
+          $$AudiobookInfoTableFilterComposer,
+          $$AudiobookInfoTableOrderingComposer,
+          $$AudiobookInfoTableAnnotationComposer,
+          $$AudiobookInfoTableCreateCompanionBuilder,
+          $$AudiobookInfoTableUpdateCompanionBuilder,
+          (AudiobookInfoData, $$AudiobookInfoTableReferences),
+          AudiobookInfoData,
+          PrefetchHooks Function({bool bookId})
+        > {
+  $$AudiobookInfoTableTableManager(_$AppDatabase db, $AudiobookInfoTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AudiobookInfoTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AudiobookInfoTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AudiobookInfoTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> bookId = const Value.absent(),
+                Value<String?> narrator = const Value.absent(),
+                Value<String?> platform = const Value.absent(),
+                Value<int?> durationSeconds = const Value.absent(),
+                Value<String?> publisher = const Value.absent(),
+                Value<String?> identifier = const Value.absent(),
+              }) => AudiobookInfoCompanion(
+                bookId: bookId,
+                narrator: narrator,
+                platform: platform,
+                durationSeconds: durationSeconds,
+                publisher: publisher,
+                identifier: identifier,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> bookId = const Value.absent(),
+                Value<String?> narrator = const Value.absent(),
+                Value<String?> platform = const Value.absent(),
+                Value<int?> durationSeconds = const Value.absent(),
+                Value<String?> publisher = const Value.absent(),
+                Value<String?> identifier = const Value.absent(),
+              }) => AudiobookInfoCompanion.insert(
+                bookId: bookId,
+                narrator: narrator,
+                platform: platform,
+                durationSeconds: durationSeconds,
+                publisher: publisher,
+                identifier: identifier,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AudiobookInfoTable, AudiobookInfoData>(table),
+                  $$AudiobookInfoTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({bookId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (bookId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.bookId,
+                                referencedTable: $$AudiobookInfoTableReferences
+                                    ._bookIdTable(db),
+                                referencedColumn: $$AudiobookInfoTableReferences
+                                    ._bookIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$AudiobookInfoTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AudiobookInfoTable,
+      AudiobookInfoData,
+      $$AudiobookInfoTableFilterComposer,
+      $$AudiobookInfoTableOrderingComposer,
+      $$AudiobookInfoTableAnnotationComposer,
+      $$AudiobookInfoTableCreateCompanionBuilder,
+      $$AudiobookInfoTableUpdateCompanionBuilder,
+      (AudiobookInfoData, $$AudiobookInfoTableReferences),
+      AudiobookInfoData,
+      PrefetchHooks Function({bool bookId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -11911,4 +13181,6 @@ class $AppDatabaseManager {
       $$OwnershipLogTableTableManager(_db, _db.ownershipLog);
   $$SearchHistoryTableTableManager get searchHistory =>
       $$SearchHistoryTableTableManager(_db, _db.searchHistory);
+  $$AudiobookInfoTableTableManager get audiobookInfo =>
+      $$AudiobookInfoTableTableManager(_db, _db.audiobookInfo);
 }

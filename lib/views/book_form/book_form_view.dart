@@ -11,6 +11,7 @@ import 'cover_picker_sheet.dart';
 import 'widgets/main_tab.dart';
 import 'widgets/details_tab.dart';
 import 'package:openshelf/utils/pagination_helper.dart';
+import '../../utils/media_progress.dart';
 import '../../widgets/loading_overlay.dart';
 
 /// Form for adding a new book or editing an existing one.
@@ -46,6 +47,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
   late final TextEditingController _publishYearCtrl;
   late final TextEditingController _copiesCtrl;
   late final TextEditingController _personNameCtrl;
+  late final TextEditingController _narratorCtrl;
+  late final TextEditingController _platformCtrl;
+  late final TextEditingController _durationCtrl;
+  late final TextEditingController _audioPositionCtrl;
+  MediaType _mediaType = MediaType.reading;
 
   ReadingStatus _status = ReadingStatus.wantToRead;
   OwnershipStatus? _ownershipStatus;
@@ -92,6 +98,11 @@ class _BookFormViewState extends ConsumerState<BookFormView>
         text: b?.publishYear?.toString() ?? pre?.publishYear?.toString() ?? '');
     _copiesCtrl = TextEditingController(text: b?.copies.toString() ?? '1');
     _personNameCtrl = TextEditingController(text: '');
+    _narratorCtrl = TextEditingController();
+    _platformCtrl = TextEditingController();
+    _durationCtrl = TextEditingController();
+    _audioPositionCtrl = TextEditingController();
+    _mediaType = b?.mediaType ?? MediaType.reading;
         
     if (b != null) {
       _status = b.status;
@@ -151,6 +162,10 @@ class _BookFormViewState extends ConsumerState<BookFormView>
     _totalPagesCtrl.removeListener(_updateStatusFromPages);
     _copiesCtrl.dispose();
     _personNameCtrl.dispose();
+    _narratorCtrl.dispose();
+    _platformCtrl.dispose();
+    _durationCtrl.dispose();
+    _audioPositionCtrl.dispose();
     super.dispose();
   }
 
@@ -477,7 +492,14 @@ class _BookFormViewState extends ConsumerState<BookFormView>
           key: widget.existingBook?.openLibraryEditionKey ?? widget.prefill?.openLibraryEditionKey,
           originalIsbn: widget.existingBook != null ? widget.existingBook!.isbn : widget.prefill?.isbn,
           newIsbn: _isbnCtrl.text.trim(),
+          originalMediaType: widget.existingBook?.mediaType ?? (widget.prefill != null ? MediaType.reading : null),
+          newMediaType: _mediaType,
         ),
+        mediaType: _mediaType,
+        narrator: _narratorCtrl.text.trim().isEmpty ? null : _narratorCtrl.text.trim(),
+        platform: _platformCtrl.text.trim().isEmpty ? null : _platformCtrl.text.trim(),
+        audioDurationSeconds: parseDuration(_durationCtrl.text),
+        audioPositionSeconds: _mediaType == MediaType.audio ? (parseDuration(_audioPositionCtrl.text) ?? 0) : null,
       );
 
       if (mounted) {
@@ -496,6 +518,20 @@ class _BookFormViewState extends ConsumerState<BookFormView>
 
   Future<void> _loadInitialData(int bookId) async {
     final db = ref.read(databaseProvider);
+    final audio = await db.audiobookInfoDao.getForBook(bookId);
+    final audioHistory = await db.readHistoryDao.getHistoryForBook(bookId);
+    if (audio != null) {
+      _narratorCtrl.text = audio.narrator ?? '';
+      _platformCtrl.text = audio.platform ?? '';
+      if (audio.durationSeconds != null) _durationCtrl.text = formatDuration(audio.durationSeconds!);
+    }
+    final audioProgress = MediaProgress.audio(widget.existingBook!, audioHistory, audio);
+    final activeAudio = audioHistory
+        .where((h) => h.finishedAt == null)
+        .map((h) => h.audioProgress)
+        .lastOrNull;
+    final position = audioProgress?.current ?? activeAudio ?? 0;
+    if (position > 0) _audioPositionCtrl.text = formatDuration(position);
     final tags = await db.tagDao.watchTagsForBook(bookId).first;
     final imprint = await db.tagDao.watchImprintForBook(bookId).first;
     final collections = await db.tagDao.watchCollectionsForBook(bookId).first;
@@ -628,6 +664,12 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                 onSearchCovers: _searchCovers,
                 paginationConfig: _paginationConfig,
                 initialSegmentProgress: _segmentProgress,
+                mediaType: _mediaType,
+                onMediaTypeChanged: (t) => setState(() => _mediaType = t),
+                narratorCtrl: _narratorCtrl,
+                platformCtrl: _platformCtrl,
+                durationCtrl: _durationCtrl,
+                audioPositionCtrl: _audioPositionCtrl,
                 onPaginationConfigChanged: (PaginationConfig cfg, Map<int, int>? segProgress) {
                   setState(() {
                     _paginationConfig = cfg;
@@ -670,6 +712,7 @@ class _BookFormViewState extends ConsumerState<BookFormView>
                 onCollectionsChanged: (list) => setState(() => _selectedCollections = list),
                 onImprintChanged: (tag) => setState(() => _selectedImprint = tag),
                 copiesCtrl: _copiesCtrl,
+                showCopies: _mediaType != MediaType.audio,
               ),
             ],
           ),

@@ -58,7 +58,11 @@ class DetailsTab extends ConsumerWidget {
     required this.onCollectionsChanged,
     required this.onImprintChanged,
     required this.copiesCtrl,
+    this.showCopies = true,
   });
+
+  /// Copies are a physical notion; hidden (not cleared) for audiobooks.
+  final bool showCopies;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -349,19 +353,21 @@ class DetailsTab extends ConsumerWidget {
           icon: Icons.check_circle_outline,
           errorText: finishedAtError,
         ),
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(
-              child: FormFieldWidget(
-                controller: copiesCtrl,
-                label: context.l10n.fieldCopies,
-                icon: Icons.copy,
-                keyboardType: TextInputType.number,
+        if (showCopies) ...[
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: FormFieldWidget(
+                  controller: copiesCtrl,
+                  label: context.l10n.fieldCopies,
+                  icon: Icons.copy,
+                  keyboardType: TextInputType.number,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
         const SizedBox(height: 32),
       ],
     );

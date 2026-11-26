@@ -17,6 +17,7 @@ void main() {
     status: ReadingStatus.wantToRead,
     copies: 1,
     createdAt: DateTime.now(),
+    mediaType: MediaType.reading,
   );
 
   testWidgets('BookDetailView displays book information', (WidgetTester tester) async {

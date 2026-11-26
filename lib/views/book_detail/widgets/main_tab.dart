@@ -15,6 +15,8 @@ import '../../../widgets/book_rating_bar.dart';
 import '../../../models/extensions/reading_status_ext.dart';
 import '../../../models/extensions/book_format_ext.dart';
 import '../../shelves/shelf_books_view.dart';
+import '../../../utils/media_progress.dart';
+import '../../../controllers/audiobook_info_provider.dart';
 
 class MainTab extends StatelessWidget {
   final Book book;
@@ -162,7 +164,9 @@ class MainTab extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  SectionHeader(label: context.l10n.bookDetailFieldPages),
+                  SectionHeader(label: book.mediaType == MediaType.audio
+                      ? context.l10n.audioProgressTitle
+                      : context.l10n.bookDetailFieldPages),
                   const SizedBox(width: 4),
                   Icon(
                     Icons.edit_outlined,
@@ -174,6 +178,11 @@ class MainTab extends StatelessWidget {
               const SizedBox(height: 4),
               Consumer(builder: (context, ref, _) {
                 final historyAsync = ref.watch(readHistoryProvider(book.id));
+                if (book.mediaType == MediaType.audio) {
+                  final info = ref.watch(audiobookInfoProvider(book.id)).value;
+                  final progress = MediaProgress.audio(book, historyAsync.value ?? const [], info);
+                  return _AudioProgressRow(progress: progress, status: book.status);
+                }
                 return historyAsync.when(
                   loading: () => const SizedBox.shrink(),
                   error: (_, _) => const Text('—'),
@@ -504,6 +513,51 @@ class _MarkersAndSegmentsTileState extends State<_MarkersAndSegmentsTile> {
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         );
       },
+    );
+  }
+}
+
+/// Listening progress of an audiobook: a plain bar plus `h:mm / h:mm` and %.
+class _AudioProgressRow extends StatelessWidget {
+  final MediaProgress? progress;
+  final ReadingStatus status;
+
+  const _AudioProgressRow({required this.progress, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = progress;
+    if (p == null) return Text('—', style: Theme.of(context).textTheme.bodyLarge);
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: LinearProgressIndicator(
+              value: p.fraction,
+              minHeight: 6,
+              borderRadius: BorderRadius.circular(3),
+              backgroundColor: colorScheme.surfaceContainerHighest,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${formatDuration(p.current)} / ${formatDuration(p.total)} $durationUnit',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              Text(
+                '${(p.fraction * 100).toStringAsFixed(0)}%',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -18,6 +18,20 @@ enum BookFormat {
   other,
 }
 
+/// How a book is consumed. `both` (reading + listening) is stored from the
+/// start but only exposed once mixed mode is implemented.
+enum MediaType {
+  reading,
+  audio,
+  both,
+}
+
+/// Medium of a single progress entry (reading_log row).
+enum ReadingMedium {
+  text,
+  audio,
+}
+
 enum OwnershipStatus {
   bought,
   gifted,

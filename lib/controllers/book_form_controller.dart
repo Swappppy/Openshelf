@@ -125,8 +125,12 @@ class BookFormController {
     required String? key,
     required String? originalIsbn,
     required String? newIsbn,
+    MediaType? originalMediaType,
+    MediaType? newMediaType,
   }) {
     if (key == null) return null;
+    // A different medium is a different edition (e.g. print vs audio).
+    if (originalMediaType != null && newMediaType != null && originalMediaType != newMediaType) return null;
     String clean(String? s) => s?.replaceAll(RegExp(r'[^0-9Xx]'), '').toUpperCase() ?? '';
     final before = clean(originalIsbn);
     if (before.isEmpty) return key;
@@ -169,6 +173,11 @@ class BookFormController {
     required String? personName,
     required String unknownAuthorLabel,
     String? openLibraryEditionKey,
+    MediaType mediaType = MediaType.reading,
+    String? narrator,
+    String? platform,
+    int? audioDurationSeconds,
+    int? audioPositionSeconds,
   }) async {
     // 1. Sanitize Pagination Config
     PaginationConfig? finalConfig = paginationConfig;
@@ -224,7 +233,12 @@ class BookFormController {
       finishedAt: Value(effectiveFinishedAt),
       imprintId: Value(imprintId),
       openLibraryEditionKey: Value(openLibraryEditionKey),
+      mediaType: Value(mediaType),
     );
+
+    // Pages kept in the form of an audiobook are hidden data, not progress:
+    // they never create page history or page log entries.
+    final countPages = mediaType != MediaType.audio;
 
     int bookId;
     if (existingBook != null) {
@@ -240,7 +254,7 @@ class BookFormController {
       final activeSessionNum = PaginationHelper.getActiveSessionNumber(status, completedReads);
       final activeSession = history.firstWhereOrNull((h) => h.readNumber == activeSessionNum);
 
-      if (currentPage > (existingBook.currentPage ?? 0)) {
+      if (countPages && currentPage > (existingBook.currentPage ?? 0)) {
         final delta = currentPage - (existingBook.currentPage ?? 0);
         final isRead = status == ReadingStatus.read;
         final logDate = isRead && effectiveFinishedAt != null
@@ -278,7 +292,7 @@ class BookFormController {
           readNumber: activeSessionNum,
           startedAt: Value(startedAt ?? DateTime.now()),
           finishedAt: Value(effectiveFinishedAt),
-          progress: Value(currentPage),
+          progress: Value(countPages ? currentPage : 0),
           segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
         ));
       }
@@ -302,7 +316,7 @@ class BookFormController {
               : {});
 
       if (status == ReadingStatus.read) {
-        final total = totalPages > 0 ? totalPages : currentPage;
+        final total = !countPages ? 0 : (totalPages > 0 ? totalPages : currentPage);
         final Map<int, int> fullProgress = (finalConfig?.segments.isNotEmpty ?? false)
             ? PaginationHelper.distributePhysicalPage(total, finalConfig!.segments)
             : {};
@@ -320,7 +334,7 @@ class BookFormController {
           bookId: bookId,
           readNumber: 1,
           startedAt: Value(startedAt ?? DateTime.now()),
-          progress: Value(currentPage),
+          progress: Value(countPages ? currentPage : 0),
           segmentProgress: Value(distributedProgress.isEmpty ? null : distributedProgress),
         ));
       }
@@ -334,7 +348,7 @@ class BookFormController {
         ));
       }
 
-      final loggedPages = status == ReadingStatus.read ? (totalPages > 0 ? totalPages : currentPage) : currentPage;
+      final loggedPages = !countPages ? 0 : (status == ReadingStatus.read ? (totalPages > 0 ? totalPages : currentPage) : currentPage);
       if (loggedPages > 0) {
         final isRead = status == ReadingStatus.read;
         final logDate = isRead && effectiveFinishedAt != null
@@ -367,6 +381,71 @@ class BookFormController {
     );
     ref.read(shelfAutomationProvider.notifier).checkNoCoverShelf();
 
+    // Audio data. Kept (not deleted) when the book switches back to
+    // reading, so switching media never loses information.
+    if (mediaType != MediaType.reading) {
+      await _db.audiobookInfoDao.upsert(AudiobookInfoCompanion(
+        bookId: Value(bookId),
+        narrator: Value(narrator),
+        platform: Value(platform),
+        durationSeconds: Value(audioDurationSeconds),
+      ));
+    }
+    if (mediaType == MediaType.audio && audioPositionSeconds != null) {
+      await _syncAudioPosition(
+        bookId: bookId,
+        status: status,
+        position: audioPositionSeconds,
+        duration: audioDurationSeconds,
+        finishedAt: effectiveFinishedAt,
+        startedAt: startedAt,
+      );
+    }
+
     return bookId;
+  }
+
+  /// Puts the form's audio position on the active read (the full duration
+  /// when the book is marked read) and logs the listened delta on edits.
+  Future<void> _syncAudioPosition({
+    required int bookId,
+    required ReadingStatus status,
+    required int position,
+    required int? duration,
+    required DateTime? finishedAt,
+    required DateTime? startedAt,
+  }) async {
+    final history = await _db.readHistoryDao.getHistoryForBook(bookId);
+    final completedReads = history.where((h) => h.finishedAt != null).length;
+    final activeNum = PaginationHelper.getActiveSessionNumber(status, completedReads);
+    final entry = history.firstWhereOrNull((h) => h.readNumber == activeNum);
+    final target = (status == ReadingStatus.read && (duration ?? 0) > 0) ? duration! : position;
+    final old = entry?.audioProgress ?? 0;
+
+    if (entry != null) {
+      await _db.readHistoryDao.updateRead(entry.copyWith(audioProgress: target));
+    } else if (target > 0 || status == ReadingStatus.reading || status == ReadingStatus.read) {
+      await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: bookId,
+        readNumber: activeNum,
+        startedAt: Value(startedAt ?? DateTime.now()),
+        finishedAt: Value(status == ReadingStatus.read ? finishedAt : null),
+        audioProgress: Value(target),
+      ));
+    }
+
+    // Logged on creation too, like the pages of a new book.
+    if (target > old) {
+      final isRead = status == ReadingStatus.read;
+      await ref.read(readingLogControllerProvider.notifier).logPages(
+        bookId,
+        target - old,
+        date: isRead && finishedAt != null ? DateTime(finishedAt.year, finishedAt.month, finishedAt.day) : null,
+        readNumber: activeNum,
+        backfill: isRead,
+        medium: ReadingMedium.audio,
+        startPosition: old,
+      );
+    }
   }
 }

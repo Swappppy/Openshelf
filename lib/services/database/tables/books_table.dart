@@ -44,6 +44,9 @@ class Books extends Table {
   /// future contribution target the exact edition and allows exact metadata
   /// refreshes. Cleared when the user changes the ISBN.
   TextColumn get openLibraryEditionKey => text().nullable()();
+
+  /// Reading, audio or both. Existing books are `reading`.
+  TextColumn get mediaType => textEnum<MediaType>().withDefault(Constant(MediaType.reading.name))();
 }
 
 /// Many-to-Many relationship between Books and Tags

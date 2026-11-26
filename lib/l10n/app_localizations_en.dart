@@ -2009,6 +2009,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'You can specify multiple translators separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each translator.';
 
   @override
+  String get narratorMultiHelpTitle => 'Multiple narrators';
+
+  @override
+  String get narratorMultiHelpContent =>
+      'You can specify multiple narrators separated by a semicolon (;), slash (/), or comma (,). Autocomplete will suggest individual names for each narrator.';
+
+  @override
   String get padlockResetTitle => 'Lock field?';
 
   @override
@@ -2065,4 +2072,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ownershipEventDeleteConfirm => 'Delete this ownership entry?';
+
+  @override
+  String get mediaTypeReading => 'Reading';
+
+  @override
+  String get mediaTypeAudio => 'Audiobook';
+
+  @override
+  String get mediaTypeBoth => 'Both';
+
+  @override
+  String get fieldNarrator => 'Narrator';
+
+  @override
+  String get fieldPlatform => 'Platform';
+
+  @override
+  String get fieldDuration => 'Total duration';
+
+  @override
+  String get fieldAudioPosition => 'Current position';
+
+  @override
+  String get durationInvalid => 'Use hh:mm or a number of hours';
+
+  @override
+  String get audioPositionBeyondDuration =>
+      'Position is beyond the total duration';
+
+  @override
+  String get audioProgressTitle => 'Listening progress';
+
+  @override
+  String get audioDurationMissing =>
+      'Set the total duration in the book form to track progress';
+
+  @override
+  String audioProgress(String current, String total, String percent) {
+    return '$current / $total · $percent%';
+  }
 }

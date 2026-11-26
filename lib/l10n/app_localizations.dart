@@ -3733,6 +3733,18 @@ abstract class AppLocalizations {
   /// **'Puedes indicar múltiples traductores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada traductor.'**
   String get translatorMultiHelpContent;
 
+  /// No description provided for @narratorMultiHelpTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Múltiples narradores'**
+  String get narratorMultiHelpTitle;
+
+  /// No description provided for @narratorMultiHelpContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes indicar múltiples narradores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada narrador.'**
+  String get narratorMultiHelpContent;
+
   /// No description provided for @padlockResetTitle.
   ///
   /// In es, this message translates to:
@@ -3822,6 +3834,78 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¿Eliminar esta entrada del historial de propiedad?'**
   String get ownershipEventDeleteConfirm;
+
+  /// No description provided for @mediaTypeReading.
+  ///
+  /// In es, this message translates to:
+  /// **'Lectura'**
+  String get mediaTypeReading;
+
+  /// No description provided for @mediaTypeAudio.
+  ///
+  /// In es, this message translates to:
+  /// **'Audiolibro'**
+  String get mediaTypeAudio;
+
+  /// No description provided for @mediaTypeBoth.
+  ///
+  /// In es, this message translates to:
+  /// **'Ambos'**
+  String get mediaTypeBoth;
+
+  /// No description provided for @fieldNarrator.
+  ///
+  /// In es, this message translates to:
+  /// **'Narrador'**
+  String get fieldNarrator;
+
+  /// No description provided for @fieldPlatform.
+  ///
+  /// In es, this message translates to:
+  /// **'Plataforma'**
+  String get fieldPlatform;
+
+  /// No description provided for @fieldDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración total'**
+  String get fieldDuration;
+
+  /// No description provided for @fieldAudioPosition.
+  ///
+  /// In es, this message translates to:
+  /// **'Posición actual'**
+  String get fieldAudioPosition;
+
+  /// No description provided for @durationInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Usa hh:mm o un número de horas'**
+  String get durationInvalid;
+
+  /// No description provided for @audioPositionBeyondDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'La posición supera la duración total'**
+  String get audioPositionBeyondDuration;
+
+  /// No description provided for @audioProgressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso de escucha'**
+  String get audioProgressTitle;
+
+  /// No description provided for @audioDurationMissing.
+  ///
+  /// In es, this message translates to:
+  /// **'Indica la duración total en la ficha del libro para registrar el progreso'**
+  String get audioDurationMissing;
+
+  /// Listening progress (h:mm of total)
+  ///
+  /// In es, this message translates to:
+  /// **'{current} / {total} · {percent}%'**
+  String audioProgress(String current, String total, String percent);
 }
 
 class _AppLocalizationsDelegate

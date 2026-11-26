@@ -200,7 +200,91 @@ class ReadingSessionController {
         newTotalRead - oldTotalRead,
         sections: changedSectionLabels.isEmpty ? null : changedSectionLabels,
         readNumber: sessionIdx,
+        startPosition: oldTotalRead,
       );
+    }
+  }
+
+  /// Audio counterpart of [updatePageProgress]: moves the audio pointer of the
+  /// active read to [newPosition] seconds (of [duration]) and adjusts status,
+  /// history and the listening log the same way pages do.
+  Future<void> updateAudioProgress({
+    required Book book,
+    required int newPosition,
+    required int duration,
+  }) => _db.transaction(() async {
+        final position = newPosition.clamp(0, duration > 0 ? duration : newPosition);
+        final oldStatus = book.status;
+        final history = await _db.readHistoryDao.getHistoryForBook(book.id);
+        final completedReads = history.where((h) => h.finishedAt != null).length;
+        final sessionIdx = (oldStatus == ReadingStatus.read) ? (completedReads > 0 ? completedReads : 1) : completedReads + 1;
+        final entry = history.firstWhereOrNull((h) => h.readNumber == sessionIdx);
+        final oldPosition = entry?.audioProgress ?? 0;
+
+        var newStatus = oldStatus;
+        DateTime? newStartedAt = book.startedAt;
+        DateTime? newFinishedAt = book.finishedAt;
+
+        if (position == 0 && (entry?.progress ?? 0) == 0) {
+          // Back to zero with no reading progress either: undo this read.
+          await _db.readHistoryDao.deleteReadByNumber(book.id, sessionIdx);
+          final derived = _stateFromHistory(book, await _db.readHistoryDao.getHistoryForBook(book.id));
+          newStatus = derived.status;
+          newStartedAt = derived.startedAt;
+          newFinishedAt = derived.finishedAt;
+        } else if (duration > 0 && position >= duration) {
+          if (oldStatus != ReadingStatus.read) {
+            newStatus = ReadingStatus.read;
+            newFinishedAt = DateTime.now();
+          }
+          newStartedAt ??= DateTime.now();
+          await _upsertAudioRead(book.id, sessionIdx, entry, position,
+              startedAt: newStartedAt, finishedAt: newFinishedAt);
+        } else {
+          if (oldStatus == ReadingStatus.read) {
+            newStatus = ReadingStatus.reading;
+            newFinishedAt = null;
+          } else if (oldStatus != ReadingStatus.reading || oldPosition == 0) {
+            newStatus = ReadingStatus.reading;
+          }
+          newStartedAt ??= DateTime.now();
+          await _upsertAudioRead(book.id, sessionIdx, entry, position,
+              startedAt: newStartedAt, finishedAt: null);
+        }
+
+        await _db.bookDao.updateBook(book.copyWith(
+          status: newStatus,
+          startedAt: Value(newStartedAt),
+          finishedAt: Value(newFinishedAt),
+        ));
+
+        if (position != oldPosition) {
+          await ref.read(readingLogControllerProvider.notifier).logPages(
+            book.id,
+            position - oldPosition,
+            readNumber: sessionIdx,
+            medium: ReadingMedium.audio,
+            startPosition: oldPosition,
+          );
+        }
+      });
+
+  Future<void> _upsertAudioRead(int bookId, int readNumber, ReadHistoryData? entry, int position,
+      {DateTime? startedAt, DateTime? finishedAt}) async {
+    if (entry != null) {
+      await _db.readHistoryDao.updateRead(entry.copyWith(
+        audioProgress: position,
+        finishedAt: Value(finishedAt),
+        startedAt: Value(entry.startedAt ?? startedAt),
+      ));
+    } else {
+      await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: bookId,
+        readNumber: readNumber,
+        startedAt: Value(startedAt),
+        finishedAt: Value(finishedAt),
+        audioProgress: Value(position),
+      ));
     }
   }
 
@@ -216,6 +300,22 @@ class ReadingSessionController {
     final now = DateTime.now();
     final bookId = book.id;
     final config = book.paginationConfig;
+
+    if (book.mediaType == MediaType.audio) {
+      // A new listen starts at 0:00:00; progress is logged as it advances.
+      await _db.bookDao.updateBook(book.copyWith(
+        status: ReadingStatus.reading,
+        startedAt: Value(now),
+        finishedAt: const Value(null),
+      ));
+      await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: bookId,
+        readNumber: newReadNumber,
+        startedAt: Value(now),
+        finishedAt: const Value(null),
+      ));
+      return;
+    }
 
     // 1. Prepare segments progress
     final newSegProgress = <int, int>{};
@@ -290,6 +390,7 @@ class ReadingSessionController {
         justReadDelta,
         sections: selectedLabels.isEmpty ? null : selectedLabels,
         readNumber: newReadNumber,
+        startPosition: totalReadInNewSess - justReadDelta,
       );
     }
   }
