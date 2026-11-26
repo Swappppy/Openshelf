@@ -2632,6 +2632,17 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _filterMediaTypeMeta = const VerificationMeta(
+    'filterMediaType',
+  );
+  @override
+  late final GeneratedColumn<String> filterMediaType = GeneratedColumn<String>(
+    'filter_media_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2654,6 +2665,7 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
     filterFormat,
     filterOwnership,
     filterNotes,
+    filterMediaType,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2837,6 +2849,15 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         ),
       );
     }
+    if (data.containsKey('filter_media_type')) {
+      context.handle(
+        _filterMediaTypeMeta,
+        filterMediaType.isAcceptableOrUnknown(
+          data['filter_media_type']!,
+          _filterMediaTypeMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2926,6 +2947,10 @@ class $ShelvesTable extends Shelves with TableInfo<$ShelvesTable, Shelf> {
         DriftSqlType.string,
         data['${effectivePrefix}filter_notes'],
       ),
+      filterMediaType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter_media_type'],
+      ),
     );
   }
 
@@ -2956,6 +2981,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
   final Value<String?> filterFormat;
   final Value<String?> filterOwnership;
   final Value<String?> filterNotes;
+  final Value<String?> filterMediaType;
   const ShelvesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -2977,6 +3003,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     this.filterFormat = const Value.absent(),
     this.filterOwnership = const Value.absent(),
     this.filterNotes = const Value.absent(),
+    this.filterMediaType = const Value.absent(),
   });
   ShelvesCompanion.insert({
     this.id = const Value.absent(),
@@ -2999,6 +3026,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     this.filterFormat = const Value.absent(),
     this.filterOwnership = const Value.absent(),
     this.filterNotes = const Value.absent(),
+    this.filterMediaType = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Shelf> custom({
     Expression<int>? id,
@@ -3021,6 +3049,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     Expression<String>? filterFormat,
     Expression<String>? filterOwnership,
     Expression<String>? filterNotes,
+    Expression<String>? filterMediaType,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3045,6 +3074,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
       if (filterFormat != null) 'filter_format': filterFormat,
       if (filterOwnership != null) 'filter_ownership': filterOwnership,
       if (filterNotes != null) 'filter_notes': filterNotes,
+      if (filterMediaType != null) 'filter_media_type': filterMediaType,
     });
   }
 
@@ -3069,6 +3099,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     Value<String?>? filterFormat,
     Value<String?>? filterOwnership,
     Value<String?>? filterNotes,
+    Value<String?>? filterMediaType,
   }) {
     return ShelvesCompanion(
       id: id ?? this.id,
@@ -3091,6 +3122,7 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
       filterFormat: filterFormat ?? this.filterFormat,
       filterOwnership: filterOwnership ?? this.filterOwnership,
       filterNotes: filterNotes ?? this.filterNotes,
+      filterMediaType: filterMediaType ?? this.filterMediaType,
     );
   }
 
@@ -3159,6 +3191,9 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
     if (filterNotes.present) {
       map['filter_notes'] = Variable<String>(filterNotes.value);
     }
+    if (filterMediaType.present) {
+      map['filter_media_type'] = Variable<String>(filterMediaType.value);
+    }
     return map;
   }
 
@@ -3184,7 +3219,8 @@ class ShelvesCompanion extends UpdateCompanion<Shelf> {
           ..write('filterSearchMode: $filterSearchMode, ')
           ..write('filterFormat: $filterFormat, ')
           ..write('filterOwnership: $filterOwnership, ')
-          ..write('filterNotes: $filterNotes')
+          ..write('filterNotes: $filterNotes, ')
+          ..write('filterMediaType: $filterMediaType')
           ..write(')'))
         .toString();
   }
@@ -3642,7 +3678,7 @@ class ReadingGoal extends DataClass implements Insertable<ReadingGoal> {
   final int id;
   final String title;
 
-  /// Type can be 'books' or 'pages'
+  /// Type: 'books', 'pages', 'shelf' or 'listening' ([targetValue] in seconds).
   final String type;
   final int targetValue;
   final DateTime startDate;
@@ -9524,6 +9560,7 @@ typedef $$ShelvesTableCreateCompanionBuilder =
       Value<String?> filterFormat,
       Value<String?> filterOwnership,
       Value<String?> filterNotes,
+      Value<String?> filterMediaType,
     });
 typedef $$ShelvesTableUpdateCompanionBuilder =
     ShelvesCompanion Function({
@@ -9547,6 +9584,7 @@ typedef $$ShelvesTableUpdateCompanionBuilder =
       Value<String?> filterFormat,
       Value<String?> filterOwnership,
       Value<String?> filterNotes,
+      Value<String?> filterMediaType,
     });
 
 final class $$ShelvesTableReferences
@@ -9696,6 +9734,11 @@ class $$ShelvesTableFilterComposer
 
   ColumnFilters<String> get filterNotes => $composableBuilder(
     column: $table.filterNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filterMediaType => $composableBuilder(
+    column: $table.filterMediaType,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9858,6 +9901,11 @@ class $$ShelvesTableOrderingComposer
     column: $table.filterNotes,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get filterMediaType => $composableBuilder(
+    column: $table.filterMediaType,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ShelvesTableAnnotationComposer
@@ -9965,6 +10013,11 @@ class $$ShelvesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get filterMediaType => $composableBuilder(
+    column: $table.filterMediaType,
+    builder: (column) => column,
+  );
+
   Expression<T> shelfTagsRefs<T extends Object>(
     Expression<T> Function($$ShelfTagsTableAnnotationComposer a) f,
   ) {
@@ -10064,6 +10117,7 @@ class $$ShelvesTableTableManager
                 Value<String?> filterFormat = const Value.absent(),
                 Value<String?> filterOwnership = const Value.absent(),
                 Value<String?> filterNotes = const Value.absent(),
+                Value<String?> filterMediaType = const Value.absent(),
               }) => ShelvesCompanion(
                 id: id,
                 name: name,
@@ -10085,6 +10139,7 @@ class $$ShelvesTableTableManager
                 filterFormat: filterFormat,
                 filterOwnership: filterOwnership,
                 filterNotes: filterNotes,
+                filterMediaType: filterMediaType,
               ),
           createCompanionCallback:
               ({
@@ -10108,6 +10163,7 @@ class $$ShelvesTableTableManager
                 Value<String?> filterFormat = const Value.absent(),
                 Value<String?> filterOwnership = const Value.absent(),
                 Value<String?> filterNotes = const Value.absent(),
+                Value<String?> filterMediaType = const Value.absent(),
               }) => ShelvesCompanion.insert(
                 id: id,
                 name: name,
@@ -10129,6 +10185,7 @@ class $$ShelvesTableTableManager
                 filterFormat: filterFormat,
                 filterOwnership: filterOwnership,
                 filterNotes: filterNotes,
+                filterMediaType: filterMediaType,
               ),
           withReferenceMapper: (p0) => p0
               .map(

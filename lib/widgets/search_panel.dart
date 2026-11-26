@@ -7,6 +7,7 @@ import '../services/database.dart';
 import '../l10n/l10n_extension.dart';
 import 'entity_selector_grid.dart';
 import 'search_filters_components.dart';
+import '../models/extensions/media_type_ext.dart';
 
 class SearchPanel extends ConsumerStatefulWidget {
   final SearchFilters filters;
@@ -173,7 +174,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
               ),
               
               // Chips (Stage 2 mostly, but can show in 1 if filters active)
-              if (widget.filters.tags.isNotEmpty || widget.filters.status != null || widget.filters.imprints.isNotEmpty || widget.filters.collections.isNotEmpty || widget.filters.author.isNotEmpty || widget.filters.publisher.isNotEmpty || widget.filters.isbn.isNotEmpty || widget.filters.language.isNotEmpty || widget.filters.format != null || widget.filters.ownership != null)
+              if (widget.filters.tags.isNotEmpty || widget.filters.status != null || widget.filters.imprints.isNotEmpty || widget.filters.collections.isNotEmpty || widget.filters.author.isNotEmpty || widget.filters.publisher.isNotEmpty || widget.filters.isbn.isNotEmpty || widget.filters.language.isNotEmpty || widget.filters.format != null || widget.filters.mediaType != null || widget.filters.ownership != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 2, 12, 8),
                   child: Wrap(
@@ -191,6 +192,11 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                         _FilterChip(
                           label: _formatLabel(context, widget.filters.format!),
                           onDelete: () => widget.onChanged(widget.filters.copyWith(clearFormat: true)),
+                        ),
+                      if (widget.filters.mediaType != null)
+                        _FilterChip(
+                          label: widget.filters.mediaType!.label(context),
+                          onDelete: () => widget.onChanged(widget.filters.copyWith(clearMediaType: true)),
                         ),
                       if (widget.filters.ownership != null)
                         _FilterChip(
@@ -380,9 +386,11 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
                       StatusFiltersTab(
                         status: widget.filters.status,
                         format: widget.filters.format,
+                        mediaType: widget.filters.mediaType,
                         ownership: widget.filters.ownership,
                         onStatusChanged: (s, clear) => widget.onChanged(widget.filters.copyWith(status: s, clearStatus: clear)),
                         onFormatChanged: (f, clear) => widget.onChanged(widget.filters.copyWith(format: f, clearFormat: clear)),
+                        onMediaTypeChanged: (m, clear) => widget.onChanged(widget.filters.copyWith(mediaType: m, clearMediaType: clear)),
                         onOwnershipChanged: (o, clear) => widget.onChanged(widget.filters.copyWith(ownership: o, clearOwnership: clear)),
                       ),
                       SingleChildScrollView(
@@ -492,6 +500,7 @@ class _SearchPanelState extends ConsumerState<SearchPanel> with SingleTickerProv
     int count = 0;
     if (widget.filters.status != null) count++;
     if (widget.filters.format != null) count++;
+    if (widget.filters.mediaType != null) count++;
     if (widget.filters.ownership != null) count++;
     count += widget.filters.imprints.length;
     count += widget.filters.tags.length;

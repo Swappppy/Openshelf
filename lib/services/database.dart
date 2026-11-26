@@ -70,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 35;
+  int get schemaVersion => 36;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -318,6 +318,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 35) {
         // Own sections/markers for plain audiobooks.
         await _addColumnIfMissing(m, audiobookInfo, audiobookInfo.paginationConfig);
+      }
+      if (from < 36) {
+        // Shelves filtered by medium (audiobooks, reading, mixed).
+        await _addColumnIfMissing(m, shelves, shelves.filterMediaType);
       }
 
       await customStatement('PRAGMA foreign_keys = ON');

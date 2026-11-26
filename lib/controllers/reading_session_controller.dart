@@ -402,18 +402,52 @@ class ReadingSessionController {
     final config = book.paginationConfig;
 
     if (book.mediaType != MediaType.reading) {
-      // A new listen (or mixed read) starts at zero in both media; progress
-      // is logged as it advances, in whichever medium comes first.
+      // A new listen (or mixed read) starts at zero; progress is logged as it
+      // advances, in whichever medium comes first. A partial reread resets
+      // only the chosen sections and carries the rest over from the last
+      // read, in both media: an audiobook picks its own sections, a mixed
+      // book its paper sections, whose audio sections share the indices.
+      final info = await _db.audiobookInfoDao.getForBook(bookId);
+      final duration = info?.durationSeconds ?? 0;
+      final audioSections = duration > 0
+          ? audioSegmentsFor(book, duration, audioConfig: info?.paginationConfig)
+          : const <PaginationSegment>[];
+      final pageSections = book.mediaType == MediaType.both
+          ? (config?.segments ?? const <PaginationSegment>[])
+          : const <PaginationSegment>[];
+      final chosenFrom = book.mediaType == MediaType.audio ? audioSections : pageSections;
+      final chosen = (selectedIndices != null && chosenFrom.isNotEmpty) ? selectedIndices : null;
+      final last = history.lastOrNull;
+
+      Map<int, int>? carried(Map<int, int>? previous, int count) => chosen == null || count == 0
+          ? null
+          : {for (var i = 0; i < count; i++) i: chosen.contains(i) ? 0 : (previous?[i] ?? 0)};
+      final pageSeg = carried(last?.segmentProgress, pageSections.length);
+      final audioSeg = carried(last?.audioSegmentProgress, audioSections.length);
+      int sum(Map<int, int>? m) => m?.values.fold<int>(0, (a, b) => a + b) ?? 0;
+      final labels = chosen == null
+          ? const <String>[]
+          : [
+              for (final i in chosen)
+                if (i < chosenFrom.length) chosenFrom[i].label ?? sectionLabelGetter(i + 1),
+            ];
+
       await _db.bookDao.updateBook(book.copyWith(
         status: ReadingStatus.reading,
         startedAt: Value(now),
         finishedAt: const Value(null),
+        currentPage: book.mediaType == MediaType.both ? Value(sum(pageSeg)) : const Value.absent(),
       ));
       await _db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
         bookId: bookId,
         readNumber: newReadNumber,
         startedAt: Value(now),
         finishedAt: const Value(null),
+        sections: Value(labels.isEmpty ? null : labels),
+        progress: Value(sum(pageSeg)),
+        segmentProgress: Value(pageSeg),
+        audioProgress: Value(sum(audioSeg)),
+        audioSegmentProgress: Value(audioSeg),
       ));
       return;
     }

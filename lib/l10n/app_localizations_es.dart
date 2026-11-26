@@ -2185,4 +2185,68 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get audioSectionsButton => 'Secciones';
+
+  @override
+  String get fieldMediaType => 'Tipo de medio';
+
+  @override
+  String get statsListeningTitle => 'ESCUCHA';
+
+  @override
+  String get statsListeningSub => 'tiempo escuchado';
+
+  @override
+  String get statsDailyListeningTitle => 'ESCUCHA DIARIA';
+
+  @override
+  String get statsOptListeningTitle => 'Tiempo escuchado';
+
+  @override
+  String get statsOptListeningSub => 'Total de horas de audiolibro escuchadas';
+
+  @override
+  String get statsOptDailyListeningTitle => 'Escucha diaria';
+
+  @override
+  String get statsOptDailyListeningSub => 'Horas escuchadas por día';
+
+  @override
+  String get statsGoalTypeListening => 'Horas escuchadas';
+
+  @override
+  String get statsGoalTargetTimeLabel => 'Objetivo (hh:mm o horas)';
+
+  @override
+  String statsGoalRemainingTime(String time) {
+    return 'Faltan $time';
+  }
+
+  @override
+  String get statsHeatmapTitle => 'ACTIVIDAD';
+
+  @override
+  String get statsOptHeatmapTitle => 'Mapa de actividad';
+
+  @override
+  String get statsOptHeatmapSub => 'Calendario de días de lectura y escucha';
+
+  @override
+  String get statsHeatmapAll => 'Todo';
+
+  @override
+  String get statsHeatmapPages => 'Páginas';
+
+  @override
+  String get statsHeatmapListening => 'Escucha';
+
+  @override
+  String statsHeatmapActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count días activos',
+      one: '1 día activo',
+    );
+    return '$_temp0';
+  }
 }

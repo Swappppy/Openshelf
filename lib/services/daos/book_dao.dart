@@ -139,6 +139,7 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
     ReadingStatus? status,
     String? format,
     String? ownership,
+    String? mediaType,
     BooleanQuery? booleanQuery,
   }) {
     if (booleanQuery != null && booleanQuery.conditions.isNotEmpty) {
@@ -230,6 +231,10 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
           final o = OwnershipStatus.values.where((e) => e.name == ownership).firstOrNull;
           if (o != null) expr = expr & b.ownershipStatus.equals(o.name);
         }
+        if (mediaType != null && mediaType.isNotEmpty) {
+          final m = MediaType.values.where((e) => e.name == mediaType).firstOrNull;
+          if (m != null) expr = expr & _mediaTypeMatches(b, m);
+        }
         return expr;
       });
 
@@ -240,6 +245,14 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
       (books, _) => books,
     );
   }
+
+  /// A medium filter matches every book that has that medium: mixed books
+  /// count as reading and as audiobooks; "mixed" matches only mixed books.
+  Expression<bool> _mediaTypeMatches(Books b, MediaType m) => switch (m) {
+        MediaType.reading => b.mediaType.isIn([MediaType.reading.name, MediaType.both.name]),
+        MediaType.audio => b.mediaType.isIn([MediaType.audio.name, MediaType.both.name]),
+        MediaType.both => b.mediaType.equals(MediaType.both.name),
+      };
 
   Stream<List<Book>> _watchBooksBoolean(BooleanQuery booleanQuery) {
     final q = select(books)..where((b) => _buildBooleanExpression(b, booleanQuery));
@@ -330,6 +343,13 @@ class BookDao extends DatabaseAccessor<AppDatabase> with _$BookDaoMixin {
         return cond.operator == BooleanOperator.notEquals
             ? (b.bookFormat.isNull() | equalsExpr.not())
             : equalsExpr;
+      case SearchField.mediaType:
+        final m = MediaType.values.where((e) => e.name == val.toString()).firstOrNull;
+        if (m == null) {
+          return cond.operator == BooleanOperator.notEquals ? const Constant(true) : const Constant(false);
+        }
+        final matchExpr = _mediaTypeMatches(b, m);
+        return cond.operator == BooleanOperator.notEquals ? matchExpr.not() : matchExpr;
       case SearchField.ownership:
         final o = OwnershipStatus.values.where((e) => e.name == val.toString()).firstOrNull;
         if (o == null) {

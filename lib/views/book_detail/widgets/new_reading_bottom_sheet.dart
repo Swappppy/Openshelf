@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/database.dart';
 import '../../../l10n/l10n_extension.dart';
 import '../../../controllers/reading_session_controller.dart';
+import '../../../controllers/audiobook_info_provider.dart';
+import '../../../utils/time_map.dart';
 
 class NewReadingBottomSheet extends ConsumerStatefulWidget {
   final Book book;
@@ -41,11 +43,18 @@ class _NewReadingBottomSheetState extends ConsumerState<NewReadingBottomSheet> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    // Section rereads apply to reading books only (an audiobook's pages are
-    // hidden data; mixed reads start at zero in both media).
-    final segments = widget.book.mediaType != MediaType.reading
-        ? const <PaginationSegment>[]
-        : (widget.book.paginationConfig?.segments ?? []);
+    // Sections to reread: paper sections for reading and mixed books (in
+    // mixed mode their audio counterparts are reset too), the audiobook's own
+    // sections for a plain audiobook.
+    final book = widget.book;
+    final info = ref.watch(audiobookInfoProvider(book.id)).value;
+    final duration = info?.durationSeconds ?? 0;
+    final List<PaginationSegment> segments = switch (book.mediaType) {
+      MediaType.audio => (info?.paginationConfig?.segments.isNotEmpty ?? false) && duration > 0
+          ? audioSegmentsFor(book, duration, audioConfig: info!.paginationConfig)
+          : const <PaginationSegment>[],
+      _ => book.paginationConfig?.segments ?? const <PaginationSegment>[],
+    };
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),

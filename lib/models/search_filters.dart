@@ -24,6 +24,7 @@ enum SearchField {
   collection,
   noCover,
   format,
+  mediaType,
   ownership,
   startedAt,
   finishedAt,
@@ -51,6 +52,7 @@ extension SearchFieldExt on SearchField {
       case SearchField.collection: return context.l10n.searchFieldCollection;
       case SearchField.noCover: return context.l10n.searchFieldNoCover;
       case SearchField.format: return context.l10n.sectionFormat;
+      case SearchField.mediaType: return context.l10n.fieldMediaType;
       case SearchField.ownership: return context.l10n.fieldOwnershipStatus;
       case SearchField.startedAt: return context.l10n.bookDetailFieldStarted;
       case SearchField.finishedAt: return context.l10n.bookDetailFieldFinished;
@@ -70,6 +72,7 @@ extension SearchFieldExt on SearchField {
         return [BooleanOperator.equals, BooleanOperator.notEquals, BooleanOperator.greaterThan, BooleanOperator.lessThan, BooleanOperator.between];
       case SearchField.status:
       case SearchField.format:
+      case SearchField.mediaType:
       case SearchField.ownership:
         return [BooleanOperator.equals, BooleanOperator.notEquals];
       case SearchField.noCover:
@@ -239,6 +242,7 @@ class SearchFilters {
   final List<Tag> collections;
   final ReadingStatus? status;
   final BookFormat? format;
+  final MediaType? mediaType;
   final OwnershipStatus? ownership;
   final bool? hasNotes;
   final DateTime? startedAt;
@@ -264,6 +268,7 @@ class SearchFilters {
     this.collections = const [],
     this.status,
     this.format,
+    this.mediaType,
     this.ownership,
     this.hasNotes,
     this.startedAt,
@@ -288,6 +293,7 @@ class SearchFilters {
           imprints.isEmpty &&
           collections.isEmpty &&
           format == null &&
+          mediaType == null &&
           ownership == null &&
           hasNotes == null &&
           startedAt == null &&
@@ -313,6 +319,8 @@ class SearchFilters {
     bool clearStatus = false,
     BookFormat? format,
     bool clearFormat = false,
+    MediaType? mediaType,
+    bool clearMediaType = false,
     OwnershipStatus? ownership,
     bool clearOwnership = false,
     bool? hasNotes,
@@ -341,6 +349,7 @@ class SearchFilters {
         collections: clearCollections ? [] : (collections ?? this.collections),
         status: clearStatus ? null : (status ?? this.status),
         format: clearFormat ? null : (format ?? this.format),
+        mediaType: clearMediaType ? null : (mediaType ?? this.mediaType),
         ownership: clearOwnership ? null : (ownership ?? this.ownership),
         hasNotes: clearHasNotes ? null : (hasNotes ?? this.hasNotes),
         startedAt: clearStartedAt ? null : (startedAt ?? this.startedAt),
@@ -378,6 +387,7 @@ class SearchFilters {
     if (translator.isNotEmpty) add(SearchField.translator, BooleanOperator.contains, translator);
     if (status != null) add(SearchField.status, BooleanOperator.equals, status!.name);
     if (format != null) add(SearchField.format, BooleanOperator.equals, format!.name);
+    if (mediaType != null) add(SearchField.mediaType, BooleanOperator.equals, mediaType!.name);
     if (ownership != null) add(SearchField.ownership, BooleanOperator.equals, ownership!.name);
     
     for (final tag in tags) {

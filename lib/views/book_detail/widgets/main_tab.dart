@@ -194,6 +194,26 @@ class MainTab extends StatelessWidget {
                   final history = historyAsync.value ?? const <ReadHistoryData>[];
                   final audioConfig = info?.paginationConfig;
                   final duration = info?.durationSeconds ?? 0;
+                  // Sections fill from their start, so the bar is drawn from
+                  // the read's per-section progress (a partial reread keeps
+                  // the carried sections in place).
+                  final listened = MediaProgress.audio(book, history, info);
+                  final activeRead = history.firstWhereOrNull((h) =>
+                      h.readNumber ==
+                      PaginationHelper.getActiveSessionNumber(
+                          book.status, history.where((h) => h.finishedAt != null).length));
+                  final ownSections = duration > 0
+                      ? audioSegmentsFor(book, duration, audioConfig: audioConfig)
+                      : const <PaginationSegment>[];
+                  final List<(int, int)>? pureAudioRuns = listened == null
+                      ? null
+                      : book.status == ReadingStatus.read
+                          ? [(0, listened.total)]
+                          : activeRead?.audioSegmentProgress == null
+                              ? null
+                              : mergeRuns(segmentRuns(
+                                  [for (final s in ownSections) (s.startPhysical - 1, s.endPhysical)],
+                                  activeRead!.audioSegmentProgress));
                   final hasStructure = audioConfig != null &&
                       (audioConfig.segments.length > 1 || audioConfig.markers.isNotEmpty);
                   return Column(
@@ -206,7 +226,8 @@ class MainTab extends StatelessWidget {
                           history: history,
                           text: null,
                           textCaption: '',
-                          audio: MediaProgress.audio(book, history, info),
+                          audio: listened,
+                          audioRuns: pureAudioRuns,
                           onTapText: onTapPages,
                           showText: false,
                           audioConfig: audioConfig,
@@ -237,13 +258,43 @@ class MainTab extends StatelessWidget {
                     // the gaps are what the other medium covered.
                     final readNumber = PaginationHelper.getActiveSessionNumber(
                         book.status, history.where((h) => h.finishedAt != null).length);
+                    final read = history.firstWhereOrNull((h) => h.readNumber == readNumber);
+                    // A partial reread carries the other sections over from
+                    // the previous read: they are drawn from the read's own
+                    // section progress, the rest from this read's log.
+                    final paperSections = book.paginationConfig?.segments ?? const <PaginationSegment>[];
+                    final carried = mixed
+                        ? carriedSections(read, paperSections, context.l10n.paginationSectionLabel)
+                        : const <int>{};
                     final textRuns = mixed
-                        ? coveredRuns(logs: logs, readNumber: readNumber, medium: ReadingMedium.text, pointer: totalRead)
+                        ? mergeRuns([
+                            ...coveredRuns(
+                                logs: logs,
+                                readNumber: readNumber,
+                                medium: ReadingMedium.text,
+                                pointer: carried.isEmpty ? totalRead : 0),
+                            ...segmentRuns([for (final s in paperSections) (s.startPhysical - 1, s.endPhysical)],
+                                read?.segmentProgress,
+                                only: carried),
+                          ])
                         : null;
                     final audioProgress = mixed ? MediaProgress.audio(book, history, info) : null;
+                    final audioSections = audioProgress == null
+                        ? const <PaginationSegment>[]
+                        : audioSegmentsFor(book, audioProgress.total);
                     final audioRuns = audioProgress == null
                         ? null
-                        : coveredRuns(logs: logs, readNumber: readNumber, medium: ReadingMedium.audio, pointer: audioProgress.current);
+                        : mergeRuns([
+                            ...coveredRuns(
+                                logs: logs,
+                                readNumber: readNumber,
+                                medium: ReadingMedium.audio,
+                                pointer: carried.isEmpty ? audioProgress.current : 0),
+                            if (audioSections.length == paperSections.length)
+                              ...segmentRuns([for (final s in audioSections) (s.startPhysical - 1, s.endPhysical)],
+                                  read?.audioSegmentProgress,
+                                  only: carried),
+                          ]);
                     final totalPages = book.totalPages ?? 0;
                     final useVisual = book.paginationConfig?.useVisualMode ?? false;
                     final completedReads = history.where((h) => h.finishedAt != null).length;

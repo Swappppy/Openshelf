@@ -6,15 +6,28 @@ import 'package:intl/intl.dart';
 import '../../../controllers/reading_log_controller.dart';
 import '../../../models/stats_widget.dart';
 import '../../../l10n/l10n_extension.dart';
+import '../../../services/database.dart';
 import 'widget_header.dart';
 
+/// Daily activity bars: pages read, or (for [ReadingMedium.audio]) hours listened.
 class DailyReadingTile extends ConsumerWidget {
   final StatWidgetSize size;
-  const DailyReadingTile({super.key, required this.size});
+  final ReadingMedium medium;
+  const DailyReadingTile({super.key, required this.size, this.medium = ReadingMedium.text});
+
+  bool get _audio => medium == ReadingMedium.audio;
+
+  /// Bar height: pages, or seconds shown as hours.
+  double _value(int raw) => _audio ? raw / 3600 : raw.toDouble();
+
+  String _axisLabel(double v) {
+    if (!_audio) return v.toInt().toString();
+    return '${v.toStringAsFixed(v == v.roundToDouble() ? 0 : 1)}h';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dailyAsync = ref.watch(dailyReadingProvider);
+    final dailyAsync = ref.watch(_audio ? dailyListeningProvider : dailyReadingProvider);
     final showLabels = size != StatWidgetSize.s1x1;
 
     return Padding(
@@ -22,7 +35,10 @@ class DailyReadingTile extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          WidgetHeader(title: context.l10n.statsDailyReadingTitle, icon: Icons.bar_chart),
+          WidgetHeader(
+            title: _audio ? context.l10n.statsDailyListeningTitle : context.l10n.statsDailyReadingTitle,
+            icon: _audio ? Icons.headphones : Icons.bar_chart,
+          ),
           const SizedBox(height: 12),
           Expanded(
             child: dailyAsync.maybeWhen(
@@ -45,15 +61,15 @@ class DailyReadingTile extends ConsumerWidget {
                   return today.subtract(Duration(days: daysToShow - 1 - i));
                 });
                 
-                final maxPages = sortedDays.fold<int>(0, (m, day) => max(m, dailyData[day] ?? 0));
+                final maxValue = sortedDays.fold<double>(0, (m, day) => max(m, _value(dailyData[day] ?? 0)));
                 
                 final barGroups = sortedDays.asMap().entries.map((e) {
-                  final pages = dailyData[e.value] ?? 0;
+                  final value = _value(dailyData[e.value] ?? 0);
                   return BarChartGroupData(
                     x: e.key,
                     barRods: [
                       BarChartRodData(
-                        toY: pages.toDouble(),
+                        toY: value,
                         color: Theme.of(context).colorScheme.primary,
                         width: size == StatWidgetSize.s1x1 ? 8 : 12,
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
@@ -65,14 +81,14 @@ class DailyReadingTile extends ConsumerWidget {
                 return BarChart(
                   BarChartData(
                     barGroups: barGroups,
-                    maxY: maxPages == 0 ? 10 : maxPages.toDouble() * 1.2,
+                    maxY: maxValue == 0 ? (_audio ? 1 : 10) : maxValue * 1.2,
                     titlesData: FlTitlesData(
                       leftTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: showLabels,
                           reservedSize: 28,
                           getTitlesWidget: (val, meta) => Text(
-                            val.toInt().toString(), 
+                            _axisLabel(val),
                             style: const TextStyle(fontSize: 8, color: Colors.grey)
                           ),
                         ),

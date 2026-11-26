@@ -276,4 +276,84 @@ void main() {
       expect(logs.map((l) => (l.date.year, l.readNumber)).toList(), [(2021, 1), (2023, 2)]);
     });
   });
+
+  group('Partial rereads of audio and mixed books', () {
+    PaginationSegment seg(int start, int end, String label) =>
+        PaginationSegment(startPhysical: start, endPhysical: end, type: PageNumberingType.arabic, label: label);
+
+    test('an audiobook rereads only the chosen sections; the rest carry over', () async {
+      final controller = createContainer().read(readingSessionControllerProvider);
+      final id = await db.into(db.books).insert(BooksCompanion.insert(
+          title: 'T', author: 'A', status: ReadingStatus.read, mediaType: const Value(MediaType.audio)));
+      await db.audiobookInfoDao.upsert(AudiobookInfoCompanion(
+        bookId: Value(id),
+        durationSeconds: const Value(300),
+        paginationConfig: Value(PaginationConfig(segments: [seg(1, 100, 'A'), seg(101, 200, 'B'), seg(201, 300, 'C')])),
+      ));
+      await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: id,
+        readNumber: 1,
+        finishedAt: Value(DateTime(2025)),
+        audioProgress: const Value(300),
+        audioSegmentProgress: const Value({0: 100, 1: 100, 2: 100}),
+      ));
+
+      final book = (await db.bookDao.getBook(id))!;
+      await controller.startNewReading(book: book, selectedIndices: [1], sectionLabelGetter: (i) => '$i');
+
+      final read = (await db.readHistoryDao.getHistoryForBook(id)).last;
+      expect(read.readNumber, 2);
+      expect(read.sections, ['B']);
+      expect(read.audioSegmentProgress, {0: 100, 1: 0, 2: 100});
+      expect(read.audioProgress, 200);
+      expect((await db.bookDao.getBook(id))!.status, ReadingStatus.reading);
+    });
+
+    test('a mixed book resets the chosen paper sections and their audio counterparts', () async {
+      final controller = createContainer().read(readingSessionControllerProvider);
+      final id = await db.into(db.books).insert(BooksCompanion.insert(
+        title: 'T',
+        author: 'A',
+        status: ReadingStatus.read,
+        mediaType: const Value(MediaType.both),
+        totalPages: const Value(200),
+        paginationConfig: Value(PaginationConfig(segments: [seg(1, 100, 'I'), seg(101, 200, 'II')])),
+      ));
+      await db.audiobookInfoDao.upsert(AudiobookInfoCompanion(bookId: Value(id), durationSeconds: const Value(400)));
+      await db.readHistoryDao.insertRead(ReadHistoryCompanion.insert(
+        bookId: id,
+        readNumber: 1,
+        finishedAt: Value(DateTime(2025)),
+        progress: const Value(200),
+        segmentProgress: const Value({0: 100, 1: 100}),
+        audioProgress: const Value(400),
+        audioSegmentProgress: const Value({0: 200, 1: 200}),
+      ));
+
+      final book = (await db.bookDao.getBook(id))!;
+      await controller.startNewReading(book: book, selectedIndices: [0], sectionLabelGetter: (i) => '$i');
+
+      final read = (await db.readHistoryDao.getHistoryForBook(id)).last;
+      expect(read.sections, ['I']);
+      expect(read.segmentProgress, {0: 0, 1: 100});
+      expect(read.progress, 100);
+      expect(read.audioSegmentProgress?[0], 0);
+      expect(read.audioSegmentProgress?[1], 200);
+    });
+
+    test('a whole reread of an audiobook starts empty', () async {
+      final controller = createContainer().read(readingSessionControllerProvider);
+      final id = await db.into(db.books).insert(BooksCompanion.insert(
+          title: 'T', author: 'A', status: ReadingStatus.read, mediaType: const Value(MediaType.audio)));
+      await db.audiobookInfoDao.upsert(AudiobookInfoCompanion(bookId: Value(id), durationSeconds: const Value(300)));
+      final book = (await db.bookDao.getBook(id))!;
+      await controller.startNewReading(book: book, sectionLabelGetter: (i) => '$i');
+
+      final read = (await db.readHistoryDao.getHistoryForBook(id)).single;
+      expect(read.audioProgress, 0);
+      expect(read.audioSegmentProgress, isNull);
+      expect(read.sections, isNull);
+    });
+  });
 }
+

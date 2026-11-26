@@ -4014,6 +4014,114 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Secciones'**
   String get audioSectionsButton;
+
+  /// No description provided for @fieldMediaType.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de medio'**
+  String get fieldMediaType;
+
+  /// No description provided for @statsListeningTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'ESCUCHA'**
+  String get statsListeningTitle;
+
+  /// No description provided for @statsListeningSub.
+  ///
+  /// In es, this message translates to:
+  /// **'tiempo escuchado'**
+  String get statsListeningSub;
+
+  /// No description provided for @statsDailyListeningTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'ESCUCHA DIARIA'**
+  String get statsDailyListeningTitle;
+
+  /// No description provided for @statsOptListeningTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo escuchado'**
+  String get statsOptListeningTitle;
+
+  /// No description provided for @statsOptListeningSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Total de horas de audiolibro escuchadas'**
+  String get statsOptListeningSub;
+
+  /// No description provided for @statsOptDailyListeningTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Escucha diaria'**
+  String get statsOptDailyListeningTitle;
+
+  /// No description provided for @statsOptDailyListeningSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Horas escuchadas por día'**
+  String get statsOptDailyListeningSub;
+
+  /// No description provided for @statsGoalTypeListening.
+  ///
+  /// In es, this message translates to:
+  /// **'Horas escuchadas'**
+  String get statsGoalTypeListening;
+
+  /// No description provided for @statsGoalTargetTimeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo (hh:mm o horas)'**
+  String get statsGoalTargetTimeLabel;
+
+  /// Listening goal: time still to listen
+  ///
+  /// In es, this message translates to:
+  /// **'Faltan {time}'**
+  String statsGoalRemainingTime(String time);
+
+  /// No description provided for @statsHeatmapTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'ACTIVIDAD'**
+  String get statsHeatmapTitle;
+
+  /// No description provided for @statsOptHeatmapTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mapa de actividad'**
+  String get statsOptHeatmapTitle;
+
+  /// No description provided for @statsOptHeatmapSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Calendario de días de lectura y escucha'**
+  String get statsOptHeatmapSub;
+
+  /// No description provided for @statsHeatmapAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Todo'**
+  String get statsHeatmapAll;
+
+  /// No description provided for @statsHeatmapPages.
+  ///
+  /// In es, this message translates to:
+  /// **'Páginas'**
+  String get statsHeatmapPages;
+
+  /// No description provided for @statsHeatmapListening.
+  ///
+  /// In es, this message translates to:
+  /// **'Escucha'**
+  String get statsHeatmapListening;
+
+  /// No description provided for @statsHeatmapActiveDays.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 día activo} other{{count} días activos}}'**
+  String statsHeatmapActiveDays(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -30,6 +30,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
   final String? filterFormat;
   final String? filterOwnership;
   final String? filterNotes;
+  final String? filterMediaType;
 
   const Shelf({
     required this.id,
@@ -52,6 +53,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
     this.filterFormat,
     this.filterOwnership,
     this.filterNotes,
+    this.filterMediaType,
   });
 
   @override
@@ -77,6 +79,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       'filter_format': Variable<String>(filterFormat),
       'filter_ownership': Variable<String>(filterOwnership),
       'filter_notes': Variable<String>(filterNotes),
+      'filter_media_type': Variable<String>(filterMediaType),
     }).toColumns(nullToAbsent);
   }
 
@@ -104,6 +107,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       'filterFormat': serializer.toJson<String?>(filterFormat),
       'filterOwnership': serializer.toJson<String?>(filterOwnership),
       'filterNotes': serializer.toJson<String?>(filterNotes),
+      'filterMediaType': serializer.toJson<String?>(filterMediaType),
     };
   }
 
@@ -128,6 +132,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
     String? filterFormat,
     String? filterOwnership,
     String? filterNotes,
+    String? filterMediaType,
     bool clearStatus = false,
   }) {
     return Shelf(
@@ -151,6 +156,7 @@ class Shelf extends DataClass implements Insertable<Shelf> {
       filterFormat: filterFormat ?? this.filterFormat,
       filterOwnership: filterOwnership ?? this.filterOwnership,
       filterNotes: filterNotes ?? this.filterNotes,
+      filterMediaType: filterMediaType ?? this.filterMediaType,
     );
   }
 }

@@ -2027,11 +2027,11 @@ class AppLocalizationsPt extends AppLocalizations {
       'Você pode informar múltiplos tradutores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada tradutor.';
 
   @override
-  String get narratorMultiHelpTitle => 'Múltiples narradores';
+  String get narratorMultiHelpTitle => 'Vários narradores';
 
   @override
   String get narratorMultiHelpContent =>
-      'Puedes indicar múltiples narradores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada narrador.';
+      'Podes indicar vários narradores separando-os com ponto e vírgula (;), barra (/) ou vírgula (,). O preenchimento automático vai sugerir-te nomes individuais para cada narrador.';
 
   @override
   String get padlockResetTitle => 'Bloquear campo?';
@@ -2093,10 +2093,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Eliminar esta entrada do histórico de posse?';
 
   @override
-  String get mediaTypeReading => 'Lectura';
+  String get mediaTypeReading => 'Leitura';
 
   @override
-  String get mediaTypeAudio => 'Audiolibro';
+  String get mediaTypeAudio => 'Audiolivro';
 
   @override
   String get mediaTypeBoth => 'Ambos';
@@ -2108,24 +2108,24 @@ class AppLocalizationsPt extends AppLocalizations {
   String get fieldPlatform => 'Plataforma';
 
   @override
-  String get fieldDuration => 'Duración total';
+  String get fieldDuration => 'Duração total';
 
   @override
-  String get fieldAudioPosition => 'Posición actual';
+  String get fieldAudioPosition => 'Posição atual';
 
   @override
-  String get durationInvalid => 'Usa hh:mm o un número de horas';
+  String get durationInvalid => 'Usa hh:mm ou um número de horas';
 
   @override
   String get audioPositionBeyondDuration =>
-      'La posición supera la duración total';
+      'A posição ultrapassa a duração total';
 
   @override
-  String get audioProgressTitle => 'Progreso de escucha';
+  String get audioProgressTitle => 'Progresso de audição';
 
   @override
   String get audioDurationMissing =>
-      'Indica la duración total en la ficha del libro para registrar el progreso';
+      'Indica a duração total na ficha do livro para registar o progresso';
 
   @override
   String audioProgress(String current, String total, String percent) {
@@ -2133,63 +2133,127 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get fieldAudioPublisher => 'Editorial del audio';
+  String get fieldAudioPublisher => 'Editora do áudio';
 
   @override
-  String get fieldAudioIdentifier => 'ISBN / ASIN del audio';
+  String get fieldAudioIdentifier => 'ISBN / ASIN do áudio';
 
   @override
-  String get mixedStartTitle => '¿Dónde empiezas?';
+  String get mixedStartTitle => 'Onde começas?';
 
   @override
-  String get mixedStartPage => 'Página de inicio';
+  String get mixedStartPage => 'Página inicial';
 
   @override
-  String get mixedStartPosition => 'Posición de inicio';
+  String get mixedStartPosition => 'Posição inicial';
 
   @override
   String mixedLastAudio(String position) {
-    return 'Último audio: $position';
+    return 'Último áudio: $position';
   }
 
   @override
   String mixedLastPage(String page) {
-    return 'Última página leída: $page';
+    return 'Última página lida: $page';
   }
 
   @override
   String get mixedOverlapWarning =>
-      'Empiezas antes de donde lo dejaste en este medio: ese tramo se contará una sola vez.';
+      'Estás a começar antes de onde paraste neste meio: esse troço será contado apenas uma vez.';
 
   @override
-  String get mixedSkip => 'Seguir donde lo dejé';
+  String get mixedSkip => 'Continuar onde parei';
 
   @override
   String get mixedContinue => 'Continuar';
 
   @override
-  String get mixedInvalidPage => 'Introduce una página válida';
+  String get mixedInvalidPage => 'Introduz uma página válida';
 
   @override
-  String get mixedSuggested => 'Estimación según las secciones';
+  String get mixedSuggested => 'Estimativa com base nas secções';
 
   @override
-  String get audioAnchorStart => 'Inicio en audio';
+  String get audioAnchorStart => 'Início no áudio';
 
   @override
-  String get audioAnchorEnd => 'Fin en audio';
+  String get audioAnchorEnd => 'Fim no áudio';
 
   @override
-  String get audioAnchorMarker => 'Posición en audio';
+  String get audioAnchorMarker => 'Posição no áudio';
 
   @override
-  String get audioSectionStart => 'Inicio';
+  String get audioSectionStart => 'Início';
 
   @override
-  String get audioSectionEnd => 'Fin';
+  String get audioSectionEnd => 'Fim';
 
   @override
-  String get audioSectionsButton => 'Secciones';
+  String get audioSectionsButton => 'Secções';
+
+  @override
+  String get fieldMediaType => 'Tipo de suporte';
+
+  @override
+  String get statsListeningTitle => 'AUDIÇÃO';
+
+  @override
+  String get statsListeningSub => 'tempo ouvido';
+
+  @override
+  String get statsDailyListeningTitle => 'AUDIÇÃO DIÁRIA';
+
+  @override
+  String get statsOptListeningTitle => 'Tempo ouvido';
+
+  @override
+  String get statsOptListeningSub => 'Total de horas de audiolivro ouvidas';
+
+  @override
+  String get statsOptDailyListeningTitle => 'Audição diária';
+
+  @override
+  String get statsOptDailyListeningSub => 'Horas ouvidas por dia';
+
+  @override
+  String get statsGoalTypeListening => 'Horas ouvidas';
+
+  @override
+  String get statsGoalTargetTimeLabel => 'Objetivo (hh:mm ou horas)';
+
+  @override
+  String statsGoalRemainingTime(String time) {
+    return 'Faltam $time';
+  }
+
+  @override
+  String get statsHeatmapTitle => 'ATIVIDADE';
+
+  @override
+  String get statsOptHeatmapTitle => 'Mapa de atividade';
+
+  @override
+  String get statsOptHeatmapSub => 'Calendário de dias de leitura e audição';
+
+  @override
+  String get statsHeatmapAll => 'Tudo';
+
+  @override
+  String get statsHeatmapPages => 'Páginas';
+
+  @override
+  String get statsHeatmapListening => 'Audição';
+
+  @override
+  String statsHeatmapActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dias ativos',
+      one: '1 dia ativo',
+    );
+    return '$_temp0';
+  }
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -4212,6 +4276,13 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
       'Você pode informar múltiplos tradutores separando-os por ponto e vírgula (;), barra (/) ou vírgula (,). O autocompletar sugerirá nomes individuais para cada tradutor.';
 
   @override
+  String get narratorMultiHelpTitle => 'Vários narradores';
+
+  @override
+  String get narratorMultiHelpContent =>
+      'Você pode indicar vários narradores separando-os com ponto e vírgula (;), barra (/) ou vírgula (,). O preenchimento automático vai sugerir nomes individuais para cada narrador.';
+
+  @override
   String get padlockResetTitle => 'Bloquear campo?';
 
   @override
@@ -4269,4 +4340,167 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get ownershipEventDeleteConfirm =>
       'Excluir esta entrada do histórico de posse?';
+
+  @override
+  String get mediaTypeReading => 'Leitura';
+
+  @override
+  String get mediaTypeAudio => 'Audiolivro';
+
+  @override
+  String get mediaTypeBoth => 'Ambos';
+
+  @override
+  String get fieldNarrator => 'Narrador';
+
+  @override
+  String get fieldPlatform => 'Plataforma';
+
+  @override
+  String get fieldDuration => 'Duração total';
+
+  @override
+  String get fieldAudioPosition => 'Posição atual';
+
+  @override
+  String get durationInvalid => 'Use hh:mm ou um número de horas';
+
+  @override
+  String get audioPositionBeyondDuration =>
+      'A posição ultrapassa a duração total';
+
+  @override
+  String get audioProgressTitle => 'Progresso de audição';
+
+  @override
+  String get audioDurationMissing =>
+      'Informe a duração total na ficha do livro para registrar o progresso';
+
+  @override
+  String audioProgress(String current, String total, String percent) {
+    return '$current / $total · $percent%';
+  }
+
+  @override
+  String get fieldAudioPublisher => 'Editora do áudio';
+
+  @override
+  String get fieldAudioIdentifier => 'ISBN / ASIN do áudio';
+
+  @override
+  String get mixedStartTitle => 'Onde você começa?';
+
+  @override
+  String get mixedStartPage => 'Página inicial';
+
+  @override
+  String get mixedStartPosition => 'Posição inicial';
+
+  @override
+  String mixedLastAudio(String position) {
+    return 'Último áudio: $position';
+  }
+
+  @override
+  String mixedLastPage(String page) {
+    return 'Última página lida: $page';
+  }
+
+  @override
+  String get mixedOverlapWarning =>
+      'Você está começando antes de onde parou nesta mídia: esse trecho será contado apenas uma vez.';
+
+  @override
+  String get mixedSkip => 'Continuar de onde parei';
+
+  @override
+  String get mixedContinue => 'Continuar';
+
+  @override
+  String get mixedInvalidPage => 'Digite uma página válida';
+
+  @override
+  String get mixedSuggested => 'Estimativa com base nas seções';
+
+  @override
+  String get audioAnchorStart => 'Início no áudio';
+
+  @override
+  String get audioAnchorEnd => 'Fim no áudio';
+
+  @override
+  String get audioAnchorMarker => 'Posição no áudio';
+
+  @override
+  String get audioSectionStart => 'Início';
+
+  @override
+  String get audioSectionEnd => 'Fim';
+
+  @override
+  String get audioSectionsButton => 'Seções';
+
+  @override
+  String get fieldMediaType => 'Tipo de mídia';
+
+  @override
+  String get statsListeningTitle => 'AUDIÇÃO';
+
+  @override
+  String get statsListeningSub => 'tempo ouvido';
+
+  @override
+  String get statsDailyListeningTitle => 'AUDIÇÃO DIÁRIA';
+
+  @override
+  String get statsOptListeningTitle => 'Tempo ouvido';
+
+  @override
+  String get statsOptListeningSub => 'Total de horas de audiolivro ouvidas';
+
+  @override
+  String get statsOptDailyListeningTitle => 'Audição diária';
+
+  @override
+  String get statsOptDailyListeningSub => 'Horas ouvidas por dia';
+
+  @override
+  String get statsGoalTypeListening => 'Horas ouvidas';
+
+  @override
+  String get statsGoalTargetTimeLabel => 'Meta (hh:mm ou horas)';
+
+  @override
+  String statsGoalRemainingTime(String time) {
+    return 'Faltam $time';
+  }
+
+  @override
+  String get statsHeatmapTitle => 'ATIVIDADE';
+
+  @override
+  String get statsOptHeatmapTitle => 'Mapa de atividade';
+
+  @override
+  String get statsOptHeatmapSub => 'Calendário de dias de leitura e audição';
+
+  @override
+  String get statsHeatmapAll => 'Tudo';
+
+  @override
+  String get statsHeatmapPages => 'Páginas';
+
+  @override
+  String get statsHeatmapListening => 'Audição';
+
+  @override
+  String statsHeatmapActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dias ativos',
+      one: '1 dia ativo',
+    );
+    return '$_temp0';
+  }
 }

@@ -1958,11 +1958,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Noktalı virgül (;), eğik çizgi (/) veya virgül (,) ile ayırarak birden fazla çevirmen girebilirsiniz. Otomatik tamamlama her çevirmen için isimler önerecektir.';
 
   @override
-  String get narratorMultiHelpTitle => 'Múltiples narradores';
+  String get narratorMultiHelpTitle => '';
 
   @override
-  String get narratorMultiHelpContent =>
-      'Puedes indicar múltiples narradores separándolos con punto y coma (;), barra (/) o coma (,). El autocompletado te sugerirá nombres individuales para cada narrador.';
+  String get narratorMultiHelpContent => '';
 
   @override
   String get padlockResetTitle => 'Alan kilitlensin mi?';
@@ -2022,101 +2021,156 @@ class AppLocalizationsTr extends AppLocalizations {
   String get ownershipEventDeleteConfirm => 'Bu sahiplik kaydı silinsin mi?';
 
   @override
-  String get mediaTypeReading => 'Lectura';
+  String get mediaTypeReading => '';
 
   @override
-  String get mediaTypeAudio => 'Audiolibro';
+  String get mediaTypeAudio => '';
 
   @override
-  String get mediaTypeBoth => 'Ambos';
+  String get mediaTypeBoth => '';
 
   @override
-  String get fieldNarrator => 'Narrador';
+  String get fieldNarrator => '';
 
   @override
-  String get fieldPlatform => 'Plataforma';
+  String get fieldPlatform => '';
 
   @override
-  String get fieldDuration => 'Duración total';
+  String get fieldDuration => '';
 
   @override
-  String get fieldAudioPosition => 'Posición actual';
+  String get fieldAudioPosition => '';
 
   @override
-  String get durationInvalid => 'Usa hh:mm o un número de horas';
+  String get durationInvalid => '';
 
   @override
-  String get audioPositionBeyondDuration =>
-      'La posición supera la duración total';
+  String get audioPositionBeyondDuration => '';
 
   @override
-  String get audioProgressTitle => 'Progreso de escucha';
+  String get audioProgressTitle => '';
 
   @override
-  String get audioDurationMissing =>
-      'Indica la duración total en la ficha del libro para registrar el progreso';
+  String get audioDurationMissing => '';
 
   @override
   String audioProgress(String current, String total, String percent) {
-    return '$current / $total · $percent%';
+    return '';
   }
 
   @override
-  String get fieldAudioPublisher => 'Editorial del audio';
+  String get fieldAudioPublisher => '';
 
   @override
-  String get fieldAudioIdentifier => 'ISBN / ASIN del audio';
+  String get fieldAudioIdentifier => '';
 
   @override
-  String get mixedStartTitle => '¿Dónde empiezas?';
+  String get mixedStartTitle => '';
 
   @override
-  String get mixedStartPage => 'Página de inicio';
+  String get mixedStartPage => '';
 
   @override
-  String get mixedStartPosition => 'Posición de inicio';
+  String get mixedStartPosition => '';
 
   @override
   String mixedLastAudio(String position) {
-    return 'Último audio: $position';
+    return '';
   }
 
   @override
   String mixedLastPage(String page) {
-    return 'Última página leída: $page';
+    return '';
   }
 
   @override
-  String get mixedOverlapWarning =>
-      'Empiezas antes de donde lo dejaste en este medio: ese tramo se contará una sola vez.';
+  String get mixedOverlapWarning => '';
 
   @override
-  String get mixedSkip => 'Seguir donde lo dejé';
+  String get mixedSkip => '';
 
   @override
-  String get mixedContinue => 'Continuar';
+  String get mixedContinue => '';
 
   @override
-  String get mixedInvalidPage => 'Introduce una página válida';
+  String get mixedInvalidPage => '';
 
   @override
-  String get mixedSuggested => 'Estimación según las secciones';
+  String get mixedSuggested => '';
 
   @override
-  String get audioAnchorStart => 'Inicio en audio';
+  String get audioAnchorStart => '';
 
   @override
-  String get audioAnchorEnd => 'Fin en audio';
+  String get audioAnchorEnd => '';
 
   @override
-  String get audioAnchorMarker => 'Posición en audio';
+  String get audioAnchorMarker => '';
 
   @override
-  String get audioSectionStart => 'Inicio';
+  String get audioSectionStart => '';
 
   @override
-  String get audioSectionEnd => 'Fin';
+  String get audioSectionEnd => '';
 
   @override
-  String get audioSectionsButton => 'Secciones';
+  String get audioSectionsButton => '';
+
+  @override
+  String get fieldMediaType => '';
+
+  @override
+  String get statsListeningTitle => '';
+
+  @override
+  String get statsListeningSub => '';
+
+  @override
+  String get statsDailyListeningTitle => '';
+
+  @override
+  String get statsOptListeningTitle => '';
+
+  @override
+  String get statsOptListeningSub => '';
+
+  @override
+  String get statsOptDailyListeningTitle => '';
+
+  @override
+  String get statsOptDailyListeningSub => '';
+
+  @override
+  String get statsGoalTypeListening => '';
+
+  @override
+  String get statsGoalTargetTimeLabel => '';
+
+  @override
+  String statsGoalRemainingTime(String time) {
+    return '';
+  }
+
+  @override
+  String get statsHeatmapTitle => '';
+
+  @override
+  String get statsOptHeatmapTitle => '';
+
+  @override
+  String get statsOptHeatmapSub => '';
+
+  @override
+  String get statsHeatmapAll => '';
+
+  @override
+  String get statsHeatmapPages => '';
+
+  @override
+  String get statsHeatmapListening => '';
+
+  @override
+  String statsHeatmapActiveDays(int count) {
+    return '';
+  }
 }

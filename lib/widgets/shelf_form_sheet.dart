@@ -13,6 +13,7 @@ import '../l10n/l10n_extension.dart';
 import 'tag_chip.dart';
 import 'entity_selector_grid.dart';
 import 'search_filters_components.dart';
+import '../models/extensions/media_type_ext.dart';
 
 class ShelfFormSheet extends ConsumerStatefulWidget {
   final Shelf? existing;
@@ -42,6 +43,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
   BooleanQuery? _booleanQuery;
   SearchMode _searchMode = SearchMode.basic;
   BookFormat? _format;
+  MediaType? _mediaType;
   OwnershipStatus? _ownership;
   DateTime? _startedAt;
   BooleanOperator _startedAtOp = BooleanOperator.equals;
@@ -75,6 +77,12 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
       _format = BookFormat.values.where((r) => r.name == s!.filterFormat).firstOrNull;
     } else if (f?.format != null) {
       _format = f!.format;
+    }
+
+    if (s?.filterMediaType != null) {
+      _mediaType = MediaType.values.where((r) => r.name == s!.filterMediaType).firstOrNull;
+    } else if (f?.mediaType != null) {
+      _mediaType = f!.mediaType;
     }
 
     if (s?.filterOwnership != null) {
@@ -114,6 +122,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
       notes: _notesCtrl.text.trim(),
       status: _status,
       format: _format,
+      mediaType: _mediaType,
       ownership: _ownership,
       startedAt: _startedAt,
       startedAtOp: _startedAtOp,
@@ -181,6 +190,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
         filterBooleanQuery: Value(_booleanQuery != null ? jsonEncode(_booleanQuery!.toJson()) : null),
         filterSearchMode: Value(_searchMode.index),
         filterFormat: Value(_format?.name),
+        filterMediaType: Value(_mediaType?.name),
         filterOwnership: Value(_ownership?.name),
       );
       
@@ -306,6 +316,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                 notes: _notesCtrl.text,
                                 status: _status,
                                 format: _format,
+                                mediaType: _mediaType,
                                 ownership: _ownership,
                                 startedAt: _startedAt,
                                 startedAtOp: _startedAtOp,
@@ -330,7 +341,7 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                       onChanged: (bq) => setState(() => _booleanQuery = bq),
                     )
                   else ...[
-                    if (_selectedTags.isNotEmpty || _selectedImprints.isNotEmpty || _selectedCollections.isNotEmpty || _status != null || _format != null || _ownership != null)
+                    if (_selectedTags.isNotEmpty || _selectedImprints.isNotEmpty || _selectedCollections.isNotEmpty || _status != null || _format != null || _mediaType != null || _ownership != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Wrap(
@@ -345,6 +356,11 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                               TagChip(
                                 label: _formatLabel(context, _format!),
                                 onDeleted: () => setState(() => _format = null),
+                              ),
+                            if (_mediaType != null)
+                              TagChip(
+                                label: _mediaType!.label(context),
+                                onDeleted: () => setState(() => _mediaType = null),
                               ),
                             if (_ownership != null)
                               TagChip(
@@ -458,9 +474,11 @@ class _ShelfFormSheetState extends ConsumerState<ShelfFormSheet> with SingleTick
                                   StatusFiltersTab(
                                     status: _status,
                                     format: _format,
+                                    mediaType: _mediaType,
                                     ownership: _ownership,
                                     onStatusChanged: (s, clear) => setState(() => _status = clear ? null : s),
                                     onFormatChanged: (f, clear) => setState(() => _format = clear ? null : f),
+                                    onMediaTypeChanged: (m, clear) => setState(() => _mediaType = clear ? null : m),
                                     onOwnershipChanged: (o, clear) => setState(() => _ownership = clear ? null : o),
                                   ),
                                   SingleChildScrollView(

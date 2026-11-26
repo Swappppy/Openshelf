@@ -26,6 +26,11 @@ final goalProgressProvider = StreamProvider.family<int, int>((ref, goalId) {
       return db.logDao.watchLogs().map((logs) => logs
           .where((l) => l.medium == ReadingMedium.text && DayRange.contains(l.date, goal.startDate, goal.endDate))
           .fold<int>(0, (sum, l) => sum + l.pagesRead));
+    } else if (goal.type == 'listening') {
+      // Optional time goal: seconds listened (audio entries) in the range.
+      return db.logDao.watchLogs().map((logs) => logs
+          .where((l) => l.medium == ReadingMedium.audio && DayRange.contains(l.date, goal.startDate, goal.endDate))
+          .fold<int>(0, (sum, l) => sum + l.pagesRead));
     } else if (goal.type == 'shelf' && goal.shelfId != null) {
       // For shelf goals, progress is how many books in that shelf are 'read'
       return (db.shelfDao.select(db.shelfDao.shelves)
@@ -46,6 +51,7 @@ final goalProgressProvider = StreamProvider.family<int, int>((ref, goalId) {
                 collectionIds: collectionIds.isEmpty ? null : collectionIds,
                 tagIds: tagIds.isEmpty ? null : tagIds,
                 imprintIds: imprintIds.isEmpty ? null : imprintIds,
+                mediaType: shelf.filterMediaType,
                 status: ReadingStatus.read,
               )
               .map((books) => books.length);

@@ -190,6 +190,8 @@ class DataMigrationService {
       // v2
       'filterCollectionNames', 'filterNoCover', 'filterSearchMode', 'filterFormat',
       'filterOwnership', 'filterNotes', 'filterBooleanQuery',
+      // v3
+      'filterMediaType',
     ]];
 
     for (final s in shelves) {
@@ -208,6 +210,7 @@ class DataMigrationService {
         collectionNames.isEmpty ? null : jsonEncode(collectionNames),
         s.filterNoCover, s.filterSearchMode, s.filterFormat,
         s.filterOwnership, s.filterNotes, _booleanQueryIdsToNames(s.filterBooleanQuery, tagsById),
+        s.filterMediaType,
       ]);
     }
     return Csv().encode(rows);
@@ -797,6 +800,7 @@ class DataMigrationService {
         filterFormat: Value(get('filterFormat')),
         filterOwnership: Value(get('filterOwnership')),
         filterNotes: Value(get('filterNotes')),
+        filterMediaType: Value(get('filterMediaType')),
         filterBooleanQuery: Value(await _booleanQueryNamesToIds(get('filterBooleanQuery'))),
       );
 

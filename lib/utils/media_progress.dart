@@ -110,10 +110,14 @@ List<(int, int)> coveredRuns({
   if (entries.isEmpty || entries.any((l) => l.startPosition == null)) {
     return pointer > 0 ? [(0, pointer)] : const [];
   }
-  final runs = entries.map((l) => (l.startPosition!, l.startPosition! + l.pagesRead)).toList()
-    ..sort((a, b) => a.$1.compareTo(b.$1));
+  return mergeRuns(entries.map((l) => (l.startPosition!, l.startPosition! + l.pagesRead)));
+}
+
+/// Sorts [runs] and merges the ones that touch or overlap.
+List<(int, int)> mergeRuns(Iterable<(int, int)> runs) {
+  final sorted = runs.where((r) => r.$2 > r.$1).toList()..sort((a, b) => a.$1.compareTo(b.$1));
   final merged = <(int, int)>[];
-  for (final r in runs) {
+  for (final r in sorted) {
     if (merged.isNotEmpty && r.$1 <= merged.last.$2) {
       final last = merged.removeLast();
       merged.add((last.$1, r.$2 > last.$2 ? r.$2 : last.$2));
@@ -122,4 +126,24 @@ List<(int, int)> coveredRuns({
     }
   }
   return merged;
+}
+
+/// Runs of sections filled from their start: section `i` spans
+/// `bounds[i]` = (start, end) and is covered up to `progress[i]`. With
+/// [only], just those sections.
+List<(int, int)> segmentRuns(List<(int, int)> bounds, Map<int, int>? progress, {Set<int>? only}) => [
+      for (var i = 0; i < bounds.length; i++)
+        if (only == null || only.contains(i))
+          (bounds[i].$1, bounds[i].$1 + (progress?[i] ?? 0).clamp(0, bounds[i].$2 - bounds[i].$1)),
+    ];
+
+/// Sections a partial reread carried over from the previous read: those not
+/// named in [read]'s sections (labels as written by `startNewReading`).
+Set<int> carriedSections(ReadHistoryData? read, List<PaginationSegment> sections, String Function(int) defaultLabel) {
+  final chosen = read?.sections;
+  if (chosen == null || chosen.isEmpty) return const {};
+  return {
+    for (var i = 0; i < sections.length; i++)
+      if (!chosen.contains(sections[i].label ?? defaultLabel(i + 1))) i,
+  };
 }

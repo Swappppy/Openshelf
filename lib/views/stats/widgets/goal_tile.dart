@@ -15,6 +15,7 @@ import '../../../widgets/cover_stack_fade.dart';
 import 'widget_header.dart';
 import 'stats_scale_helper.dart';
 import '../../../l10n/l10n_extension.dart';
+import '../../../utils/media_progress.dart';
 
 class GoalTile extends ConsumerStatefulWidget {
   final StatWidgetConfig config;
@@ -97,7 +98,12 @@ class _GoalTileState extends ConsumerState<GoalTile> {
     final progress = (current / goal.targetValue).clamp(0.0, 1.0);
     final isPages = goal.type == 'pages';
     final isShelf = goal.type == 'shelf';
-    final unit = isPages ? context.l10n.statsGoalUnitPages : context.l10n.statsGoalUnitBooks;
+    final isListening = goal.type == 'listening';
+    final unit = isListening
+        ? durationUnit
+        : isPages ? context.l10n.statsGoalUnitPages : context.l10n.statsGoalUnitBooks;
+    // Listening goals count seconds, shown as hh:mm.
+    String fmt(int v) => isListening ? formatDuration(v) : '$v';
 
     Widget? covers;
     if (isShelf && goal.shelfId != null) {
@@ -169,7 +175,7 @@ class _GoalTileState extends ConsumerState<GoalTile> {
                   child: LinearProgressIndicator(value: progress, minHeight: 4 * scale, backgroundColor: theme.colorScheme.surfaceContainerHighest),
                 ),
                 SizedBox(height: 4 * scale),
-                Text('$current/${goal.targetValue}', style: TextStyle(fontSize: 10 * scale, fontWeight: FontWeight.w600)),
+                Text('${fmt(current)}/${fmt(goal.targetValue)}', style: TextStyle(fontSize: 10 * scale, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -239,10 +245,14 @@ class _GoalTileState extends ConsumerState<GoalTile> {
           // Removed SizedBox between bar and text to save final 2px
           Row(
             children: [
-              Text('$current/${goal.targetValue} $unit', style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold)),
+              Text('${fmt(current)}/${fmt(goal.targetValue)} $unit', style: TextStyle(fontSize: 7 * scale, fontWeight: FontWeight.bold)),
               const Spacer(),
               if (current < goal.targetValue)
-                Text(context.l10n.statsGoalRemaining(goal.targetValue - current), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, fontSize: 6.5 * scale))
+                Text(
+                    isListening
+                        ? context.l10n.statsGoalRemainingTime('${formatDuration(goal.targetValue - current)} $durationUnit')
+                        : context.l10n.statsGoalRemaining(goal.targetValue - current),
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, fontSize: 6.5 * scale))
               else
                 Text(context.l10n.statsGoalCompleted, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 6.5 * scale)),
             ],
@@ -255,7 +265,13 @@ class _GoalTileState extends ConsumerState<GoalTile> {
 
 Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatWidgetConfig config, ReadingGoal? existingGoal}) async {
     final titleCtrl = TextEditingController(text: existingGoal?.title);
-    final targetCtrl = TextEditingController(text: existingGoal?.targetValue.toString());
+    final targetCtrl = TextEditingController(
+      text: existingGoal == null
+          ? null
+          : existingGoal.type == 'listening'
+              ? formatDuration(existingGoal.targetValue)
+              : existingGoal.targetValue.toString(),
+    );
     String type = existingGoal?.type ?? 'books';
     int? selectedShelfId = existingGoal?.shelfId;
     DateTime start = existingGoal?.startDate ?? DateTime(DateTime.now().year, 1, 1);
@@ -286,6 +302,7 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
                   items: [
                     DropdownMenuItem(value: 'books', child: Text(context.l10n.statsGoalTypeBooks)),
                     DropdownMenuItem(value: 'pages', child: Text(context.l10n.statsGoalTypePages)),
+                    DropdownMenuItem(value: 'listening', child: Text(context.l10n.statsGoalTypeListening)),
                     DropdownMenuItem(value: 'shelf', child: Text(context.l10n.navShelves)),
                   ],
                   onChanged: (v) => setDialogState(() => type = v!),
@@ -297,6 +314,20 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
                     decoration: InputDecoration(labelText: context.l10n.statsGoalTargetShelf),
                     items: shelves.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
                     onChanged: (v) => setDialogState(() => selectedShelfId = v),
+                  )
+                else if (type == 'listening')
+                  TextField(
+                    controller: targetCtrl,
+                    keyboardType: TextInputType.datetime,
+                    onChanged: (_) => setDialogState(() {}),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.statsGoalTargetTimeLabel,
+                      hintText: 'hh:mm',
+                      suffixText: durationUnit,
+                      errorText: targetCtrl.text.trim().isNotEmpty && parseDuration(targetCtrl.text) == null
+                          ? context.l10n.durationInvalid
+                          : null,
+                    ),
                   )
                 else
                   TextField(
@@ -340,6 +371,8 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
               onPressed: () {
                 if (titleCtrl.text.isEmpty) return;
                 if (type != 'shelf' && targetCtrl.text.isEmpty) return;
+                if (type == 'listening' && (parseDuration(targetCtrl.text) ?? 0) <= 0) return;
+                if (type != 'shelf' && type != 'listening' && int.tryParse(targetCtrl.text.trim()) == null) return;
                 if (type == 'shelf' && selectedShelfId == null) return;
                 Navigator.pop(ctx, true);
               },
@@ -353,7 +386,11 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
     if (result == true) {
       final db = ref.read(databaseProvider);
       
-      int targetValue = type == 'shelf' ? 0 : int.parse(targetCtrl.text);
+      int targetValue = switch (type) {
+        'shelf' => 0,
+        'listening' => parseDuration(targetCtrl.text)!,
+        _ => int.parse(targetCtrl.text.trim()),
+      };
       if (type == 'shelf' && selectedShelfId != null) {
         final shelf = shelves.firstWhere((s) => s.id == selectedShelfId);
         final books = await db.bookDao.watchBooksFiltered(
@@ -365,6 +402,7 @@ Future<void> showGoalConfig(BuildContext context, WidgetRef ref, {required StatW
           tagIds: shelf.filterTagIds != null ? (jsonDecode(shelf.filterTagIds!) as List).cast<int>() : null,
           imprintIds: shelf.filterImprintIds != null ? (jsonDecode(shelf.filterImprintIds!) as List).cast<int>() : null,
           noCover: shelf.filterNoCover,
+          mediaType: shelf.filterMediaType,
           status: ReadingStatus.read,
         ).first;
         targetValue = books.length;

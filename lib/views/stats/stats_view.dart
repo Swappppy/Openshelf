@@ -21,6 +21,8 @@ import 'widgets/avg_pages_tile.dart';
 import 'widgets/read_list_tile.dart';
 import 'widgets/avg_completion_tile.dart';
 import 'widgets/daily_reading_tile.dart';
+import 'widgets/listening_tile.dart';
+import 'widgets/heatmap_tile.dart';
 
 class StatsView extends ConsumerStatefulWidget {
   const StatsView({super.key});
@@ -307,9 +309,14 @@ class _StatTile extends ConsumerWidget {
         return [StatWidgetSize.s2x2, StatWidgetSize.s1x2];
       case StatWidgetType.lastAdded:
         return [StatWidgetSize.s2x1, StatWidgetSize.s1x2, StatWidgetSize.s1x1];
+      case StatWidgetType.listening:
+        return [StatWidgetSize.s1x1];
+      case StatWidgetType.heatmap:
+        return [StatWidgetSize.s2x1, StatWidgetSize.s2x2, StatWidgetSize.s1x1];
       case StatWidgetType.avgPages:
       case StatWidgetType.avgCompletionTime:
       case StatWidgetType.dailyReading:
+      case StatWidgetType.dailyListening:
         return [StatWidgetSize.s1x1, StatWidgetSize.s2x1];
     }
   }
@@ -331,6 +338,9 @@ class _StatTile extends ConsumerWidget {
       case StatWidgetType.readList: return ReadListTile(config: config, size: size);
       case StatWidgetType.avgCompletionTime: return const AvgCompletionTimeTile();
       case StatWidgetType.dailyReading: return DailyReadingTile(size: size);
+      case StatWidgetType.listening: return const ListeningTile();
+      case StatWidgetType.heatmap: return HeatmapTile(config: config, size: size);
+      case StatWidgetType.dailyListening: return DailyReadingTile(size: size, medium: ReadingMedium.audio);
     }
   }
 }
@@ -366,6 +376,9 @@ class _AddWidgetSheet extends ConsumerWidget {
               _buildOption(context, ref, StatWidgetType.readList, context.l10n.statsOptReadListTitle, context.l10n.statsOptReadListSub, Icons.checklist_rtl, StatWidgetSize.s2x2),
               _buildOption(context, ref, StatWidgetType.avgCompletionTime, context.l10n.statsOptAvgCompletionTitle, context.l10n.statsOptAvgCompletionSub, Icons.timer_outlined, StatWidgetSize.s1x1),
               _buildOption(context, ref, StatWidgetType.dailyReading, context.l10n.statsOptDailyReadingTitle, context.l10n.statsOptDailyReadingSub, Icons.bar_chart, StatWidgetSize.s1x1),
+              _buildOption(context, ref, StatWidgetType.heatmap, context.l10n.statsOptHeatmapTitle, context.l10n.statsOptHeatmapSub, Icons.grid_on, StatWidgetSize.s2x1),
+              _buildOption(context, ref, StatWidgetType.listening, context.l10n.statsOptListeningTitle, context.l10n.statsOptListeningSub, Icons.headphones, StatWidgetSize.s1x1),
+              _buildOption(context, ref, StatWidgetType.dailyListening, context.l10n.statsOptDailyListeningTitle, context.l10n.statsOptDailyListeningSub, Icons.graphic_eq, StatWidgetSize.s1x1),
             ],
           ),
         ),

@@ -100,6 +100,7 @@ Stream<List<Book>> _watchFiltered(AppDatabase db, Shelf shelf, List<Tag> shelfTa
       !hasFilter(shelf.filterTranslator) &&
       !hasFilter(shelf.filterNotes) &&
       shelf.filterFormat == null &&
+      shelf.filterMediaType == null &&
       shelf.filterOwnership == null &&
       shelf.filterNoCover == false &&
       collectionIds.isEmpty) {
@@ -118,6 +119,7 @@ Stream<List<Book>> _watchFiltered(AppDatabase db, Shelf shelf, List<Tag> shelfTa
                          hasFilter(shelf.filterNotes) ||
                          shelf.filterStatus != null ||
                          shelf.filterFormat != null ||
+                         shelf.filterMediaType != null ||
                          shelf.filterOwnership != null ||
                          shelf.filterNoCover == true ||
                          (bq != null && bq.conditions.isNotEmpty);
@@ -142,6 +144,7 @@ Stream<List<Book>> _watchFiltered(AppDatabase db, Shelf shelf, List<Tag> shelfTa
     status: shelf.filterStatus != null ? ReadingStatus.values.firstWhereOrNull((s) => s.name == shelf.filterStatus) : null,
     format: shelf.filterFormat,
     ownership: shelf.filterOwnership,
+    mediaType: shelf.filterMediaType,
     booleanQuery: bq,
   );
 }
@@ -265,6 +268,7 @@ final filteredBooksProvider = StreamProvider<List<Book>>((ref) {
     imprintIds: isBoolean ? null : (filters.imprints.isEmpty ? null : filters.imprints.map((t) => t.id).toList()),
     status: isBoolean ? null : filters.status,
     format: isBoolean ? null : filters.format?.name,
+    mediaType: isBoolean ? null : filters.mediaType?.name,
     ownership: isBoolean ? null : filters.ownership?.name,
     booleanQuery: isBoolean ? filters.booleanQuery : null,
   );

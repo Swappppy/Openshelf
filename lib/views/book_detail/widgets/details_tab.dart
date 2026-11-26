@@ -13,6 +13,8 @@ import '../../../widgets/read_only_field.dart';
 import '../../../widgets/section_header.dart';
 import '../../../models/extensions/ownership_status_ext.dart';
 import '../../shelves/shelf_books_view.dart';
+import '../../../utils/media_progress.dart';
+import '../../../controllers/reading_log_controller.dart';
 
 class DetailsTab extends ConsumerWidget {
   final Book book;
@@ -34,6 +36,7 @@ class DetailsTab extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final historyAsync = ref.watch(readHistoryProvider(book.id));
     final ownershipAsync = ref.watch(ownershipLogProvider(book.id));
+    final logs = ref.watch(bookLogsProvider(book.id)).value ?? const <ReadingLogData>[];
 
     return historyAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -400,6 +403,9 @@ class DetailsTab extends ConsumerWidget {
                                 dateRange,
                                 style: TextStyle(color: colorScheme.outline, fontSize: 12),
                               ),
+                              // Audio and mixed books: how far each medium got in this read.
+                              if (book.mediaType != MediaType.reading)
+                                _ReadMediaLine(read: h, book: book, logs: logs),
                               if (h.sections != null) ...[
                                 const SizedBox(height: 2),
                                 Text(
@@ -515,3 +521,51 @@ class DetailsTab extends ConsumerWidget {
   }
 }
 
+/// One line per read of an audio or mixed book with what each medium
+/// actually covered in it: pages read and time listened, not where the
+/// pointers ended (in mixed mode each medium resumes where the other one
+/// stopped). Overlaps count once, as the start prompt promises; carried-over
+/// sections of a partial reread belong to earlier reads.
+class _ReadMediaLine extends StatelessWidget {
+  final ReadHistoryData read;
+  final Book book;
+  final List<ReadingLogData> logs;
+
+  const _ReadMediaLine({required this.read, required this.book, required this.logs});
+
+  int _covered(ReadingMedium medium, int pointer) => coveredRuns(
+        logs: logs,
+        readNumber: read.readNumber,
+        medium: medium,
+        pointer: pointer,
+      ).fold(0, (sum, r) => sum + (r.$2 - r.$1));
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.outline;
+    final style = TextStyle(color: color, fontSize: 11);
+    final pages = book.mediaType == MediaType.both ? _covered(ReadingMedium.text, read.progress) : 0;
+    final seconds = _covered(ReadingMedium.audio, read.audioProgress);
+    if (pages <= 0 && seconds <= 0) return const SizedBox.shrink();
+
+    Widget part(IconData icon, String text) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 12, color: color),
+            const SizedBox(width: 3),
+            Text(text, style: style),
+          ],
+        );
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Wrap(
+        spacing: 10,
+        children: [
+          if (pages > 0) part(Icons.menu_book_outlined, '$pages ${context.l10n.statsGoalUnitPages}'),
+          if (seconds > 0) part(Icons.headphones_outlined, '${formatDuration(seconds)} $durationUnit'),
+        ],
+      ),
+    );
+  }
+}

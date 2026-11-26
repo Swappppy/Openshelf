@@ -30,4 +30,6 @@ class Shelves extends Table {
   TextColumn get filterFormat => text().nullable()();
   TextColumn get filterOwnership => text().nullable()();
   TextColumn get filterNotes => text().nullable()();
+  /// MediaType name; matches books that have that medium (mixed books match both).
+  TextColumn get filterMediaType => text().nullable()();
 }

@@ -6,7 +6,7 @@ import 'tags_table.dart';
 class ReadingGoals extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
-  /// Type can be 'books' or 'pages'
+  /// Type: 'books', 'pages', 'shelf' or 'listening' ([targetValue] in seconds).
   TextColumn get type => text()();
   IntColumn get targetValue => integer()();
   DateTimeColumn get startDate => dateTime()();

@@ -6,6 +6,7 @@ import '../controllers/books_controller.dart';
 import '../l10n/l10n_extension.dart';
 import 'filter_grid_box.dart';
 import 'entity_selector_grid.dart';
+import '../models/extensions/media_type_ext.dart';
 
 class FilterTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -135,18 +136,22 @@ class FilterDateSelector extends StatelessWidget {
 class StatusFiltersTab extends StatelessWidget {
   final ReadingStatus? status;
   final BookFormat? format;
+  final MediaType? mediaType;
   final OwnershipStatus? ownership;
   final Function(ReadingStatus?, bool clear) onStatusChanged;
   final Function(BookFormat?, bool clear) onFormatChanged;
+  final Function(MediaType?, bool clear) onMediaTypeChanged;
   final Function(OwnershipStatus?, bool clear) onOwnershipChanged;
 
   const StatusFiltersTab({
     super.key,
     this.status,
     this.format,
+    this.mediaType,
     this.ownership,
     required this.onStatusChanged,
     required this.onFormatChanged,
+    required this.onMediaTypeChanged,
     required this.onOwnershipChanged,
   });
 
@@ -181,7 +186,23 @@ class StatusFiltersTab extends StatelessWidget {
             }).toList(),
           ),
           const SizedBox(height: 16),
+          // Format group, as in the book form: the medium first, then the
+          // format subtype. "Audiolibro" also matches mixed books, and so
+          // does "Lectura".
           _SectionHeader(label: context.l10n.sectionFormat),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: MediaType.values.map<Widget>((m) {
+              final isSelected = mediaType == m;
+              return FilterGridBox(
+                label: m.label(context),
+                isSelected: isSelected,
+                onTap: () => onMediaTypeChanged(m, isSelected),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 6,
             runSpacing: 6,
@@ -462,6 +483,15 @@ class ValueEditor extends ConsumerWidget {
         value: BookFormat.values.where((v) => v.name == (condition.value ?? 'paperback')).firstOrNull ?? BookFormat.paperback,
         options: BookFormat.values,
         labelBuilder: (v) => _formatLabel(context, v),
+        onChanged: (v) => onChanged(v.name),
+      );
+    }
+
+    if (field == SearchField.mediaType) {
+      return FieldSelector<MediaType>(
+        value: MediaType.values.where((v) => v.name == (condition.value ?? 'audio')).firstOrNull ?? MediaType.audio,
+        options: MediaType.values,
+        labelBuilder: (v) => v.label(context),
         onChanged: (v) => onChanged(v.name),
       );
     }

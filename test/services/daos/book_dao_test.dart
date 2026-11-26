@@ -555,4 +555,39 @@ void main() {
       expect(history.last.finishedAt, null);
     });
   });
+
+  group('Media type filter', () {
+    Future<void> add(String title, MediaType m) => bookDao.insertBook(BooksCompanion(
+          title: Value(title),
+          author: const Value('A'),
+          status: const Value(ReadingStatus.wantToRead),
+          mediaType: Value(m),
+        ));
+
+    setUp(() async {
+      await add('Paper', MediaType.reading);
+      await add('Audio', MediaType.audio);
+      await add('Mixed', MediaType.both);
+    });
+
+    Future<Set<String>> titles(String m) async =>
+        (await bookDao.watchBooksFiltered(mediaType: m).first).map((b) => b.title).toSet();
+
+    test('a medium matches the books that have it, mixed ones included', () async {
+      expect(await titles('audio'), {'Audio', 'Mixed'});
+      expect(await titles('reading'), {'Paper', 'Mixed'});
+      expect(await titles('both'), {'Mixed'});
+    });
+
+    test('boolean ≠ audio keeps only books without audio', () async {
+      final books = await bookDao
+          .watchBooksFiltered(
+            booleanQuery: const BooleanQuery(conditions: [
+              BooleanCondition(field: SearchField.mediaType, operator: BooleanOperator.notEquals, value: 'audio'),
+            ]),
+          )
+          .first;
+      expect(books.map((b) => b.title).toSet(), {'Paper'});
+    });
+  });
 }

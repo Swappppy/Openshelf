@@ -147,6 +147,44 @@ final dailyReadingProvider = StreamProvider<Map<DateTime, int>>((ref) {
   });
 });
 
+/// Seconds listened across every read (audio counterpart of [totalPagesReadProvider]).
+final totalListeningSecondsProvider = StreamProvider<int>((ref) {
+  final db = ref.watch(databaseProvider);
+  return db.readHistoryDao.watchAllHistory().map((history) {
+    return history.fold(0, (sum, h) => sum + h.audioProgress);
+  });
+});
+
+/// Seconds listened per day (audio counterpart of [dailyReadingProvider]).
+final dailyListeningProvider = StreamProvider<Map<DateTime, int>>((ref) {
+  final db = ref.watch(databaseProvider);
+  return db.logDao.watchLogs().map((logs) {
+    final Map<DateTime, int> daily = {};
+    for (final l in logs.where((l) => l.medium == ReadingMedium.audio)) {
+      final day = DateTime(l.date.year, l.date.month, l.date.day);
+      daily[day] = (daily[day] ?? 0) + l.pagesRead;
+    }
+    return daily;
+  });
+});
+
+/// Daily activity of both media: pages read and seconds listened per day.
+final dailyActivityProvider = StreamProvider<Map<DateTime, ({int pages, int seconds})>>((ref) {
+  final db = ref.watch(databaseProvider);
+  return db.logDao.watchLogs().map((logs) {
+    final daily = <DateTime, ({int pages, int seconds})>{};
+    for (final l in logs) {
+      if (l.pagesRead <= 0) continue;
+      final day = DateTime(l.date.year, l.date.month, l.date.day);
+      final cur = daily[day] ?? (pages: 0, seconds: 0);
+      daily[day] = l.medium == ReadingMedium.audio
+          ? (pages: cur.pages, seconds: cur.seconds + l.pagesRead)
+          : (pages: cur.pages + l.pagesRead, seconds: cur.seconds);
+    }
+    return daily;
+  });
+});
+
 /// Log entries of one book (used to draw covered runs in mixed mode).
 final bookLogsProvider = StreamProvider.family<List<ReadingLogData>, int>((ref, bookId) {
   return ref.watch(databaseProvider).logDao.watchLogForBook(bookId);
