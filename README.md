@@ -1,8 +1,9 @@
 # Openshelf
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-android-lightgrey.svg)](https://flutter.dev)
-[![FLOSS](https://img.shields.io/badge/FLOSS-100%25-green.svg)](#-technical-stack)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-android-lightgrey.svg?style=flat-square)](https://flutter.dev)
+[![FLOSS](https://img.shields.io/badge/FLOSS-100%25-green.svg?style=flat-square)](#-technical-stack)
+[![GitHub release (latest)](https://img.shields.io/github/v/release/Swappppy/Openshelf?label=latest%20version&style=flat-square)](https://github.com/Swappppy/Openshelf/releases/latest)
 
 <img src="assets/Screenshots/Openshelf-banner-en.png" alt="Openshelf Banner">
 
@@ -24,8 +25,6 @@ Openshelf is designed for **book lovers**, not just readers. It is for people wh
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/org.ftena.openshelf/)
 [<img src="assets/github/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Swappppy/Openshelf/releases/latest)
-
-Latest release: **v1.6.0**
 
 ---
 
