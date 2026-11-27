@@ -2100,7 +2100,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mediaTypeReading => 'Lecture';
 
   @override
-  String get mediaTypeAudio => 'Livre audio';
+  String get mediaTypeAudio => 'Audio';
 
   @override
   String get mediaTypeBoth => 'Les deux';

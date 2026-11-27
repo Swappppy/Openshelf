@@ -3844,7 +3844,7 @@ abstract class AppLocalizations {
   /// No description provided for @mediaTypeAudio.
   ///
   /// In es, this message translates to:
-  /// **'Audiolibro'**
+  /// **'Audio'**
   String get mediaTypeAudio;
 
   /// No description provided for @mediaTypeBoth.

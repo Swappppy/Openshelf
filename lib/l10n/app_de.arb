@@ -661,7 +661,7 @@
   "narratorMultiHelpTitle": "Mehrere Sprecher",
   "narratorMultiHelpContent": "Du kannst mehrere Sprecher angeben, getrennt durch Semikolon (;), Schrägstrich (/) oder Komma (,). Die Autovervollständigung schlägt dir für jeden Sprecher einzelne Namen vor.",
   "mediaTypeReading": "Lesen",
-  "mediaTypeAudio": "Hörbuch",
+  "mediaTypeAudio": "Audio",
   "mediaTypeBoth": "Beides",
   "fieldNarrator": "Sprecher",
   "fieldPlatform": "Plattform",

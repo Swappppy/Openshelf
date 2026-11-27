@@ -1046,7 +1046,7 @@
   "narratorMultiHelpTitle": "Vários narradores",
   "narratorMultiHelpContent": "Você pode indicar vários narradores separando-os com ponto e vírgula (;), barra (/) ou vírgula (,). O preenchimento automático vai sugerir nomes individuais para cada narrador.",
   "mediaTypeReading": "Leitura",
-  "mediaTypeAudio": "Audiolivro",
+  "mediaTypeAudio": "Áudio",
   "mediaTypeBoth": "Ambos",
   "fieldNarrator": "Narrador",
   "fieldPlatform": "Plataforma",

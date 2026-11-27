@@ -1046,7 +1046,7 @@
   "bookFormFinishDateRequired": "Finish date is required when marked as Read",
   "ownershipEventDeleteConfirm": "Delete this ownership entry?",
   "mediaTypeReading": "Reading",
-  "mediaTypeAudio": "Audiobook",
+  "mediaTypeAudio": "Audio",
   "mediaTypeBoth": "Both",
   "fieldNarrator": "Narrator",
   "fieldPlatform": "Platform",

@@ -2096,7 +2096,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get mediaTypeReading => 'Leitura';
 
   @override
-  String get mediaTypeAudio => 'Audiolivro';
+  String get mediaTypeAudio => 'Áudio';
 
   @override
   String get mediaTypeBoth => 'Ambos';
@@ -4345,7 +4345,7 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get mediaTypeReading => 'Leitura';
 
   @override
-  String get mediaTypeAudio => 'Audiolivro';
+  String get mediaTypeAudio => 'Áudio';
 
   @override
   String get mediaTypeBoth => 'Ambos';

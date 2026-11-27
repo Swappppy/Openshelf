@@ -1046,7 +1046,7 @@
   "narratorMultiHelpTitle": "Diversos narradors",
   "narratorMultiHelpContent": "Pots indicar diversos narradors separant-los amb punt i coma (;), barra (/) o coma (,). L'autocompletat et suggerirà noms individuals per a cada narrador.",
   "mediaTypeReading": "Lectura",
-  "mediaTypeAudio": "Audiollibre",
+  "mediaTypeAudio": "Àudio",
   "mediaTypeBoth": "Tots dos",
   "fieldNarrator": "Narrador",
   "fieldPlatform": "Plataforma",

@@ -2096,7 +2096,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get mediaTypeReading => 'Lectura';
 
   @override
-  String get mediaTypeAudio => 'Audiollibre';
+  String get mediaTypeAudio => 'Àudio';
 
   @override
   String get mediaTypeBoth => 'Tots dos';

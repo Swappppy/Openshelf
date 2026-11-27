@@ -2091,7 +2091,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get mediaTypeReading => 'Lectura';
 
   @override
-  String get mediaTypeAudio => 'Audiolibro';
+  String get mediaTypeAudio => 'Audio';
 
   @override
   String get mediaTypeBoth => 'Ambos';

@@ -1046,7 +1046,7 @@
     "narratorMultiHelpTitle": "Несколько чтецов",
     "narratorMultiHelpContent": "Можно указать нескольких чтецов, разделив их точкой с запятой (;), косой чертой (/) или запятой (,). Автодополнение предложит отдельные имена для каждого чтеца.",
     "mediaTypeReading": "Чтение",
-    "mediaTypeAudio": "Аудиокнига",
+    "mediaTypeAudio": "Аудио",
     "mediaTypeBoth": "Оба",
     "fieldNarrator": "Чтец",
     "fieldPlatform": "Платформа",
