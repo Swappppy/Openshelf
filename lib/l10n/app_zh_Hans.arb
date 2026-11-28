@@ -1964,5 +1964,127 @@
     "translatorMultiHelpTitle": "",
     "translatorMultiHelpContent": "",
     "padlockResetTitle": "",
-    "padlockResetContent": ""
+    "padlockResetContent": "",
+    "durationInvalid": "",
+    "storageDbErrorSourceMissing": "",
+    "mediaTypeReading": "",
+    "statsHeatmapAll": "",
+    "mixedSuggested": "",
+    "dbMissingTitle": "",
+    "audioProgress": "",
+    "@audioProgress": {
+        "description": "Listening progress (h:mm of total)",
+        "placeholders": {
+            "current": {
+                "type": "String"
+            },
+            "total": {
+                "type": "String"
+            },
+            "percent": {
+                "type": "String"
+            }
+        }
+    },
+    "statsHeatmapListening": "",
+    "fieldDuration": "",
+    "storageDbErrorSameFolder": "",
+    "narratorMultiHelpTitle": "",
+    "ownershipEventDeleteConfirm": "",
+    "audioAnchorStart": "",
+    "mixedStartPage": "",
+    "statsOptDailyListeningSub": "",
+    "storageDbErrorNeedsAllFiles": "",
+    "statsOptHeatmapSub": "",
+    "mixedSkip": "",
+    "statsOptDailyListeningTitle": "",
+    "mixedLastAudio": "",
+    "@mixedLastAudio": {
+        "placeholders": {
+            "position": {
+                "type": "String"
+            }
+        }
+    },
+    "mediaTypeAudio": "",
+    "dbMissingBody": "",
+    "@dbMissingBody": {
+        "description": "Pantalla de recuperación cuando no existe la base de datos en la carpeta personalizada",
+        "placeholders": {
+            "path": {
+                "type": "String"
+            }
+        }
+    },
+    "storageCoversMoved": "",
+    "@storageCoversMoved": {
+        "description": "Snackbar tras mover las portadas a otra carpeta",
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "fieldPlatform": "",
+    "mixedStartPosition": "",
+    "audioPositionBeyondDuration": "",
+    "audioSectionsButton": "",
+    "audioSectionStart": "",
+    "statsListeningTitle": "",
+    "storageDbMoveSuccess": "",
+    "audioSectionEnd": "",
+    "fieldNarrator": "",
+    "mixedStartTitle": "",
+    "fieldAudioPosition": "",
+    "statsGoalTargetTimeLabel": "",
+    "audioAnchorMarker": "",
+    "statsHeatmapPages": "",
+    "audioProgressTitle": "",
+    "statsGoalTypeListening": "",
+    "fieldAudioIdentifier": "",
+    "statsListeningSub": "",
+    "statsOptListeningTitle": "",
+    "fieldMediaType": "",
+    "bookFormFinishDateRequired": "",
+    "statsOptListeningSub": "",
+    "statsHeatmapTitle": "",
+    "statsHeatmapActiveDays": "",
+    "@statsHeatmapActiveDays": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "mediaTypeBoth": "",
+    "fieldAudioPublisher": "",
+    "statsGoalRemainingTime": "",
+    "@statsGoalRemainingTime": {
+        "description": "Listening goal: time still to listen",
+        "placeholders": {
+            "time": {
+                "type": "String"
+            }
+        }
+    },
+    "audioAnchorEnd": "",
+    "dbMissingUseDefault": "",
+    "mixedInvalidPage": "",
+    "storageDbErrorCopyFailed": "",
+    "mixedOverlapWarning": "",
+    "narratorMultiHelpContent": "",
+    "mixedLastPage": "",
+    "@mixedLastPage": {
+        "placeholders": {
+            "page": {
+                "type": "String"
+            }
+        }
+    },
+    "statsOptHeatmapTitle": "",
+    "statsDailyListeningTitle": "",
+    "audioDurationMissing": "",
+    "mixedContinue": "",
+    "storageDbErrorNotWritable": "",
+    "storageDbErrorCloseFailed": ""
 }
